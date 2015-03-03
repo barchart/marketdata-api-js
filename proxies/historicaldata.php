@@ -35,7 +35,7 @@
 		$url_params = http_build_query($params);
 		$eod = true;
 		$url = 'http://ds01.ddfplus.com/historical/queryeod.ashx?' . $url_params;
-		$map = array( 'symbol' => 0, 'time' => 1, 'open' => 2, 'high' => 3, 'low' => 4, 'close' => 5, 'volume' => 6 );
+		$map = array( 'symbol' => 0, 'time' => 1, 'open' => 2, 'high' => 3, 'low' => 4, 'close' => 5, 'volume' => 6, 'oi' => 7 );
 	} else {
 		$params['interval'] = str_replace('m', '', $params['interval']);
 		$url_params = http_build_query($params);
@@ -54,7 +54,8 @@
 		exit( $_GET['callback'] . '(' . json_encode(array('error'=> true)) . ')' );
 	}
 
-	$return = array();
+	$return = $volume = $oi = array();
+	$last_change = 0;
 
 	foreach ($csv as $row => $values) {
 
@@ -65,6 +66,31 @@
 			$values[ $map['low'] ],
 			$values[ $map['close'] ]
 		);
+
+		$closeChg = $values[ $map['close'] ] - $last_change;
+        if ($closeChg > 0) {
+            $color = '#006600';
+        } else if ($closeChg < 0) {
+            $color = '#FF0000';
+        } else {
+            $color = '#000066';
+        }
+
+        $last_change = $values[ $map['close'] ];
+
+		$volume[] = array(
+			'x' => strtotime( $values[ $map['time'] ] ) . '000',
+			'y' => $values[ $map['volume'] ],
+			'color' => $color
+		);
+
+		// Add open interest if data is end-of-day
+		if ($eod && isset($values[ $map['oi'] ]) ) {
+			$oi[] = array(
+				'x' => strtotime( $values[ $map['time'] ] ) . '000',
+				'y' => $values[ $map['oi'] ],
+			);
+		}
 	}
 
 	$studies = array();
@@ -134,6 +160,6 @@
 		}
 	}
 
-	echo $_GET['callback'] . '(' . json_encode(array('data'=> $return, 'events' => $events, 'name' => strtoupper($_GET['symbol']), 'start' => $start, 'end' => $end, 'studies' => $studies), JSON_NUMERIC_CHECK) . ')';
+	echo $_GET['callback'] . '(' . json_encode(array('data'=> $return, 'volume' => $volume, 'oi' => $oi, 'events' => $events, 'name' => strtoupper($_GET['symbol']), 'start' => $start, 'end' => $end, 'studies' => $studies), JSON_NUMERIC_CHECK) . ')';
 
 ?>
