@@ -21,7 +21,6 @@
 		'interval' => $_GET['interval']
 	);
 
-
 	$eod = false;
 
 	// EOD data
@@ -67,21 +66,11 @@
 			$values[ $map['close'] ]
 		);
 
-		$closeChg = $values[ $map['close'] ] - $last_change;
-        if ($closeChg > 0) {
-            $color = '#006600';
-        } else if ($closeChg < 0) {
-            $color = '#FF0000';
-        } else {
-            $color = '#000066';
-        }
-
         $last_change = $values[ $map['close'] ];
 
 		$volume[] = array(
 			'x' => strtotime( $values[ $map['time'] ] ) . '000',
-			'y' => $values[ $map['volume'] ],
-			'color' => $color
+			'y' => $values[ $map['volume'] ]
 		);
 
 		// Add open interest if data is end-of-day
