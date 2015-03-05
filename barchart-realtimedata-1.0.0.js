@@ -1,9 +1,9 @@
 /*!
- * com-barchart-realtimedata-1.0.0.js
+ * barchart-realtimedata-1.0.0.js
  * Barchart Realtime Data JavaScript Library v1.0.0
  * http://www.barchart.com-barchart-realtimedata-1
  *
- * Copyright 2014 Barchart.com, Inc.
+ * Copyright 2014 - 2015 Barchart.com, Inc.
  */
 
 
