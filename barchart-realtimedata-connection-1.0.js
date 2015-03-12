@@ -31,10 +31,10 @@ Barchart.RealtimeData.Connection = function() {
     var __marketState = new Barchart.RealtimeData.MarketState();
     var __networkMessages = [];
     var __listeners = {
-    	"disconnect" : [],
-        "marketDepth" : {},
-        "marketUpdate" : {},
-        "timestamp" : []
+    	events : [],
+        marketDepth : {},
+        marketUpdate : {},
+        timestamp : []
     }
     var __loginInfo = {
         "username" : null,
@@ -49,8 +49,8 @@ Barchart.RealtimeData.Connection = function() {
     function broadcastEvent(eventId, message) {
         var ary;
         switch (eventId) {
-            case 'disconnect':
-                ary = __listeners.disconnect;
+            case 'events':
+                ary = __listeners.events;
                 break;
             case 'marketDepth':
                 ary = __listeners.marketDepth[message.symbol];
@@ -82,13 +82,19 @@ Barchart.RealtimeData.Connection = function() {
 
 
         if (window["WebSocket"]) {
+            __state = 'DISCONNECTED';
             __connection = new WebSocket("wss://" + __loginInfo.server + "/jerq");
 
             __connection.onclose = function(evt) {
+                console.warn(new Date() + ' connection closed.');
+                __connection = null;
+
+                if (__state != 'LOGGED_IN')
+                    return;
+
                 __state = 'DISCONNECTED';
 
-                console.warn(new Date() + ' connection closed.');
-                broadcastEvent('disconnect');
+                broadcastEvent('events', { event: 'disconnect' });
                 setTimeout(function() {
                     // Retry the connection
                     // Possible there are some timing issues. Theoretically, is a user is
@@ -96,7 +102,7 @@ Barchart.RealtimeData.Connection = function() {
                     // coould go unheeded, or *just* the new symbol, and the old symbols
                     // would be ignored.
                     __connection = null;
-                    __function_connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
+                    connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
                     if (__tasks.symbols.length == 0) {
                         for (var k in __symbols) {
                             __tasks.symbols.push(k);
@@ -111,7 +117,6 @@ Barchart.RealtimeData.Connection = function() {
 
             __connection.onopen = function(evt) {
                 console.log(new Date() + ' connection open.')
-
             };
         }
         else {
@@ -121,7 +126,7 @@ Barchart.RealtimeData.Connection = function() {
     }
 
 
-    function disconnect() {
+    function disconnect() {        
         __state = 'DISCONNECTED';
 
         if (__connection != null) {
@@ -130,7 +135,6 @@ Barchart.RealtimeData.Connection = function() {
             __connection = null;
         }
 
-        __state = 'DISCONNECTED';
         __commands = [];
         __messages = [];
         __symbols = {};
@@ -155,6 +159,12 @@ Barchart.RealtimeData.Connection = function() {
         if (__state == 'LOGGING_IN') {
             if (msg.substr(0, 1) == '+') {
                 __state = 'LOGGED_IN';
+                broadcastEvent('events', { event : 'login success'} );
+            }
+            else if (msg.substr(0, 1) == '-') {
+                disconnect();
+                __state = 'LOGIN_FAILED';
+                broadcastEvent('events', { event : 'login fail'} );
             }
         }
 
@@ -192,10 +202,10 @@ Barchart.RealtimeData.Connection = function() {
         var handler = arguments[1];
 
         switch (eventId) {
-            case 'disconnect': {
-                for (var i = 0; i < __listeners.disconnect.length; i++) {
-                    if (__listeners.disconnect[i] == handler) {
-                        __listeners.disconnect.splice(i, 1);
+            case 'events': {
+                for (var i = 0; i < __listeners.events.length; i++) {
+                    if (__listeners.events[i] == handler) {
+                        __listeners.events.splice(i, 1);
                     }
                 }
 
@@ -248,15 +258,15 @@ Barchart.RealtimeData.Connection = function() {
         var handler = arguments[1];
 
         switch (eventId) {
-            case 'disconnect': {
+            case 'events': {
                 var add = true;
-                for (var i = 0; i < __listeners.disconnect.length; i++) {
-                    if (__listeners.disconnect[i] == handler)
+                for (var i = 0; i < __listeners.events.length; i++) {
+                    if (__listeners.events[i] == handler)
                         add = false;                
                 }
 
                 if (add)
-                    __listeners.disconnect.push(handler);                    
+                    __listeners.events.push(handler);                    
                 break;
             }
             case 'marketDepth': {

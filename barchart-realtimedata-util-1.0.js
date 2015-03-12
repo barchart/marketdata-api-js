@@ -97,15 +97,15 @@ Barchart.RealtimeData.Util = {
         return null;
     },
     PriceFormatter : function(fractionSeparator, specialFractions) {
-    	var _frontPad = function(value, digits) {
+        var _format = undefined;
+
+    	function frontPad(value, digits) {
     		return ['000', Math.floor(value)].join('').substr(-1 * digits);
     	}
 
-    	var _formatPrice = undefined;
-
 
         if (fractionSeparator == '.') { // Decimals
-            _formatPrice = function(value, unitcode) {
+            _format = function(value, unitcode) {
                 if (!value)
                     return '';
 
@@ -157,7 +157,7 @@ Barchart.RealtimeData.Util = {
 
         }
         else {
-            _formatPrice = function(value, unitcode) {
+            _format = function(value, unitcode) {
                 if (!value)
                     return '';
 
@@ -166,22 +166,22 @@ Barchart.RealtimeData.Util = {
 
                 switch (unitcode) {
                 	case '2':
-                		return [sign, Math.floor(value), fractionSeparator, _frontPad((value - Math.floor(value)) * 8, 1)].join('');
+                		return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
                 		break;
                 	case '3':
-                		return [sign, Math.floor(value), fractionSeparator, _frontPad((value - Math.floor(value)) * 16, 2)].join('');
+                		return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2)].join('');
                 		break;
                 	case '4':
-                		return [sign, Math.floor(value), fractionSeparator, _frontPad((value - Math.floor(value)) * 32, 2)].join('');
+                		return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2)].join('');
                 		break;
                 	case '5':
-                	    return [sign, Math.floor(value), fractionSeparator, _frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2))].join('');
+                	    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2))].join('');
                 		break;
                 	case '6':
-                	    return [sign, Math.floor(value), fractionSeparator, _frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3)].join('');
+                	    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3)].join('');
                 		break;
                 	case '7':
-                	    return [sign, Math.floor(value), fractionSeparator, _frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3)].join('');
+                	    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3)].join('');
                 		break;
                     case '8':
                         return sign + value.toFixed(0);
@@ -211,14 +211,19 @@ Barchart.RealtimeData.Util = {
             };	
     	}
 
-        var _formatTime = function(t) {
-            return [['00', t.getHours()].join('').substr(-2), ['00', t.getMinutes()].join('').substr(-2), ['00', t.getSeconds()].join('').substr(-2), ['000', t.getMilliseconds()].join('').substr(-3)].join(':');
-        };
-
     	return {
-    		formatPrice : _formatPrice,
-            formatTime : _formatTime
+    		format : _format
     	}
+    },
+    TimeFormatter : function() {
+
+        function format(t) {
+            return [['00', t.getHours()].join('').substr(-2), ['00', t.getMinutes()].join('').substr(-2), ['00', t.getSeconds()].join('').substr(-2), ['000', t.getMilliseconds()].join('').substr(-3)].join(':');
+        }
+
+        return {
+            format : format
+        }
     },
     UnitCode2BaseCode : function(unitcode) {
         switch(unitcode) {
