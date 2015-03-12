@@ -47,6 +47,14 @@
 
 
         var client = new Barchart.RealtimeData.Connection();
+        client.on('events', function(info) {
+            // Basic Network Events
+            console.log(info);
+        });
+
+        client.getMarketState().getProfile('ESH5', function(p) {
+            console.log(p);
+        });
     });
 
 </script>

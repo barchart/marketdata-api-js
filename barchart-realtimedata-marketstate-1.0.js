@@ -45,7 +45,17 @@ Barchart.RealtimeData.MarketState = function() {
                 "exchange" : undefined,
                 "unitCode" : undefined,
                 "pointValue" : undefined,
-                "tickIncrement" : undefined
+                "tickIncrement" : undefined,
+                parseInfo : function() {
+                    var info = Barchart.RealtimeData.Util.ParseSymbolType(this.symbol);
+                    if (info) {
+                        if (info.type == 'future') {
+                            this.root = info.root;
+                            this.month = info.month;
+                            this.year = info.year;
+                        }
+                    }
+                }
             };
         }
         return _profile[symbol];
@@ -94,6 +104,29 @@ Barchart.RealtimeData.MarketState = function() {
         }
         return _timeAndSales[symbol];            
     };
+
+
+    function loadProfiles(symbols, callback) {
+        $.ajax({
+            url: 'proxies/instruments/?lookup=' + symbols.join(','), 
+        }).done(function(json) {
+            if (json.status == 200) {
+                for (var i = 0; i < json.instruments.length; i++) {
+                    if (json.instruments[i].status == 200) {
+                        p = _getCreateProfile(json.instruments[i].lookup);
+                        p.name = json.instruments[i].symbol_description;
+                        p.exchange = json.instruments[i].exchange_channel;
+                        p.unitCode = json.instruments[i].base_code;
+                        p.pointValue = json.instruments[i].point_value;
+                        p.tickIncrement = json.instruments[i].tick_increment;
+                        p.parseInfo();
+                    }
+                }
+            }
+            callback();
+        });
+    }
+
 
     var _processMessage = function(message) {
     	var q = _getCreateQuote(message.symbol);
@@ -240,16 +273,7 @@ Barchart.RealtimeData.MarketState = function() {
                 p.unitCode = message.unitcode;
                 p.pointValue = message.pointValue;
                 p.tickIncrement = message.tickIncrement;
-
-                var info = Barchart.RealtimeData.Util.ParseSymbolType(p.symbol);
-                if (info) {
-                    if (info.type == 'future') {
-                        p.root = info.root;
-                        p.month = info.month;
-                        p.year = info.year;
-                    }
-                }
-
+                p.parseInfo();
                 
                 q.message = message;
                 q.flag = message.flag;
@@ -348,8 +372,16 @@ Barchart.RealtimeData.MarketState = function() {
         getCVol : function(symbol) {
             return _cvol[symbol];
         },
-        getProfile : function(symbol) {
-            return _profile[symbol];
+        getProfile : function(symbol, callback) {
+            var p = _profile[symbol];
+            if (!p) {
+                loadProfiles([symbol], function() {
+                    p = _profile[symbol];
+                    callback(p);
+                });
+            }
+            else
+                callback(p);
         },
         getQuote : function(symbol) {
             return _quote[symbol];
