@@ -18,7 +18,6 @@ Barchart.RealtimeData.Connection = function() {
     /* Constants */
     _API_VERSION = 4;
 
-    var __profileService = new Barchart.RealtimeData.Profiles();
     var __state = 'DISCONNECTED';
     var __symbols = {};
     var __tasks = {
@@ -181,11 +180,6 @@ Barchart.RealtimeData.Connection = function() {
 
     function getPassword() {
         return __loginInfo.password;
-    }
-
-
-    function getProfileService() {
-        return __profileService;
     }
 
 
@@ -522,7 +516,6 @@ Barchart.RealtimeData.Connection = function() {
         disconnect : disconnect,
         getMarketState : getMarketState,
         getPassword : getPassword,
-        getProfileService : getProfileService,
         getUsername : getUsername,
         off: off,
         on : on,
