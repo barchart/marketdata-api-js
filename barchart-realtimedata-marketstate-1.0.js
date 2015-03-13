@@ -18,7 +18,6 @@ Barchart.RealtimeData.MarketState = function() {
 
     var _book = {};
     var _cvol = {};
-    var _profile = {};
     var _quote = {};
     var _timestamp = undefined;
     var _timeAndSales = {};
@@ -34,32 +33,6 @@ Barchart.RealtimeData.MarketState = function() {
         return _book[symbol];
     };
 
-    var _getCreateProfile = function(symbol) {
-        if (!_profile[symbol]) {
-            _profile[symbol] = {
-                "symbol" : symbol,
-                "name" : undefined,
-                "root" : undefined,
-                "month" : undefined,
-                "year" : undefined,
-                "exchange" : undefined,
-                "unitCode" : undefined,
-                "pointValue" : undefined,
-                "tickIncrement" : undefined,
-                parseInfo : function() {
-                    var info = Barchart.RealtimeData.Util.ParseSymbolType(this.symbol);
-                    if (info) {
-                        if (info.type == 'future') {
-                            this.root = info.root;
-                            this.month = info.month;
-                            this.year = info.year;
-                        }
-                    }
-                }
-            };
-        }
-        return _profile[symbol];
-    };
 
     var _getCreateQuote = function(symbol) {
         if (!_quote[symbol]) {
@@ -113,13 +86,14 @@ Barchart.RealtimeData.MarketState = function() {
             if (json.status == 200) {
                 for (var i = 0; i < json.instruments.length; i++) {
                     if (json.instruments[i].status == 200) {
-                        p = _getCreateProfile(json.instruments[i].lookup);
-                        p.name = json.instruments[i].symbol_description;
-                        p.exchange = json.instruments[i].exchange_channel;
-                        p.unitCode = json.instruments[i].base_code;
-                        p.pointValue = json.instruments[i].point_value;
-                        p.tickIncrement = json.instruments[i].tick_increment;
-                        p.parseInfo();
+                        new Barchart.RealtimeData.MarketState.Profile(
+                            json.instruments[i].lookup,
+                            json.instruments[i].symbol_description,
+                            json.instruments[i].exchange_channel,
+                            json.instruments[i].base_code,
+                            json.instruments[i].point_value,
+                            json.instruments[i].tick_increment
+                        );
                     }
                 }
             }
@@ -129,8 +103,21 @@ Barchart.RealtimeData.MarketState = function() {
 
 
     var _processMessage = function(message) {
+        if (message.type == 'TIMESTAMP') {
+            _timestamp = message.timestamp;
+            return;
+        }
+
+
     	var q = _getCreateQuote(message.symbol);
-    	var p = _getCreateProfile(message.symbol);
+
+        var p = Barchart.RealtimeData.MarketState.Profile.prototype.Profiles[message.symbol];
+        if ((!p) && (message.type != 'REFRESH_QUOTE')) {
+            console.warn('No profile found for ' + message.symbol);
+            console.log(message);
+            return;
+        }
+
 
         if ((!q.day) && (message.day)) {
             q.day = message.day;
@@ -267,13 +254,8 @@ Barchart.RealtimeData.MarketState = function() {
                 }
                 break;
             }
-            case 'REFRESH_QUOTE': {                
-                p.name = message.name;
-                p.exchange = message.exchange;
-                p.unitCode = message.unitcode;
-                p.pointValue = message.pointValue;
-                p.tickIncrement = message.tickIncrement;
-                p.parseInfo();
+            case 'REFRESH_QUOTE': {
+                p = new Barchart.RealtimeData.MarketState.Profile(message.symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement); 
                 
                 q.message = message;
                 q.flag = message.flag;
@@ -306,9 +288,6 @@ Barchart.RealtimeData.MarketState = function() {
                 if (message.element == 'D')
                     q.flag = 's';
             }
-            case 'TIMESTAMP':
-                _timestamp = message.timestamp;
-                break;
             case 'TOB': {
                 q.bidPrice = message.bidPrice;
                 q.bidSize = message.bidSize;
@@ -373,10 +352,10 @@ Barchart.RealtimeData.MarketState = function() {
             return _cvol[symbol];
         },
         getProfile : function(symbol, callback) {
-            var p = _profile[symbol];
+            var p = Barchart.RealtimeData.MarketState.Profile.prototype.Profiles[symbol];
             if (!p) {
                 loadProfiles([symbol], function() {
-                    p = _profile[symbol];
+                    p = Barchart.RealtimeData.MarketState.Profile.prototype.Profiles[symbol];
                     callback(p);
                 });
             }
@@ -392,3 +371,150 @@ Barchart.RealtimeData.MarketState = function() {
         processMessage : _processMessage
     }
 }
+
+
+Barchart.RealtimeData.MarketState.Profile = function(symbol, name, exchange, unitCode, pointValue, tickIncrement) {
+    this.symbol = symbol;
+    this.name = name;
+    this.exchange = exchange;
+    this.unitCode = unitCode;
+    this.pointValue = pointValue;
+    this.tickIncrement = tickIncrement;
+
+    var info = Barchart.RealtimeData.Util.ParseSymbolType(this.symbol);
+    if (info) {
+        if (info.type == 'future') {
+            this.root = info.root;
+            this.month = info.month;
+            this.year = info.year;
+        }
+    }
+
+    Barchart.RealtimeData.MarketState.Profile.prototype.Profiles[symbol] = this;
+}
+
+
+Barchart.RealtimeData.MarketState.Profile.prototype.PriceFormatter = function(fractionSeparator, specialFractions) {
+    var _format = undefined;
+
+    function frontPad(value, digits) {
+        return ['000', Math.floor(value)].join('').substr(-1 * digits);
+    }
+
+
+    if (fractionSeparator == '.') { // Decimals
+        _format = function(value, unitcode) {
+            if (!value)
+                return '';
+
+            switch (unitcode) {
+                case '2':
+                    return value.toFixed(3);
+                    break;
+                case '3':
+                    return value.toFixed(4);
+                    break;
+                case '4':
+                    return value.toFixed(5);
+                    break;
+                case '5':
+                    return value.toFixed(6);
+                    break;
+                case '6':
+                    return value.toFixed(7);
+                    break;
+                case '7':
+                    return value.toFixed(8);
+                    break;
+                case '8':
+                    return value.toFixed(0);
+                    break;
+                case '9':
+                    return value.toFixed(1);
+                    break;
+                case 'A':
+                    return value.toFixed(2);
+                    break;
+                case 'B':
+                    return value.toFixed(3);
+                    break;
+                case 'C':
+                    return value.toFixed(4);
+                    break;
+                case 'D':
+                    return value.toFixed(5);
+                    break;
+                case 'E':
+                    return value.toFixed(6);
+                    break;
+                default:
+                    return value;
+                    break;                
+            }
+        };  
+
+    }
+    else {
+        _format = function(value, unitcode) {
+            if (!value)
+                return '';
+
+            var sign = (value >= 0) ? '' : '-';
+            value = Math.abs(value);
+
+            switch (unitcode) {
+                case '2':
+                    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
+                    break;
+                case '3':
+                    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2)].join('');
+                    break;
+                case '4':
+                    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2)].join('');
+                    break;
+                case '5':
+                    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2))].join('');
+                    break;
+                case '6':
+                    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3)].join('');
+                    break;
+                case '7':
+                    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3)].join('');
+                    break;
+                case '8':
+                    return sign + value.toFixed(0);
+                    break;
+                case '9':
+                    return sign + value.toFixed(1);
+                    break;
+                case 'A':
+                    return sign + value.toFixed(2);
+                    break;
+                case 'B':
+                    return sign + value.toFixed(3);
+                    break;
+                case 'C':
+                    return sign + value.toFixed(4);
+                    break;
+                case 'D':
+                    return sign + value.toFixed(5);
+                    break;
+                case 'E':
+                    return sign + value.toFixed(6);
+                    break;
+                default:
+                    return sign + value;
+                    break;                
+            }
+        };  
+    }
+
+    Barchart.RealtimeData.MarketState.Profile.prototype.formatPrice = function(price) {
+        return _format(price, this.unitCode);
+    }
+}
+
+Barchart.RealtimeData.MarketState.Profile.prototype.Profiles = {};
+
+// The price formatter can be changed globally.
+Barchart.RealtimeData.MarketState.Profile.prototype.PriceFormatter('-', true);
