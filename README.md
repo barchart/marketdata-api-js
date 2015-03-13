@@ -38,6 +38,19 @@ client.on('events', function(info) {
 });
 ```
 
+
+marketDepth
+-----------
+```js
+client.on(
+	'marketDepth',
+	function(message) {
+		console.log(message);
+	},
+	'AAPL'
+);
+
+
 marketUpdate
 ------------
 ```js
