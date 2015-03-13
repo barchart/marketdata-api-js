@@ -1,4 +1,4 @@
-Barchart Marketdata API for Javascript
+Barchart Market Data API for Javascript
 ======================================
 
 Include streaming delayed or realtime stocks, futures, and forex data in your HTML5
