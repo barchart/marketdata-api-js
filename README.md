@@ -7,4 +7,4 @@ time series data.
 
 Note: to obtain a free testing username/password, please contact solutions@barchart.com
 
-##[Read the Wiki](/wiki) for full documentation
+###[Read the Wiki for full documentation](https://github.com/barchart/marketdata-api-js/wiki)
