@@ -29,10 +29,6 @@
         $("#btnConnect").click(function() {
             var symbols = $("#txtSymbols").val().split(',');
 
-            client.on('disconnect', function() {
-                console.log(new Date() + ' BCRTD disconnected');
-            });
-
             client.connect('qsws-us-e-01.aws.barchart.com', $("#txtUsername").val(), $("#txtPassword").val());
             client.requestSymbols(symbols);
 
@@ -50,10 +46,6 @@
         client.on('events', function(info) {
             // Basic Network Events
             console.log(info);
-        });
-
-        client.getMarketState().getProfile('ESH5', function(p) {
-            console.log(p);
         });
     });
 

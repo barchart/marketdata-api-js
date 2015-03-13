@@ -280,6 +280,10 @@ Barchart.RealtimeData.Connection = function() {
 
                 if (add)
                     __listeners.marketDepth[symbol].push(handler);
+
+                var bk = getMarketState().getBook(symbol);
+                if (bk)
+                    handler({ type: 'INIT', symbol: symbol });
                 break;
             }
             case 'marketUpdate': {
@@ -299,6 +303,10 @@ Barchart.RealtimeData.Connection = function() {
 
                 if (add)
                     __listeners.marketUpdate[symbol].push(handler);
+
+                var q = getMarketState().getQuote(symbol);
+                if (q)
+                    handler({ type: 'INIT', symbol: symbol });
                 break;
             }
             case 'timestamp': {
