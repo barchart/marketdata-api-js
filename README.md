@@ -1,5 +1,5 @@
 Barchart Market Data API for Javascript
-======================================
+=======================================
 
 Include streaming delayed or realtime stocks, futures, and forex data in your HTML5
 application. All you need is a username/password from Barchart, and your app can
@@ -53,7 +53,7 @@ client.on(
 	},
 	'AAPL'
 );
-
+```
 
 marketUpdate
 ------------
