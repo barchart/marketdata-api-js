@@ -4,7 +4,7 @@
  *
  * Copyright 2014 - 2015 Barchart.com, Inc.
  */
-(function() {
+;(function() {
     // The Barchart namespace
     if (!window.Barchart) window.Barchart = {};
     if (!window.Barchart.RealtimeData) window.Barchart.RealtimeData = {}
@@ -21,7 +21,8 @@ Barchart.RealtimeData.Connection = function() {
     var __state = 'DISCONNECTED';
     var __symbols = {};
     var __tasks = {
-        "symbols" : []
+        "symbols" : [],
+        "symbols_off" : []
     };
 
     var __commands = [];
@@ -475,8 +476,21 @@ Barchart.RealtimeData.Connection = function() {
 
                 __commands.push(s);
             }
-        }
 
+
+            if (__tasks['symbols_off'].length > 0) {
+                var ary = __tasks['symbols_off'];
+                __tasks['symbols_off'] = [];
+                var s = "STOP ";
+                for (var i = 0; i < ary.length; i++) {
+                    if (i > 0)
+                        s += ',';
+                    s += ary[i];
+                }
+
+                __commands.push(s);
+            }
+        }
 
         setTimeout(pumpTasks, 200);
     }
@@ -489,7 +503,7 @@ Barchart.RealtimeData.Connection = function() {
         }
 
         $.ajax({
-            url: 'quotes.php?username=' + __loginInfo.username + '&password=' + __loginInfo.password + '&symbols=' + symbols.join(','), 
+            url: 'quotes.php?username=' + __loginInfo.username + '&password=' + __loginInfo.password + '&symbols=' + symbols.join(',')
         }).done(function(xml) {
             $(xml).find('QUOTE').each(function() {
                 onNewMessage('%' + this.outerHTML);
@@ -512,6 +526,14 @@ Barchart.RealtimeData.Connection = function() {
         }
     }
 
+    function unRequestSymbols (symbols) {
+        for (var i = 0; i < symbols.length; i++) {
+            if (__symbols[symbols[i]]) {
+                __tasks['symbols_off'].push(symbols[i]);
+                __symbols[symbols[i]] = false;
+            }
+        }
+    }
 
     setTimeout(processCommands, 200);
     setTimeout(pumpMessages, 125);
@@ -527,6 +549,7 @@ Barchart.RealtimeData.Connection = function() {
         getUsername : getUsername,
         off: off,
         on : on,
-        requestSymbols : requestSymbols        
+        requestSymbols : requestSymbols,
+        unRequestSymbols : unRequestSymbols
     }
-}
+};
