@@ -54,7 +54,7 @@ Barchart.RealtimeData.MarketState = function() {
 
     function loadProfiles(symbols, callback) {
         $.ajax({
-            url: 'proxies/instruments/?lookup=' + symbols.join(','), 
+            url: 'proxies/instruments/?lookup=' + symbols.join(',')
         }).done(function(json) {
             if (json.status == 200) {
                 for (var i = 0; i < json.instruments.length; i++) {
