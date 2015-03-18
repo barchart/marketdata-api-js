@@ -1,85 +1,6 @@
 /*! marketdata-api-js - v1.0.0 - 2015-03-18
 * https://github.com/barchart/marketdata-api-js
 * Copyright (c) 2015 ; Licensed  */
-'use strict';
-
-/*global module:false*/
-module.exports = function (grunt) {
-
-    // Project configuration.
-    grunt.initConfig({
-        // Metadata.
-        pkg: grunt.file.readJSON('package.json'),
-        banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
-            '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-            '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
-            '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
-            ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n',
-        // Task configuration.
-        concat: {
-            options: {
-                banner: '<%= banner %>',
-                stripBanners: true
-            },
-            dist: {
-                src: ['./*.js'],
-                dest: 'dist/<%= pkg.name %>.js'
-            }
-        },
-        uglify: {
-            options: {
-                banner: '<%= banner %>'
-            },
-            dist: {
-                src: '<%= concat.dist.dest %>',
-                dest: 'dist/<%= pkg.name %>.min.js'
-            }
-        },
-        jshint: {
-            options: {
-                jshintrc: '.jshintrc',
-                jshintignore: '.jshintignore'
-            },
-            all: {
-                src: [
-                    'Gruntfile.js',
-                    './{,*/}*.js'
-                ]
-            }
-        },
-        watch: {
-            gruntfile: {
-                files: '<%= jshint.gruntfile.src %>',
-                tasks: ['jshint:gruntfile']
-            },
-            lib_test: {
-                files: '<%= jshint.lib_test.src %>',
-                tasks: ['jshint:lib_test']
-            }
-        },
-        jasmine: {
-            src: 'src/**/*.js',
-            options: {
-                specs: 'tests/*Spec.js',
-                vendor: [
-                    'bower_components/jquery/dist/jquery.js'
-                ]
-            }
-        }
-    });
-
-    // These plugins provide necessary tasks.
-    grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-jasmine');
-
-    // Default task.
-    grunt.registerTask('default', ['concat', 'uglify']);
-
-};
-
 /*!
  * barchart-realtimedata-connection-1.0.js
  * Barchart Realtime Data JavaScript Library v1.0
@@ -724,7 +645,7 @@ Barchart.RealtimeData.MarketState = function() {
 
     function loadProfiles(symbols, callback) {
         $.ajax({
-            url: 'proxies/instruments/?lookup=' + symbols.join(','), 
+            url: 'proxies/instruments/?lookup=' + symbols.join(',')
         }).done(function(json) {
             if (json.status == 200) {
                 for (var i = 0; i < json.instruments.length; i++) {
