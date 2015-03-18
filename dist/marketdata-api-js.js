@@ -642,7 +642,7 @@ Barchart.RealtimeData.Connection = function() {
  *
  * Copyright 2014 - 2015 Barchart.com, Inc.
  */
-(function() {
+;(function() {
     // The Barchart namespace
     if (!window.Barchart) window.Barchart = {};
     if (!window.Barchart.RealtimeData) window.Barchart.RealtimeData = {}
@@ -667,14 +667,14 @@ Barchart.RealtimeData.HistoricalData = function() {
         getHistoricalData : getHistoricalData
     }
 
-}
+};
 /*!
  * barchart-realtimedata-marketstate-1.0.js
  * Barchart Realtime Data JavaScript Library v1.0
  *
  * Copyright 2014 - 2015 Barchart.com, Inc.
  */
-(function() {
+;(function() {
     // The Barchart namespace
     if (!window.Barchart) window.Barchart = {};
     if (!window.Barchart.RealtimeData) window.Barchart.RealtimeData = {}
@@ -1192,7 +1192,7 @@ Barchart.RealtimeData.MarketState.Quote = function() {
     this.previousPrice = null;
     this.time = null;
     this.ticks = [];
-}
+};
 
 /*!
  * barchart-realtimedata-1.0.0.js
@@ -1201,7 +1201,7 @@ Barchart.RealtimeData.MarketState.Quote = function() {
  *
  * Copyright 2014 - 2015 Barchart.com, Inc.
  */
-(function() {
+;(function() {
     // The Barchart namespace
     if (!window.Barchart) window.Barchart = {};
     if (!window.Barchart.RealtimeData) window.Barchart.RealtimeData = {}
@@ -1660,7 +1660,7 @@ Barchart.RealtimeData.MessageParser = {
 
         return message;
     }
-}
+};
 /*!
  * barchart-realtimedata-1.0.0.js
  * Barchart Realtime Data JavaScript Library v1.0.0
@@ -1668,7 +1668,7 @@ Barchart.RealtimeData.MessageParser = {
  *
  * Copyright 2014 - 2015 Barchart.com, Inc.
  */
-(function() {
+;(function() {
     // The Barchart namespace
     if (!window.Barchart) window.Barchart = {};
     if (!window.Barchart.RealtimeData) window.Barchart.RealtimeData = {}
@@ -1788,5 +1788,5 @@ Barchart.RealtimeData.Util = {
             default: return 0;
         }
     }
-}
+};
 
