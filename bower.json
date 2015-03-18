@@ -1,0 +1,20 @@
+{
+    "name": "marketdata-api-js",
+    "version": "1.0.0",
+    "homepage": "https://github.com/barchart/marketdata-api-js",
+    "authors": [
+        "Barchart"
+    ],
+    "description": "Barchart Marketdata API for Javascript",
+    "main": "dist/marketdata-api-js.js",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ],
+    "devDependencies": {
+        "jquery": "~2.1.3"
+    }
+}
