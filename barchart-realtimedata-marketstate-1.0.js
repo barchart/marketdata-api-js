@@ -368,128 +368,17 @@ Barchart.RealtimeData.MarketState.Profile = function(symbol, name, exchange, uni
 
 
 Barchart.RealtimeData.MarketState.Profile.prototype.PriceFormatter = function(fractionSeparator, specialFractions) {
-    var _format = undefined;
-
-    function frontPad(value, digits) {
-        return ['000', Math.floor(value)].join('').substr(-1 * digits);
-    }
-
-
-    if (fractionSeparator == '.') { // Decimals
-        _format = function(value, unitcode) {
-            if (!value)
-                return '';
-
-            switch (unitcode) {
-                case '2':
-                    return value.toFixed(3);
-                    break;
-                case '3':
-                    return value.toFixed(4);
-                    break;
-                case '4':
-                    return value.toFixed(5);
-                    break;
-                case '5':
-                    return value.toFixed(6);
-                    break;
-                case '6':
-                    return value.toFixed(7);
-                    break;
-                case '7':
-                    return value.toFixed(8);
-                    break;
-                case '8':
-                    return value.toFixed(0);
-                    break;
-                case '9':
-                    return value.toFixed(1);
-                    break;
-                case 'A':
-                    return value.toFixed(2);
-                    break;
-                case 'B':
-                    return value.toFixed(3);
-                    break;
-                case 'C':
-                    return value.toFixed(4);
-                    break;
-                case 'D':
-                    return value.toFixed(5);
-                    break;
-                case 'E':
-                    return value.toFixed(6);
-                    break;
-                default:
-                    return value;
-                    break;                
-            }
-        };  
-
-    }
-    else {
-        _format = function(value, unitcode) {
-            if (!value)
-                return '';
-
-            var sign = (value >= 0) ? '' : '-';
-            value = Math.abs(value);
-
-            switch (unitcode) {
-                case '2':
-                    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
-                    break;
-                case '3':
-                    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2)].join('');
-                    break;
-                case '4':
-                    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2)].join('');
-                    break;
-                case '5':
-                    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2))].join('');
-                    break;
-                case '6':
-                    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3)].join('');
-                    break;
-                case '7':
-                    return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3)].join('');
-                    break;
-                case '8':
-                    return sign + value.toFixed(0);
-                    break;
-                case '9':
-                    return sign + value.toFixed(1);
-                    break;
-                case 'A':
-                    return sign + value.toFixed(2);
-                    break;
-                case 'B':
-                    return sign + value.toFixed(3);
-                    break;
-                case 'C':
-                    return sign + value.toFixed(4);
-                    break;
-                case 'D':
-                    return sign + value.toFixed(5);
-                    break;
-                case 'E':
-                    return sign + value.toFixed(6);
-                    break;
-                default:
-                    return sign + value;
-                    break;                
-            }
-        };  
-    }
+    var format = Barchart.RealtimeData.Util.PriceFormatter(fractionSeparator, specialFractions).format;
 
     Barchart.RealtimeData.MarketState.Profile.prototype.formatPrice = function(price) {
-        return _format(price, this.unitCode);
+        return format(price, this.unitCode);
     }
 }
 
 Barchart.RealtimeData.MarketState.Profile.prototype.Profiles = {};
 
 // The price formatter can be changed globally.
+
 Barchart.RealtimeData.MarketState.Profile.prototype.PriceFormatter('-', true);
 
 
