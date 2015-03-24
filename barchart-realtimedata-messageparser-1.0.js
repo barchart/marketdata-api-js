@@ -37,49 +37,53 @@ Barchart.RealtimeData.MessageParser = {
         else if (str.indexOf('.') > 0)
             return parseFloat(str);
 
+        var sign = (str.substr(0, 1) == '-') ? -1 : 1;
+        if (sign == -1)
+            str = str.substr(1);
+
 
         switch (unitcode) {
             case '2': // 8ths
-                return parseInt(str.substr(0, str.length - 1)) + (parseInt(str.substr(-1)) / 8);
+                return sign * (((str.length > 1) ? parseInt(str.substr(0, str.length - 1)) : 0) + (parseInt(str.substr(-1)) / 8));
                 break;
             case '3': // 16ths
-                return parseInt(str.substr(0, str.length - 2)) + (parseInt(str.substr(-2)) / 16);
+                return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 16));
                 break;
             case '4': // 32ths
-                return parseInt(str.substr(0, str.length - 2)) + (parseInt(str.substr(-2)) / 32);
+                return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 32));
                 break;
             case '5': // 64ths
-                return parseInt(str.substr(0, str.length - 2)) + (parseInt(str.substr(-2)) / 64);
+                return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 64));
                 break;
             case '6': // 128ths
-                return parseInt(str.substr(0, str.length - 3)) + (parseInt(str.substr(-3)) / 128);
+                return sign * (((str.length > 3) ? parseInt(str.substr(0, str.length - 3)) : 0) + (parseInt(str.substr(-3)) / 128));
                 break;
             case '7': // 256ths
-                return parseInt(str.substr(0, str.length - 4)) + (parseInt(str.substr(-3)) / 256);
+                return sign * (((str.length > 3) ? parseInt(str.substr(0, str.length - 3)) : 0) + (parseInt(str.substr(-3)) / 256));
                 break;
             case '8':
-                return parseInt(str);
+                return sign * parseInt(str);
                 break;
             case '9':
-                return parseInt(str) / 10;
+                return sign * (parseInt(str) / 10);
                 break;
             case 'A':                
-                return parseInt(str) / 100;
+                return sign * (parseInt(str) / 100);
                 break;
             case 'B':
-                return parseInt(str) / 1000;
+                return sign * (parseInt(str) / 1000);
                 break;
             case 'C':
-                return parseInt(str) / 10000;
+                return sign * (parseInt(str) / 10000);
                 break;
             case 'D':
-                return parseInt(str) / 100000;
+                return sign * (parseInt(str) / 100000);
                 break;
             case 'E':
-                return parseInt(str) / 1000000;
+                return sign * (parseInt(str) / 1000000);
                 break;
             default:
-                return parseInt(str);
+                return sign * parseInt(str);
                 break;
         }
     },
