@@ -5,7 +5,8 @@ var gulp = require('gulp'),
 var version = '1.0';
 
 gulp.task('default', function() {
-	return gulp.src('./barchart-realtimedata-*-' + version + '.js')
+	return gulp.src(['barchart-realtimedata-util-1.0.js']
+		.concat('barchart-realtimedata-!(util)-1.0.js'))
         .pipe(srcmaps.init())
         .pipe(concat('barchart-marketdata-api-' + version + '.js'))
         .pipe(srcmaps.write('../dist/'))
