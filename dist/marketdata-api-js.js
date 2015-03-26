@@ -1,4 +1,4 @@
-/*! marketdata-api-js - v1.0.0 - 2015-03-18
+/*! marketdata-api-js - v1.0.0 - 2015-03-26
 * https://github.com/barchart/marketdata-api-js
 * Copyright (c) 2015 ; Licensed  */
 /*!
@@ -1720,6 +1720,9 @@ Barchart.RealtimeData.Connection = function() {
         off: off,
         on : on,
         requestSymbols : requestSymbols,
-        unRequestSymbols : unRequestSymbols
+        unRequestSymbols : unRequestSymbols,
+        getSymbolCount: function(){
+            return __symbols.length;
+        }
     }
 };
