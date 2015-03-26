@@ -535,6 +535,17 @@ Barchart.RealtimeData.Connection = function() {
         }
     }
 
+    function getActiveSymbolCount(){
+        var count = 0;
+        var keys = Object.keys(__symbols);
+        for(var i= 0; i < keys.length; i++){
+            if(__symbols[keys[i]] && __symbols[keys[i]]===true){
+                count++;
+            }
+        }
+        return count;
+    }
+
     setTimeout(processCommands, 200);
     setTimeout(pumpMessages, 125);
     setTimeout(pumpTasks, 200);
@@ -551,8 +562,6 @@ Barchart.RealtimeData.Connection = function() {
         on : on,
         requestSymbols : requestSymbols,
         unRequestSymbols : unRequestSymbols,
-        getSymbolCount: function(){
-            return __symbols.length;
-        }
+        getActiveSymbolCount: getActiveSymbolCount
     }
 };
