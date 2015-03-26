@@ -4,7 +4,7 @@
  *
  * Copyright 2014 - 2015 Barchart.com, Inc.
  */
-(function() {
+;(function() {
     // The Barchart namespace
     if (!window.Barchart) window.Barchart = {};
     if (!window.Barchart.RealtimeData) window.Barchart.RealtimeData = {}
