@@ -24,8 +24,8 @@
     "url": "https://github.com/barchart/marketdata-api-js/issues"
   },
   "homepage": "https://github.com/barchart/marketdata-api-js",
+  "//" : "gulp also needs to be installed globally",
   "devDependencies": {
-    "//" : "gulp also needs to be installed globally",
     "gulp": "^3.8.11",
     "gulp-concat": "^2.5.2",
     "gulp-sourcemaps": "^1.5.1"

@@ -7,7 +7,7 @@
 ;(function() {
     // The Barchart namespace
     if (!window.Barchart) window.Barchart = {};
-    if (!window.Barchart.RealtimeData) window.Barchart.RealtimeData = {}
+    if (!window.Barchart.RealtimeData) window.Barchart.RealtimeData = {};
 }());
 
 
@@ -17,16 +17,15 @@ Barchart.RealtimeData.HistoricalData = function() {
     function getHistoricalData(params, callback) {
         $.ajax({
             url : _url,
-            dataType : 'jsonp',
+            dataType : 'text',
             data : params
         }).done(function(json) {
             return callback(json);
         });
     }
 
-
     return {
         getHistoricalData : getHistoricalData
-    }
+    };
 
-}
+};
