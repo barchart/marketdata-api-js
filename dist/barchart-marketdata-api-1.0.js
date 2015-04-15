@@ -813,11 +813,11 @@ Barchart.RealtimeData.Connection = function() {
 
 
     return {
-        connect : function(){
+        connect : function(server, username, password){
             /* always reset when told to connect */
             __isConsumerDisconnect = false;
 
-            connect();
+            connect(server, username, password);
             return this;
         },
         disconnect: function(){
