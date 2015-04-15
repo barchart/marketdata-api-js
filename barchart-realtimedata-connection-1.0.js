@@ -19,6 +19,7 @@ Barchart.RealtimeData.Connection = function() {
     _API_VERSION = 4;
 
     var __state = 'DISCONNECTED';
+    var __isConsumerDisconnect = false;
     var __symbols = {};
     var __tasks = {
         "symbols" : [],
@@ -35,12 +36,12 @@ Barchart.RealtimeData.Connection = function() {
         marketDepth : {},
         marketUpdate : {},
         timestamp : []
-    }
+    };
     var __loginInfo = {
         "username" : null,
         "password" : null,
         "server" : null
-    }
+    };
 
 
 
@@ -75,6 +76,11 @@ Barchart.RealtimeData.Connection = function() {
     function connect(server, username, password) {
         if (__connection)
             return;
+
+        /* don't try to reconnect if explicitly told to disconnect */
+        if(__isConsumerDisconnect === true){
+            return;
+        }
 
         __loginInfo.username = username;
         __loginInfo.password = password;
@@ -534,6 +540,17 @@ Barchart.RealtimeData.Connection = function() {
         }
     }
 
+    function getActiveSymbolCount(){
+        var count = 0;
+        var keys = Object.keys(__symbols);
+        for(var i= 0; i < keys.length; i++){
+            if(__symbols[keys[i]] && __symbols[keys[i]]===true){
+                count++;
+            }
+        }
+        return count;
+    }
+
     setTimeout(processCommands, 200);
     setTimeout(pumpMessages, 125);
     setTimeout(pumpTasks, 200);
@@ -541,14 +558,27 @@ Barchart.RealtimeData.Connection = function() {
 
 
     return {
-        connect : connect,
-        disconnect : disconnect,
-        getMarketState : getMarketState,
+        connect : function(){
+            /* always reset when told to connect */
+            __isConsumerDisconnect = false;
+
+            connect();
+            return this;
+        },
+        disconnect: function(){
+            /* set to true so we know not to reconnect */
+            __isConsumerDisconnect = true;
+
+            disconnect();
+            return this;
+        },
+        getMarketState: getMarketState,
         getPassword : getPassword,
         getUsername : getUsername,
         off: off,
         on : on,
         requestSymbols : requestSymbols,
-        unRequestSymbols : unRequestSymbols
+        unRequestSymbols : unRequestSymbols,
+        getActiveSymbolCount: getActiveSymbolCount
     }
 }
