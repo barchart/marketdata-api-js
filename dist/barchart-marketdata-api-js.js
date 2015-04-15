@@ -1,4 +1,4 @@
-/*! marketdata-api-js - v1.0.0 - 2015-03-31
+/*! barchart-marketdata-api-js - v1.0.0 - 2015-03-31
 * https://github.com/barchart/marketdata-api-js
 * Copyright (c) 2015 ; Licensed  */
 /*!
