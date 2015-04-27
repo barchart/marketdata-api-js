@@ -468,4 +468,4 @@ Barchart.RealtimeData.MessageParser = {
 
         return message;
     }
-}
+};
