@@ -343,7 +343,7 @@ Barchart.RealtimeData.MarketState = function() {
         },
         processMessage : _processMessage
     }
-}
+};
 
 
 Barchart.RealtimeData.MarketState.Profile = function(symbol, name, exchange, unitCode, pointValue, tickIncrement) {
@@ -364,7 +364,7 @@ Barchart.RealtimeData.MarketState.Profile = function(symbol, name, exchange, uni
     }
 
     Barchart.RealtimeData.MarketState.Profile.prototype.Profiles[symbol] = this;
-}
+};
 
 
 Barchart.RealtimeData.MarketState.Profile.prototype.PriceFormatter = function(fractionSeparator, specialFractions) {
@@ -373,7 +373,7 @@ Barchart.RealtimeData.MarketState.Profile.prototype.PriceFormatter = function(fr
     Barchart.RealtimeData.MarketState.Profile.prototype.formatPrice = function(price) {
         return format(price, this.unitCode);
     }
-}
+};
 
 Barchart.RealtimeData.MarketState.Profile.prototype.Profiles = {};
 
@@ -411,4 +411,4 @@ Barchart.RealtimeData.MarketState.Quote = function() {
     this.previousPrice = null;
     this.time = null;
     this.ticks = [];
-}
+};
