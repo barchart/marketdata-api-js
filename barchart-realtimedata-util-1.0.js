@@ -250,5 +250,5 @@ Barchart.RealtimeData.Util = {
             default: return 0;
         }
     }
-}
+};
 

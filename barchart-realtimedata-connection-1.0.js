@@ -581,4 +581,4 @@ Barchart.RealtimeData.Connection = function() {
         unRequestSymbols : unRequestSymbols,
         getActiveSymbolCount: getActiveSymbolCount
     }
-}
+};
