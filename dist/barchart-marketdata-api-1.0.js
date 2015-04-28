@@ -1755,4 +1755,4 @@ Barchart.RealtimeData.MessageParser = {
         return message;
     }
 };
-//# sourceMappingURL=../dist/barchart-marketdata-api-1.0.js.map
+//# sourceMappingURL=barchart-marketdata-api-1.0.js.map

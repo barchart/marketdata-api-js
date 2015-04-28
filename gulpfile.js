@@ -9,6 +9,6 @@ gulp.task('default', function() {
 		.concat('barchart-realtimedata-!(util)-1.0.js'))
         .pipe(srcmaps.init())
         .pipe(concat('barchart-marketdata-api-' + version + '.js'))
-        .pipe(srcmaps.write('../dist/'))
+        .pipe(srcmaps.write('.', { includeContent:false}))
         .pipe(gulp.dest('./dist'));
 });
