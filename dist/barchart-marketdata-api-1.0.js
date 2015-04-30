@@ -919,13 +919,13 @@ Barchart.RealtimeData.MarketState = function() {
                 "symbol" : symbol
             };
         }
-        return _timeAndSales[symbol];            
+        return _timeAndSales[symbol];
     };
 
 
     function loadProfiles(symbols, callback) {
         $.ajax({
-            url: 'proxies/instruments/?lookup=' + symbols.join(','), 
+            url: 'proxies/instruments/?lookup=' + symbols.join(','),
         }).done(function(json) {
             if (json.status == 200) {
                 for (var i = 0; i < json.instruments.length; i++) {
@@ -934,7 +934,7 @@ Barchart.RealtimeData.MarketState = function() {
                             json.instruments[i].lookup,
                             json.instruments[i].symbol_description,
                             json.instruments[i].exchange_channel,
-                            json.instruments[i].base_code,
+                            json.instruments[i].base_code.toString(), // bug in DDF, sends '0' to '9' as 0 to 9, so a JSON number, not string
                             json.instruments[i].point_value,
                             json.instruments[i].tick_increment
                         );
@@ -965,7 +965,7 @@ Barchart.RealtimeData.MarketState = function() {
 
         if ((!q.day) && (message.day)) {
             q.day = message.day;
-            q.dayNum = Barchart.RealtimeData.Util.DayCodeToNumber(q.day); 
+            q.dayNum = Barchart.RealtimeData.Util.DayCodeToNumber(q.day);
         }
 
         if (message.type != 'BOOK') {
@@ -1000,7 +1000,7 @@ Barchart.RealtimeData.MarketState = function() {
 
 
         switch (message.type) {
-            case 'BOOK': {                
+            case 'BOOK': {
 		    	var b = _getCreateBook(message.symbol);
                 b.asks = message.asks;
                 b.bids = message.bids;
@@ -1077,7 +1077,7 @@ Barchart.RealtimeData.MarketState = function() {
                         else {
                             q.settlementPrice = undefined;
                             if (q.flag == 's')
-                                q.flag = undefined;                    
+                                q.flag = undefined;
                         }
 
                         if (message.volume === null)
@@ -1099,8 +1099,8 @@ Barchart.RealtimeData.MarketState = function() {
                 break;
             }
             case 'REFRESH_QUOTE': {
-                p = new Barchart.RealtimeData.MarketState.Profile(message.symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement); 
-                
+                p = new Barchart.RealtimeData.MarketState.Profile(message.symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement);
+
                 q.message = message;
                 q.flag = message.flag;
                 q.mode = message.mode;
@@ -1142,7 +1142,7 @@ Barchart.RealtimeData.MarketState = function() {
 
                 break;
             }
-            case 'TRADE': {                
+            case 'TRADE': {
                 q.tradePrice = message.tradePrice;
                 q.lastPrice = message.tradePrice;
                 if (message.tradeSize) {
