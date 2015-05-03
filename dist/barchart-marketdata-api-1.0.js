@@ -225,7 +225,7 @@ Barchart.RealtimeData.Util = {
 
         function format(t) {
             if(t.time && t.flag){
-                return (t.time.getMonth() +1 ) + '/' + t.time.getDay() + '/' + t.time.getYear();
+                return (t.time.getMonth() +1 ) + '/' + t.time.getDate() + '/' + String(t.time.getFullYear()).substr(2);
             }else{
                 if(t.time) t = t.time;
                 return [['00', t.getHours()].join('').substr(-2), ['00', t.getMinutes()].join('').substr(-2), ['00', t.getSeconds()].join('').substr(-2), ['000', t.getMilliseconds()].join('').substr(-3)].join(':');
