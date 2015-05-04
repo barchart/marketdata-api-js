@@ -228,7 +228,7 @@ Barchart.RealtimeData.Util = {
                 return (t.time.getMonth() +1 ) + '/' + t.time.getDate() + '/' + String(t.time.getFullYear()).substr(2);
             }else{
                 if(t.time) t = t.time;
-                return [['00', t.getHours()].join('').substr(-2), ['00', t.getMinutes()].join('').substr(-2), ['00', t.getSeconds()].join('').substr(-2), ['000', t.getMilliseconds()].join('').substr(-3)].join(':');
+                return [['00', t.getHours()].join('').substr(-2), ['00', t.getMinutes()].join('').substr(-2), ['00', t.getSeconds()].join('').substr(-2)].join(':');
             }
         }
 
