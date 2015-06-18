@@ -81,8 +81,14 @@ Barchart.RealtimeData.MarketState = function() {
             return;
         }
 
+        // Process book messages first, they don't need profiles, etc.
+        if (message.type == 'BOOK') {
+            var b = _getCreateBook(message.symbol);
+            b.asks = message.asks;
+            b.bids = message.bids;
+            return;
+        }
 
-    	var q = _getCreateQuote(message.symbol);
 
         var p = Barchart.RealtimeData.MarketState.Profile.prototype.Profiles[message.symbol];
         if ((!p) && (message.type != 'REFRESH_QUOTE')) {
@@ -91,50 +97,43 @@ Barchart.RealtimeData.MarketState = function() {
             return;
         }
 
+        var q = _getCreateQuote(message.symbol);
 
         if ((!q.day) && (message.day)) {
             q.day = message.day;
             q.dayNum = Barchart.RealtimeData.Util.DayCodeToNumber(q.day);
         }
 
-        if (message.type != 'BOOK') {
-            if ((q.day) && (message.day)) {
+        if ((q.day) && (message.day)) {
 
-                var dayNum = Barchart.RealtimeData.Util.DayCodeToNumber(message.day);
+            var dayNum = Barchart.RealtimeData.Util.DayCodeToNumber(message.day);
 
-                if ((dayNum > q.dayNum) || ((q.dayNum - dayNum) > 5)) {
-        			// Roll the quote
-                    q.day = message.day;
-                    q.dayNum = dayNum;
-        			q.flag = 'p';
-        			q.bidPrice = 0.0;
-        			q.bidSize = undefined;
-        			q.askPrice = undefined;
-        			q.askSize = undefined;
-        			if (q.settlementPrice)
-        				q.previousPrice = q.settlementPrice;
-        			else if (q.lastPrice)
-        				q.previousPrice = q.lastPrice;
-        			q.lastPrice = undefined;
-        			q.tradePrice = undefined;
-        			q.tradeSize = undefined;
-        			q.numberOfTrades = undefined;
-        			q.openPrice = undefined;
-        			q.highPrice = undefined;
-        			q.lowPrice = undefined;
-        			q.volume = undefined;
-        		}
-        	}
-        }
+            if ((dayNum > q.dayNum) || ((q.dayNum - dayNum) > 5)) {
+    			// Roll the quote
+                q.day = message.day;
+                q.dayNum = dayNum;
+    			q.flag = 'p';
+    			q.bidPrice = 0.0;
+    			q.bidSize = undefined;
+    			q.askPrice = undefined;
+    			q.askSize = undefined;
+    			if (q.settlementPrice)
+    				q.previousPrice = q.settlementPrice;
+    			else if (q.lastPrice)
+    				q.previousPrice = q.lastPrice;
+    			q.lastPrice = undefined;
+    			q.tradePrice = undefined;
+    			q.tradeSize = undefined;
+    			q.numberOfTrades = undefined;
+    			q.openPrice = undefined;
+    			q.highPrice = undefined;
+    			q.lowPrice = undefined;
+    			q.volume = undefined;
+    		}
+    	}
 
 
         switch (message.type) {
-            case 'BOOK': {
-		    	var b = _getCreateBook(message.symbol);
-                b.asks = message.asks;
-                b.bids = message.bids;
-                break;
-            }
             case 'HIGH': {
                 q.highPrice = message.value;
                 break;
