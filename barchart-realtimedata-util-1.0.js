@@ -109,6 +109,14 @@ Barchart.RealtimeData.Util = {
             return ['000', Math.floor(value)].join('').substr(-1 * digits);
         }
 
+        function getWholeNumberAsString(value) {
+            var val = Math.floor(value);
+            if ((val == 0) && (fractionSeparator == ''))
+                return '';
+
+            return val;
+        }
+
 
         if (fractionSeparator == '.') { // Decimals
             format = function(value, unitcode) {
@@ -170,24 +178,30 @@ Barchart.RealtimeData.Util = {
                 var sign = (value >= 0) ? '' : '-';
                 value = Math.abs(value);
 
+                // Well, damn it, sometimes code that is beatiful just doesn't work quite right.
+                // return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
+                // will fail when Math.floor(value) is 0 and the fractionSeparator is '', since 0.500 => 04 instead of just 4
+
+
+
                 switch (unitcode) {
                     case '2':
-                        return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
+                        return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
                         break;
                     case '3':
-                        return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2)].join('');
+                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2)].join('');
                         break;
                     case '4':
-                        return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2)].join('');
+                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2)].join('');
                         break;
                     case '5':
-                        return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2))].join('');
+                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2))].join('');
                         break;
                     case '6':
-                        return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3)].join('');
+                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3)].join('');
                         break;
                     case '7':
-                        return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3)].join('');
+                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3)].join('');
                         break;
                     case '8':
                         return sign + value.toFixed(0);
