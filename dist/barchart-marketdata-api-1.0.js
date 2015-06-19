@@ -109,6 +109,14 @@ Barchart.RealtimeData.Util = {
             return ['000', Math.floor(value)].join('').substr(-1 * digits);
         }
 
+        function getWholeNumberAsString(value) {
+            var val = Math.floor(value);
+            if ((val == 0) && (fractionSeparator == ''))
+                return '';
+
+            return val;
+        }
+
 
         if (fractionSeparator == '.') { // Decimals
             format = function(value, unitcode) {
@@ -170,24 +178,30 @@ Barchart.RealtimeData.Util = {
                 var sign = (value >= 0) ? '' : '-';
                 value = Math.abs(value);
 
+                // Well, damn it, sometimes code that is beatiful just doesn't work quite right.
+                // return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
+                // will fail when Math.floor(value) is 0 and the fractionSeparator is '', since 0.500 => 04 instead of just 4
+
+
+
                 switch (unitcode) {
                     case '2':
-                        return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
+                        return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
                         break;
                     case '3':
-                        return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2)].join('');
+                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2)].join('');
                         break;
                     case '4':
-                        return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2)].join('');
+                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2)].join('');
                         break;
                     case '5':
-                        return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2))].join('');
+                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2))].join('');
                         break;
                     case '6':
-                        return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3)].join('');
+                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3)].join('');
                         break;
                     case '7':
-                        return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3)].join('');
+                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3)].join('');
                         break;
                     case '8':
                         return sign + value.toFixed(0);
@@ -284,10 +298,13 @@ Barchart.RealtimeData.Connection = function() {
 
     var __state = 'DISCONNECTED';
     var __isConsumerDisconnect = false;
-    var __symbols = {};
+    var __marketDepthSymbols = {};
+    var __marketUpdateSymbols = {};
     var __tasks = {
-        "symbols" : [],
-        "symbols_off" : []
+        "marketDepth_go" : [],
+        "marketDepth_stop" : [],
+        "marketUpdate_go" : [],
+        "marketUpdate_stop" : []
     };
 
     var __commands = [];
@@ -373,11 +390,18 @@ Barchart.RealtimeData.Connection = function() {
                     // would be ignored.
                     __connection = null;
                     connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
-                    if (__tasks.symbols.length == 0) {
-                        for (var k in __symbols) {
-                            __tasks.symbols.push(k);
+                    if (__tasks["marketUpdate_go"].length == 0) {
+                        for (var k in __marketUpdateSymbols) {
+                            __tasks["marketUpdate_go"].push(k);
                         }
                     }
+
+                    if (__tasks["marketDepth_go"].length == 0) {
+                        for (var k in __marketDepthSymbols) {
+                            __tasks["marketDepth_go"].push(k);
+                        }
+                    }
+
                 }, 5000);
             };
 
@@ -407,7 +431,8 @@ Barchart.RealtimeData.Connection = function() {
 
         __commands = [];
         __messages = [];
-        __symbols = {};
+        __marketDepthSymbols = {};
+        __marketUpdateSymbols = {};
     }
 
 
@@ -485,10 +510,17 @@ Barchart.RealtimeData.Connection = function() {
                 if (!__listeners.marketDepth[symbol])
                     return;
 
+
                 for (var i = 0; i < __listeners.marketDepth[symbol].length; i++) {
                     if (__listeners.marketDepth[symbol][i] == handler) {
                         __listeners.marketDepth[symbol].splice(i, 1);
                     }
+                }
+
+                if ((!__listeners.marketDepth[symbol]) || (__listeners.marketDepth[symbol].length == 0)) {
+                    delete __listeners.marketDepth[symbol];
+                    delete __marketDepthSymbols[symbol];
+                    __tasks['marketDepth_stop'].push(symbol);
                 }
 
                 break;
@@ -505,6 +537,12 @@ Barchart.RealtimeData.Connection = function() {
                 for (var i = 0; i < __listeners.marketUpdate[symbol].length; i++) {
                     if (__listeners.marketUpdate[symbol][i] == handler)
                         __listeners.marketUpdate[symbol].splice(i, 1);        
+                }
+
+                if ((!__listeners.marketUpdate[symbol]) || (__listeners.marketUpdate[symbol].length == 0)) {
+                    delete __listeners.marketUpdate[symbol];
+                    delete __marketUpdateSymbols[symbol];
+                    __tasks['marketUpdate_stop'].push(symbol);
                 }
 
                 break;
@@ -540,6 +578,12 @@ Barchart.RealtimeData.Connection = function() {
 
                 var symbol = arguments[2];
 
+                if (!__marketDepthSymbols[symbol]) {
+                    __tasks["marketDepth_go"].push(symbol);
+                    __marketDepthSymbols[symbol] = true;
+                }
+
+
                 if (!__listeners.marketDepth[symbol])
                     __listeners.marketDepth[symbol] = [];
 
@@ -562,6 +606,11 @@ Barchart.RealtimeData.Connection = function() {
                     throw new Error("Bad number of arguments. For marketUpdate events, please specify a symbol. on('marketUpdate', handler, symbol).");
 
                 var symbol = arguments[2];
+
+                if (!__marketUpdateSymbols[symbol]) {
+                    __tasks["marketUpdate_go"].push(symbol);
+                    __marketUpdateSymbols[symbol] = true;
+                }
 
                 if (!__listeners.marketUpdate[symbol])
                     __listeners.marketUpdate[symbol] = [];
@@ -628,6 +677,7 @@ Barchart.RealtimeData.Connection = function() {
     function processCommands() {
         var cmd = __commands.shift();
         while (cmd) {
+            console.log(cmd);
             __connection.send(cmd);
             cmd = __commands.shift();
         }
@@ -734,42 +784,71 @@ Barchart.RealtimeData.Connection = function() {
 
     function pumpTasks() {
         if (__state == 'LOGGED_IN') {
-            if (__tasks['symbols'].length > 0) {
-                var ary = __tasks['symbols'];
-                __tasks['symbols'] = [];
+            if (__tasks['marketDepth_go'].length > 0) {
+                var ary = __tasks['marketDepth_go'];
+                __tasks['marketDepth_go'] = [];
                 var s = "GO ";
                 for (var i = 0; i < ary.length; i++) {
                     if (i > 0)
                         s += ',';
-                    s += ary[i] + '=SsBbV';
+                    s += ary[i] + '=Bb';
+                }
+
+                __commands.push(s);
+            }
+
+            if (__tasks['marketDepth_stop'].length > 0) {
+                var ary = __tasks['marketDepth_stop'];
+                __tasks['marketDepth_stop'] = [];
+                var s = "STOP ";
+                for (var i = 0; i < ary.length; i++) {
+                    if (i > 0)
+                        s += ',';
+                    s += ary[i] + '=Bb';
+                }
+
+                __commands.push(s);
+            }
+
+
+            if (__tasks['marketUpdate_go'].length > 0) {
+                var ary = __tasks['marketUpdate_go'];
+                __tasks['marketUpdate_go'] = [];
+                var s = "GO ";
+                for (var i = 0; i < ary.length; i++) {
+                    if (i > 0)
+                        s += ',';
+                    s += ary[i] + '=SsV';
+                }
+
+                __commands.push(s);
+            }
+
+            if (__tasks['marketUpdate_stop'].length > 0) {
+                var ary = __tasks['marketUpdate_stop'];
+                __tasks['marketUpdate_stop'] = [];
+                var s = "STOP ";
+                for (var i = 0; i < ary.length; i++) {
+                    if (i > 0)
+                        s += ',';
+                    s += ary[i] + '=Ss';
                 }
 
                 __commands.push(s);
             }
         }
 
-        if (__tasks['symbols_off'].length > 0) {
-            var ary = __tasks['symbols_off'];
-            __tasks['symbols_off'] = [];
-            var s = "STOP ";
-            for (var i = 0; i < ary.length; i++) {
-                if (i > 0)
-                    s += ',';
-                s += ary[i];
-            }
-
-            __commands.push(s);
-        }
-
-        setTimeout(pumpTasks, 200);
+        setTimeout(pumpTasks, 250);
     }
 
 
     function refreshQuotes() {
         var symbols = [];
-        for (var k in __symbols) {
+        for (var k in __marketUpdateSymbols) {
             symbols.push(k);
         }
+
+        //TO DO: verify that this proxy gets market depth and then add that list
 
         $.ajax({
             url: 'quotes.php?username=' + __loginInfo.username + '&password=' + __loginInfo.password + '&symbols=' + symbols.join(','), 
@@ -782,42 +861,24 @@ Barchart.RealtimeData.Connection = function() {
     }
 
 
-    function requestSymbols(symbols) {
-        for (var i = 0; i < symbols.length; i++) {
-            var s = symbols[i];
-            if (typeof(symbols[i]) != 'string')
-                s = s.symbol;
-
-            if (!__symbols[s]) {
-                __tasks["symbols"].push(s);
-                __symbols[s] = true;
-            }
+    function getActiveSymbolCount() {
+        var list = {};
+        for (var k in __marketUpdateSymbols) {
+            if (__marketUpdateSymbols[k] === true)
+                list[k] = true;
         }
-    }
 
-    function unRequestSymbols (symbols) {
-        for (var i = 0; i < symbols.length; i++) {
-            if (__symbols[symbols[i]]) {
-                __tasks['symbols_off'].push(symbols[i]);
-                __symbols[symbols[i]] = false;
-            }
+        for (var k in __marketDepthSymbols) {
+            if (__marketDepthSymbols[k] === true)
+                list[k] = true;
         }
-    }
 
-    function getActiveSymbolCount(){
-        var count = 0;
-        var keys = Object.keys(__symbols);
-        for(var i= 0; i < keys.length; i++){
-            if(__symbols[keys[i]] && __symbols[keys[i]]===true){
-                count++;
-            }
-        }
-        return count;
+        return Object.keys(list).length;
     }
 
     setTimeout(processCommands, 200);
     setTimeout(pumpMessages, 125);
-    setTimeout(pumpTasks, 200);
+    setTimeout(pumpTasks, 250);
     setTimeout(processFeedMessages, 125);
 
 
@@ -841,8 +902,6 @@ Barchart.RealtimeData.Connection = function() {
         getUsername : getUsername,
         off: off,
         on : on,
-        requestSymbols : requestSymbols,
-        unRequestSymbols : unRequestSymbols,
         getActiveSymbolCount: getActiveSymbolCount
     }
 };
@@ -961,8 +1020,14 @@ Barchart.RealtimeData.MarketState = function() {
             return;
         }
 
+        // Process book messages first, they don't need profiles, etc.
+        if (message.type == 'BOOK') {
+            var b = _getCreateBook(message.symbol);
+            b.asks = message.asks;
+            b.bids = message.bids;
+            return;
+        }
 
-    	var q = _getCreateQuote(message.symbol);
 
         var p = Barchart.RealtimeData.MarketState.Profile.prototype.Profiles[message.symbol];
         if ((!p) && (message.type != 'REFRESH_QUOTE')) {
@@ -971,50 +1036,43 @@ Barchart.RealtimeData.MarketState = function() {
             return;
         }
 
+        var q = _getCreateQuote(message.symbol);
 
         if ((!q.day) && (message.day)) {
             q.day = message.day;
             q.dayNum = Barchart.RealtimeData.Util.DayCodeToNumber(q.day);
         }
 
-        if (message.type != 'BOOK') {
-            if ((q.day) && (message.day)) {
+        if ((q.day) && (message.day)) {
 
-                var dayNum = Barchart.RealtimeData.Util.DayCodeToNumber(message.day);
+            var dayNum = Barchart.RealtimeData.Util.DayCodeToNumber(message.day);
 
-                if ((dayNum > q.dayNum) || ((q.dayNum - dayNum) > 5)) {
-        			// Roll the quote
-                    q.day = message.day;
-                    q.dayNum = dayNum;
-        			q.flag = 'p';
-        			q.bidPrice = 0.0;
-        			q.bidSize = undefined;
-        			q.askPrice = undefined;
-        			q.askSize = undefined;
-        			if (q.settlementPrice)
-        				q.previousPrice = q.settlementPrice;
-        			else if (q.lastPrice)
-        				q.previousPrice = q.lastPrice;
-        			q.lastPrice = undefined;
-        			q.tradePrice = undefined;
-        			q.tradeSize = undefined;
-        			q.numberOfTrades = undefined;
-        			q.openPrice = undefined;
-        			q.highPrice = undefined;
-        			q.lowPrice = undefined;
-        			q.volume = undefined;
-        		}
-        	}
-        }
+            if ((dayNum > q.dayNum) || ((q.dayNum - dayNum) > 5)) {
+    			// Roll the quote
+                q.day = message.day;
+                q.dayNum = dayNum;
+    			q.flag = 'p';
+    			q.bidPrice = 0.0;
+    			q.bidSize = undefined;
+    			q.askPrice = undefined;
+    			q.askSize = undefined;
+    			if (q.settlementPrice)
+    				q.previousPrice = q.settlementPrice;
+    			else if (q.lastPrice)
+    				q.previousPrice = q.lastPrice;
+    			q.lastPrice = undefined;
+    			q.tradePrice = undefined;
+    			q.tradeSize = undefined;
+    			q.numberOfTrades = undefined;
+    			q.openPrice = undefined;
+    			q.highPrice = undefined;
+    			q.lowPrice = undefined;
+    			q.volume = undefined;
+    		}
+    	}
 
 
         switch (message.type) {
-            case 'BOOK': {
-		    	var b = _getCreateBook(message.symbol);
-                b.asks = message.asks;
-                b.bids = message.bids;
-                break;
-            }
             case 'HIGH': {
                 q.highPrice = message.value;
                 break;
