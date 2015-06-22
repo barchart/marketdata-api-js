@@ -189,19 +189,19 @@ Barchart.RealtimeData.Util = {
                         return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
                         break;
                     case '3':
-                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2)].join('');
+                        return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2)].join('');
                         break;
                     case '4':
-                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2)].join('');
+                        return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2)].join('');
                         break;
                     case '5':
-                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2))].join('');
+                        return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2))].join('');
                         break;
                     case '6':
-                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3)].join('');
+                        return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3)].join('');
                         break;
                     case '7':
-                        return [sign, getWholeNumberAsString, fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3)].join('');
+                        return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3)].join('');
                         break;
                     case '8':
                         return sign + value.toFixed(0);
