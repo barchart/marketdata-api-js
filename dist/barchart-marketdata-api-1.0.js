@@ -300,12 +300,8 @@ Barchart.RealtimeData.Connection = function() {
     var __isConsumerDisconnect = false;
     var __marketDepthSymbols = {};
     var __marketUpdateSymbols = {};
-    var __tasks = {
-        "marketDepth_go" : [],
-        "marketDepth_stop" : [],
-        "marketUpdate_go" : [],
-        "marketUpdate_stop" : []
-    };
+
+    var __tasks = [];
 
     var __commands = [];
     var __connection = null;
@@ -326,6 +322,24 @@ Barchart.RealtimeData.Connection = function() {
 
 
 
+
+    function addTask(id, symbol) {
+        var task = __tasks.pop();
+        if (!task) {
+            __tasks.push({ id: id, symbols: [symbol] });
+            return;
+        }
+
+        if (task.id == id) {
+            task.symbols.push(symbol);
+            __tasks.push(task);
+            return;
+        }
+
+        // id != id
+        __tasks.push(task); // Push it back
+        __tasks.push({ id: id, symbols: [symbol] });
+    }
 
 
     function broadcastEvent(eventId, message) {
@@ -390,16 +404,12 @@ Barchart.RealtimeData.Connection = function() {
                     // would be ignored.
                     __connection = null;
                     connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
-                    if (__tasks["marketUpdate_go"].length == 0) {
-                        for (var k in __marketUpdateSymbols) {
-                            __tasks["marketUpdate_go"].push(k);
-                        }
+                    for (var k in __marketUpdateSymbols) {
+                        addTask('MU_GO', k);
                     }
 
-                    if (__tasks["marketDepth_go"].length == 0) {
-                        for (var k in __marketDepthSymbols) {
-                            __tasks["marketDepth_go"].push(k);
-                        }
+                    for (var k in __marketDepthSymbols) {
+                        addTask('MD_GO', k);
                     }
 
                 }, 5000);
@@ -483,7 +493,6 @@ Barchart.RealtimeData.Connection = function() {
         return __loginInfo.username;
     }
 
-
     function off() {
         if (arguments.length < 2)
             throw new Error("Bad number of arguments. Must pass in an evnetId and handler.");
@@ -520,7 +529,7 @@ Barchart.RealtimeData.Connection = function() {
                 if ((!__listeners.marketDepth[symbol]) || (__listeners.marketDepth[symbol].length == 0)) {
                     delete __listeners.marketDepth[symbol];
                     delete __marketDepthSymbols[symbol];
-                    __tasks['marketDepth_stop'].push(symbol);
+                    addTask("MD_STOP", symbol);
                 }
 
                 break;
@@ -542,7 +551,7 @@ Barchart.RealtimeData.Connection = function() {
                 if ((!__listeners.marketUpdate[symbol]) || (__listeners.marketUpdate[symbol].length == 0)) {
                     delete __listeners.marketUpdate[symbol];
                     delete __marketUpdateSymbols[symbol];
-                    __tasks['marketUpdate_stop'].push(symbol);
+                    addTask("MU_STOP", symbol);
                 }
 
                 break;
@@ -579,7 +588,7 @@ Barchart.RealtimeData.Connection = function() {
                 var symbol = arguments[2];
 
                 if (!__marketDepthSymbols[symbol]) {
-                    __tasks["marketDepth_go"].push(symbol);
+                    addTask("MD_GO", symbol);
                     __marketDepthSymbols[symbol] = true;
                 }
 
@@ -608,7 +617,7 @@ Barchart.RealtimeData.Connection = function() {
                 var symbol = arguments[2];
 
                 if (!__marketUpdateSymbols[symbol]) {
-                    __tasks["marketUpdate_go"].push(symbol);
+                    addTask("MU_GO", symbol);
                     __marketUpdateSymbols[symbol] = true;
                 }
 
@@ -784,60 +793,40 @@ Barchart.RealtimeData.Connection = function() {
 
     function pumpTasks() {
         if (__state == 'LOGGED_IN') {
-            if (__tasks['marketDepth_go'].length > 0) {
-                var ary = __tasks['marketDepth_go'];
-                __tasks['marketDepth_go'] = [];
-                var s = "GO ";
-                for (var i = 0; i < ary.length; i++) {
-                    if (i > 0)
-                        s += ',';
-                    s += ary[i] + '=Bb';
+            while (__tasks.length > 0) {
+                var task = __tasks.shift();
+                var cmd = '';
+                var suffix = '';
+                switch (task.id) {
+                    case 'MD_GO':
+                        cmd = 'GO';
+                        suffix = 'Bb';
+                        break;
+                    case 'MU_GO':
+                        cmd = 'GO';
+                        suffix = 'SsV';
+                        break;
+                    case 'MD_STOP':
+                        cmd = 'STOP';
+                        suffix = 'Bb';
+                        break;
+                    case 'MU_STOP':
+                        cmd = 'STOP';
+                        suffix = 'Ss';
+                        break;
                 }
 
-                __commands.push(s);
-            }
-
-            if (__tasks['marketDepth_stop'].length > 0) {
-                var ary = __tasks['marketDepth_stop'];
-                __tasks['marketDepth_stop'] = [];
-                var s = "STOP ";
-                for (var i = 0; i < ary.length; i++) {
+                var s = cmd + ' ';
+                for (var i = 0; i < task.symbols.length; i++) {
                     if (i > 0)
                         s += ',';
-                    s += ary[i] + '=Bb';
-                }
-
-                __commands.push(s);
-            }
-
-
-            if (__tasks['marketUpdate_go'].length > 0) {
-                var ary = __tasks['marketUpdate_go'];
-                __tasks['marketUpdate_go'] = [];
-                var s = "GO ";
-                for (var i = 0; i < ary.length; i++) {
-                    if (i > 0)
-                        s += ',';
-                    s += ary[i] + '=SsV';
-                }
-
-                __commands.push(s);
-            }
-
-            if (__tasks['marketUpdate_stop'].length > 0) {
-                var ary = __tasks['marketUpdate_stop'];
-                __tasks['marketUpdate_stop'] = [];
-                var s = "STOP ";
-                for (var i = 0; i < ary.length; i++) {
-                    if (i > 0)
-                        s += ',';
-                    s += ary[i] + '=Ss';
+                    s += task.symbols[i] + '=' + suffix;
                 }
 
                 __commands.push(s);
             }
         }
-
+ 
         setTimeout(pumpTasks, 250);
     }
 
