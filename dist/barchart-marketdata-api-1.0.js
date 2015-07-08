@@ -1130,11 +1130,6 @@ Barchart.RealtimeData.MarketState = function() {
                         }
                         else if (message.settlementPrice)
                             q.settlementPrice = message.settlementPrice;
-                        else {
-                            q.settlementPrice = undefined;
-                            if (q.flag == 's')
-                                q.flag = undefined;
-                        }
 
                         if (message.volume === null)
                             q.volume = undefined;
