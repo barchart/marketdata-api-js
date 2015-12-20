@@ -50,7 +50,7 @@ gulp.task('push-changes', function (cb) {
 });
 
 gulp.task('create-tag', function (cb) {
-    var version = 'v' + getVersionFromPackage();
+    var version = getVersionFromPackage();
 
     git.tag(version, 'Release ' + version, function (error) {
         if (error) {
