@@ -58,15 +58,13 @@ var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
 module.exports = function() {
     'use strict';
 
-    var $ = jQueryProvider.getInstance();
-
     return ProfileProviderBase.extend({
         init: function() {
 
         },
 
         _loadProfileData: function(symbols, callback) {
-            $.ajax({
+            jQueryProvider.getInstance().ajax({
                 url: 'proxies/instruments/?lookup=' + symbols.join(','),
             }).done(function(json) {
                 var instrumentData = [ ];
