@@ -938,7 +938,7 @@ var ProfileProvider = require('./../connection/ProfileProvider');
 module.exports = function() {
 	'use strict';
 
-	return function() {
+	var MarketState = function() {
 		var _MAX_TIMEANDSALES = 10;
 
 		var _book = {};
@@ -1235,13 +1235,13 @@ module.exports = function() {
 		};
 
 		return {
-			getBook : function(symbol) {
+			getBook: function(symbol) {
 				return _book[symbol];
 			},
-			getCVol : function(symbol) {
+			getCVol: function(symbol) {
 				return _cvol[symbol];
 			},
-			getProfile : function(symbol, callback) {
+			getProfile: function(symbol, callback) {
 				var p = Profile.prototype.Profiles[symbol];
 				if (!p) {
 					loadProfiles([symbol], function() {
@@ -1252,15 +1252,20 @@ module.exports = function() {
 				else
 					callback(p);
 			},
-			getQuote : function(symbol) {
+			getQuote: function(symbol) {
 				return _quote[symbol];
 			},
-			getTimestamp : function() {
+			getTimestamp: function() {
 				return _timestamp;
 			},
 			processMessage : _processMessage
 		};
 	};
+
+	MarketState.Profile = Profile;
+    MarketState.Quote = Quote;
+
+    return MarketState;
 }();
 },{"./../connection/ProfileProvider":7,"./../util/convertDayCodeToNumber":24,"./Profile":15,"./Quote":16}],15:[function(require,module,exports){
 var parseSymbolType = require('./../util/parseSymbolType');
