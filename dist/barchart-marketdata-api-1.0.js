@@ -2,8 +2,12 @@
 module.exports = function() {
     'use strict';
 
+    console.log('jQueryProvider exporting.');
+
     var provider = {
         getInstance: function() {
+            console.log('jQueryProvider.getInstance called.');
+
             var instance = window.$ || window.jQuery || window.jquery;
 
             if (!instance) {
@@ -216,13 +220,22 @@ var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
 module.exports = function() {
     'use strict';
 
+    var $ = jQueryProvider.getInstance();
+
+    console.log('Invoked jQueryProvider.getInstance');
+    console.log($);
+
     return ProfileProviderBase.extend({
         init: function() {
 
         },
 
         _loadProfileData: function(symbols, callback) {
-            jQueryProvider.getInstance().ajax({
+            console.log('ProfileProvider.loadProfileData invoked.');
+            console.log($);
+            console.log($.ajax);
+
+            $.ajax({
                 url: 'proxies/instruments/?lookup=' + symbols.join(','),
             }).done(function(json) {
                 var instrumentData = [ ];
@@ -261,6 +274,8 @@ module.exports = function() {
 	'use strict';
 
 	var _API_VERSION = 4;
+
+	var $ = jQueryProvider.getInstance();
 
 	var Connection = function() {
 		/* Constants */
@@ -793,10 +808,10 @@ module.exports = function() {
 
 			//TO DO: verify that this proxy gets market depth and then add that list
 
-			jQueryProvider.getInstance().ajax({
+			$.ajax({
 				url: 'quotes.php?username=' + __loginInfo.username + '&password=' + __loginInfo.password + '&symbols=' + symbols.join(',')
 			}).done(function(xml) {
-				jQueryProvider.getInstance()(xml).find('QUOTE').each(function() {
+				$(xml).find('QUOTE').each(function() {
 					onNewMessage('%' + this.outerHTML);
 				});
 			});
