@@ -2,12 +2,8 @@
 module.exports = function() {
     'use strict';
 
-    console.log('jQueryProvider exporting.');
-
     var provider = {
         getInstance: function() {
-            console.log('jQueryProvider.getInstance called.');
-
             var instance = window.$ || window.jQuery || window.jquery;
 
             if (!instance) {
@@ -17,6 +13,8 @@ module.exports = function() {
             provider.getInstance = function() {
                 return instance;
             };
+
+            return instance;
         }
     };
 
@@ -222,19 +220,12 @@ module.exports = function() {
 
     var $ = jQueryProvider.getInstance();
 
-    console.log('Invoked jQueryProvider.getInstance');
-    console.log($);
-
     return ProfileProviderBase.extend({
         init: function() {
 
         },
 
         _loadProfileData: function(symbols, callback) {
-            console.log('ProfileProvider.loadProfileData invoked.');
-            console.log($);
-            console.log($.ajax);
-
             $.ajax({
                 url: 'proxies/instruments/?lookup=' + symbols.join(','),
             }).done(function(json) {
