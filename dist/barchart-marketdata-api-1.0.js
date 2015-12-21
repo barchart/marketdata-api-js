@@ -1943,6 +1943,7 @@ module.exports = function() {
 		DateToDayCode: convertDateToDayCode,
 		DayCodeToNumber: convertDayCodeToNumber,
 		MonthCodes: monthCodes,
+		ParseSymbolType: parseSymbolType,
 		PriceFormatter: priceFormatter,
 		TimeFormatter: timeFormatter,
 		UnitCode2BaseCode: convertUnitCodeToBaseCode
