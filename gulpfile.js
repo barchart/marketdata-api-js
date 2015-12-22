@@ -5,10 +5,13 @@ var buffer = require('vinyl-buffer');
 var bump = require('gulp-bump');
 var git = require('gulp-git');
 var gitModified = require('gulp-gitmodified');
+var glob = require('glob');
+var jasmine = require('gulp-jasmine');
 var jshint = require('gulp-jshint');
 var rename = require('gulp-rename');
 var runSequence = require('run-sequence');
 var source = require('vinyl-source-stream');
+var transform = require('vinyl-transform');
 var uglify = require('gulp-uglify');
 var util = require('gulp-util');
 
@@ -106,14 +109,42 @@ gulp.task('build-message-parser', function() {
         .pipe(gulp.dest('./dist'));
 });
 
+gulp.task('build-browser-tests', function () {
+    return browserify({ entries: glob.sync('test/specs/**/*.js') }).bundle()
+        .pipe(source('barchart-marketdata-api-tests-' + getVersionForComponent() + '.js'))
+        .pipe(buffer())
+        .pipe(gulp.dest('test/dist'));
+});
+
 gulp.task('build-browser-components', [ 'build-connection', 'build-util', 'build-historical-data', 'build-market-state', 'build-message-parser' ]);
 
 gulp.task('build', [ 'build-browser', 'build-browser-components' ]);
+
+gulp.task('execute-browser-tests', function () {
+    return gulp.src('test/dist/barchart-marketdata-api-tests-' + getVersionForComponent() + '.js')
+        .pipe(jasmine());
+});
+
+gulp.task('build-and-execute-browser-tests', function (callback) {
+    runSequence(
+        'build-browser-tests',
+        'execute-browser-tests',
+
+        function (error) {
+            if (error) {
+                console.log(error.message);
+            }
+
+            callback(error);
+        });
+});
 
 gulp.task('release', function (callback) {
     runSequence(
         'ensure-clean-working-directory',
         'build',
+        'build-browser-tests',
+        'execute-browser-tests',
         'bump-version',
         'commit-changes',
         'push-changes',
@@ -131,9 +162,11 @@ gulp.task('release', function (callback) {
 });
 
 gulp.task('lint', function() {
-    return gulp.src('lib/**/*.js')
+    return gulp.src('spec/test.js')
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
 });
+
+gulp.task('test', [ 'build-tests', 'run-tests' ]);
 
 gulp.task('default', [ 'lint' ]);
