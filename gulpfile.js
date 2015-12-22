@@ -125,6 +125,11 @@ gulp.task('execute-browser-tests', function () {
         .pipe(jasmine());
 });
 
+gulp.task('execute-node-tests', function () {
+    return gulp.src(['lib/index.js', 'test/specs/**/*.js'])
+        .pipe(jasmine());
+});
+
 gulp.task('build-and-execute-browser-tests', function (callback) {
     runSequence(
         'build-browser-tests',
@@ -145,6 +150,7 @@ gulp.task('release', function (callback) {
         'build',
         'build-browser-tests',
         'execute-browser-tests',
+        'execute-node-tests',
         'bump-version',
         'commit-changes',
         'push-changes',
