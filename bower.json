@@ -23,7 +23,7 @@
     "Barchart"
   ],
   "license": "BCL",
-  "private": true,
+  "private": false,
   "ignore": [
     "**/.*",
     "node_modules",
