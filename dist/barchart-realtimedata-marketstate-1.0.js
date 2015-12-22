@@ -584,7 +584,7 @@ module.exports = function() {
 
 		if (fractionSeparator == '.') { // Decimals
 			format = function(value, unitcode) {
-				if (!value)
+				if (value === '')
 					return '';
 
 				switch (unitcode) {
@@ -621,7 +621,7 @@ module.exports = function() {
 		}
 		else {
 			format = function(value, unitcode) {
-				if (!value)
+				if (value === '')
 					return '';
 
 				var sign = (value >= 0) ? '' : '-';
