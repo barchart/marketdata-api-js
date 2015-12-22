@@ -36,7 +36,7 @@ gulp.task('ensure-clean-working-directory', function() {
 });
 
 gulp.task('bump-version', function () {
-    return gulp.src([ './package.json' ])
+    return gulp.src([ './package.json', './bower.json' ])
         .pipe(bump({ type: 'patch' }).on('error', util.log))
         .pipe(gulp.dest('./'));
 });
