@@ -12,10 +12,8 @@ describe('When a price formatter is created', function() {
             expect(priceFormatter.format(123.5, '2')).toBe('123-4');
         });
 
-        /*
         it('formats 0 (with unit code 2) as "0-0"', function() {
             expect(priceFormatter.format(0, '2')).toBe('0-0');
         });
-        */
     });
 });
