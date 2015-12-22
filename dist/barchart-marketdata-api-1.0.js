@@ -226,6 +226,21 @@ module.exports = function() {
         },
 
         _loadProfileData: function(symbols, callback) {
+            callback([
+                {
+                    lookup: 'TSLA',
+                    symbol_description: 'Tesla',
+                    exchange_channel: 'abc',
+                    base_code: '2',
+                    point_value: '3',
+                    tick_increment: 4,
+                    status: 200
+                }
+            ]);
+
+
+            return;
+
             $.ajax({
                 url: 'proxies/instruments/?lookup=' + symbols.join(','),
             }).done(function(json) {
@@ -969,7 +984,7 @@ module.exports = function() {
 				callback();
 			};
 
-			_profileProvider.loadProfileData(symbols, callback);
+			_profileProvider.loadProfileData(symbols, wrappedCallback);
 		};
 
 		var _getCreateBook = function(symbol) {
