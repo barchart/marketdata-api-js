@@ -11,7 +11,6 @@ var jshint = require('gulp-jshint');
 var rename = require('gulp-rename');
 var runSequence = require('run-sequence');
 var source = require('vinyl-source-stream');
-var transform = require('vinyl-transform');
 var uglify = require('gulp-uglify');
 var util = require('gulp-util');
 
@@ -169,11 +168,9 @@ gulp.task('release', function (callback) {
 });
 
 gulp.task('lint', function() {
-    return gulp.src('spec/test.js')
+    return gulp.src([ './lib/**/*.js', './test/specs/**/*.js' ])
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
 });
-
-gulp.task('test', [ 'build-tests', 'run-tests' ]);
 
 gulp.task('default', [ 'lint' ]);
