@@ -2033,7 +2033,7 @@ module.exports = function() {
 
 		if (fractionSeparator == '.') { // Decimals
 			format = function(value, unitcode) {
-				if (value === '' || value === undefined)
+				if (value === '' || value === undefined || value === null || Number.isNaN(value))
 					return '';
 
 				switch (unitcode) {
@@ -2070,7 +2070,7 @@ module.exports = function() {
 		}
 		else {
 			format = function(value, unitcode) {
-				if (value === '' || value === undefined)
+				if (value === '' || value === undefined || value === null || Number.isNaN(value))
 					return '';
 
 				var sign = (value >= 0) ? '' : '-';
