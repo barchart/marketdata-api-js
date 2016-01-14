@@ -44,6 +44,7 @@
   ],
   "dependencies": {
     "class.extend": "^0.9.1",
+    "lodash.isnan": "^3.0.1",
     "xmldom": "^0.1.19"
   },
   "devDependencies": {

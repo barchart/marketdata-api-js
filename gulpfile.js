@@ -144,6 +144,8 @@ gulp.task('execute-tests', function (callback) {
         });
 });
 
+gulp.task('test', [ 'execute-tests' ]);
+
 gulp.task('release', function (callback) {
     runSequence(
         'ensure-clean-working-directory',
