@@ -75,35 +75,35 @@ gulp.task('build-browser', function() {
 
 gulp.task('build-connection', function() {
     return browserify('./lib/connection/index.js', { standalone: 'Barchart.RealtimeData.Connection' }).bundle()
-        .pipe(source('barchart-realtimedata-connection-' + getVersionForComponent() + '.js'))
+        .pipe(source('barchart-marketdata-connection-' + getVersionForComponent() + '.js'))
         .pipe(buffer())
         .pipe(gulp.dest('./dist'));
 });
 
 gulp.task('build-util', function() {
     return browserify('./lib/util/index.js', { standalone: 'Barchart.RealtimeData.Util' }).bundle()
-        .pipe(source('barchart-realtimedata-util-' + getVersionForComponent() + '.js'))
+        .pipe(source('barchart-marketdata-util-' + getVersionForComponent() + '.js'))
         .pipe(buffer())
         .pipe(gulp.dest('./dist'));
 });
 
 gulp.task('build-historical-data', function() {
     return browserify('./lib/historicalData/index.js', { standalone: 'Barchart.RealtimeData.HistoricalData' }).bundle()
-        .pipe(source('barchart-realtimedata-historicaldata-' + getVersionForComponent() + '.js'))
+        .pipe(source('barchart-marketdata-historicaldata-' + getVersionForComponent() + '.js'))
         .pipe(buffer())
         .pipe(gulp.dest('./dist'));
 });
 
 gulp.task('build-market-state', function() {
     return browserify('./lib/marketState/index.js', { standalone: 'Barchart.RealtimeData.MarketState' }).bundle()
-        .pipe(source('barchart-realtimedata-marketstate-' + getVersionForComponent() + '.js'))
+        .pipe(source('barchart-marketdata-marketstate-' + getVersionForComponent() + '.js'))
         .pipe(buffer())
         .pipe(gulp.dest('./dist'));
 });
 
 gulp.task('build-message-parser', function() {
     return browserify('./lib/messageParser/index.js', { standalone: 'Barchart.RealtimeData.MessageParser' }).bundle()
-        .pipe(source('barchart-realtimedata-messageparser-' + getVersionForComponent() + '.js'))
+        .pipe(source('barchart-marketdata-messageparser-' + getVersionForComponent() + '.js'))
         .pipe(buffer())
         .pipe(gulp.dest('./dist'));
 });

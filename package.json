@@ -22,9 +22,7 @@
   "main": "./lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify index.js -s Barchart.RealtimeData -o dist/barchart-realtimedata-api.js",
-    "version": "npm run build && git add -A dist && git push --follow-tags",
-    "watch": "watchify index.js -s Barchart.RealtimeData -o dist/barchart-realtimedata-api.js"
+    "version": "npm run build && git add -A dist && git push --follow-tags"
   },
   "repository": {
     "type": "git",
@@ -43,6 +41,7 @@
     "HTML5"
   ],
   "dependencies": {
+    "barchart-marketdata-utilities": "^1.0.19",
     "class.extend": "^0.9.1",
     "lodash.isnan": "^3.0.1",
     "xmldom": "^0.1.19"
