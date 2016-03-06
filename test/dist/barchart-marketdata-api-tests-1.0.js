@@ -1,4 +1,24 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.priceFormatter;
+}();
+},{"barchart-marketdata-utilities":2}],2:[function(require,module,exports){
+var priceFormatter = require('./priceFormatter');
+var timeFormatter = require('./timeFormatter');
+
+module.exports = function() {
+	'use strict';
+
+	return {
+		priceFormatter: priceFormatter,
+		timeFormatter: timeFormatter
+	};
+}();
+},{"./priceFormatter":3,"./timeFormatter":4}],3:[function(require,module,exports){
 var isNaN = require('lodash.isnan');
 
 module.exports = function() {
@@ -107,10 +127,33 @@ module.exports = function() {
 		};
 	};
 }();
-},{"lodash.isnan":2}],2:[function(require,module,exports){
-(function (global){
+},{"lodash.isnan":5}],4:[function(require,module,exports){
+module.exports = function () {
+	'use strict';
+
+	return function () {
+		return {
+			format: function (t) {
+				if (t.time && t.flag) {
+					return (t.time.getMonth() + 1 ) + '/' + t.time.getDate() + '/' + String(t.time.getFullYear()).substr(2);
+				} else {
+					if (t.hasOwnProperty('time')) {
+						t = t.time;
+					}
+
+					if (t) {
+						return [['00', t.getHours()].join('').substr(-2), ['00', t.getMinutes()].join('').substr(-2), ['00', t.getSeconds()].join('').substr(-2)].join(':');
+					} else {
+						return ''; // FIXME ETS messages are missing (null) 'time' on them near settlement...
+					}
+				}
+			}
+		};
+	};
+}();
+},{}],5:[function(require,module,exports){
 /**
- * lodash 3.0.1 (Custom Build) <https://lodash.com/>
+ * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
  * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -122,7 +165,7 @@ module.exports = function() {
 var numberTag = '[object Number]';
 
 /** Used for built-in method references. */
-var objectProto = global.Object.prototype;
+var objectProto = Object.prototype;
 
 /**
  * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
@@ -220,125 +263,124 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],3:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var PriceFormatter = require('../../../lib/util/priceFormatter');
 
 describe('When a price formatter is created', function() {
-    var priceFormatter;
+	var priceFormatter;
 
-    describe('with a dash fraction separator and no special fractions', function() {
-        beforeEach(function() {
-            priceFormatter = new PriceFormatter('-', false);
-        });
+	describe('with a dash fraction separator and no special fractions', function() {
+		beforeEach(function() {
+			priceFormatter = new PriceFormatter('-', false);
+		});
 
-        it('formats 123 (with unit code 2) as "123-0"', function() {
-            expect(priceFormatter.format(123, '2')).toEqual('123-0');
-        });
+		it('formats 123 (with unit code 2) as "123-0"', function() {
+			expect(priceFormatter.format(123, '2')).toEqual('123-0');
+		});
 
-        it('formats 123.5 (with unit code 2) as "123-4"', function() {
-            expect(priceFormatter.format(123.5, '2')).toEqual('123-4');
-        });
+		it('formats 123.5 (with unit code 2) as "123-4"', function() {
+			expect(priceFormatter.format(123.5, '2')).toEqual('123-4');
+		});
 
-        it('formats 0.5 (with unit code 2) as "0-4"', function() {
-            expect(priceFormatter.format(0.5, '2')).toEqual('0-4');
-        });
+		it('formats 0.5 (with unit code 2) as "0-4"', function() {
+			expect(priceFormatter.format(0.5, '2')).toEqual('0-4');
+		});
 
-        it('formats 0 (with unit code 2) as "0-0"', function() {
-            expect(priceFormatter.format(0, '2')).toEqual('0-0');
-        });
+		it('formats 0 (with unit code 2) as "0-0"', function() {
+			expect(priceFormatter.format(0, '2')).toEqual('0-0');
+		});
 
-        it('formats zero-length string (with unit code 2) as zero-length string', function() {
-            expect(priceFormatter.format('', '2')).toEqual('');
-        });
+		it('formats zero-length string (with unit code 2) as zero-length string', function() {
+			expect(priceFormatter.format('', '2')).toEqual('');
+		});
 
-        it('formats undefined (with unit code 2) as zero-length string', function() {
-            expect(priceFormatter.format(undefined, '2')).toEqual('');
-        });
+		it('formats undefined (with unit code 2) as zero-length string', function() {
+			expect(priceFormatter.format(undefined, '2')).toEqual('');
+		});
 
-        it('formats null (with unit code 2) as zero-length string', function() {
-            expect(priceFormatter.format(null, '2')).toEqual('');
-        });
+		it('formats null (with unit code 2) as zero-length string', function() {
+			expect(priceFormatter.format(null, '2')).toEqual('');
+		});
 
-        it('formats Number.NaN (with unit code 2) as zero-length string', function() {
-            expect(priceFormatter.format(Number.NaN, '2')).toEqual('');
-        });
-    });
+		it('formats Number.NaN (with unit code 2) as zero-length string', function() {
+			expect(priceFormatter.format(Number.NaN, '2')).toEqual('');
+		});
+	});
 
-    describe('with a tick fraction separator and no special fractions', function() {
-        beforeEach(function() {
-            priceFormatter = new PriceFormatter('\'', false);
-        });
+	describe('with a tick fraction separator and no special fractions', function() {
+		beforeEach(function() {
+			priceFormatter = new PriceFormatter('\'', false);
+		});
 
-        it('formats 123 (with unit code 2) as "123\'0"', function() {
-            expect(priceFormatter.format(123, '2')).toEqual('123\'0');
-        });
+		it('formats 123 (with unit code 2) as "123\'0"', function() {
+			expect(priceFormatter.format(123, '2')).toEqual('123\'0');
+		});
 
-        it('formats 123.5 (with unit code 2) as "123\'4"', function() {
-            expect(priceFormatter.format(123.5, '2')).toEqual('123\'4');
-        });
+		it('formats 123.5 (with unit code 2) as "123\'4"', function() {
+			expect(priceFormatter.format(123.5, '2')).toEqual('123\'4');
+		});
 
-        it('formats 0.5 (with unit code 2) as "0\'4"', function() {
-            expect(priceFormatter.format(0.5, '2')).toEqual('0\'4');
-        });
+		it('formats 0.5 (with unit code 2) as "0\'4"', function() {
+			expect(priceFormatter.format(0.5, '2')).toEqual('0\'4');
+		});
 
-        it('formats 0 (with unit code 2) as "0\'0"', function() {
-            expect(priceFormatter.format(0, '2')).toEqual('0\'0');
-        });
+		it('formats 0 (with unit code 2) as "0\'0"', function() {
+			expect(priceFormatter.format(0, '2')).toEqual('0\'0');
+		});
 
-        it('formats zero-length string (with unit code 2) as zero-length string', function() {
-            expect(priceFormatter.format('', '2')).toEqual('');
-        });
+		it('formats zero-length string (with unit code 2) as zero-length string', function() {
+			expect(priceFormatter.format('', '2')).toEqual('');
+		});
 
-        it('formats undefined (with unit code 2) as zero-length string', function() {
-            expect(priceFormatter.format(undefined, '2')).toEqual('');
-        });
+		it('formats undefined (with unit code 2) as zero-length string', function() {
+			expect(priceFormatter.format(undefined, '2')).toEqual('');
+		});
 
-        it('formats null (with unit code 2) as zero-length string', function() {
-            expect(priceFormatter.format(null, '2')).toEqual('');
-        });
+		it('formats null (with unit code 2) as zero-length string', function() {
+			expect(priceFormatter.format(null, '2')).toEqual('');
+		});
 
-        it('formats Number.NaN (with unit code 2) as zero-length string', function() {
-            expect(priceFormatter.format(Number.NaN, '2')).toEqual('');
-        });
-    });
+		it('formats Number.NaN (with unit code 2) as zero-length string', function() {
+			expect(priceFormatter.format(Number.NaN, '2')).toEqual('');
+		});
+	});
 
-    describe('with no fraction separator and no special fractions', function() {
-        beforeEach(function() {
-            priceFormatter = new PriceFormatter('', false);
-        });
+	describe('with no fraction separator and no special fractions', function() {
+		beforeEach(function() {
+			priceFormatter = new PriceFormatter('', false);
+		});
 
-        it('formats 123 (with unit code 2) as "1230"', function() {
-            expect(priceFormatter.format(123, '2')).toEqual('1230');
-        });
+		it('formats 123 (with unit code 2) as "1230"', function() {
+			expect(priceFormatter.format(123, '2')).toEqual('1230');
+		});
 
-        it('formats 123.5 (with unit code 2) as "1234"', function() {
-            expect(priceFormatter.format(123.5, '2')).toEqual('1234');
-        });
+		it('formats 123.5 (with unit code 2) as "1234"', function() {
+			expect(priceFormatter.format(123.5, '2')).toEqual('1234');
+		});
 
-        it('formats 0.5 (with unit code 2) as "4"', function() {
-            expect(priceFormatter.format(0.5, '2')).toEqual('4');
-        });
+		it('formats 0.5 (with unit code 2) as "4"', function() {
+			expect(priceFormatter.format(0.5, '2')).toEqual('4');
+		});
 
-        it('formats 0 (with unit code 2) as "0"', function() {
-            expect(priceFormatter.format(0, '2')).toEqual('0');
-        });
+		it('formats 0 (with unit code 2) as "0"', function() {
+			expect(priceFormatter.format(0, '2')).toEqual('0');
+		});
 
-        it('formats zero-length string (with unit code 2) as zero-length string', function() {
-            expect(priceFormatter.format('', '2')).toEqual('');
-        });
+		it('formats zero-length string (with unit code 2) as zero-length string', function() {
+			expect(priceFormatter.format('', '2')).toEqual('');
+		});
 
-        it('formats undefined (with unit code 2) as zero-length string', function() {
-            expect(priceFormatter.format(undefined, '2')).toEqual('');
-        });
+		it('formats undefined (with unit code 2) as zero-length string', function() {
+			expect(priceFormatter.format(undefined, '2')).toEqual('');
+		});
 
-        it('formats null (with unit code 2) as zero-length string', function() {
-            expect(priceFormatter.format(null, '2')).toEqual('');
-        });
+		it('formats null (with unit code 2) as zero-length string', function() {
+			expect(priceFormatter.format(null, '2')).toEqual('');
+		});
 
-        it('formats Number.NaN (with unit code 2) as zero-length string', function() {
-            expect(priceFormatter.format(Number.NaN, '2')).toEqual('');
-        });
-    });
+		it('formats Number.NaN (with unit code 2) as zero-length string', function() {
+			expect(priceFormatter.format(Number.NaN, '2')).toEqual('');
+		});
+	});
 });
-},{"../../../lib/util/priceFormatter":1}]},{},[3]);
+},{"../../../lib/util/priceFormatter":1}]},{},[6]);
