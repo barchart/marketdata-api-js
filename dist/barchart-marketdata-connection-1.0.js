@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}(g.Barchart || (g.Barchart = {})).RealtimeData = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g=(g.Barchart||(g.Barchart = {}));g=(g.RealtimeData||(g.RealtimeData = {}));g.Connection = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports = function() {
     'use strict';
 
@@ -48,7 +48,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":34}],3:[function(require,module,exports){
+},{"class.extend":23}],3:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -90,7 +90,7 @@ module.exports = function() {
 
     return Connection;
 }();
-},{"./websocket/Connection":11}],5:[function(require,module,exports){
+},{"./websocket/Connection":10}],5:[function(require,module,exports){
 var Class = require('class.extend');
 
 module.exports = function() {
@@ -170,15 +170,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":34}],6:[function(require,module,exports){
-var HistoricalDataProvider = require('./http/HistoricalDataProvider');
-
-module.exports = function() {
-	'use strict';
-
-	return HistoricalDataProvider;
-}();
-},{"./http/HistoricalDataProvider":9}],7:[function(require,module,exports){
+},{"class.extend":23}],6:[function(require,module,exports){
 var ProfileProvider = require('./http/ProfileProvider');
 
 module.exports = function() {
@@ -186,7 +178,7 @@ module.exports = function() {
 
 	return ProfileProvider;
 }();
-},{"./http/ProfileProvider":9}],8:[function(require,module,exports){
+},{"./http/ProfileProvider":8}],7:[function(require,module,exports){
 var Class = require('class.extend');
 
 module.exports = function() {
@@ -210,7 +202,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":34}],9:[function(require,module,exports){
+},{"class.extend":23}],8:[function(require,module,exports){
 var ProfileProviderBase = require('./../../ProfileProviderBase');
 
 var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
@@ -246,7 +238,7 @@ module.exports = function() {
         }
     });
 }();
-},{"./../../../common/jQuery/jQueryProvider":1,"./../../ProfileProviderBase":8}],10:[function(require,module,exports){
+},{"./../../../common/jQuery/jQueryProvider":1,"./../../ProfileProviderBase":7}],9:[function(require,module,exports){
 var Connection = require('./Connection');
 
 module.exports = function() {
@@ -254,7 +246,7 @@ module.exports = function() {
 
 	return Connection;
 }();
-},{"./Connection":4}],11:[function(require,module,exports){
+},{"./Connection":4}],10:[function(require,module,exports){
 var ConnectionBase = require('./../../ConnectionBase');
 var MarketState = require('./../../../marketState/MarketState');
 var parseMessage = require('./../../../messageParser/parseMessage');
@@ -895,40 +887,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"./../../../common/jQuery/jQueryProvider":1,"./../../../marketState/MarketState":14,"./../../../messageParser/parseMessage":19,"./../../ConnectionBase":5}],12:[function(require,module,exports){
-var HistoricalDataProvider = require('./../connection/HistoricalDataProvider');
-
-module.exports = function() {
-	'use strict';
-
-	return HistoricalDataProvider;
-}();
-},{"./../connection/HistoricalDataProvider":6}],13:[function(require,module,exports){
-var connection = require('./connection/index');
-var historicalData = require('./historicalData/index');
-var MarketState = require('./marketState/index');
-var messageParser = require('./messageParser/index');
-var util = require('./util/index');
-
-module.exports = function() {
-	'use strict';
-
-	return {
-		Connection: connection,
-
-		historicalData: historicalData,
-		HistoricalData: historicalData,
-
-		MarketState: MarketState,
-
-		MessageParser: messageParser,
-		messageParser: messageParser,
-
-		Util: util,
-		util: util
-	};
-}();
-},{"./connection/index":10,"./historicalData/index":12,"./marketState/index":17,"./messageParser/index":18,"./util/index":26}],14:[function(require,module,exports){
+},{"./../../../common/jQuery/jQueryProvider":1,"./../../../marketState/MarketState":11,"./../../../messageParser/parseMessage":14,"./../../ConnectionBase":5}],11:[function(require,module,exports){
 var Profile = require('./Profile');
 var Quote = require('./Quote');
 
@@ -1267,7 +1226,7 @@ module.exports = function() {
 
     return MarketState;
 }();
-},{"./../connection/ProfileProvider":7,"./../util/convertDayCodeToNumber":24,"./Profile":15,"./Quote":16}],15:[function(require,module,exports){
+},{"./../connection/ProfileProvider":6,"./../util/convertDayCodeToNumber":17,"./Profile":12,"./Quote":13}],12:[function(require,module,exports){
 var parseSymbolType = require('./../util/parseSymbolType');
 var priceFormatter = require('./../util/priceFormatter');
 
@@ -1309,7 +1268,7 @@ module.exports = function() {
 
 	return Profile;
 }();
-},{"./../util/parseSymbolType":28,"./../util/priceFormatter":29}],16:[function(require,module,exports){
+},{"./../util/parseSymbolType":18,"./../util/priceFormatter":19}],13:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1343,33 +1302,7 @@ module.exports = function() {
 		this.ticks = [];
 	};
 }();
-},{}],17:[function(require,module,exports){
-var MarketState = require('./MarketState');
-
-module.exports = function() {
-	'use strict';
-
-	return MarketState;
-}();
-},{"./MarketState":14}],18:[function(require,module,exports){
-var parseMessage = require('./parseMessage');
-var parseTimestamp = require('./parseTimestamp');
-var parseValue = require('./parseValue');
-
-module.exports = function() {
-	'use strict';
-
-	return {
-		parseMessage: parseMessage,
-		parseTimestamp: parseTimestamp,
-		parseValue: parseValue,
-
-		Parse: parseMessage,
-		ParseTimestamp: parseTimestamp,
-		ParseValue: parseValue
-	};
-}();
-},{"./parseMessage":19,"./parseTimestamp":20,"./parseValue":21}],19:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var XmlDomParser = require('./../common/xml/XmlDomParser');
 
 var parseValue = require('./parseValue');
@@ -1749,7 +1682,7 @@ module.exports = function() {
 		return message;
 	};
 }();
-},{"./../common/xml/XmlDomParser":3,"./parseTimestamp":20,"./parseValue":21}],20:[function(require,module,exports){
+},{"./../common/xml/XmlDomParser":3,"./parseTimestamp":15,"./parseValue":16}],15:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1782,7 +1715,7 @@ module.exports = function() {
 		return new Date(year, month, day, hour, minute, second, ms);
 	};
 }();
-},{}],21:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1830,62 +1763,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],22:[function(require,module,exports){
-module.exports = function() {
-	'use strict';
-
-	return function(basecode) {
-		switch(basecode) {
-			case -1:
-				return '2';
-			case -2:
-				return '3';
-			case -3:
-				return '4';
-			case -4:
-				return '5';
-			case -5:
-				return '6';
-			case -6:
-				return '7';
-			case 0:
-				return '8';
-			case 1:
-				return '9';
-			case 2:
-				return 'A';
-			case 3:
-				return 'B';
-			case 4:
-				return 'C';
-			case 5:
-				return 'D';
-			case 6:
-				return 'E';
-			case 7:
-				return 'F';
-			default:
-				return 0;
-		}
-	};
-}();
-},{}],23:[function(require,module,exports){
-module.exports = function() {
-	'use strict';
-
-	return function(date) {
-		var d = date.getDate();
-
-		if ((d >= 1) && (d <= 9))
-			return String.fromCharCode(("1").charCodeAt(0) + d - 1);
-		else if (d == 10)
-			return '0';
-		else
-			return String.fromCharCode(("A").charCodeAt(0) + d - 11);
-	};
-}();
-
-},{}],24:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1900,96 +1778,7 @@ module.exports = function() {
 			return ((val1 - ("A").charCodeAt(0)) + 11);
 	};
 }();
-},{}],25:[function(require,module,exports){
-module.exports = function() {
-	'use strict';
-
-	return function(unitcode) {
-		switch(unitcode) {
-			case '2':
-				return -1;
-			case '3':
-				return -2;
-			case '4':
-				return -3;
-			case '5':
-				return -4;
-			case '6':
-				return -5;
-			case '7':
-				return -6;
-			case '8':
-				return 0;
-			case '9':
-				return 1;
-			case 'A':
-				return 2;
-			case 'B':
-				return 3;
-			case 'C':
-				return 4;
-			case 'D':
-				return 5;
-			case 'E':
-				return 6;
-			case 'F':
-				return 7;
-			default:
-				return 0;
-		}
-	};
-}();
-},{}],26:[function(require,module,exports){
-var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode');
-var convertDateToDayCode = require('./convertDateToDayCode');
-var convertDayCodeToNumber = require('./convertDayCodeToNumber');
-var convertUnitCodeToBaseCode = require('./convertUnitCodeToBaseCode');
-var monthCodes = require('./monthCodes');
-var parseSymbolType = require('./parseSymbolType');
-var priceFormatter = require('./priceFormatter');
-var timeFormatter = require('./timeFormatter');
-
-module.exports = function() {
-	'use strict';
-
-	return {
-		convertBaseCodeToUnitCode: convertBaseCodeToUnitCode,
-		convertUnitCodeToBaseCode: convertUnitCodeToBaseCode,
-		convertDateToDayCode: convertDateToDayCode,
-		convertDayCodeToNumber: convertDayCodeToNumber,
-		monthCodes: monthCodes,
-		parseSymbolType: parseSymbolType,
-
-		BaseCode2UnitCode: convertBaseCodeToUnitCode,
-		DateToDayCode: convertDateToDayCode,
-		DayCodeToNumber: convertDayCodeToNumber,
-		MonthCodes: monthCodes,
-		ParseSymbolType: parseSymbolType,
-		PriceFormatter: priceFormatter,
-		TimeFormatter: timeFormatter,
-		UnitCode2BaseCode: convertUnitCodeToBaseCode
-	};
-}();
-},{"./convertBaseCodeToUnitCode":22,"./convertDateToDayCode":23,"./convertDayCodeToNumber":24,"./convertUnitCodeToBaseCode":25,"./monthCodes":27,"./parseSymbolType":28,"./priceFormatter":29,"./timeFormatter":30}],27:[function(require,module,exports){
-module.exports = function() {
-	'use strict';
-
-	return {
-		"F": "January",
-		"G": "February",
-		"H": "March",
-		"J": "April",
-		"K": "May",
-		"M": "June",
-		"N": "July",
-		"Q": "August",
-		"U": "September",
-		"V": "October",
-		"X": "November",
-		"Z": "December"
-	};
-}();
-},{}],28:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2025,7 +1814,7 @@ module.exports = function() {
 		return null;
 	};
 }();
-},{}],29:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -2033,15 +1822,7 @@ module.exports = function() {
 
 	return utilities.priceFormatter;
 }();
-},{"barchart-marketdata-utilities":31}],30:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.timeFormatter;
-}();
-},{"barchart-marketdata-utilities":31}],31:[function(require,module,exports){
+},{"barchart-marketdata-utilities":20}],20:[function(require,module,exports){
 var priceFormatter = require('./priceFormatter');
 var timeFormatter = require('./timeFormatter');
 
@@ -2053,7 +1834,7 @@ module.exports = function() {
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./priceFormatter":32,"./timeFormatter":33}],32:[function(require,module,exports){
+},{"./priceFormatter":21,"./timeFormatter":22}],21:[function(require,module,exports){
 var isNaN = require('lodash.isnan');
 
 module.exports = function() {
@@ -2162,7 +1943,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"lodash.isnan":35}],33:[function(require,module,exports){
+},{"lodash.isnan":24}],22:[function(require,module,exports){
 module.exports = function () {
 	'use strict';
 
@@ -2186,7 +1967,7 @@ module.exports = function () {
 		};
 	};
 }();
-},{}],34:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
@@ -2258,7 +2039,7 @@ module.exports = function () {
   module.exports = Class;
 })();
 
-},{}],35:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -2370,5 +2151,5 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-},{}]},{},[13])(13)
+},{}]},{},[9])(9)
 });
