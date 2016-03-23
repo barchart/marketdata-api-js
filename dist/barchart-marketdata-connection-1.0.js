@@ -1863,7 +1863,7 @@ module.exports = function() {
 
 				switch (unitcode) {
 					case '2':
-						return (value / 100).toFixed(4);
+						return value.toFixed(3);
 					case '3':
 						return value.toFixed(4);
 					case '4':
