@@ -1835,7 +1835,7 @@ module.exports = function() {
 	};
 }();
 },{"./priceFormatter":21,"./timeFormatter":22}],21:[function(require,module,exports){
-var isNaN = require('lodash.isnan');
+var lodashIsNaN = require('lodash.isnan');
 
 module.exports = function() {
 	'use strict';
@@ -1858,12 +1858,12 @@ module.exports = function() {
 
 		if (fractionSeparator == '.') { // Decimals
 			format = function(value, unitcode) {
-				if (value === '' || value === undefined || value === null || isNaN(value))
+				if (value === '' || value === undefined || value === null || lodashIsNaN(value))
 					return '';
 
 				switch (unitcode) {
 					case '2':
-						return value.toFixed(3);
+						return (value / 100).toFixed(4);
 					case '3':
 						return value.toFixed(4);
 					case '4':
@@ -1895,7 +1895,7 @@ module.exports = function() {
 		}
 		else {
 			format = function(value, unitcode) {
-				if (value === '' || value === undefined || value === null || isNaN(value))
+				if (value === '' || value === undefined || value === null || lodashIsNaN(value))
 					return '';
 
 				var sign = (value >= 0) ? '' : '-';
