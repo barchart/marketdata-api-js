@@ -1256,8 +1256,8 @@ module.exports = function() {
 
 	Profile.prototype.Profiles = { };
 
-	Profile.prototype.PriceFormatter = function(fractionSeparator, specialFractions) {
-		var format = priceFormatter(fractionSeparator, specialFractions).format;
+	Profile.prototype.PriceFormatter = function(fractionSeparator, specialFractions, thousandsSeparator) {
+		var format = priceFormatter(fractionSeparator, specialFractions, thousandsSeparator).format;
 
 		Profile.prototype.formatPrice = function(price) {
 			return format(price, this.unitCode);
