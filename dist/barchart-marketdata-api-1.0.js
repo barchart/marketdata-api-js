@@ -1481,48 +1481,49 @@ module.exports = function() {
 
 								for (var j = 0; j < node.childNodes.length; j++) {
 									if (node.childNodes[j].nodeName == 'SESSION') {
-										var session = {};
+										var s = {};
 										var attributes = node.childNodes[j].attributes;
 
 										if (attributes.getNamedItem('id'))
-											session.id = attributes.getNamedItem('id').value;
+											s.id = attributes.getNamedItem('id').value;
 										if (attributes.getNamedItem('day'))
-											session.day = attributes.getNamedItem('day').value;
+											s.day = attributes.getNamedItem('day').value;
 										if (attributes.getNamedItem('last'))
-											session.lastPrice = parseValue(attributes.getNamedItem('last').value, message.unitcode);
+											s.lastPrice = parseValue(attributes.getNamedItem('last').value, message.unitcode);
 										if (attributes.getNamedItem('previous'))
-											session.previousPrice = parseValue(attributes.getNamedItem('previous').value, message.unitcode);
+											s.previousPrice = parseValue(attributes.getNamedItem('previous').value, message.unitcode);
 										if (attributes.getNamedItem('open'))
-											session.openPrice = parseValue(attributes.getNamedItem('open').value, message.unitcode);
+											s.openPrice = parseValue(attributes.getNamedItem('open').value, message.unitcode);
 										if (attributes.getNamedItem('high'))
-											session.highPrice = parseValue(attributes.getNamedItem('high').value, message.unitcode);
+											s.highPrice = parseValue(attributes.getNamedItem('high').value, message.unitcode);
 										if (attributes.getNamedItem('low'))
-											session.lowPrice = parseValue(attributes.getNamedItem('low').value, message.unitcode);
+											s.lowPrice = parseValue(attributes.getNamedItem('low').value, message.unitcode);
 										if (attributes.getNamedItem('tradesize'))
-											session.tradeSize = parseInt(attributes.getNamedItem('tradesize').value);
+											s.tradeSize = parseInt(attributes.getNamedItem('tradesize').value);
 										if (attributes.getNamedItem('numtrades'))
-											session.numberOfTrades = parseInt(attributes.getNamedItem('numtrades').value);
+											s.numberOfTrades = parseInt(attributes.getNamedItem('numtrades').value);
 										if (attributes.getNamedItem('settlement'))
-											session.settlementPrice = parseValue(attributes.getNamedItem('settlement').value, message.unitcode);
+											s.settlementPrice = parseValue(attributes.getNamedItem('settlement').value, message.unitcode);
 										if (attributes.getNamedItem('volume'))
-											session.volume = parseInt(attributes.getNamedItem('volume').value);
+											s.volume = parseInt(attributes.getNamedItem('volume').value);
 										if (attributes.getNamedItem('openinterest'))
-											session.openInterest = parseInt(attributes.getNamedItem('openinterest').value);
+											s.openInterest = parseInt(attributes.getNamedItem('openinterest').value);
 										if (attributes.getNamedItem('timestamp')) {
 											var v = attributes.getNamedItem('timestamp').value;
-											session.timeStamp = new Date(parseInt(v.substr(0, 4)), parseInt(v.substr(4, 2)) - 1, parseInt(v.substr(6, 2)), parseInt(v.substr(8, 2)), parseInt(v.substr(10, 2)), parseInt(v.substr(12, 2)));
+											s.timeStamp = new Date(parseInt(v.substr(0, 4)), parseInt(v.substr(4, 2)) - 1, parseInt(v.substr(6, 2)), parseInt(v.substr(8, 2)), parseInt(v.substr(10, 2)), parseInt(v.substr(12, 2)));
 										}
 										if (attributes.getNamedItem('tradetime')) {
 											var v = attributes.getNamedItem('tradetime').value;
-											session.tradeTime = new Date(parseInt(v.substr(0, 4)), parseInt(v.substr(4, 2)) - 1, parseInt(v.substr(6, 2)), parseInt(v.substr(8, 2)), parseInt(v.substr(10, 2)), parseInt(v.substr(12, 2)));
+											s.tradeTime = new Date(parseInt(v.substr(0, 4)), parseInt(v.substr(4, 2)) - 1, parseInt(v.substr(6, 2)), parseInt(v.substr(8, 2)), parseInt(v.substr(10, 2)), parseInt(v.substr(12, 2)));
 										}
 
-										if (session.id)
-											sessions[session.id] = session;
+										if (s.id)
+											sessions[s.id] = s;
 									}
 								}
 
 								var session = ((sessions.combined.lastPrice) ? sessions.combined : sessions.previous);
+
 								if (session.lastPrice)
 									message.lastPrice = session.lastPrice;
 								if (session.previousPrice)
@@ -1543,19 +1544,24 @@ module.exports = function() {
 									message.volume = session.volume;
 								if (session.openInterest)
 									message.openInterest = session.openInterest;
+								if (session.id == 'combined' && sessions.previous.openInterest)
+									message.openInterest = sessions.previous.openInterest;
 								if (session.timeStamp)
 									message.timeStamp = session.timeStamp;
 								if (session.tradeTime)
 									message.tradeTime = session.tradeTime;
 
-								if (session.id == 'combined') {
-									if (sessions.previous.openInterest)
-										message.openInterest = sessions.previous.openInterest;
+								if (sessions.combined.day)
+									message.day = sessions.combined.day;
+
+								if (sessions.combined && sessions.previous && sessions.combined.timeStamp && sessions.previous.timeStamp) {
+									if (sessions.combined.timeStamp.getTime() > sessions.previous.timeStamp.getTime()) {
+										message.timeStamp = sessions.combined.timeStamp;
+									} else {
+										message.timeStamp = sessions.previous.timeStamp;
+									}
 								}
 							}
-
-							if (sessions.combined.day)
-								message.day = sessions.combined.day;
 
 							message.type = 'REFRESH_QUOTE';
 							break;
