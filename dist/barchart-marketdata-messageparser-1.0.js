@@ -262,14 +262,6 @@ module.exports = function() {
 
 								if (sessions.combined.day)
 									message.day = sessions.combined.day;
-
-								if (sessions.combined && sessions.previous && sessions.combined.timeStamp && sessions.previous.timeStamp) {
-									if (sessions.combined.timeStamp.getTime() > sessions.previous.timeStamp.getTime()) {
-										message.timeStamp = sessions.combined.timeStamp;
-									} else {
-										message.timeStamp = sessions.previous.timeStamp;
-									}
-								}
 							}
 
 							message.type = 'REFRESH_QUOTE';
