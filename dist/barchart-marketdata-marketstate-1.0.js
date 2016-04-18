@@ -592,7 +592,7 @@ module.exports = function() {
 		return ['000', Math.floor(value)].join('').substr(-1 * digits);
 	}
 
-	return function(fractionSeparator, specialFractions) {
+	return function(fractionSeparator, specialFractions, thousandsSeparator) {
 		var format;
 
 		function getWholeNumberAsString(value) {
@@ -604,6 +604,41 @@ module.exports = function() {
 			    return val;
 		}
 
+		function formatDecimal(value, digits) {
+			var returnRef = value.toFixed(digits);
+
+			if (thousandsSeparator && !(value < 1000)) {
+				var length = returnRef.length;
+
+				var found = digits === 0;
+				var counter = 0;
+
+				var buffer = [ ];
+
+				for (var i = (length - 1); !(i < 0); i--) {
+					if (counter === 3) {
+						buffer.unshift(',');
+
+						counter = 0;
+					}
+
+					var character = returnRef.charAt(i);
+
+					buffer.unshift(character);
+
+					if (found) {
+						counter = counter + 1;
+					} else if (character === '.') {
+						found = true;
+					}
+				}
+
+				returnRef = buffer.join('');
+			}
+
+			return returnRef;
+		}
+
 		if (fractionSeparator == '.') { // Decimals
 			format = function(value, unitcode) {
 				if (value === '' || value === undefined || value === null || lodashIsNaN(value))
@@ -611,31 +646,31 @@ module.exports = function() {
 
 				switch (unitcode) {
 					case '2':
-						return value.toFixed(3);
+						return formatDecimal(value, 3);
 					case '3':
-						return value.toFixed(4);
+						return formatDecimal(value, 4);
 					case '4':
-						return value.toFixed(5);
+						return formatDecimal(value, 5);
 					case '5':
-						return value.toFixed(6);
+						return formatDecimal(value, 6);
 					case '6':
-						return value.toFixed(7);
+						return formatDecimal(value, 7);
 					case '7':
-						return value.toFixed(8);
+						return formatDecimal(value, 8);
 					case '8':
-						return value.toFixed(0);
+						return formatDecimal(value, 0);
 					case '9':
-						return value.toFixed(1);
+						return formatDecimal(value, 1);
 					case 'A':
-						return value.toFixed(2);
+						return formatDecimal(value, 2);
 					case 'B':
-						return value.toFixed(3);
+						return formatDecimal(value, 3);
 					case 'C':
-						return value.toFixed(4);
+						return formatDecimal(value, 4);
 					case 'D':
-						return value.toFixed(5);
+						return formatDecimal(value, 5);
 					case 'E':
-						return value.toFixed(6);
+						return formatDecimal(value, 6);
 					default:
 						return value;
 				}
@@ -697,20 +732,22 @@ module.exports = function () {
 
 	return function () {
 		return {
-			format: function (t) {
-				if (t.time && t.flag) {
-					return (t.time.getMonth() + 1 ) + '/' + t.time.getDate() + '/' + String(t.time.getFullYear()).substr(2);
-				} else {
-					if (t.hasOwnProperty('time')) {
-						t = t.time;
-					}
+			format: function (q) {
+				var returnRef;
 
-					if (t) {
-						return [['00', t.getHours()].join('').substr(-2), ['00', t.getMinutes()].join('').substr(-2), ['00', t.getSeconds()].join('').substr(-2)].join(':');
+				if (q.time) {
+					var t = q.time;
+
+					if (q.lastPrice) {
+						returnRef = [['00', t.getHours()].join('').substr(-2), ['00', t.getMinutes()].join('').substr(-2), ['00', t.getSeconds()].join('').substr(-2)].join(':');
 					} else {
-						return ''; // FIXME ETS messages are missing (null) 'time' on them near settlement...
+						returnRef = (t.getMonth() + 1 ) + '/' + t.getDate() + '/' + String(t.getFullYear()).substr(2);
 					}
+				} else {
+					returnRef = '';
 				}
+
+				return returnRef;
 			}
 		};
 	};
