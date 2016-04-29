@@ -1,6 +1,6 @@
 {
   "name": "barchart-marketdata-api",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "homepage": "https://github.com/barchart/marketdata-api-js",
   "description": "Barchart Market Data API for JavaScript",
   "main": "dist/barchart-marketdata-api-1.0.js",

@@ -1988,7 +1988,7 @@ module.exports = function () {
 				if (q.time) {
 					var t = q.time;
 
-					if (q.lastPrice) {
+					if (q.lastPrice && !q.flag) {
 						returnRef = [['00', t.getHours()].join('').substr(-2), ['00', t.getMinutes()].join('').substr(-2), ['00', t.getSeconds()].join('').substr(-2)].join(':');
 					} else {
 						returnRef = (t.getMonth() + 1 ) + '/' + t.getDate() + '/' + String(t.getFullYear()).substr(2);
