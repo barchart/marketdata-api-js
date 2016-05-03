@@ -166,7 +166,15 @@ module.exports = function() {
 module.exports = function() {
 	'use strict';
 
-	return function() {
+	return function(useTwelveHourClock) {
+		var formatTime;
+
+		if (useTwelveHourClock) {
+			formatTime = formatTwelveHourTime;
+		} else {
+			formatTime = formatTwentyFourHourTime;
+		}
+
 		return {
 			format: function(q) {
 				var returnRef;
@@ -175,9 +183,9 @@ module.exports = function() {
 					var t = q.time;
 
 					if (q.lastPrice && !q.flag) {
-						returnRef = [['00', t.getHours()].join('').substr(-2), ['00', t.getMinutes()].join('').substr(-2), ['00', t.getSeconds()].join('').substr(-2)].join(':');
+						returnRef = formatTime(t);
 					} else {
-						returnRef = (t.getMonth() + 1 ) + '/' + t.getDate() + '/' + String(t.getFullYear()).substr(2);
+						returnRef = [leftPad(t.getMonth() + 1), leftPad(t.getDate()), leftPad(t.getFullYear())].join('/');
 					}
 				} else {
 					returnRef = '';
@@ -187,6 +195,32 @@ module.exports = function() {
 			}
 		};
 	};
+
+	function formatTwelveHourTime(t) {
+		var hours = t.getHours();
+		var period;
+
+		if (hours === 0) {
+			hours = 12;
+			period = 'AM';
+		} else if (hours > 12) {
+			hours = hours - 12;
+			period = 'PM';
+		} else {
+			hours = hours;
+			period = 'AM';
+		}
+
+		return [leftPad(hours), leftPad(t.getMinutes()), leftPad(t.getSeconds())].join(':');
+	}
+
+	function formatTwentyFourHourTime(t) {
+		return [leftPad(t.getHours()), leftPad(t.getMinutes()), leftPad(t.getSeconds())].join(':');
+	}
+
+	function leftPad(value) {
+		return ['00', value].join('').substr(-2);
+	}
 }();
 },{}],5:[function(require,module,exports){
 /**
