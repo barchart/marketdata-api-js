@@ -36,8 +36,8 @@ module.exports = function() {
 
 			if ((val === 0) && (fractionSeparator === ''))
 				return '';
-            else
-			    return val;
+			else
+				return val;
 		}
 
 		function formatDecimal(value, digits) {
@@ -49,7 +49,7 @@ module.exports = function() {
 				var found = digits === 0;
 				var counter = 0;
 
-				var buffer = [ ];
+				var buffer = [];
 
 				for (var i = (length - 1); !(i < 0); i--) {
 					if (counter === 3) {
@@ -138,19 +138,19 @@ module.exports = function() {
 					case '7':
 						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3)].join('');
 					case '8':
-						return sign + value.toFixed(0);
+						return sign + formatDecimal(value, 0);
 					case '9':
-						return sign + value.toFixed(1);
+						return sign + formatDecimal(value, 1);
 					case 'A':
-						return sign + value.toFixed(2);
+						return sign + formatDecimal(value, 2);
 					case 'B':
-						return sign + value.toFixed(3);
+						return sign + formatDecimal(value, 3);
 					case 'C':
-						return sign + value.toFixed(4);
+						return sign + formatDecimal(value, 4);
 					case 'D':
-						return sign + value.toFixed(5);
+						return sign + formatDecimal(value, 5);
 					case 'E':
-						return sign + value.toFixed(6);
+						return sign + formatDecimal(value, 6);
 					default:
 						return sign + value;
 				}
@@ -158,17 +158,17 @@ module.exports = function() {
 		}
 
 		return {
-			format : format
+			format: format
 		};
 	};
 }();
 },{"lodash.isnan":5}],4:[function(require,module,exports){
-module.exports = function () {
+module.exports = function() {
 	'use strict';
 
-	return function () {
+	return function() {
 		return {
-			format: function (q) {
+			format: function(q) {
 				var returnRef;
 
 				if (q.time) {
