@@ -1455,7 +1455,8 @@ module.exports = function() {
 									}
 								}
 
-								var session = ((sessions.combined.lastPrice) ? sessions.combined : sessions.previous);
+								var closed = typeof(sessions.combined.lastPrice) === 'undefined';
+								var session = closed ? sessions.previous : sessions.combined;
 
 								if (session.lastPrice)
 									message.lastPrice = session.lastPrice;
@@ -1477,7 +1478,7 @@ module.exports = function() {
 									message.volume = session.volume;
 								if (session.openInterest)
 									message.openInterest = session.openInterest;
-								if (session.id == 'combined' && sessions.previous.openInterest)
+								if (session.id === 'combined' && sessions.previous.openInterest)
 									message.openInterest = sessions.previous.openInterest;
 								if (session.timeStamp)
 									message.timeStamp = session.timeStamp;
@@ -1486,6 +1487,10 @@ module.exports = function() {
 
 								if (sessions.combined.day)
 									message.day = sessions.combined.day;
+
+								if (closed && typeof(message.flag) === 'undefined') {
+									message.flag = 'p';
+								}
 							}
 
 							message.type = 'REFRESH_QUOTE';
