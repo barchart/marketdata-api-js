@@ -4,21 +4,117 @@ var utilities = require('barchart-marketdata-utilities');
 module.exports = function() {
 	'use strict';
 
+	return utilities.convert.baseCodeToUnitCode;
+}();
+},{"barchart-marketdata-utilities":5}],2:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.convert.unitCodeToBaseCode;
+}();
+},{"barchart-marketdata-utilities":5}],3:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
 	return utilities.priceFormatter;
 }();
-},{"barchart-marketdata-utilities":2}],2:[function(require,module,exports){
+},{"barchart-marketdata-utilities":5}],4:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	return {
+		unitCodeToBaseCode: function(unitCode) {
+			switch (unitCode) {
+				case '2':
+					return -1;
+				case '3':
+					return -2;
+				case '4':
+					return -3;
+				case '5':
+					return -4;
+				case '6':
+					return -5;
+				case '7':
+					return -6;
+				case '8':
+					return 0;
+				case '9':
+					return 1;
+				case 'A':
+					return 2;
+				case 'B':
+					return 3;
+				case 'C':
+					return 4;
+				case 'D':
+					return 5;
+				case 'E':
+					return 6;
+				case 'F':
+					return 7;
+				default:
+					return 0;
+			}
+		},
+
+		baseCodeToUnitCode: function(baseCode) {
+			switch (baseCode) {
+				case -1:
+					return '2';
+				case -2:
+					return '3';
+				case -3:
+					return '4';
+				case -4:
+					return '5';
+				case -5:
+					return '6';
+				case -6:
+					return '7';
+				case 0:
+					return '8';
+				case 1:
+					return '9';
+				case 2:
+					return 'A';
+				case 3:
+					return 'B';
+				case 4:
+					return 'C';
+				case 5:
+					return 'D';
+				case 6:
+					return 'E';
+				case 7:
+					return 'F';
+				default:
+					return 0;
+			}
+		}
+	};
+}();
+},{}],5:[function(require,module,exports){
+var convert = require('./convert');
 var priceFormatter = require('./priceFormatter');
+var symbolFormatter = require('./symbolFormatter');
 var timeFormatter = require('./timeFormatter');
 
 module.exports = function() {
 	'use strict';
 
 	return {
+		convert: convert,
 		priceFormatter: priceFormatter,
+		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./priceFormatter":3,"./timeFormatter":4}],3:[function(require,module,exports){
+},{"./convert":4,"./priceFormatter":6,"./symbolFormatter":7,"./timeFormatter":8}],6:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 
 module.exports = function() {
@@ -162,7 +258,25 @@ module.exports = function() {
 		};
 	};
 }();
-},{"lodash.isnan":5}],4:[function(require,module,exports){
+},{"lodash.isnan":9}],7:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	return {
+		format: function(symbol) {
+			var returnRef;
+
+			if (symbol !== null && typeof symbol === 'string') {
+				returnRef = symbol.toUpperCase();
+			} else {
+				returnRef = symbol;
+			}
+
+			return returnRef;
+ 		}
+	};
+}();
+},{}],8:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -222,7 +336,7 @@ module.exports = function() {
 		return ['00', value].join('').substr(-2);
 	}
 }();
-},{}],5:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -334,7 +448,23 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-},{}],6:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
+var convertBaseCodeToUnitCode = require('../../../lib/util/convertBaseCodeToUnitCode');
+
+describe('When converting a baseCode to a unitCode', function() {
+	it('-1 should translate to "2"', function() {
+		expect(convertBaseCodeToUnitCode(-1)).toEqual('2');
+	});
+});
+},{"../../../lib/util/convertBaseCodeToUnitCode":1}],11:[function(require,module,exports){
+var convertUnitCodeToBaseCode = require('../../../lib/util/convertUnitCodeToBaseCode');
+
+describe('When converting a unitCode to a baseCode', function() {
+	it('"2" should translate to -1', function() {
+		expect(convertUnitCodeToBaseCode('2')).toEqual(-1);
+	});
+});
+},{"../../../lib/util/convertUnitCodeToBaseCode":2}],12:[function(require,module,exports){
 var PriceFormatter = require('../../../lib/util/priceFormatter');
 
 describe('When a price formatter is created', function() {
@@ -454,4 +584,4 @@ describe('When a price formatter is created', function() {
 		});
 	});
 });
-},{"../../../lib/util/priceFormatter":1}]},{},[6]);
+},{"../../../lib/util/priceFormatter":3}]},{},[10,11,12]);
