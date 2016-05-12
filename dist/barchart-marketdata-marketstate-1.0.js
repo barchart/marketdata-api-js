@@ -52,7 +52,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":15}],4:[function(require,module,exports){
+},{"class.extend":17}],4:[function(require,module,exports){
 var ProfileProviderBase = require('./../../ProfileProviderBase');
 
 var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
@@ -570,19 +570,99 @@ module.exports = function() {
 
 	return utilities.priceFormatter;
 }();
-},{"barchart-marketdata-utilities":12}],12:[function(require,module,exports){
+},{"barchart-marketdata-utilities":13}],12:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	return {
+		unitCodeToBaseCode: function(unitCode) {
+			switch (unitCode) {
+				case '2':
+					return -1;
+				case '3':
+					return -2;
+				case '4':
+					return -3;
+				case '5':
+					return -4;
+				case '6':
+					return -5;
+				case '7':
+					return -6;
+				case '8':
+					return 0;
+				case '9':
+					return 1;
+				case 'A':
+					return 2;
+				case 'B':
+					return 3;
+				case 'C':
+					return 4;
+				case 'D':
+					return 5;
+				case 'E':
+					return 6;
+				case 'F':
+					return 7;
+				default:
+					return 0;
+			}
+		},
+
+		baseCodeToUnitCode: function(baseCode) {
+			switch (baseCode) {
+				case -1:
+					return '2';
+				case -2:
+					return '3';
+				case -3:
+					return '4';
+				case -4:
+					return '5';
+				case -5:
+					return '6';
+				case -6:
+					return '7';
+				case 0:
+					return '8';
+				case 1:
+					return '9';
+				case 2:
+					return 'A';
+				case 3:
+					return 'B';
+				case 4:
+					return 'C';
+				case 5:
+					return 'D';
+				case 6:
+					return 'E';
+				case 7:
+					return 'F';
+				default:
+					return 0;
+			}
+		}
+	};
+}();
+},{}],13:[function(require,module,exports){
+var convert = require('./convert');
 var priceFormatter = require('./priceFormatter');
+var symbolFormatter = require('./symbolFormatter');
 var timeFormatter = require('./timeFormatter');
 
 module.exports = function() {
 	'use strict';
 
 	return {
+		convert: convert,
 		priceFormatter: priceFormatter,
+		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./priceFormatter":13,"./timeFormatter":14}],13:[function(require,module,exports){
+},{"./convert":12,"./priceFormatter":14,"./symbolFormatter":15,"./timeFormatter":16}],14:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 
 module.exports = function() {
@@ -726,7 +806,25 @@ module.exports = function() {
 		};
 	};
 }();
-},{"lodash.isnan":16}],14:[function(require,module,exports){
+},{"lodash.isnan":18}],15:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	return {
+		format: function(symbol) {
+			var returnRef;
+
+			if (symbol !== null && typeof symbol === 'string') {
+				returnRef = symbol.toUpperCase();
+			} else {
+				returnRef = symbol;
+			}
+
+			return returnRef;
+ 		}
+	};
+}();
+},{}],16:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -786,7 +884,7 @@ module.exports = function() {
 		return ['00', value].join('').substr(-2);
 	}
 }();
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
@@ -858,7 +956,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],16:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`

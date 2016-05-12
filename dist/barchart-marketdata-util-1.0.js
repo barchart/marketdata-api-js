@@ -1,43 +1,12 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g=(g.Barchart||(g.Barchart = {}));g=(g.RealtimeData||(g.RealtimeData = {}));g.Util = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
 module.exports = function() {
 	'use strict';
 
-	return function(basecode) {
-		switch(basecode) {
-			case -1:
-				return '2';
-			case -2:
-				return '3';
-			case -3:
-				return '4';
-			case -4:
-				return '5';
-			case -5:
-				return '6';
-			case -6:
-				return '7';
-			case 0:
-				return '8';
-			case 1:
-				return '9';
-			case 2:
-				return 'A';
-			case 3:
-				return 'B';
-			case 4:
-				return 'C';
-			case 5:
-				return 'D';
-			case 6:
-				return 'E';
-			case 7:
-				return 'F';
-			default:
-				return 0;
-		}
-	};
+	return utilities.convert.baseCodeToUnitCode;
 }();
-},{}],2:[function(require,module,exports){
+},{"barchart-marketdata-utilities":11}],2:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -69,45 +38,14 @@ module.exports = function() {
 	};
 }();
 },{}],4:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
 module.exports = function() {
 	'use strict';
 
-	return function(unitcode) {
-		switch(unitcode) {
-			case '2':
-				return -1;
-			case '3':
-				return -2;
-			case '4':
-				return -3;
-			case '5':
-				return -4;
-			case '6':
-				return -5;
-			case '7':
-				return -6;
-			case '8':
-				return 0;
-			case '9':
-				return 1;
-			case 'A':
-				return 2;
-			case 'B':
-				return 3;
-			case 'C':
-				return 4;
-			case 'D':
-				return 5;
-			case 'E':
-				return 6;
-			case 'F':
-				return 7;
-			default:
-				return 0;
-		}
-	};
+	return utilities.convert.unitCodeToBaseCode;
 }();
-},{}],5:[function(require,module,exports){
+},{"barchart-marketdata-utilities":11}],5:[function(require,module,exports){
 var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode');
 var convertDateToDayCode = require('./convertDateToDayCode');
 var convertDayCodeToNumber = require('./convertDayCodeToNumber');
@@ -201,7 +139,7 @@ module.exports = function() {
 
 	return utilities.priceFormatter;
 }();
-},{"barchart-marketdata-utilities":10}],9:[function(require,module,exports){
+},{"barchart-marketdata-utilities":11}],9:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -209,19 +147,99 @@ module.exports = function() {
 
 	return utilities.timeFormatter;
 }();
-},{"barchart-marketdata-utilities":10}],10:[function(require,module,exports){
+},{"barchart-marketdata-utilities":11}],10:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	return {
+		unitCodeToBaseCode: function(unitCode) {
+			switch (unitCode) {
+				case '2':
+					return -1;
+				case '3':
+					return -2;
+				case '4':
+					return -3;
+				case '5':
+					return -4;
+				case '6':
+					return -5;
+				case '7':
+					return -6;
+				case '8':
+					return 0;
+				case '9':
+					return 1;
+				case 'A':
+					return 2;
+				case 'B':
+					return 3;
+				case 'C':
+					return 4;
+				case 'D':
+					return 5;
+				case 'E':
+					return 6;
+				case 'F':
+					return 7;
+				default:
+					return 0;
+			}
+		},
+
+		baseCodeToUnitCode: function(baseCode) {
+			switch (baseCode) {
+				case -1:
+					return '2';
+				case -2:
+					return '3';
+				case -3:
+					return '4';
+				case -4:
+					return '5';
+				case -5:
+					return '6';
+				case -6:
+					return '7';
+				case 0:
+					return '8';
+				case 1:
+					return '9';
+				case 2:
+					return 'A';
+				case 3:
+					return 'B';
+				case 4:
+					return 'C';
+				case 5:
+					return 'D';
+				case 6:
+					return 'E';
+				case 7:
+					return 'F';
+				default:
+					return 0;
+			}
+		}
+	};
+}();
+},{}],11:[function(require,module,exports){
+var convert = require('./convert');
 var priceFormatter = require('./priceFormatter');
+var symbolFormatter = require('./symbolFormatter');
 var timeFormatter = require('./timeFormatter');
 
 module.exports = function() {
 	'use strict';
 
 	return {
+		convert: convert,
 		priceFormatter: priceFormatter,
+		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./priceFormatter":11,"./timeFormatter":12}],11:[function(require,module,exports){
+},{"./convert":10,"./priceFormatter":12,"./symbolFormatter":13,"./timeFormatter":14}],12:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 
 module.exports = function() {
@@ -365,7 +383,25 @@ module.exports = function() {
 		};
 	};
 }();
-},{"lodash.isnan":13}],12:[function(require,module,exports){
+},{"lodash.isnan":15}],13:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	return {
+		format: function(symbol) {
+			var returnRef;
+
+			if (symbol !== null && typeof symbol === 'string') {
+				returnRef = symbol.toUpperCase();
+			} else {
+				returnRef = symbol;
+			}
+
+			return returnRef;
+ 		}
+	};
+}();
+},{}],14:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -425,7 +461,7 @@ module.exports = function() {
 		return ['00', value].join('').substr(-2);
 	}
 }();
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`

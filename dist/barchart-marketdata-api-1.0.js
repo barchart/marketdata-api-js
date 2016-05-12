@@ -48,7 +48,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":34}],3:[function(require,module,exports){
+},{"class.extend":36}],3:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -170,7 +170,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":34}],6:[function(require,module,exports){
+},{"class.extend":36}],6:[function(require,module,exports){
 var HistoricalDataProvider = require('./http/HistoricalDataProvider');
 
 module.exports = function() {
@@ -210,7 +210,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":34}],9:[function(require,module,exports){
+},{"class.extend":36}],9:[function(require,module,exports){
 var ProfileProviderBase = require('./../../ProfileProviderBase');
 
 var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
@@ -1834,45 +1834,14 @@ module.exports = function() {
 	};
 }();
 },{}],22:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
 module.exports = function() {
 	'use strict';
 
-	return function(basecode) {
-		switch(basecode) {
-			case -1:
-				return '2';
-			case -2:
-				return '3';
-			case -3:
-				return '4';
-			case -4:
-				return '5';
-			case -5:
-				return '6';
-			case -6:
-				return '7';
-			case 0:
-				return '8';
-			case 1:
-				return '9';
-			case 2:
-				return 'A';
-			case 3:
-				return 'B';
-			case 4:
-				return 'C';
-			case 5:
-				return 'D';
-			case 6:
-				return 'E';
-			case 7:
-				return 'F';
-			default:
-				return 0;
-		}
-	};
+	return utilities.convert.baseCodeToUnitCode;
 }();
-},{}],23:[function(require,module,exports){
+},{"barchart-marketdata-utilities":32}],23:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1904,45 +1873,14 @@ module.exports = function() {
 	};
 }();
 },{}],25:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
 module.exports = function() {
 	'use strict';
 
-	return function(unitcode) {
-		switch(unitcode) {
-			case '2':
-				return -1;
-			case '3':
-				return -2;
-			case '4':
-				return -3;
-			case '5':
-				return -4;
-			case '6':
-				return -5;
-			case '7':
-				return -6;
-			case '8':
-				return 0;
-			case '9':
-				return 1;
-			case 'A':
-				return 2;
-			case 'B':
-				return 3;
-			case 'C':
-				return 4;
-			case 'D':
-				return 5;
-			case 'E':
-				return 6;
-			case 'F':
-				return 7;
-			default:
-				return 0;
-		}
-	};
+	return utilities.convert.unitCodeToBaseCode;
 }();
-},{}],26:[function(require,module,exports){
+},{"barchart-marketdata-utilities":32}],26:[function(require,module,exports){
 var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode');
 var convertDateToDayCode = require('./convertDateToDayCode');
 var convertDayCodeToNumber = require('./convertDayCodeToNumber');
@@ -2036,7 +1974,7 @@ module.exports = function() {
 
 	return utilities.priceFormatter;
 }();
-},{"barchart-marketdata-utilities":31}],30:[function(require,module,exports){
+},{"barchart-marketdata-utilities":32}],30:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -2044,19 +1982,99 @@ module.exports = function() {
 
 	return utilities.timeFormatter;
 }();
-},{"barchart-marketdata-utilities":31}],31:[function(require,module,exports){
+},{"barchart-marketdata-utilities":32}],31:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	return {
+		unitCodeToBaseCode: function(unitCode) {
+			switch (unitCode) {
+				case '2':
+					return -1;
+				case '3':
+					return -2;
+				case '4':
+					return -3;
+				case '5':
+					return -4;
+				case '6':
+					return -5;
+				case '7':
+					return -6;
+				case '8':
+					return 0;
+				case '9':
+					return 1;
+				case 'A':
+					return 2;
+				case 'B':
+					return 3;
+				case 'C':
+					return 4;
+				case 'D':
+					return 5;
+				case 'E':
+					return 6;
+				case 'F':
+					return 7;
+				default:
+					return 0;
+			}
+		},
+
+		baseCodeToUnitCode: function(baseCode) {
+			switch (baseCode) {
+				case -1:
+					return '2';
+				case -2:
+					return '3';
+				case -3:
+					return '4';
+				case -4:
+					return '5';
+				case -5:
+					return '6';
+				case -6:
+					return '7';
+				case 0:
+					return '8';
+				case 1:
+					return '9';
+				case 2:
+					return 'A';
+				case 3:
+					return 'B';
+				case 4:
+					return 'C';
+				case 5:
+					return 'D';
+				case 6:
+					return 'E';
+				case 7:
+					return 'F';
+				default:
+					return 0;
+			}
+		}
+	};
+}();
+},{}],32:[function(require,module,exports){
+var convert = require('./convert');
 var priceFormatter = require('./priceFormatter');
+var symbolFormatter = require('./symbolFormatter');
 var timeFormatter = require('./timeFormatter');
 
 module.exports = function() {
 	'use strict';
 
 	return {
+		convert: convert,
 		priceFormatter: priceFormatter,
+		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./priceFormatter":32,"./timeFormatter":33}],32:[function(require,module,exports){
+},{"./convert":31,"./priceFormatter":33,"./symbolFormatter":34,"./timeFormatter":35}],33:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 
 module.exports = function() {
@@ -2200,7 +2218,25 @@ module.exports = function() {
 		};
 	};
 }();
-},{"lodash.isnan":35}],33:[function(require,module,exports){
+},{"lodash.isnan":37}],34:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	return {
+		format: function(symbol) {
+			var returnRef;
+
+			if (symbol !== null && typeof symbol === 'string') {
+				returnRef = symbol.toUpperCase();
+			} else {
+				returnRef = symbol;
+			}
+
+			return returnRef;
+ 		}
+	};
+}();
+},{}],35:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2260,7 +2296,7 @@ module.exports = function() {
 		return ['00', value].join('').substr(-2);
 	}
 }();
-},{}],34:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
@@ -2332,7 +2368,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
