@@ -48,7 +48,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":36}],3:[function(require,module,exports){
+},{"class.extend":38}],3:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -90,7 +90,7 @@ module.exports = function() {
 
     return Connection;
 }();
-},{"./websocket/Connection":11}],5:[function(require,module,exports){
+},{"./websocket/Connection":13}],5:[function(require,module,exports){
 var Class = require('class.extend');
 
 module.exports = function() {
@@ -170,7 +170,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":36}],6:[function(require,module,exports){
+},{"class.extend":38}],6:[function(require,module,exports){
 var HistoricalDataProvider = require('./http/HistoricalDataProvider');
 
 module.exports = function() {
@@ -178,7 +178,31 @@ module.exports = function() {
 
 	return HistoricalDataProvider;
 }();
-},{"./http/HistoricalDataProvider":9}],7:[function(require,module,exports){
+},{"./http/HistoricalDataProvider":10}],7:[function(require,module,exports){
+var Class = require('class.extend');
+
+module.exports = function() {
+	'use strict';
+
+	return Class.extend({
+		init: function() {
+
+		},
+
+		getHistoricalData: function(parameters, callback) {
+			return this._getHistoricalData(parameters, callback);
+		},
+
+		_getHistoricalData: function(parameters, callback) {
+			return null;
+		},
+
+		toString: function() {
+			return '[HistoricalDataProviderBase]';
+		}
+	});
+}();
+},{"class.extend":38}],8:[function(require,module,exports){
 var ProfileProvider = require('./http/ProfileProvider');
 
 module.exports = function() {
@@ -186,7 +210,7 @@ module.exports = function() {
 
 	return ProfileProvider;
 }();
-},{"./http/ProfileProvider":9}],8:[function(require,module,exports){
+},{"./http/ProfileProvider":11}],9:[function(require,module,exports){
 var Class = require('class.extend');
 
 module.exports = function() {
@@ -210,7 +234,37 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":36}],9:[function(require,module,exports){
+},{"class.extend":38}],10:[function(require,module,exports){
+var HistoricalDataProviderBase = require('./../../HistoricalDataProviderBase');
+
+var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
+
+module.exports = function() {
+	'use strict';
+
+	var $ = jQueryProvider.getInstance();
+
+	return HistoricalDataProviderBase.extend({
+		init: function() {
+
+		},
+
+		_getHistoricalData: function(params, callback) {
+			$.ajax({
+				url : 'proxies/historicaldata',
+				dataType : 'text',
+				data : params
+			}).done(function(json) {
+				return callback(json);
+			});
+		},
+
+		toString: function() {
+			return '[HistoricalDataProvider]';
+		}
+	});
+}();
+},{"./../../../common/jQuery/jQueryProvider":1,"./../../HistoricalDataProviderBase":7}],11:[function(require,module,exports){
 var ProfileProviderBase = require('./../../ProfileProviderBase');
 
 var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
@@ -246,7 +300,7 @@ module.exports = function() {
         }
     });
 }();
-},{"./../../../common/jQuery/jQueryProvider":1,"./../../ProfileProviderBase":8}],10:[function(require,module,exports){
+},{"./../../../common/jQuery/jQueryProvider":1,"./../../ProfileProviderBase":9}],12:[function(require,module,exports){
 var Connection = require('./Connection');
 
 module.exports = function() {
@@ -254,7 +308,7 @@ module.exports = function() {
 
 	return Connection;
 }();
-},{"./Connection":4}],11:[function(require,module,exports){
+},{"./Connection":4}],13:[function(require,module,exports){
 var ConnectionBase = require('./../../ConnectionBase');
 var MarketState = require('./../../../marketState/MarketState');
 var parseMessage = require('./../../../messageParser/parseMessage');
@@ -895,7 +949,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"./../../../common/jQuery/jQueryProvider":1,"./../../../marketState/MarketState":14,"./../../../messageParser/parseMessage":19,"./../../ConnectionBase":5}],12:[function(require,module,exports){
+},{"./../../../common/jQuery/jQueryProvider":1,"./../../../marketState/MarketState":16,"./../../../messageParser/parseMessage":21,"./../../ConnectionBase":5}],14:[function(require,module,exports){
 var HistoricalDataProvider = require('./../connection/HistoricalDataProvider');
 
 module.exports = function() {
@@ -903,7 +957,7 @@ module.exports = function() {
 
 	return HistoricalDataProvider;
 }();
-},{"./../connection/HistoricalDataProvider":6}],13:[function(require,module,exports){
+},{"./../connection/HistoricalDataProvider":6}],15:[function(require,module,exports){
 var connection = require('./connection/index');
 var historicalData = require('./historicalData/index');
 var MarketState = require('./marketState/index');
@@ -928,7 +982,7 @@ module.exports = function() {
 		util: util
 	};
 }();
-},{"./connection/index":10,"./historicalData/index":12,"./marketState/index":17,"./messageParser/index":18,"./util/index":26}],14:[function(require,module,exports){
+},{"./connection/index":12,"./historicalData/index":14,"./marketState/index":19,"./messageParser/index":20,"./util/index":28}],16:[function(require,module,exports){
 var Profile = require('./Profile');
 var Quote = require('./Quote');
 
@@ -1267,7 +1321,7 @@ module.exports = function() {
 
     return MarketState;
 }();
-},{"./../connection/ProfileProvider":7,"./../util/convertDayCodeToNumber":24,"./Profile":15,"./Quote":16}],15:[function(require,module,exports){
+},{"./../connection/ProfileProvider":8,"./../util/convertDayCodeToNumber":26,"./Profile":17,"./Quote":18}],17:[function(require,module,exports){
 var parseSymbolType = require('./../util/parseSymbolType');
 var priceFormatter = require('./../util/priceFormatter');
 
@@ -1309,7 +1363,7 @@ module.exports = function() {
 
 	return Profile;
 }();
-},{"./../util/parseSymbolType":28,"./../util/priceFormatter":29}],16:[function(require,module,exports){
+},{"./../util/parseSymbolType":30,"./../util/priceFormatter":31}],18:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1343,7 +1397,7 @@ module.exports = function() {
 		this.ticks = [];
 	};
 }();
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 var MarketState = require('./MarketState');
 
 module.exports = function() {
@@ -1351,7 +1405,7 @@ module.exports = function() {
 
 	return MarketState;
 }();
-},{"./MarketState":14}],18:[function(require,module,exports){
+},{"./MarketState":16}],20:[function(require,module,exports){
 var parseMessage = require('./parseMessage');
 var parseTimestamp = require('./parseTimestamp');
 var parseValue = require('./parseValue');
@@ -1369,7 +1423,7 @@ module.exports = function() {
 		ParseValue: parseValue
 	};
 }();
-},{"./parseMessage":19,"./parseTimestamp":20,"./parseValue":21}],19:[function(require,module,exports){
+},{"./parseMessage":21,"./parseTimestamp":22,"./parseValue":23}],21:[function(require,module,exports){
 var XmlDomParser = require('./../common/xml/XmlDomParser');
 
 var parseValue = require('./parseValue');
@@ -1752,7 +1806,7 @@ module.exports = function() {
 		return message;
 	};
 }();
-},{"./../common/xml/XmlDomParser":3,"./parseTimestamp":20,"./parseValue":21}],20:[function(require,module,exports){
+},{"./../common/xml/XmlDomParser":3,"./parseTimestamp":22,"./parseValue":23}],22:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1785,7 +1839,7 @@ module.exports = function() {
 		return new Date(year, month, day, hour, minute, second, ms);
 	};
 }();
-},{}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1833,7 +1887,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],22:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -1841,7 +1895,7 @@ module.exports = function() {
 
 	return utilities.convert.baseCodeToUnitCode;
 }();
-},{"barchart-marketdata-utilities":32}],23:[function(require,module,exports){
+},{"barchart-marketdata-utilities":34}],25:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1857,7 +1911,7 @@ module.exports = function() {
 	};
 }();
 
-},{}],24:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1872,7 +1926,7 @@ module.exports = function() {
 			return ((val1 - ("A").charCodeAt(0)) + 11);
 	};
 }();
-},{}],25:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -1880,7 +1934,7 @@ module.exports = function() {
 
 	return utilities.convert.unitCodeToBaseCode;
 }();
-},{"barchart-marketdata-utilities":32}],26:[function(require,module,exports){
+},{"barchart-marketdata-utilities":34}],28:[function(require,module,exports){
 var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode');
 var convertDateToDayCode = require('./convertDateToDayCode');
 var convertDayCodeToNumber = require('./convertDayCodeToNumber');
@@ -1911,7 +1965,7 @@ module.exports = function() {
 		UnitCode2BaseCode: convertUnitCodeToBaseCode
 	};
 }();
-},{"./convertBaseCodeToUnitCode":22,"./convertDateToDayCode":23,"./convertDayCodeToNumber":24,"./convertUnitCodeToBaseCode":25,"./monthCodes":27,"./parseSymbolType":28,"./priceFormatter":29,"./timeFormatter":30}],27:[function(require,module,exports){
+},{"./convertBaseCodeToUnitCode":24,"./convertDateToDayCode":25,"./convertDayCodeToNumber":26,"./convertUnitCodeToBaseCode":27,"./monthCodes":29,"./parseSymbolType":30,"./priceFormatter":31,"./timeFormatter":32}],29:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1930,7 +1984,7 @@ module.exports = function() {
 		"Z": "December"
 	};
 }();
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1966,7 +2020,7 @@ module.exports = function() {
 		return null;
 	};
 }();
-},{}],29:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -1974,7 +2028,7 @@ module.exports = function() {
 
 	return utilities.priceFormatter;
 }();
-},{"barchart-marketdata-utilities":32}],30:[function(require,module,exports){
+},{"barchart-marketdata-utilities":34}],32:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -1982,7 +2036,7 @@ module.exports = function() {
 
 	return utilities.timeFormatter;
 }();
-},{"barchart-marketdata-utilities":32}],31:[function(require,module,exports){
+},{"barchart-marketdata-utilities":34}],33:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2058,7 +2112,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var convert = require('./convert');
 var priceFormatter = require('./priceFormatter');
 var symbolFormatter = require('./symbolFormatter');
@@ -2074,7 +2128,7 @@ module.exports = function() {
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":31,"./priceFormatter":33,"./symbolFormatter":34,"./timeFormatter":35}],33:[function(require,module,exports){
+},{"./convert":33,"./priceFormatter":35,"./symbolFormatter":36,"./timeFormatter":37}],35:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 
 module.exports = function() {
@@ -2218,7 +2272,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"lodash.isnan":37}],34:[function(require,module,exports){
+},{"lodash.isnan":39}],36:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2236,7 +2290,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2258,8 +2312,12 @@ module.exports = function() {
 
 					if (q.lastPrice && !q.flag) {
 						returnRef = formatTime(t);
+
+						if (q.timezone) {
+							returnRef = returnRef + ' ' + q.timezone;
+						}
 					} else {
-						returnRef = [leftPad(t.getMonth() + 1), leftPad(t.getDate()), leftPad(t.getFullYear())].join('/');
+						returnRef = leftPad(t.getMonth() + 1) + '/' + leftPad(t.getDate()) + '/' + leftPad(t.getFullYear());
 					}
 				} else {
 					returnRef = '';
@@ -2285,18 +2343,18 @@ module.exports = function() {
 			period = 'AM';
 		}
 
-		return [leftPad(hours), leftPad(t.getMinutes()), leftPad(t.getSeconds())].join(':');
+		return leftPad(hours) + ':' + leftPad(t.getMinutes()) + ':' + leftPad(t.getSeconds());
 	}
 
 	function formatTwentyFourHourTime(t) {
-		return [leftPad(t.getHours()), leftPad(t.getMinutes()), leftPad(t.getSeconds())].join(':');
+		return leftPad(t.getHours()) + ':' + leftPad(t.getMinutes()) + ':' + leftPad(t.getSeconds());
 	}
 
 	function leftPad(value) {
-		return ['00', value].join('').substr(-2);
+		return ('00' + value).substr(-2);
 	}
 }();
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
@@ -2368,7 +2426,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],37:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -2480,5 +2538,5 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-},{}]},{},[13])(13)
+},{}]},{},[15])(15)
 });

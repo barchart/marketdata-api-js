@@ -39,56 +39,50 @@ module.exports = function() {
 
 		},
 
-		loadProfileData: function(symbols, callback) {
-			return this._loadProfileData(symbols, callback);
+		getHistoricalData: function(parameters, callback) {
+			return this._getHistoricalData(parameters, callback);
 		},
 
-		_loadProfileData: function(symbols, callback) {
+		_getHistoricalData: function(parameters, callback) {
 			return null;
 		},
 
 		toString: function() {
-			return '[ProfileProviderBase]';
+			return '[HistoricalDataProviderBase]';
 		}
 	});
 }();
 },{"class.extend":6}],4:[function(require,module,exports){
-var ProfileProviderBase = require('./../../ProfileProviderBase');
+var HistoricalDataProviderBase = require('./../../HistoricalDataProviderBase');
 
 var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
 
 module.exports = function() {
-    'use strict';
+	'use strict';
 
-    var $ = jQueryProvider.getInstance();
+	var $ = jQueryProvider.getInstance();
 
-    return ProfileProviderBase.extend({
-        init: function() {
+	return HistoricalDataProviderBase.extend({
+		init: function() {
 
-        },
+		},
 
-        _loadProfileData: function(symbols, callback) {
-            $.ajax({
-                url: 'proxies/instruments/?lookup=' + symbols.join(','),
-            }).done(function(json) {
-                var instrumentData = [ ];
+		_getHistoricalData: function(params, callback) {
+			$.ajax({
+				url : 'proxies/historicaldata',
+				dataType : 'text',
+				data : params
+			}).done(function(json) {
+				return callback(json);
+			});
+		},
 
-                if (json.status === 200) {
-                    instrumentData = json.instruments;
-                } else {
-                    instrumentData = [ ];
-                }
-
-                callback(instrumentData);
-            });
-        },
-
-        toString: function() {
-            return '[ProfileProvider]';
-        }
-    });
+		toString: function() {
+			return '[HistoricalDataProvider]';
+		}
+	});
 }();
-},{"./../../../common/jQuery/jQueryProvider":1,"./../../ProfileProviderBase":3}],5:[function(require,module,exports){
+},{"./../../../common/jQuery/jQueryProvider":1,"./../../HistoricalDataProviderBase":3}],5:[function(require,module,exports){
 var HistoricalDataProvider = require('./../connection/HistoricalDataProvider');
 
 module.exports = function() {

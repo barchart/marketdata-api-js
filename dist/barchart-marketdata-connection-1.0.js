@@ -2101,8 +2101,12 @@ module.exports = function() {
 
 					if (q.lastPrice && !q.flag) {
 						returnRef = formatTime(t);
+
+						if (q.timezone) {
+							returnRef = returnRef + ' ' + q.timezone;
+						}
 					} else {
-						returnRef = [leftPad(t.getMonth() + 1), leftPad(t.getDate()), leftPad(t.getFullYear())].join('/');
+						returnRef = leftPad(t.getMonth() + 1) + '/' + leftPad(t.getDate()) + '/' + leftPad(t.getFullYear());
 					}
 				} else {
 					returnRef = '';
@@ -2128,15 +2132,15 @@ module.exports = function() {
 			period = 'AM';
 		}
 
-		return [leftPad(hours), leftPad(t.getMinutes()), leftPad(t.getSeconds())].join(':');
+		return leftPad(hours) + ':' + leftPad(t.getMinutes()) + ':' + leftPad(t.getSeconds());
 	}
 
 	function formatTwentyFourHourTime(t) {
-		return [leftPad(t.getHours()), leftPad(t.getMinutes()), leftPad(t.getSeconds())].join(':');
+		return leftPad(t.getHours()) + ':' + leftPad(t.getMinutes()) + ':' + leftPad(t.getSeconds());
 	}
 
 	function leftPad(value) {
-		return ['00', value].join('').substr(-2);
+		return ('00' + value).substr(-2);
 	}
 }();
 },{}],25:[function(require,module,exports){
