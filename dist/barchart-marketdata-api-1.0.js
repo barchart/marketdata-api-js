@@ -2294,11 +2294,15 @@ module.exports = function() {
 module.exports = function() {
 	'use strict';
 
-	return function(useTwelveHourClock) {
+	return function(useTwelveHourClock, short) {
 		var formatTime;
 
 		if (useTwelveHourClock) {
-			formatTime = formatTwelveHourTime;
+			if (short) {
+				formatTime = formatTwelveHourTimeShort;
+			} else {
+				formatTime = formatTwelveHourTime;
+			}
 		} else {
 			formatTime = formatTwentyFourHourTime;
 		}
@@ -2347,6 +2351,27 @@ module.exports = function() {
 		}
 
 		return leftPad(hours) + ':' + leftPad(t.getMinutes()) + ':' + leftPad(t.getSeconds()) + ' ' + period;
+	}
+
+	function formatTwelveHourTimeShort(t) {
+		var hours = t.getHours();
+		var period;
+
+		if (hours === 0) {
+			hours = 12;
+			period = 'A';
+		} else if (hours === 12) {
+			hours = hours;
+			period = 'P';
+		} else if (hours > 12) {
+			hours = hours - 12;
+			period = 'P';
+		} else {
+			hours = hours;
+			period = 'A';
+		}
+
+		return leftPad(hours) + ':' + leftPad(t.getMinutes()) + period;
 	}
 
 	function formatTwentyFourHourTime(t) {
