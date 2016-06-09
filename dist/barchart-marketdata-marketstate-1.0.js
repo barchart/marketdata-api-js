@@ -869,6 +869,9 @@ module.exports = function() {
 		if (hours === 0) {
 			hours = 12;
 			period = 'AM';
+		} else if (hours === 12) {
+			hours = hours;
+			period = 'PM';
 		} else if (hours > 12) {
 			hours = hours - 12;
 			period = 'PM';
@@ -877,7 +880,7 @@ module.exports = function() {
 			period = 'AM';
 		}
 
-		return leftPad(hours) + ':' + leftPad(t.getMinutes()) + ':' + leftPad(t.getSeconds());
+		return leftPad(hours) + ':' + leftPad(t.getMinutes()) + ':' + leftPad(t.getSeconds()) + ' ' + period;
 	}
 
 	function formatTwentyFourHourTime(t) {
