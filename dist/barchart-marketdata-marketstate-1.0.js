@@ -838,7 +838,11 @@ module.exports = function() {
 				formatTime = formatTwelveHourTime;
 			}
 		} else {
-			formatTime = formatTwentyFourHourTime;
+			if (short) {
+				formatTime = formatTwentyFourHourTimeShort;
+			} else {
+				formatTime = formatTwentyFourHourTime;
+			}
 		}
 
 		return {
@@ -910,6 +914,10 @@ module.exports = function() {
 
 	function formatTwentyFourHourTime(t) {
 		return leftPad(t.getHours()) + ':' + leftPad(t.getMinutes()) + ':' + leftPad(t.getSeconds());
+	}
+
+	function formatTwentyFourHourTimeShort(t) {
+		return leftPad(t.getHours()) + ':' + leftPad(t.getMinutes());
 	}
 
 	function leftPad(value) {
