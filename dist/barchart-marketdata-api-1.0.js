@@ -1612,6 +1612,16 @@ module.exports = function() {
 								if (closed && typeof(message.flag) === 'undefined') {
 									message.flag = 'p';
 								}
+
+								if (!closed) {
+									var p = sessions.previous;
+
+									message.previousPreviousPrice = p.previousPrice;
+									message.previousSettlementPrice = p.settlementPrice;
+									message.previousOpenPrice = p.openPrice;
+									message.previousHighPrice = p.highPrice;
+									message.previousLowPrice = p.lowPrice;
+								}
 							}
 
 							message.type = 'REFRESH_QUOTE';
