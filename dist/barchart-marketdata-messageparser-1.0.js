@@ -268,7 +268,7 @@ module.exports = function() {
 									message.flag = 'p';
 								}
 
-								if (!closed) {
+								//if (!closed) {
 									var p = sessions.previous;
 
 									message.previousPreviousPrice = p.previousPrice;
@@ -276,7 +276,7 @@ module.exports = function() {
 									message.previousOpenPrice = p.openPrice;
 									message.previousHighPrice = p.highPrice;
 									message.previousLowPrice = p.lowPrice;
-								}
+								//}
 							}
 
 							message.type = 'REFRESH_QUOTE';
