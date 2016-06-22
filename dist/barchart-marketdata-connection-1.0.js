@@ -2094,49 +2094,43 @@ module.exports = function() {
 	'use strict';
 
 	return function(useTwelveHourClock, short) {
-		var formatter;
+		var formatTime;
 
 		if (useTwelveHourClock) {
 			if (short) {
-				formatter = formatTwelveHourTimeShort;
+				formatTime = formatTwelveHourTimeShort;
 			} else {
-				formatter = formatTwelveHourTime;
+				formatTime = formatTwelveHourTime;
 			}
 		} else {
 			if (short) {
-				formatter = formatTwentyFourHourTimeShort;
+				formatTime = formatTwentyFourHourTimeShort;
 			} else {
-				formatter = formatTwentyFourHourTime;
+				formatTime = formatTwentyFourHourTime;
 			}
 		}
 
-		var formatTime = function(q, t) {
-			var returnRef;
-
-			if (t) {
-				if (q.lastPrice && !q.flag) {
-					returnRef = formatter(t);
-
-					if (q.timezone) {
-						returnRef = returnRef + ' ' + q.timezone;
-					}
-				} else {
-					returnRef = leftPad(t.getMonth() + 1) + '/' + leftPad(t.getDate()) + '/' + leftPad(t.getFullYear());
-				}
-			} else {
-				returnRef = '';
-			}
-
-			return returnRef;
-		};
-
 		return {
 			format: function(q) {
-				return formatTime(q, q.time);
-			},
+				var returnRef;
 
-			formatTradeTime: function(q) {
-				return formatTime(q, q.tradeTime);
+				if (q.time) {
+					var t = q.time;
+
+					if (q.lastPrice && !q.flag) {
+						returnRef = formatTime(t);
+
+						if (q.timezone) {
+							returnRef = returnRef + ' ' + q.timezone;
+						}
+					} else {
+						returnRef = leftPad(t.getMonth() + 1) + '/' + leftPad(t.getDate()) + '/' + leftPad(t.getFullYear());
+					}
+				} else {
+					returnRef = '';
+				}
+
+				return returnRef;
 			}
 		};
 	};
