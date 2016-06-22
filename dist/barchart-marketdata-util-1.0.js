@@ -448,7 +448,7 @@ module.exports = function() {
 			},
 
 			formatTradeTime: function(q) {
-				return formatTime(q, q.tradeTime || q.time);
+				return formatTime(q, q.tradeTime);
 			}
 		};
 	};
