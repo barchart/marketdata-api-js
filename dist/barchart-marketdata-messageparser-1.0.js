@@ -231,8 +231,10 @@ module.exports = function() {
 									}
 								}
 
-								var closed = typeof(sessions.combined.lastPrice) === 'undefined';
-								var session = closed ? sessions.previous : sessions.combined;
+								var premarket = typeof(sessions.combined.lastPrice) === 'undefined';
+								var postmarket = !premarket && typeof(sessions.combined.settlementPrice) === 'undefined';
+
+								var session = premarket ? sessions.previous : sessions.combined;
 
 								if (session.lastPrice)
 									message.lastPrice = session.lastPrice;
@@ -264,19 +266,36 @@ module.exports = function() {
 								if (sessions.combined.day)
 									message.day = sessions.combined.day;
 
-								if (closed && typeof(message.flag) === 'undefined') {
+								if (premarket && typeof(message.flag) === 'undefined') {
 									message.flag = 'p';
 								}
 
-								//if (!closed) {
-									var p = sessions.previous;
+								var p = sessions.previous;
 
-									message.previousPreviousPrice = p.previousPrice;
-									message.previousSettlementPrice = p.settlementPrice;
-									message.previousOpenPrice = p.openPrice;
-									message.previousHighPrice = p.highPrice;
-									message.previousLowPrice = p.lowPrice;
-								//}
+								message.previousPreviousPrice = p.previousPrice;
+								message.previousSettlementPrice = p.settlementPrice;
+								message.previousOpenPrice = p.openPrice;
+								message.previousHighPrice = p.highPrice;
+								message.previousLowPrice = p.lowPrice;
+
+								if (sessions.combined.day && (premarket || postmarket)) {
+									var sessionFormT = 'session_' + sessions.combined.day + '_T';
+
+									if (sessions.hasOwnProperty(sessionFormT)) {
+										var t = sessions[sessionFormT];
+
+										if (t.lastPrice) {
+											message.lastPrice = t.lastPrice;
+
+											if (t.tradeTime)
+												message.tradeTime = t.tradeTime;
+											if (t.tradeSize)
+												message.tradeSize = t.tradeSize;
+											if (t.volume)
+												message.volume = t.volume;
+										}
+									}
+								}
 							}
 
 							message.type = 'REFRESH_QUOTE';
