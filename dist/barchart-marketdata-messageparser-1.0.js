@@ -232,7 +232,7 @@ module.exports = function() {
 								}
 
 								var premarket = typeof(sessions.combined.lastPrice) === 'undefined';
-								var postmarket = !premarket && typeof(sessions.combined.settlementPrice) === 'undefined';
+								var postmarket = !premarket && typeof(sessions.combined.settlementPrice) !== 'undefined';
 
 								var session = premarket ? sessions.previous : sessions.combined;
 
@@ -291,7 +291,7 @@ module.exports = function() {
 												message.tradeTime = t.tradeTime;
 											if (t.tradeSize)
 												message.tradeSize = t.tradeSize;
-											if (t.volume)
+											if (t.volume && premarket)
 												message.volume = t.volume;
 										}
 									}
