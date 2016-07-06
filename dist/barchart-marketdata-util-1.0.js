@@ -422,45 +422,29 @@ module.exports = function() {
 			}
 		}
 
-		var formatters = {
+		return {
 			format: function(q) {
-				var t = q.time;
-
-				if (!t) {
-					return '';
-				} else if (q.lastPrice && !q.flag) {
-					return formatters.formatTime(t, q.timezone);
-				} else {
-					return leftPad(t.getMonth() + 1) + '/' + leftPad(t.getDate()) + '/' + leftPad(t.getFullYear());
-				}
-			},
-
-			formatTime: function(date, timezone) {
 				var returnRef;
 
-				if (date) {
-					returnRef = formatTime(date);
+				if (q.time) {
+					var t = q.time;
 
-					if (timezone) {
-						returnRef = returnRef + ' ' + timezone;
+					if (q.lastPrice && !q.flag) {
+						returnRef = formatTime(t);
+
+						if (q.timezone) {
+							returnRef = returnRef + ' ' + q.timezone;
+						}
+					} else {
+						returnRef = leftPad(t.getMonth() + 1) + '/' + leftPad(t.getDate()) + '/' + leftPad(t.getFullYear());
 					}
 				} else {
 					returnRef = '';
 				}
 
 				return returnRef;
-			},
-
-			formatDate: function(date) {
-				if (date) {
-					return leftPad(date.getMonth() + 1) + '/' + leftPad(date.getDate()) + '/' + leftPad(date.getFullYear());
-				} else {
-					return '';
-				}
 			}
 		};
-
-		return formatters;
 	};
 
 	function formatTwelveHourTime(t) {

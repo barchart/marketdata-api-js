@@ -294,6 +294,9 @@ module.exports = function() {
 											if (t.volume && premarket)
 												message.volume = t.volume;
 										}
+
+										if (premarket && t.previousPrice)
+											message.previousPrice = t.previousPrice;
 									}
 								}
 							}
