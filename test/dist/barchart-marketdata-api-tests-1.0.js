@@ -26,7 +26,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":14}],2:[function(require,module,exports){
+},{"class.extend":15}],2:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -247,10 +247,8 @@ module.exports = function() {
 
 								if (sessions.combined.day)
 									message.day = sessions.combined.day;
-
-								if (premarket && typeof(message.flag) === 'undefined') {
+								if (premarket && typeof(message.flag) === 'undefined')
 									message.flag = 'p';
-								}
 
 								var p = sessions.previous;
 
@@ -564,7 +562,7 @@ module.exports = function() {
 
 	return utilities.convert.baseCodeToUnitCode;
 }();
-},{"barchart-marketdata-utilities":10}],7:[function(require,module,exports){
+},{"barchart-marketdata-utilities":11}],7:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -572,7 +570,7 @@ module.exports = function() {
 
 	return utilities.convert.unitCodeToBaseCode;
 }();
-},{"barchart-marketdata-utilities":10}],8:[function(require,module,exports){
+},{"barchart-marketdata-utilities":11}],8:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -580,7 +578,7 @@ module.exports = function() {
 
 	return utilities.priceFormatter;
 }();
-},{"barchart-marketdata-utilities":10}],9:[function(require,module,exports){
+},{"barchart-marketdata-utilities":11}],9:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -657,7 +655,53 @@ module.exports = function() {
 	};
 }();
 },{}],10:[function(require,module,exports){
+var lodashIsNaN = require('lodash.isnan');
+
+module.exports = function() {
+	'use strict';
+
+	return function(value, digits, thousandsSeparator) {
+		if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
+			return '';
+		}
+
+		var returnRef = value.toFixed(digits);
+
+		if (thousandsSeparator && !(value < 1000)) {
+			var length = returnRef.length;
+
+			var found = digits === 0;
+			var counter = 0;
+
+			var buffer = [];
+
+			for (var i = (length - 1); !(i < 0); i--) {
+				if (counter === 3) {
+					buffer.unshift(',');
+
+					counter = 0;
+				}
+
+				var character = returnRef.charAt(i);
+
+				buffer.unshift(character);
+
+				if (found) {
+					counter = counter + 1;
+				} else if (character === '.') {
+					found = true;
+				}
+			}
+
+			returnRef = buffer.join('');
+		}
+
+		return returnRef;
+	};
+}();
+},{"lodash.isnan":16}],11:[function(require,module,exports){
 var convert = require('./convert');
+var decimalFormatter = require('./decimalFormatter');
 var priceFormatter = require('./priceFormatter');
 var symbolFormatter = require('./symbolFormatter');
 var timeFormatter = require('./timeFormatter');
@@ -667,13 +711,15 @@ module.exports = function() {
 
 	return {
 		convert: convert,
+		decimalFormatter: decimalFormatter,
 		priceFormatter: priceFormatter,
 		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":9,"./priceFormatter":11,"./symbolFormatter":12,"./timeFormatter":13}],11:[function(require,module,exports){
+},{"./convert":9,"./decimalFormatter":10,"./priceFormatter":12,"./symbolFormatter":13,"./timeFormatter":14}],12:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
+var decimalFormatter = require('./decimalFormatter');
 
 module.exports = function() {
 	'use strict';
@@ -695,45 +741,11 @@ module.exports = function() {
 		}
 
 		function formatDecimal(value, digits) {
-			var returnRef = value.toFixed(digits);
-
-			if (thousandsSeparator && !(value < 1000)) {
-				var length = returnRef.length;
-
-				var found = digits === 0;
-				var counter = 0;
-
-				var buffer = [];
-
-				for (var i = (length - 1); !(i < 0); i--) {
-					if (counter === 3) {
-						buffer.unshift(',');
-
-						counter = 0;
-					}
-
-					var character = returnRef.charAt(i);
-
-					buffer.unshift(character);
-
-					if (found) {
-						counter = counter + 1;
-					} else if (character === '.') {
-						found = true;
-					}
-				}
-
-				returnRef = buffer.join('');
-			}
-
-			return returnRef;
+			return decimalFormatter(value, digits, thousandsSeparator);
 		}
 
 		if (fractionSeparator == '.') { // Decimals
 			format = function(value, unitcode) {
-				if (value === '' || value === undefined || value === null || lodashIsNaN(value))
-					return '';
-
 				switch (unitcode) {
 					case '2':
 						return formatDecimal(value, 3);
@@ -762,7 +774,10 @@ module.exports = function() {
 					case 'E':
 						return formatDecimal(value, 6);
 					default:
-						return value;
+						if (value === '' || value === undefined || value === null || lodashIsNaN(value))
+							return '';
+						else
+							return value;
 				}
 			};
 		}
@@ -816,7 +831,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"lodash.isnan":15}],12:[function(require,module,exports){
+},{"./decimalFormatter":10,"lodash.isnan":16}],13:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -834,7 +849,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -864,7 +879,7 @@ module.exports = function() {
 				} else if (q.lastPrice && !q.flag) {
 					return formatters.formatTime(t, q.timezone);
 				} else {
-					return leftPad(t.getMonth() + 1) + '/' + leftPad(t.getDate()) + '/' + leftPad(t.getFullYear());
+					return formatters.formatDate(t);
 				}
 			},
 
@@ -950,7 +965,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
@@ -1022,7 +1037,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -1134,7 +1149,7 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 var parseMessage = require('../../../lib/messageParser/parseMessage');
 
 describe('When parsing a 2,Z message for SIRI, 3@3.94', function() {
@@ -1184,7 +1199,7 @@ describe('When parsing a 2,Z message for SIRI, 2998262@3.95', function() {
 		expect(x.tradeSize).toBe(2998262);
 	});
 });
-},{"../../../lib/messageParser/parseMessage":3}],17:[function(require,module,exports){
+},{"../../../lib/messageParser/parseMessage":3}],18:[function(require,module,exports){
 var convertBaseCodeToUnitCode = require('../../../lib/util/convertBaseCodeToUnitCode');
 
 describe('When converting a baseCode to a unitCode', function() {
@@ -1192,7 +1207,7 @@ describe('When converting a baseCode to a unitCode', function() {
 		expect(convertBaseCodeToUnitCode(-1)).toEqual('2');
 	});
 });
-},{"../../../lib/util/convertBaseCodeToUnitCode":6}],18:[function(require,module,exports){
+},{"../../../lib/util/convertBaseCodeToUnitCode":6}],19:[function(require,module,exports){
 var convertUnitCodeToBaseCode = require('../../../lib/util/convertUnitCodeToBaseCode');
 
 describe('When converting a unitCode to a baseCode', function() {
@@ -1200,7 +1215,7 @@ describe('When converting a unitCode to a baseCode', function() {
 		expect(convertUnitCodeToBaseCode('2')).toEqual(-1);
 	});
 });
-},{"../../../lib/util/convertUnitCodeToBaseCode":7}],19:[function(require,module,exports){
+},{"../../../lib/util/convertUnitCodeToBaseCode":7}],20:[function(require,module,exports){
 var PriceFormatter = require('../../../lib/util/priceFormatter');
 
 describe('When a price formatter is created', function() {
@@ -1320,4 +1335,4 @@ describe('When a price formatter is created', function() {
 		});
 	});
 });
-},{"../../../lib/util/priceFormatter":8}]},{},[16,17,18,19]);
+},{"../../../lib/util/priceFormatter":8}]},{},[17,18,19,20]);

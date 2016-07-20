@@ -6,7 +6,7 @@ module.exports = function() {
 
 	return utilities.convert.baseCodeToUnitCode;
 }();
-},{"barchart-marketdata-utilities":11}],2:[function(require,module,exports){
+},{"barchart-marketdata-utilities":12}],2:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -45,7 +45,7 @@ module.exports = function() {
 
 	return utilities.convert.unitCodeToBaseCode;
 }();
-},{"barchart-marketdata-utilities":11}],5:[function(require,module,exports){
+},{"barchart-marketdata-utilities":12}],5:[function(require,module,exports){
 var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode');
 var convertDateToDayCode = require('./convertDateToDayCode');
 var convertDayCodeToNumber = require('./convertDayCodeToNumber');
@@ -139,7 +139,7 @@ module.exports = function() {
 
 	return utilities.priceFormatter;
 }();
-},{"barchart-marketdata-utilities":11}],9:[function(require,module,exports){
+},{"barchart-marketdata-utilities":12}],9:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -147,7 +147,7 @@ module.exports = function() {
 
 	return utilities.timeFormatter;
 }();
-},{"barchart-marketdata-utilities":11}],10:[function(require,module,exports){
+},{"barchart-marketdata-utilities":12}],10:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -224,7 +224,53 @@ module.exports = function() {
 	};
 }();
 },{}],11:[function(require,module,exports){
+var lodashIsNaN = require('lodash.isnan');
+
+module.exports = function() {
+	'use strict';
+
+	return function(value, digits, thousandsSeparator) {
+		if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
+			return '';
+		}
+
+		var returnRef = value.toFixed(digits);
+
+		if (thousandsSeparator && !(value < 1000)) {
+			var length = returnRef.length;
+
+			var found = digits === 0;
+			var counter = 0;
+
+			var buffer = [];
+
+			for (var i = (length - 1); !(i < 0); i--) {
+				if (counter === 3) {
+					buffer.unshift(',');
+
+					counter = 0;
+				}
+
+				var character = returnRef.charAt(i);
+
+				buffer.unshift(character);
+
+				if (found) {
+					counter = counter + 1;
+				} else if (character === '.') {
+					found = true;
+				}
+			}
+
+			returnRef = buffer.join('');
+		}
+
+		return returnRef;
+	};
+}();
+},{"lodash.isnan":16}],12:[function(require,module,exports){
 var convert = require('./convert');
+var decimalFormatter = require('./decimalFormatter');
 var priceFormatter = require('./priceFormatter');
 var symbolFormatter = require('./symbolFormatter');
 var timeFormatter = require('./timeFormatter');
@@ -234,13 +280,15 @@ module.exports = function() {
 
 	return {
 		convert: convert,
+		decimalFormatter: decimalFormatter,
 		priceFormatter: priceFormatter,
 		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":10,"./priceFormatter":12,"./symbolFormatter":13,"./timeFormatter":14}],12:[function(require,module,exports){
+},{"./convert":10,"./decimalFormatter":11,"./priceFormatter":13,"./symbolFormatter":14,"./timeFormatter":15}],13:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
+var decimalFormatter = require('./decimalFormatter');
 
 module.exports = function() {
 	'use strict';
@@ -262,45 +310,11 @@ module.exports = function() {
 		}
 
 		function formatDecimal(value, digits) {
-			var returnRef = value.toFixed(digits);
-
-			if (thousandsSeparator && !(value < 1000)) {
-				var length = returnRef.length;
-
-				var found = digits === 0;
-				var counter = 0;
-
-				var buffer = [];
-
-				for (var i = (length - 1); !(i < 0); i--) {
-					if (counter === 3) {
-						buffer.unshift(',');
-
-						counter = 0;
-					}
-
-					var character = returnRef.charAt(i);
-
-					buffer.unshift(character);
-
-					if (found) {
-						counter = counter + 1;
-					} else if (character === '.') {
-						found = true;
-					}
-				}
-
-				returnRef = buffer.join('');
-			}
-
-			return returnRef;
+			return decimalFormatter(value, digits, thousandsSeparator);
 		}
 
 		if (fractionSeparator == '.') { // Decimals
 			format = function(value, unitcode) {
-				if (value === '' || value === undefined || value === null || lodashIsNaN(value))
-					return '';
-
 				switch (unitcode) {
 					case '2':
 						return formatDecimal(value, 3);
@@ -329,7 +343,10 @@ module.exports = function() {
 					case 'E':
 						return formatDecimal(value, 6);
 					default:
-						return value;
+						if (value === '' || value === undefined || value === null || lodashIsNaN(value))
+							return '';
+						else
+							return value;
 				}
 			};
 		}
@@ -383,7 +400,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"lodash.isnan":15}],13:[function(require,module,exports){
+},{"./decimalFormatter":11,"lodash.isnan":16}],14:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -401,7 +418,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -431,7 +448,7 @@ module.exports = function() {
 				} else if (q.lastPrice && !q.flag) {
 					return formatters.formatTime(t, q.timezone);
 				} else {
-					return leftPad(t.getMonth() + 1) + '/' + leftPad(t.getDate()) + '/' + leftPad(t.getFullYear());
+					return formatters.formatDate(t);
 				}
 			},
 
@@ -517,7 +534,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`

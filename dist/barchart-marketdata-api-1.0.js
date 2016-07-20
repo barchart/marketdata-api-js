@@ -48,7 +48,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":38}],3:[function(require,module,exports){
+},{"class.extend":39}],3:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -170,7 +170,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":38}],6:[function(require,module,exports){
+},{"class.extend":39}],6:[function(require,module,exports){
 var HistoricalDataProvider = require('./http/HistoricalDataProvider');
 
 module.exports = function() {
@@ -202,7 +202,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":38}],8:[function(require,module,exports){
+},{"class.extend":39}],8:[function(require,module,exports){
 var ProfileProvider = require('./http/ProfileProvider');
 
 module.exports = function() {
@@ -234,7 +234,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":38}],10:[function(require,module,exports){
+},{"class.extend":39}],10:[function(require,module,exports){
 var HistoricalDataProviderBase = require('./../../HistoricalDataProviderBase');
 
 var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
@@ -1611,10 +1611,8 @@ module.exports = function() {
 
 								if (sessions.combined.day)
 									message.day = sessions.combined.day;
-
-								if (premarket && typeof(message.flag) === 'undefined') {
+								if (premarket && typeof(message.flag) === 'undefined')
 									message.flag = 'p';
-								}
 
 								var p = sessions.previous;
 
@@ -1928,7 +1926,7 @@ module.exports = function() {
 
 	return utilities.convert.baseCodeToUnitCode;
 }();
-},{"barchart-marketdata-utilities":34}],25:[function(require,module,exports){
+},{"barchart-marketdata-utilities":35}],25:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1967,7 +1965,7 @@ module.exports = function() {
 
 	return utilities.convert.unitCodeToBaseCode;
 }();
-},{"barchart-marketdata-utilities":34}],28:[function(require,module,exports){
+},{"barchart-marketdata-utilities":35}],28:[function(require,module,exports){
 var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode');
 var convertDateToDayCode = require('./convertDateToDayCode');
 var convertDayCodeToNumber = require('./convertDayCodeToNumber');
@@ -2061,7 +2059,7 @@ module.exports = function() {
 
 	return utilities.priceFormatter;
 }();
-},{"barchart-marketdata-utilities":34}],32:[function(require,module,exports){
+},{"barchart-marketdata-utilities":35}],32:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -2069,7 +2067,7 @@ module.exports = function() {
 
 	return utilities.timeFormatter;
 }();
-},{"barchart-marketdata-utilities":34}],33:[function(require,module,exports){
+},{"barchart-marketdata-utilities":35}],33:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2146,7 +2144,53 @@ module.exports = function() {
 	};
 }();
 },{}],34:[function(require,module,exports){
+var lodashIsNaN = require('lodash.isnan');
+
+module.exports = function() {
+	'use strict';
+
+	return function(value, digits, thousandsSeparator) {
+		if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
+			return '';
+		}
+
+		var returnRef = value.toFixed(digits);
+
+		if (thousandsSeparator && !(value < 1000)) {
+			var length = returnRef.length;
+
+			var found = digits === 0;
+			var counter = 0;
+
+			var buffer = [];
+
+			for (var i = (length - 1); !(i < 0); i--) {
+				if (counter === 3) {
+					buffer.unshift(',');
+
+					counter = 0;
+				}
+
+				var character = returnRef.charAt(i);
+
+				buffer.unshift(character);
+
+				if (found) {
+					counter = counter + 1;
+				} else if (character === '.') {
+					found = true;
+				}
+			}
+
+			returnRef = buffer.join('');
+		}
+
+		return returnRef;
+	};
+}();
+},{"lodash.isnan":40}],35:[function(require,module,exports){
 var convert = require('./convert');
+var decimalFormatter = require('./decimalFormatter');
 var priceFormatter = require('./priceFormatter');
 var symbolFormatter = require('./symbolFormatter');
 var timeFormatter = require('./timeFormatter');
@@ -2156,13 +2200,15 @@ module.exports = function() {
 
 	return {
 		convert: convert,
+		decimalFormatter: decimalFormatter,
 		priceFormatter: priceFormatter,
 		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":33,"./priceFormatter":35,"./symbolFormatter":36,"./timeFormatter":37}],35:[function(require,module,exports){
+},{"./convert":33,"./decimalFormatter":34,"./priceFormatter":36,"./symbolFormatter":37,"./timeFormatter":38}],36:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
+var decimalFormatter = require('./decimalFormatter');
 
 module.exports = function() {
 	'use strict';
@@ -2184,45 +2230,11 @@ module.exports = function() {
 		}
 
 		function formatDecimal(value, digits) {
-			var returnRef = value.toFixed(digits);
-
-			if (thousandsSeparator && !(value < 1000)) {
-				var length = returnRef.length;
-
-				var found = digits === 0;
-				var counter = 0;
-
-				var buffer = [];
-
-				for (var i = (length - 1); !(i < 0); i--) {
-					if (counter === 3) {
-						buffer.unshift(',');
-
-						counter = 0;
-					}
-
-					var character = returnRef.charAt(i);
-
-					buffer.unshift(character);
-
-					if (found) {
-						counter = counter + 1;
-					} else if (character === '.') {
-						found = true;
-					}
-				}
-
-				returnRef = buffer.join('');
-			}
-
-			return returnRef;
+			return decimalFormatter(value, digits, thousandsSeparator);
 		}
 
 		if (fractionSeparator == '.') { // Decimals
 			format = function(value, unitcode) {
-				if (value === '' || value === undefined || value === null || lodashIsNaN(value))
-					return '';
-
 				switch (unitcode) {
 					case '2':
 						return formatDecimal(value, 3);
@@ -2251,7 +2263,10 @@ module.exports = function() {
 					case 'E':
 						return formatDecimal(value, 6);
 					default:
-						return value;
+						if (value === '' || value === undefined || value === null || lodashIsNaN(value))
+							return '';
+						else
+							return value;
 				}
 			};
 		}
@@ -2305,7 +2320,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"lodash.isnan":39}],36:[function(require,module,exports){
+},{"./decimalFormatter":34,"lodash.isnan":40}],37:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2323,7 +2338,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2353,7 +2368,7 @@ module.exports = function() {
 				} else if (q.lastPrice && !q.flag) {
 					return formatters.formatTime(t, q.timezone);
 				} else {
-					return leftPad(t.getMonth() + 1) + '/' + leftPad(t.getDate()) + '/' + leftPad(t.getFullYear());
+					return formatters.formatDate(t);
 				}
 			},
 
@@ -2439,7 +2454,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
@@ -2511,7 +2526,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
