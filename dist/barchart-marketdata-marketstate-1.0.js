@@ -52,7 +52,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":18}],4:[function(require,module,exports){
+},{"class.extend":19}],4:[function(require,module,exports){
 var ProfileProviderBase = require('./../../ProfileProviderBase');
 
 var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
@@ -692,9 +692,10 @@ module.exports = function() {
 		return returnRef;
 	};
 }();
-},{"lodash.isnan":19}],14:[function(require,module,exports){
+},{"lodash.isnan":20}],14:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
+var monthCodes = require('./monthCodes');
 var priceFormatter = require('./priceFormatter');
 var symbolFormatter = require('./symbolFormatter');
 var timeFormatter = require('./timeFormatter');
@@ -705,12 +706,48 @@ module.exports = function() {
 	return {
 		convert: convert,
 		decimalFormatter: decimalFormatter,
+		monthCodes: monthCodes,
 		priceFormatter: priceFormatter,
 		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":12,"./decimalFormatter":13,"./priceFormatter":15,"./symbolFormatter":16,"./timeFormatter":17}],15:[function(require,module,exports){
+},{"./convert":12,"./decimalFormatter":13,"./monthCodes":15,"./priceFormatter":16,"./symbolFormatter":17,"./timeFormatter":18}],15:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	var monthMap = { };
+	var numberMap = { };
+
+	var addMonth = function (code, name, number) {
+		monthMap[code] = name;
+		numberMap[code] = number;
+	};
+
+	addMonth("F", "January", 1);
+	addMonth("G", "February", 2);
+	addMonth("H", "March", 3);
+	addMonth("J", "April", 4);
+	addMonth("K", "May", 5);
+	addMonth("M", "June", 6);
+	addMonth("N", "July", 7);
+	addMonth("Q", "August", 8);
+	addMonth("U", "September", 9);
+	addMonth("V", "October", 10);
+	addMonth("X", "November", 11);
+	addMonth("Z", "December", 12);
+
+	return {
+		getCodeToNameMap: function() {
+			return monthMap;
+		},
+
+		getCodeToNumberMap: function() {
+			return numberMap;
+		}
+	};
+}();
+},{}],16:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 var decimalFormatter = require('./decimalFormatter');
 
@@ -824,7 +861,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":13,"lodash.isnan":19}],16:[function(require,module,exports){
+},{"./decimalFormatter":13,"lodash.isnan":20}],17:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -842,7 +879,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -958,7 +995,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
@@ -1030,7 +1067,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`

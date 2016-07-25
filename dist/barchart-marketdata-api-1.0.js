@@ -48,7 +48,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":39}],3:[function(require,module,exports){
+},{"class.extend":40}],3:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -170,7 +170,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":39}],6:[function(require,module,exports){
+},{"class.extend":40}],6:[function(require,module,exports){
 var HistoricalDataProvider = require('./http/HistoricalDataProvider');
 
 module.exports = function() {
@@ -202,7 +202,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":39}],8:[function(require,module,exports){
+},{"class.extend":40}],8:[function(require,module,exports){
 var ProfileProvider = require('./http/ProfileProvider');
 
 module.exports = function() {
@@ -234,7 +234,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":39}],10:[function(require,module,exports){
+},{"class.extend":40}],10:[function(require,module,exports){
 var HistoricalDataProviderBase = require('./../../HistoricalDataProviderBase');
 
 var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
@@ -1997,25 +1997,14 @@ module.exports = function() {
 	};
 }();
 },{"./convertBaseCodeToUnitCode":24,"./convertDateToDayCode":25,"./convertDayCodeToNumber":26,"./convertUnitCodeToBaseCode":27,"./monthCodes":29,"./parseSymbolType":30,"./priceFormatter":31,"./timeFormatter":32}],29:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
 module.exports = function() {
 	'use strict';
 
-	return {
-		"F": "January",
-		"G": "February",
-		"H": "March",
-		"J": "April",
-		"K": "May",
-		"M": "June",
-		"N": "July",
-		"Q": "August",
-		"U": "September",
-		"V": "October",
-		"X": "November",
-		"Z": "December"
-	};
+	return utilities.monthCodes.getCodeToNameMap();
 }();
-},{}],30:[function(require,module,exports){
+},{"barchart-marketdata-utilities":35}],30:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2188,9 +2177,10 @@ module.exports = function() {
 		return returnRef;
 	};
 }();
-},{"lodash.isnan":40}],35:[function(require,module,exports){
+},{"lodash.isnan":41}],35:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
+var monthCodes = require('./monthCodes');
 var priceFormatter = require('./priceFormatter');
 var symbolFormatter = require('./symbolFormatter');
 var timeFormatter = require('./timeFormatter');
@@ -2201,12 +2191,48 @@ module.exports = function() {
 	return {
 		convert: convert,
 		decimalFormatter: decimalFormatter,
+		monthCodes: monthCodes,
 		priceFormatter: priceFormatter,
 		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":33,"./decimalFormatter":34,"./priceFormatter":36,"./symbolFormatter":37,"./timeFormatter":38}],36:[function(require,module,exports){
+},{"./convert":33,"./decimalFormatter":34,"./monthCodes":36,"./priceFormatter":37,"./symbolFormatter":38,"./timeFormatter":39}],36:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	var monthMap = { };
+	var numberMap = { };
+
+	var addMonth = function (code, name, number) {
+		monthMap[code] = name;
+		numberMap[code] = number;
+	};
+
+	addMonth("F", "January", 1);
+	addMonth("G", "February", 2);
+	addMonth("H", "March", 3);
+	addMonth("J", "April", 4);
+	addMonth("K", "May", 5);
+	addMonth("M", "June", 6);
+	addMonth("N", "July", 7);
+	addMonth("Q", "August", 8);
+	addMonth("U", "September", 9);
+	addMonth("V", "October", 10);
+	addMonth("X", "November", 11);
+	addMonth("Z", "December", 12);
+
+	return {
+		getCodeToNameMap: function() {
+			return monthMap;
+		},
+
+		getCodeToNumberMap: function() {
+			return numberMap;
+		}
+	};
+}();
+},{}],37:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 var decimalFormatter = require('./decimalFormatter');
 
@@ -2320,7 +2346,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":34,"lodash.isnan":40}],37:[function(require,module,exports){
+},{"./decimalFormatter":34,"lodash.isnan":41}],38:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2338,7 +2364,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2454,7 +2480,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
@@ -2526,7 +2552,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
