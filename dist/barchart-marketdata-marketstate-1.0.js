@@ -52,7 +52,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":19}],4:[function(require,module,exports){
+},{"class.extend":20}],4:[function(require,module,exports){
 var ProfileProviderBase = require('./../../ProfileProviderBase');
 
 var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
@@ -692,12 +692,13 @@ module.exports = function() {
 		return returnRef;
 	};
 }();
-},{"lodash.isnan":20}],14:[function(require,module,exports){
+},{"lodash.isnan":21}],14:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
 var monthCodes = require('./monthCodes');
 var priceFormatter = require('./priceFormatter');
 var symbolFormatter = require('./symbolFormatter');
+var priceParser = require('./priceParser');
 var timeFormatter = require('./timeFormatter');
 
 module.exports = function() {
@@ -708,11 +709,12 @@ module.exports = function() {
 		decimalFormatter: decimalFormatter,
 		monthCodes: monthCodes,
 		priceFormatter: priceFormatter,
+		priceParser: priceParser,
 		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":12,"./decimalFormatter":13,"./monthCodes":15,"./priceFormatter":16,"./symbolFormatter":17,"./timeFormatter":18}],15:[function(require,module,exports){
+},{"./convert":12,"./decimalFormatter":13,"./monthCodes":15,"./priceFormatter":16,"./priceParser":17,"./symbolFormatter":18,"./timeFormatter":19}],15:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -861,7 +863,74 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":13,"lodash.isnan":20}],17:[function(require,module,exports){
+},{"./decimalFormatter":13,"lodash.isnan":21}],17:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	var replaceExpressions = { };
+
+	function getReplaceExpression(thousandsSeparator) {
+		if (!replaceExpressions.hasOwnProperty(thousandsSeparator)) {
+			replaceExpressions[thousandsSeparator] = new RegExp(thousandsSeparator, 'g');
+		}
+
+		return replaceExpressions[thousandsSeparator];
+	}
+
+	return function(str, unitcode, thousandsSeparator) {
+		if (str.length < 1) {
+			return undefined;
+		} else if (str === '-') {
+			return null;
+		}
+
+		if (thousandsSeparator) {
+			str = str.replace(getReplaceExpression(thousandsSeparator), '');
+		}
+
+		if (str.indexOf('.') > 0) {
+			return parseFloat(str);
+		}
+
+		var sign = (str.substr(0, 1) == '-') ? -1 : 1;
+
+		if (sign === -1) {
+			str = str.substr(1);
+		}
+
+		switch (unitcode.toString()) {
+			case '2': // 8ths
+				return sign * (((str.length > 1) ? parseInt(str.substr(0, str.length - 1)) : 0) + (parseInt(str.substr(-1)) / 8));
+			case '3': // 16ths
+				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 16));
+			case '4': // 32ths
+				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 32));
+			case '5': // 64ths
+				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 64));
+			case '6': // 128ths
+				return sign * (((str.length > 3) ? parseInt(str.substr(0, str.length - 3)) : 0) + (parseInt(str.substr(-3)) / 128));
+			case '7': // 256ths
+				return sign * (((str.length > 3) ? parseInt(str.substr(0, str.length - 3)) : 0) + (parseInt(str.substr(-3)) / 256));
+			case '8':
+				return sign * parseInt(str);
+			case '9':
+				return sign * (parseInt(str) / 10);
+			case 'A':
+				return sign * (parseInt(str) / 100);
+			case 'B':
+				return sign * (parseInt(str) / 1000);
+			case 'C':
+				return sign * (parseInt(str) / 10000);
+			case 'D':
+				return sign * (parseInt(str) / 100000);
+			case 'E':
+				return sign * (parseInt(str) / 1000000);
+			default:
+				return sign * parseInt(str);
+		}
+	};
+}();
+},{}],18:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -879,7 +948,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -995,7 +1064,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
@@ -1067,7 +1136,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`

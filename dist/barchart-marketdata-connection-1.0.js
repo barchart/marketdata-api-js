@@ -48,7 +48,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":27}],3:[function(require,module,exports){
+},{"class.extend":28}],3:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -170,7 +170,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":27}],6:[function(require,module,exports){
+},{"class.extend":28}],6:[function(require,module,exports){
 var ProfileProvider = require('./http/ProfileProvider');
 
 module.exports = function() {
@@ -202,7 +202,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":27}],8:[function(require,module,exports){
+},{"class.extend":28}],8:[function(require,module,exports){
 var ProfileProviderBase = require('./../../ProfileProviderBase');
 
 var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
@@ -1750,54 +1750,14 @@ module.exports = function() {
 	};
 }();
 },{}],16:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
 module.exports = function() {
 	'use strict';
 
-	return function(str, unitcode) {
-		if (str.length < 1)
-			return undefined;
-		else if (str == '-')
-			return null;
-		else if (str.indexOf('.') > 0)
-			return parseFloat(str);
-
-		var sign = (str.substr(0, 1) == '-') ? -1 : 1;
-		if (sign === -1)
-			str = str.substr(1);
-
-		switch (unitcode) {
-			case '2': // 8ths
-				return sign * (((str.length > 1) ? parseInt(str.substr(0, str.length - 1)) : 0) + (parseInt(str.substr(-1)) / 8));
-			case '3': // 16ths
-				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 16));
-			case '4': // 32ths
-				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 32));
-			case '5': // 64ths
-				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 64));
-			case '6': // 128ths
-				return sign * (((str.length > 3) ? parseInt(str.substr(0, str.length - 3)) : 0) + (parseInt(str.substr(-3)) / 128));
-			case '7': // 256ths
-				return sign * (((str.length > 3) ? parseInt(str.substr(0, str.length - 3)) : 0) + (parseInt(str.substr(-3)) / 256));
-			case '8':
-				return sign * parseInt(str);
-			case '9':
-				return sign * (parseInt(str) / 10);
-			case 'A':
-				return sign * (parseInt(str) / 100);
-			case 'B':
-				return sign * (parseInt(str) / 1000);
-			case 'C':
-				return sign * (parseInt(str) / 10000);
-			case 'D':
-				return sign * (parseInt(str) / 100000);
-			case 'E':
-				return sign * (parseInt(str) / 1000000);
-			default:
-				return sign * parseInt(str);
-		}
-	};
+	return utilities.priceParser;
 }();
-},{}],17:[function(require,module,exports){
+},{"barchart-marketdata-utilities":22}],17:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1977,12 +1937,13 @@ module.exports = function() {
 		return returnRef;
 	};
 }();
-},{"lodash.isnan":28}],22:[function(require,module,exports){
+},{"lodash.isnan":29}],22:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
 var monthCodes = require('./monthCodes');
 var priceFormatter = require('./priceFormatter');
 var symbolFormatter = require('./symbolFormatter');
+var priceParser = require('./priceParser');
 var timeFormatter = require('./timeFormatter');
 
 module.exports = function() {
@@ -1993,11 +1954,12 @@ module.exports = function() {
 		decimalFormatter: decimalFormatter,
 		monthCodes: monthCodes,
 		priceFormatter: priceFormatter,
+		priceParser: priceParser,
 		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":20,"./decimalFormatter":21,"./monthCodes":23,"./priceFormatter":24,"./symbolFormatter":25,"./timeFormatter":26}],23:[function(require,module,exports){
+},{"./convert":20,"./decimalFormatter":21,"./monthCodes":23,"./priceFormatter":24,"./priceParser":25,"./symbolFormatter":26,"./timeFormatter":27}],23:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2146,7 +2108,74 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":21,"lodash.isnan":28}],25:[function(require,module,exports){
+},{"./decimalFormatter":21,"lodash.isnan":29}],25:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	var replaceExpressions = { };
+
+	function getReplaceExpression(thousandsSeparator) {
+		if (!replaceExpressions.hasOwnProperty(thousandsSeparator)) {
+			replaceExpressions[thousandsSeparator] = new RegExp(thousandsSeparator, 'g');
+		}
+
+		return replaceExpressions[thousandsSeparator];
+	}
+
+	return function(str, unitcode, thousandsSeparator) {
+		if (str.length < 1) {
+			return undefined;
+		} else if (str === '-') {
+			return null;
+		}
+
+		if (thousandsSeparator) {
+			str = str.replace(getReplaceExpression(thousandsSeparator), '');
+		}
+
+		if (str.indexOf('.') > 0) {
+			return parseFloat(str);
+		}
+
+		var sign = (str.substr(0, 1) == '-') ? -1 : 1;
+
+		if (sign === -1) {
+			str = str.substr(1);
+		}
+
+		switch (unitcode.toString()) {
+			case '2': // 8ths
+				return sign * (((str.length > 1) ? parseInt(str.substr(0, str.length - 1)) : 0) + (parseInt(str.substr(-1)) / 8));
+			case '3': // 16ths
+				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 16));
+			case '4': // 32ths
+				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 32));
+			case '5': // 64ths
+				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 64));
+			case '6': // 128ths
+				return sign * (((str.length > 3) ? parseInt(str.substr(0, str.length - 3)) : 0) + (parseInt(str.substr(-3)) / 128));
+			case '7': // 256ths
+				return sign * (((str.length > 3) ? parseInt(str.substr(0, str.length - 3)) : 0) + (parseInt(str.substr(-3)) / 256));
+			case '8':
+				return sign * parseInt(str);
+			case '9':
+				return sign * (parseInt(str) / 10);
+			case 'A':
+				return sign * (parseInt(str) / 100);
+			case 'B':
+				return sign * (parseInt(str) / 1000);
+			case 'C':
+				return sign * (parseInt(str) / 10000);
+			case 'D':
+				return sign * (parseInt(str) / 100000);
+			case 'E':
+				return sign * (parseInt(str) / 1000000);
+			default:
+				return sign * parseInt(str);
+		}
+	};
+}();
+},{}],26:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2164,7 +2193,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2280,7 +2309,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
@@ -2352,7 +2381,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`

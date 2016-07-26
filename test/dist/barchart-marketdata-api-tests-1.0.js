@@ -26,7 +26,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":17}],2:[function(require,module,exports){
+},{"class.extend":18}],2:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -507,54 +507,14 @@ module.exports = function() {
 	};
 }();
 },{}],5:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
 module.exports = function() {
 	'use strict';
 
-	return function(str, unitcode) {
-		if (str.length < 1)
-			return undefined;
-		else if (str == '-')
-			return null;
-		else if (str.indexOf('.') > 0)
-			return parseFloat(str);
-
-		var sign = (str.substr(0, 1) == '-') ? -1 : 1;
-		if (sign === -1)
-			str = str.substr(1);
-
-		switch (unitcode) {
-			case '2': // 8ths
-				return sign * (((str.length > 1) ? parseInt(str.substr(0, str.length - 1)) : 0) + (parseInt(str.substr(-1)) / 8));
-			case '3': // 16ths
-				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 16));
-			case '4': // 32ths
-				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 32));
-			case '5': // 64ths
-				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 64));
-			case '6': // 128ths
-				return sign * (((str.length > 3) ? parseInt(str.substr(0, str.length - 3)) : 0) + (parseInt(str.substr(-3)) / 128));
-			case '7': // 256ths
-				return sign * (((str.length > 3) ? parseInt(str.substr(0, str.length - 3)) : 0) + (parseInt(str.substr(-3)) / 256));
-			case '8':
-				return sign * parseInt(str);
-			case '9':
-				return sign * (parseInt(str) / 10);
-			case 'A':
-				return sign * (parseInt(str) / 100);
-			case 'B':
-				return sign * (parseInt(str) / 1000);
-			case 'C':
-				return sign * (parseInt(str) / 10000);
-			case 'D':
-				return sign * (parseInt(str) / 100000);
-			case 'E':
-				return sign * (parseInt(str) / 1000000);
-			default:
-				return sign * parseInt(str);
-		}
-	};
+	return utilities.priceParser;
 }();
-},{}],6:[function(require,module,exports){
+},{"barchart-marketdata-utilities":12}],6:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -707,12 +667,13 @@ module.exports = function() {
 		return returnRef;
 	};
 }();
-},{"lodash.isnan":18}],12:[function(require,module,exports){
+},{"lodash.isnan":19}],12:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
 var monthCodes = require('./monthCodes');
 var priceFormatter = require('./priceFormatter');
 var symbolFormatter = require('./symbolFormatter');
+var priceParser = require('./priceParser');
 var timeFormatter = require('./timeFormatter');
 
 module.exports = function() {
@@ -723,11 +684,12 @@ module.exports = function() {
 		decimalFormatter: decimalFormatter,
 		monthCodes: monthCodes,
 		priceFormatter: priceFormatter,
+		priceParser: priceParser,
 		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":10,"./decimalFormatter":11,"./monthCodes":13,"./priceFormatter":14,"./symbolFormatter":15,"./timeFormatter":16}],13:[function(require,module,exports){
+},{"./convert":10,"./decimalFormatter":11,"./monthCodes":13,"./priceFormatter":14,"./priceParser":15,"./symbolFormatter":16,"./timeFormatter":17}],13:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -876,7 +838,74 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":11,"lodash.isnan":18}],15:[function(require,module,exports){
+},{"./decimalFormatter":11,"lodash.isnan":19}],15:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	var replaceExpressions = { };
+
+	function getReplaceExpression(thousandsSeparator) {
+		if (!replaceExpressions.hasOwnProperty(thousandsSeparator)) {
+			replaceExpressions[thousandsSeparator] = new RegExp(thousandsSeparator, 'g');
+		}
+
+		return replaceExpressions[thousandsSeparator];
+	}
+
+	return function(str, unitcode, thousandsSeparator) {
+		if (str.length < 1) {
+			return undefined;
+		} else if (str === '-') {
+			return null;
+		}
+
+		if (thousandsSeparator) {
+			str = str.replace(getReplaceExpression(thousandsSeparator), '');
+		}
+
+		if (str.indexOf('.') > 0) {
+			return parseFloat(str);
+		}
+
+		var sign = (str.substr(0, 1) == '-') ? -1 : 1;
+
+		if (sign === -1) {
+			str = str.substr(1);
+		}
+
+		switch (unitcode.toString()) {
+			case '2': // 8ths
+				return sign * (((str.length > 1) ? parseInt(str.substr(0, str.length - 1)) : 0) + (parseInt(str.substr(-1)) / 8));
+			case '3': // 16ths
+				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 16));
+			case '4': // 32ths
+				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 32));
+			case '5': // 64ths
+				return sign * (((str.length > 2) ? parseInt(str.substr(0, str.length - 2)) : 0) + (parseInt(str.substr(-2)) / 64));
+			case '6': // 128ths
+				return sign * (((str.length > 3) ? parseInt(str.substr(0, str.length - 3)) : 0) + (parseInt(str.substr(-3)) / 128));
+			case '7': // 256ths
+				return sign * (((str.length > 3) ? parseInt(str.substr(0, str.length - 3)) : 0) + (parseInt(str.substr(-3)) / 256));
+			case '8':
+				return sign * parseInt(str);
+			case '9':
+				return sign * (parseInt(str) / 10);
+			case 'A':
+				return sign * (parseInt(str) / 100);
+			case 'B':
+				return sign * (parseInt(str) / 1000);
+			case 'C':
+				return sign * (parseInt(str) / 10000);
+			case 'D':
+				return sign * (parseInt(str) / 100000);
+			case 'E':
+				return sign * (parseInt(str) / 1000000);
+			default:
+				return sign * parseInt(str);
+		}
+	};
+}();
+},{}],16:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -894,7 +923,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1010,7 +1039,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
@@ -1082,7 +1111,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -1194,7 +1223,7 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 var parseMessage = require('../../../lib/messageParser/parseMessage');
 
 describe('When parsing a 2,Z message for SIRI, 3@3.94', function() {
@@ -1244,7 +1273,72 @@ describe('When parsing a 2,Z message for SIRI, 2998262@3.95', function() {
 		expect(x.tradeSize).toBe(2998262);
 	});
 });
-},{"../../../lib/messageParser/parseMessage":3}],20:[function(require,module,exports){
+},{"../../../lib/messageParser/parseMessage":3}],21:[function(require,module,exports){
+var parseValue = require('../../../lib/messageParser/parseValue');
+
+describe('when parsing prices', function() {
+	'use strict';
+
+	describe('with a decimal fraction separator', function() {
+		it('returns 377 (with unit code 2) when parsing "377.000"', function() {
+			expect(parseValue('377.000', '2')).toEqual(377);
+		});
+
+		it('returns 377.5 (with unit code 2) when parsing "377.500"', function() {
+			expect(parseValue('377.500', '2')).toEqual(377.5);
+		});
+
+		it('returns 377.75 (with unit code 2) when parsing "377.750"', function() {
+			expect(parseValue('377.750', '2')).toEqual(377.75);
+		});
+	});
+
+
+	describe('with a dash fraction separator', function() {
+		it('returns 123 (with unit code 2) when parsing "123-0"', function() {
+			expect(parseValue('123-0', '2')).toEqual(123);
+		});
+
+		it('returns 123.5 (with unit code 2) when parsing "123-4"', function() {
+			expect(parseValue('123-4', '2')).toEqual(123.5);
+		});
+
+		it('returns 0.5 (with unit code 2) when parsing "0-4"', function() {
+			expect(parseValue('0-4', '2')).toEqual(0.5);
+		});
+
+		it('returns 0 (with unit code 2) when parsing "0-0"', function() {
+			expect(parseValue('0-0', '2')).toEqual(0);
+		});
+
+		it('returns undefined (with unit code 2) when parsing zero-length string', function() {
+			expect(parseValue('', '2')).toEqual(undefined);
+		});
+	});
+
+	describe('with a tick fraction separator', function() {
+		it('returns 123 (with unit code 2) when parsing "123\'0"', function() {
+			expect(parseValue('123\'0', '2')).toEqual(123);
+		});
+
+		it('returns 123.5 (with unit code 2) when parsing "123\'4"', function() {
+			expect(parseValue('123\'4', '2')).toEqual(123.5);
+		});
+
+		it('returns 0.5 (with unit code 2) when parsing "0\'4"', function() {
+			expect(parseValue('0\'4', '2')).toEqual(0.5);
+		});
+
+		it('returns 0 (with unit code 2) when parsing "0\'0"', function() {
+			expect(parseValue('0\'0', '2')).toEqual(0);
+		});
+
+		it('returns undefined (with unit code 2) when parsing zero-length string', function() {
+			expect(parseValue('', '2')).toEqual(undefined);
+		});
+	});
+});
+},{"../../../lib/messageParser/parseValue":5}],22:[function(require,module,exports){
 var convertBaseCodeToUnitCode = require('../../../lib/util/convertBaseCodeToUnitCode');
 
 describe('When converting a baseCode to a unitCode', function() {
@@ -1252,7 +1346,7 @@ describe('When converting a baseCode to a unitCode', function() {
 		expect(convertBaseCodeToUnitCode(-1)).toEqual('2');
 	});
 });
-},{"../../../lib/util/convertBaseCodeToUnitCode":6}],21:[function(require,module,exports){
+},{"../../../lib/util/convertBaseCodeToUnitCode":6}],23:[function(require,module,exports){
 var convertUnitCodeToBaseCode = require('../../../lib/util/convertUnitCodeToBaseCode');
 
 describe('When converting a unitCode to a baseCode', function() {
@@ -1260,7 +1354,7 @@ describe('When converting a unitCode to a baseCode', function() {
 		expect(convertUnitCodeToBaseCode('2')).toEqual(-1);
 	});
 });
-},{"../../../lib/util/convertUnitCodeToBaseCode":7}],22:[function(require,module,exports){
+},{"../../../lib/util/convertUnitCodeToBaseCode":7}],24:[function(require,module,exports){
 var monthCodes = require('../../../lib/util/monthCodes');
 
 describe('When looking up a month name by code', function() {
@@ -1318,7 +1412,7 @@ describe('When looking up a month name by code', function() {
 		expect(map.Z).toEqual("December");
 	});
 });
-},{"../../../lib/util/monthCodes":8}],23:[function(require,module,exports){
+},{"../../../lib/util/monthCodes":8}],25:[function(require,module,exports){
 var PriceFormatter = require('../../../lib/util/priceFormatter');
 
 describe('When a price formatter is created', function() {
@@ -1438,4 +1532,4 @@ describe('When a price formatter is created', function() {
 		});
 	});
 });
-},{"../../../lib/util/priceFormatter":9}]},{},[19,20,21,22,23]);
+},{"../../../lib/util/priceFormatter":9}]},{},[20,21,22,23,24,25]);
