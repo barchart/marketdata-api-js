@@ -463,7 +463,7 @@ module.exports = function() {
 			str = str.substr(1);
 		}
 
-		switch (unitcode.toString()) {
+		switch (unitcode) {
 			case '2': // 8ths
 				return sign * (((str.length > 1) ? parseInt(str.substr(0, str.length - 1)) : 0) + (parseInt(str.substr(-1)) / 8));
 			case '3': // 16ths
