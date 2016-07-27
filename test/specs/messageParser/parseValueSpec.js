@@ -17,7 +17,6 @@ describe('when parsing prices', function() {
 		});
 	});
 
-
 	describe('with a dash fraction separator', function() {
 		it('returns 123 (with unit code 2) when parsing "123-0"', function() {
 			expect(parseValue('123-0', '2')).toEqual(123);
