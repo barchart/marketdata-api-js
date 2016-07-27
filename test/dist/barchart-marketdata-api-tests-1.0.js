@@ -257,6 +257,7 @@ module.exports = function() {
 								message.previousOpenPrice = p.openPrice;
 								message.previousHighPrice = p.highPrice;
 								message.previousLowPrice = p.lowPrice;
+								message.previousTimeStamp = p.timeStamp;
 
 								if (sessions.combined.day && (premarket || postmarket)) {
 									var sessionFormT = 'session_' + sessions.combined.day + '_T';
@@ -1292,7 +1293,6 @@ describe('when parsing prices', function() {
 			expect(parseValue('377.750', '2')).toEqual(377.75);
 		});
 	});
-
 
 	describe('with a dash fraction separator', function() {
 		it('returns 123 (with unit code 2) when parsing "123-0"', function() {

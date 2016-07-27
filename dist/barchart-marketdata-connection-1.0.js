@@ -1500,6 +1500,7 @@ module.exports = function() {
 								message.previousOpenPrice = p.openPrice;
 								message.previousHighPrice = p.highPrice;
 								message.previousLowPrice = p.lowPrice;
+								message.previousTimeStamp = p.timeStamp;
 
 								if (sessions.combined.day && (premarket || postmarket)) {
 									var sessionFormT = 'session_' + sessions.combined.day + '_T';
