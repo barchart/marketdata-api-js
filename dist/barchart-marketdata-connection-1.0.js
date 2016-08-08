@@ -1510,6 +1510,7 @@ module.exports = function() {
 
 										if (t.lastPrice) {
 											message.lastPrice = t.lastPrice;
+											message.session = 'T';
 
 											if (t.tradeTime)
 												message.tradeTime = t.tradeTime;
