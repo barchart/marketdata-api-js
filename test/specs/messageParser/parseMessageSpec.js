@@ -47,3 +47,23 @@ describe('When parsing a 2,Z message for SIRI, 2998262@3.95', function() {
 		expect(x.tradeSize).toBe(2998262);
 	});
 });
+
+describe('When parsing a 2,0 message for AAPL', function() {
+	var x;
+
+	beforeEach(function() {
+		x = parseMessage('\x012AAPL,0\x02AQ1510885,D0M \x03\x14PHWQT@\x04$');
+	});
+
+	it('The "symbol" should be "AAPL"', function() {
+		expect(x.symbol).toBe('AAPL');
+	});
+
+	it('The "type" should be "SETTLEMENT"', function() {
+		expect(x.type).toBe('SETTLEMENT');
+	});
+
+	it('The "value" should be 108.85', function() {
+		expect(x.value).toBe(108.85);
+	});
+});
