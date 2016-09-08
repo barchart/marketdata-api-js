@@ -97,8 +97,6 @@ describe('When parsing a 2,Z message for TSLA', function() {
 
 	beforeEach(function() {
 		x = parseMessage('\x012TSLA,Z\x02AQ1521201,3,TI\x03');
-
-		console.log(x);
 	});
 
 	it('The "record" should be "2"', function() {
