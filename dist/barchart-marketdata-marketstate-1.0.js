@@ -738,6 +738,7 @@ module.exports = function() {
 	addMonth("V", "October", 10);
 	addMonth("X", "November", 11);
 	addMonth("Z", "December", 12);
+	addMonth("Y", "Cash", 0);
 
 	return {
 		getCodeToNameMap: function() {
