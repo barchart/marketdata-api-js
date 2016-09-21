@@ -132,7 +132,6 @@ gulp.task('execute-node-tests', function () {
 gulp.task('execute-tests', function (callback) {
     runSequence(
         'build-browser-tests',
-        'execute-browser-tests',
         'execute-node-tests',
 
         function (error) {
