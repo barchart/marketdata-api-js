@@ -150,7 +150,6 @@ gulp.task('release', function (callback) {
         'ensure-clean-working-directory',
         'build',
         'build-browser-tests',
-        'execute-browser-tests',
         'execute-node-tests',
         'bump-version',
         'commit-changes',
