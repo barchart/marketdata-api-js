@@ -27,6 +27,10 @@ describe('when parsing an XML refresh message', function() {
 		it('the "lastPriceT" should be 113.55', function() {
 			expect(x.lastPriceT).toEqual(113.55);
 		});
+
+		it('the "volume" should come from the "combined" session', function() {
+			expect(x.volume).toEqual(36258067);
+		});
 	});
 
 	describe('for an instrument that is not settled, but has a postmarket (form-T) trade', function() {
@@ -46,6 +50,18 @@ describe('when parsing an XML refresh message', function() {
 
 		it('the "sessionT" should be true', function() {
 			expect(x.sessionT).toEqual(true);
+		});
+
+		it('the "lastPrice" should be 15.60', function() {
+			expect(x.lastPrice).toEqual(15.60);
+		});
+
+		it('the "lastPriceT" should be 15.59', function() {
+			expect(x.lastPriceT).toEqual(15.59);
+		});
+
+		it('the "volume" should come from the "combined" session', function() {
+			expect(x.volume).toEqual(67399368);
 		});
 	});
 });
