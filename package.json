@@ -41,10 +41,10 @@
     "HTML5"
   ],
   "dependencies": {
-    "barchart-marketdata-utilities": "^1.0.45",
-    "class.extend": "^0.9.1",
-    "lodash.isnan": "^3.0.1",
-    "xmldom": "^0.1.19"
+    "barchart-marketdata-utilities": "1.0.48",
+    "class.extend": "0.9.1",
+    "lodash.isnan": "3.0.1",
+    "xmldom": "0.1.19"
   },
   "devDependencies": {
     "browserify": "~11.2.0",
