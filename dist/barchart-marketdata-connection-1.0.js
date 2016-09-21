@@ -1502,26 +1502,42 @@ module.exports = function() {
 								message.previousLowPrice = p.lowPrice;
 								message.previousTimeStamp = p.timeStamp;
 
-								if (sessions.combined.day && (premarket || postmarket)) {
+								if (sessions.combined.day) {
 									var sessionFormT = 'session_' + sessions.combined.day + '_T';
 
 									if (sessions.hasOwnProperty(sessionFormT)) {
 										var t = sessions[sessionFormT];
 
-										if (t.lastPrice) {
-											message.lastPriceT = t.lastPrice;
-											message.session = 'T';
+										var lastPriceT = t.lastPrice;
 
-											if (t.tradeTime)
-												message.tradeTime = t.tradeTime;
-											if (t.tradeSize)
-												message.tradeSize = t.tradeSize;
-											if (t.volume && premarket)
-												message.volume = t.volume;
+										if (lastPriceT) {
+											var tradeTimeT = t.tradeTime;
+											var tradeSizeT = t.tradeSize;
+
+											message.lastPriceT = lastPriceT;
+
+											if (tradeTimeT) {
+												var noon = new Date(tradeTimeT.getFullYear(), tradeTimeT.getMonth(), tradeTimeT.getDate(), 12, 0, 0, 0);
+
+												message.sessionT = tradeTimeT.getTime() > noon.getTime();
+											}
+
+											if (tradeTimeT)
+												message.tradeTime = tradeTimeT; // might be a problem (we've split lastPrice and lastPriceT -- we might need to split times)
+											if (tradeSizeT)
+												message.tradeSize = tradeSizeT;
+
+											if (premarket || postmarket) {
+												message.session = 'T';
+
+												if (premarket) {
+													if (t.volume)
+														message.volume = t.volume;
+													if (t.previousPrice)
+														message.previousPrice = t.previousPrice;
+												}
+											}
 										}
-
-										if (premarket && t.previousPrice)
-											message.previousPrice = t.previousPrice;
 									}
 								}
 							}
