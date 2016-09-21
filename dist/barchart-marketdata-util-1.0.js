@@ -541,10 +541,10 @@ module.exports = function() {
 
 				if (!t) {
 					return '';
-				} else if (q.lastPrice && !q.flag) {
-					return formatters.formatTime(t, q.timezone);
-				} else {
+				} else if (!q.lastPrice || q.flag || q.sessionT) {
 					return formatters.formatDate(t);
+				} else {
+					return formatters.formatTime(t, q.timezone);
 				}
 			},
 
@@ -631,8 +631,9 @@ module.exports = function() {
 	}
 }();
 },{}],18:[function(require,module,exports){
+(function (global){
 /**
- * lodash 3.0.2 (Custom Build) <https://lodash.com/>
+ * lodash 3.0.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
  * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -644,7 +645,7 @@ module.exports = function() {
 var numberTag = '[object Number]';
 
 /** Used for built-in method references. */
-var objectProto = Object.prototype;
+var objectProto = global.Object.prototype;
 
 /**
  * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
@@ -742,5 +743,6 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}]},{},[5])(5)
 });
