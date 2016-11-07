@@ -48,7 +48,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":28}],3:[function(require,module,exports){
+},{"class.extend":29}],3:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -170,7 +170,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":28}],6:[function(require,module,exports){
+},{"class.extend":29}],6:[function(require,module,exports){
 var ProfileProvider = require('./http/ProfileProvider');
 
 module.exports = function() {
@@ -202,7 +202,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":28}],8:[function(require,module,exports){
+},{"class.extend":29}],8:[function(require,module,exports){
 var ProfileProviderBase = require('./../../ProfileProviderBase');
 
 var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
@@ -1488,6 +1488,14 @@ module.exports = function() {
 								if (session.tradeTime)
 									message.tradeTime = session.tradeTime;
 
+								// 2016/10/29, BRI. We have a problem where we don't "roll" quotes
+								// for futures. For example, LEZ16 doesn't "roll" the settlementPrice
+								// to the previous price -- so, we did this on the open message (2,0A).
+								// Eero has another idea. Perhaps we are setting the "day" improperly
+								// here. Perhaps we should base the day off of the actual session
+								// (i.e. "session" variable) -- instead of taking it from the "combined"
+								// session.
+
 								if (sessions.combined.day)
 									message.day = sessions.combined.day;
 								if (premarket && typeof(message.flag) === 'undefined')
@@ -1933,7 +1941,7 @@ module.exports = function() {
 
 			for (var i = (length - 1); !(i < 0); i--) {
 				if (counter === 3) {
-					buffer.unshift(',');
+					buffer.unshift(thousandsSeparator);
 
 					counter = 0;
 				}
@@ -1955,12 +1963,13 @@ module.exports = function() {
 		return returnRef;
 	};
 }();
-},{"lodash.isnan":29}],22:[function(require,module,exports){
+},{"lodash.isnan":30}],22:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
 var monthCodes = require('./monthCodes');
 var priceFormatter = require('./priceFormatter');
 var symbolFormatter = require('./symbolFormatter');
+var symbolParser = require('./symbolParser');
 var priceParser = require('./priceParser');
 var timeFormatter = require('./timeFormatter');
 
@@ -1972,12 +1981,13 @@ module.exports = function() {
 		decimalFormatter: decimalFormatter,
 		monthCodes: monthCodes,
 		priceFormatter: priceFormatter,
+		symbolParser: symbolParser,
 		priceParser: priceParser,
 		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":20,"./decimalFormatter":21,"./monthCodes":23,"./priceFormatter":24,"./priceParser":25,"./symbolFormatter":26,"./timeFormatter":27}],23:[function(require,module,exports){
+},{"./convert":20,"./decimalFormatter":21,"./monthCodes":23,"./priceFormatter":24,"./priceParser":25,"./symbolFormatter":26,"./symbolParser":27,"./timeFormatter":28}],23:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2076,8 +2086,7 @@ module.exports = function() {
 							return value;
 				}
 			};
-		}
-		else {
+		} else {
 			format = function(value, unitcode) {
 				if (value === '' || value === undefined || value === null || lodashIsNaN(value))
 					return '';
@@ -2127,7 +2136,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":21,"lodash.isnan":29}],25:[function(require,module,exports){
+},{"./decimalFormatter":21,"lodash.isnan":30}],25:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2213,6 +2222,18 @@ module.exports = function() {
 	};
 }();
 },{}],27:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	var percentRegex = /(\.RT)$/;
+
+	return {
+		displayUsingPercent: function(symbol) {
+			return percentRegex.test(symbol);
+		}
+	};
+}();
+},{}],28:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2328,7 +2349,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
  
@@ -2392,7 +2413,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>

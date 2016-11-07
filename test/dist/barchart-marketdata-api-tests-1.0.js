@@ -26,7 +26,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":19}],2:[function(require,module,exports){
+},{"class.extend":20}],2:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -244,6 +244,14 @@ module.exports = function() {
 									message.timeStamp = session.timeStamp;
 								if (session.tradeTime)
 									message.tradeTime = session.tradeTime;
+
+								// 2016/10/29, BRI. We have a problem where we don't "roll" quotes
+								// for futures. For example, LEZ16 doesn't "roll" the settlementPrice
+								// to the previous price -- so, we did this on the open message (2,0A).
+								// Eero has another idea. Perhaps we are setting the "day" improperly
+								// here. Perhaps we should base the day off of the actual session
+								// (i.e. "session" variable) -- instead of taking it from the "combined"
+								// session.
 
 								if (sessions.combined.day)
 									message.day = sessions.combined.day;
@@ -678,7 +686,7 @@ module.exports = function() {
 
 			for (var i = (length - 1); !(i < 0); i--) {
 				if (counter === 3) {
-					buffer.unshift(',');
+					buffer.unshift(thousandsSeparator);
 
 					counter = 0;
 				}
@@ -700,12 +708,13 @@ module.exports = function() {
 		return returnRef;
 	};
 }();
-},{"lodash.isnan":20}],13:[function(require,module,exports){
+},{"lodash.isnan":21}],13:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
 var monthCodes = require('./monthCodes');
 var priceFormatter = require('./priceFormatter');
 var symbolFormatter = require('./symbolFormatter');
+var symbolParser = require('./symbolParser');
 var priceParser = require('./priceParser');
 var timeFormatter = require('./timeFormatter');
 
@@ -717,12 +726,13 @@ module.exports = function() {
 		decimalFormatter: decimalFormatter,
 		monthCodes: monthCodes,
 		priceFormatter: priceFormatter,
+		symbolParser: symbolParser,
 		priceParser: priceParser,
 		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":11,"./decimalFormatter":12,"./monthCodes":14,"./priceFormatter":15,"./priceParser":16,"./symbolFormatter":17,"./timeFormatter":18}],14:[function(require,module,exports){
+},{"./convert":11,"./decimalFormatter":12,"./monthCodes":14,"./priceFormatter":15,"./priceParser":16,"./symbolFormatter":17,"./symbolParser":18,"./timeFormatter":19}],14:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -821,8 +831,7 @@ module.exports = function() {
 							return value;
 				}
 			};
-		}
-		else {
+		} else {
 			format = function(value, unitcode) {
 				if (value === '' || value === undefined || value === null || lodashIsNaN(value))
 					return '';
@@ -872,7 +881,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":12,"lodash.isnan":20}],16:[function(require,module,exports){
+},{"./decimalFormatter":12,"lodash.isnan":21}],16:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -958,6 +967,18 @@ module.exports = function() {
 	};
 }();
 },{}],18:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	var percentRegex = /(\.RT)$/;
+
+	return {
+		displayUsingPercent: function(symbol) {
+			return percentRegex.test(symbol);
+		}
+	};
+}();
+},{}],19:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1073,7 +1094,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
  
@@ -1137,7 +1158,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
@@ -1251,7 +1272,7 @@ function isNumber(value) {
 module.exports = isNaN;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 var parseMessage = require('../../../lib/messageParser/parseMessage');
 
 describe('when parsing an XML refresh message', function() {
@@ -1450,7 +1471,7 @@ describe('when parsing a DDF message', function() {
 	});
 });
 
-},{"../../../lib/messageParser/parseMessage":3}],22:[function(require,module,exports){
+},{"../../../lib/messageParser/parseMessage":3}],23:[function(require,module,exports){
 var parseValue = require('../../../lib/messageParser/parseValue');
 
 describe('when parsing prices', function() {
@@ -1514,7 +1535,7 @@ describe('when parsing prices', function() {
 		});
 	});
 });
-},{"../../../lib/messageParser/parseValue":5}],23:[function(require,module,exports){
+},{"../../../lib/messageParser/parseValue":5}],24:[function(require,module,exports){
 var convertBaseCodeToUnitCode = require('../../../lib/util/convertBaseCodeToUnitCode');
 
 describe('When converting a baseCode to a unitCode', function() {
@@ -1522,7 +1543,7 @@ describe('When converting a baseCode to a unitCode', function() {
 		expect(convertBaseCodeToUnitCode(-1)).toEqual('2');
 	});
 });
-},{"../../../lib/util/convertBaseCodeToUnitCode":6}],24:[function(require,module,exports){
+},{"../../../lib/util/convertBaseCodeToUnitCode":6}],25:[function(require,module,exports){
 var convertDayCodeToNumber = require('../../../lib/util/convertDayCodeToNumber');
 
 describe('When converting a dayCode to number', function() {
@@ -1650,7 +1671,7 @@ describe('When converting a dayCode to number', function() {
 		expect(convertDayCodeToNumber("U")).toEqual(31);
 	});
 });
-},{"../../../lib/util/convertDayCodeToNumber":7}],25:[function(require,module,exports){
+},{"../../../lib/util/convertDayCodeToNumber":7}],26:[function(require,module,exports){
 var convertUnitCodeToBaseCode = require('../../../lib/util/convertUnitCodeToBaseCode');
 
 describe('When converting a unitCode to a baseCode', function() {
@@ -1658,7 +1679,7 @@ describe('When converting a unitCode to a baseCode', function() {
 		expect(convertUnitCodeToBaseCode('2')).toEqual(-1);
 	});
 });
-},{"../../../lib/util/convertUnitCodeToBaseCode":8}],26:[function(require,module,exports){
+},{"../../../lib/util/convertUnitCodeToBaseCode":8}],27:[function(require,module,exports){
 var monthCodes = require('../../../lib/util/monthCodes');
 
 describe('When looking up a month name by code', function() {
@@ -1716,7 +1737,7 @@ describe('When looking up a month name by code', function() {
 		expect(map.Z).toEqual("December");
 	});
 });
-},{"../../../lib/util/monthCodes":9}],27:[function(require,module,exports){
+},{"../../../lib/util/monthCodes":9}],28:[function(require,module,exports){
 var PriceFormatter = require('../../../lib/util/priceFormatter');
 
 describe('When a price formatter is created', function() {
@@ -1836,4 +1857,4 @@ describe('When a price formatter is created', function() {
 		});
 	});
 });
-},{"../../../lib/util/priceFormatter":10}]},{},[21,22,23,24,25,26,27]);
+},{"../../../lib/util/priceFormatter":10}]},{},[22,23,24,25,26,27,28]);

@@ -52,7 +52,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":20}],4:[function(require,module,exports){
+},{"class.extend":21}],4:[function(require,module,exports){
 var ProfileProviderBase = require('./../../ProfileProviderBase');
 
 var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
@@ -670,7 +670,7 @@ module.exports = function() {
 
 			for (var i = (length - 1); !(i < 0); i--) {
 				if (counter === 3) {
-					buffer.unshift(',');
+					buffer.unshift(thousandsSeparator);
 
 					counter = 0;
 				}
@@ -692,12 +692,13 @@ module.exports = function() {
 		return returnRef;
 	};
 }();
-},{"lodash.isnan":21}],14:[function(require,module,exports){
+},{"lodash.isnan":22}],14:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
 var monthCodes = require('./monthCodes');
 var priceFormatter = require('./priceFormatter');
 var symbolFormatter = require('./symbolFormatter');
+var symbolParser = require('./symbolParser');
 var priceParser = require('./priceParser');
 var timeFormatter = require('./timeFormatter');
 
@@ -709,12 +710,13 @@ module.exports = function() {
 		decimalFormatter: decimalFormatter,
 		monthCodes: monthCodes,
 		priceFormatter: priceFormatter,
+		symbolParser: symbolParser,
 		priceParser: priceParser,
 		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":12,"./decimalFormatter":13,"./monthCodes":15,"./priceFormatter":16,"./priceParser":17,"./symbolFormatter":18,"./timeFormatter":19}],15:[function(require,module,exports){
+},{"./convert":12,"./decimalFormatter":13,"./monthCodes":15,"./priceFormatter":16,"./priceParser":17,"./symbolFormatter":18,"./symbolParser":19,"./timeFormatter":20}],15:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -813,8 +815,7 @@ module.exports = function() {
 							return value;
 				}
 			};
-		}
-		else {
+		} else {
 			format = function(value, unitcode) {
 				if (value === '' || value === undefined || value === null || lodashIsNaN(value))
 					return '';
@@ -864,7 +865,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":13,"lodash.isnan":21}],17:[function(require,module,exports){
+},{"./decimalFormatter":13,"lodash.isnan":22}],17:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -950,6 +951,18 @@ module.exports = function() {
 	};
 }();
 },{}],19:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	var percentRegex = /(\.RT)$/;
+
+	return {
+		displayUsingPercent: function(symbol) {
+			return percentRegex.test(symbol);
+		}
+	};
+}();
+},{}],20:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1065,7 +1078,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
  
@@ -1129,7 +1142,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>

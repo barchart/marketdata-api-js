@@ -235,7 +235,7 @@ module.exports = function() {
 
 			for (var i = (length - 1); !(i < 0); i--) {
 				if (counter === 3) {
-					buffer.unshift(',');
+					buffer.unshift(thousandsSeparator);
 
 					counter = 0;
 				}
@@ -257,12 +257,13 @@ module.exports = function() {
 		return returnRef;
 	};
 }();
-},{"lodash.isnan":18}],12:[function(require,module,exports){
+},{"lodash.isnan":19}],12:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
 var monthCodes = require('./monthCodes');
 var priceFormatter = require('./priceFormatter');
 var symbolFormatter = require('./symbolFormatter');
+var symbolParser = require('./symbolParser');
 var priceParser = require('./priceParser');
 var timeFormatter = require('./timeFormatter');
 
@@ -274,12 +275,13 @@ module.exports = function() {
 		decimalFormatter: decimalFormatter,
 		monthCodes: monthCodes,
 		priceFormatter: priceFormatter,
+		symbolParser: symbolParser,
 		priceParser: priceParser,
 		symbolFormatter: symbolFormatter,
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":10,"./decimalFormatter":11,"./monthCodes":13,"./priceFormatter":14,"./priceParser":15,"./symbolFormatter":16,"./timeFormatter":17}],13:[function(require,module,exports){
+},{"./convert":10,"./decimalFormatter":11,"./monthCodes":13,"./priceFormatter":14,"./priceParser":15,"./symbolFormatter":16,"./symbolParser":17,"./timeFormatter":18}],13:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -378,8 +380,7 @@ module.exports = function() {
 							return value;
 				}
 			};
-		}
-		else {
+		} else {
 			format = function(value, unitcode) {
 				if (value === '' || value === undefined || value === null || lodashIsNaN(value))
 					return '';
@@ -429,7 +430,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":11,"lodash.isnan":18}],15:[function(require,module,exports){
+},{"./decimalFormatter":11,"lodash.isnan":19}],15:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -515,6 +516,18 @@ module.exports = function() {
 	};
 }();
 },{}],17:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	var percentRegex = /(\.RT)$/;
+
+	return {
+		displayUsingPercent: function(symbol) {
+			return percentRegex.test(symbol);
+		}
+	};
+}();
+},{}],18:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -630,7 +643,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
