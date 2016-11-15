@@ -48,12 +48,12 @@
   },
   "devDependencies": {
     "browserify": "~11.2.0",
+    "git-get-status": "^1.0.5",
     "glob": "^6.0.1",
     "gulp": "~3.9.0",
     "gulp-browserify": "^0.5.1",
     "gulp-bump": "~1.0.0",
     "gulp-git": "~1.6.0",
-    "gulp-gitmodified": "~1.0.0",
     "gulp-jasmine": "^2.2.1",
     "gulp-jshint": "~1.11.2",
     "gulp-rename": "^1.2.2",
