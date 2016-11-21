@@ -48,7 +48,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":29}],3:[function(require,module,exports){
+},{"class.extend":30}],3:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -170,7 +170,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":29}],6:[function(require,module,exports){
+},{"class.extend":30}],6:[function(require,module,exports){
 var ProfileProvider = require('./http/ProfileProvider');
 
 module.exports = function() {
@@ -202,7 +202,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":29}],8:[function(require,module,exports){
+},{"class.extend":30}],8:[function(require,module,exports){
 var ProfileProviderBase = require('./../../ProfileProviderBase');
 
 var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
@@ -262,75 +262,74 @@ module.exports = function() {
 	var $ = jQueryProvider.getInstance();
 
 	var Connection = function() {
-		/* Constants */
-		_API_VERSION = 4;
-
 		var __state = 'DISCONNECTED';
 		var __isConsumerDisconnect = false;
+
+		var __marketState = new MarketState();
+		var __connection = null;
+
 		var __marketDepthSymbols = {};
 		var __marketUpdateSymbols = {};
+		var __cumulativeVolumeSymbols = {};
 
 		var __tasks = [];
-
 		var __commands = [];
-		var __connection = null;
 		var __feedMessages = [];
-		var __marketState = new MarketState();
 		var __networkMessages = [];
 
 		var __listeners = {
-			events : [],
-			marketDepth : {},
-			marketUpdate : {},
-			timestamp : []
+			events: [],
+			marketDepth: {},
+			marketUpdate: {},
+			cumulativeVolume: {},
+			timestamp: []
 		};
 
 		var __loginInfo = {
-			"username" : null,
-			"password" : null,
-			"server" : null
+			username: null,
+			password: null,
+			server: null
 		};
 
 		function addTask(id, symbol) {
 			var task = __tasks.pop();
+
 			if (!task) {
 				__tasks.push({ id: id, symbols: [symbol] });
-				return;
-			}
-
-			if (task.id == id) {
+			} else if (task.id == id) {
 				task.symbols.push(symbol);
 				__tasks.push(task);
-				return;
+			} else {
+				__tasks.push(task);
+				__tasks.push({id: id, symbols: [symbol]});
 			}
-
-			// id != id
-			__tasks.push(task); // Push it back
-			__tasks.push({ id: id, symbols: [symbol] });
 		}
 
 		function broadcastEvent(eventId, message) {
-			var ary;
+			var listeners;
+
 			switch (eventId) {
 				case 'events':
-					ary = __listeners.events;
+					listeners = __listeners.events;
 					break;
 				case 'marketDepth':
-					ary = __listeners.marketDepth[message.symbol];
+					listeners = __listeners.marketDepth[message.symbol];
 					break;
 				case 'marketUpdate':
-					ary = __listeners.marketUpdate[message.symbol];
+					listeners = __listeners.marketUpdate[message.symbol];
 					break;
 				case 'timestamp':
-					ary = __listeners.timestamp;
+					listeners = __listeners.timestamp;
 					break;
 			}
 
-			if (!ary)
+			if (!listeners)
 				return;
 
-			for (var i = 0; i < ary.length; i++) {
-				ary[i](message);
+			for (var i = 0; i < listeners.length; i++) {
+				var listener = listeners[i];
+
+				listener(message);
 			}
 		}
 
@@ -347,13 +346,13 @@ module.exports = function() {
 			__loginInfo.password = password;
 			__loginInfo.server = server;
 
-
 			if (window.WebSocket) {
 				__state = 'DISCONNECTED';
 				__connection = new WebSocket("wss://" + __loginInfo.server + "/jerq");
 
 				__connection.onclose = function(evt) {
 					console.warn(new Date() + ' connection closed.');
+
 					__connection = null;
 
 					if (__state != 'LOGGED_IN')
@@ -362,16 +361,40 @@ module.exports = function() {
 					__state = 'DISCONNECTED';
 
 					broadcastEvent('events', { event: 'disconnect' });
+
 					setTimeout(function() {
 						// Retry the connection
 						// Possible there are some timing issues. Theoretically, is a user is
 						// adding a symbol at the exact same time that this triggers, the new symbol
 						// coould go unheeded, or *just* the new symbol, and the old symbols
 						// would be ignored.
+
 						__connection = null;
+
 						connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
-						for (var k in __marketUpdateSymbols) {
-							addTask('MU_GO', k);
+
+						var marketUpdateSymbols = [ ];
+
+						for (var s in __marketUpdateSymbols) {
+							marketUpdateSymbols.push(s);
+						}
+
+						for (var s in __cumulativeVolumeSymbols) {
+							marketUpdateSymbols.push(s);
+						}
+
+						marketUpdateSymbols.sort();
+
+						var previousUpdateSymbol = null;
+
+						for (var i = 0; i < marketUpdateSymbols.length; i++) {
+							var currentUpdateSymbol = marketUpdateSymbols[i];
+
+							if (currentUpdateSymbol !== previousUpdateSymbol) {
+								addTask('MU_GO', currentUpdateSymbol);
+
+								previousUpdateSymbol = currentUpdateSymbol;
+							}
 						}
 
 						for (var k in __marketDepthSymbols) {
@@ -404,8 +427,10 @@ module.exports = function() {
 				__connection = null;
 			}
 
+			__tasks = [];
 			__commands = [];
 			__feedMessages = [];
+
 			__marketDepthSymbols = {};
 			__marketUpdateSymbols = {};
 		}
@@ -456,156 +481,202 @@ module.exports = function() {
 
 		function off() {
 			if (arguments.length < 2)
-				throw new Error("Bad number of arguments. Must pass in an evnetId and handler.");
+				throw new Error("Bad number of arguments. Must pass in an eventId and handler.");
 
 			var eventId = arguments[0];
 			var handler = arguments[1];
 
-			switch (eventId) {
-				case 'events': {
-					for (var i = 0; i < __listeners.events.length; i++) {
-						if (__listeners.events[i] == handler) {
-							__listeners.events.splice(i, 1);
+			var symbol;
+
+			if (arguments.length > 2) {
+				symbol = arguments[2];
+			} else {
+				symbol = null;
+			}
+
+			var removeHandler = function(listeners) {
+				var found = false;
+
+				listeners = listeners || [ ];
+
+				for (var i = listeners.length - 1; !(i < 0); i--) {
+					if (listeners[i] == handler) {
+						listeners.splice(i, 1);
+
+						found = true;
+					}
+				}
+
+				return found && listeners.length === 0;
+			};
+
+			var unsubscribe = function(trackingMap, taskName, listenerMap, additionalListenerMaps) {
+				if (removeHandler(listenerMap[symbol])) {
+					delete listenerMap[symbol];
+					delete trackingMap[symbol];
+
+					var stop = true;
+
+					for (var i = 0; i < additionalListenerMaps.length; i++) {
+						if (additionalListenerMaps[i][symbol]) {
+							stop = false;
+
+							break;
 						}
 					}
+
+					if (stop) {
+						addTask(taskName, symbol);
+					}
+				}
+			};
+
+			switch (eventId) {
+				case 'events': {
+					removeHandler(__listeners.events);
 
 					break;
 				}
 				case 'marketDepth': {
 					if (arguments.length < 3)
-						throw new Error("Bad number of arguments. For marketUpdate events, please specify a symbol. on('marketUpdate', handler, symbol).");
+						throw new Error("Invalid arguments. Invoke as follows: off('marketDepth', handler, symbol)");
 
-					var symbol = arguments[2];
-
-					if (!__listeners.marketDepth[symbol])
-						return;
-
-
-					for (var i = 0; i < __listeners.marketDepth[symbol].length; i++) {
-						if (__listeners.marketDepth[symbol][i] == handler) {
-							__listeners.marketDepth[symbol].splice(i, 1);
-						}
-					}
-
-					if ((!__listeners.marketDepth[symbol]) || (__listeners.marketDepth[symbol].length === 0)) {
-						delete __listeners.marketDepth[symbol];
-						delete __marketDepthSymbols[symbol];
-						addTask("MD_STOP", symbol);
-					}
+					unsubscribe(__marketDepthSymbols, "MD_STOP", __listeners.marketDepth, [ ]);
 
 					break;
 				}
 				case 'marketUpdate': {
 					if (arguments.length < 3)
-						throw new Error("Bad number of arguments. For marketUpdate events, please specify a symbol. on('marketUpdate', handler, symbol).");
+						throw new Error("Invalid arguments. Invoke as follows: off('marketUpdate', handler, symbol)");
 
-					var symbol = arguments[2];
-
-					if (!__listeners.marketUpdate[symbol])
-						return;
-
-					for (var i = 0; i < __listeners.marketUpdate[symbol].length; i++) {
-						if (__listeners.marketUpdate[symbol][i] == handler)
-							__listeners.marketUpdate[symbol].splice(i, 1);
-					}
-
-					if ((!__listeners.marketUpdate[symbol]) || (__listeners.marketUpdate[symbol].length === 0)) {
-						delete __listeners.marketUpdate[symbol];
-						delete __marketUpdateSymbols[symbol];
-						addTask("MU_STOP", symbol);
-					}
+					unsubscribe(__marketUpdateSymbols, "MD_STOP", __listeners.marketUpdate, [ __listeners.cumulativeVolume ]);
 
 					break;
 				}
+				case 'cumulativeVolume': {
+					if (arguments.length < 3)
+						throw new Error("Invalid arguments. Invoke as follows: off('cumulativeVolume', handler, symbol)");
 
+					unsubscribe(__cumulativeVolumeSymbols, "MD_STOP", __listeners.cumulativeVolume, [ __listeners.marketUpdate ]);
 
+					getMarketState().getCumulativeVolume(symbol, function(container) {
+						container.off('events', handler);
+					});
+
+					break;
+				}
+				case 'timestamp': {
+					removeHandler(__listeners.timestamp);
+
+					break;
+				}
 			}
 		}
 
 		function on() {
 			if (arguments.length < 2)
-				throw new Error("Bad number of arguments. Must pass in an evnetId and handler.");
+				throw new Error("Bad number of arguments. Must pass in an eventId and handler.");
 
 			var eventId = arguments[0];
 			var handler = arguments[1];
 
-			switch (eventId) {
-				case 'events': {
-					var add = true;
-					for (var i = 0; i < __listeners.events.length; i++) {
-						if (__listeners.events[i] == handler)
-							add = false;
+			var symbol;
+
+			if (arguments.length > 2) {
+				symbol = arguments[2];
+			} else {
+				symbol = null;
+			}
+
+			var addHandler = function(listeners) {
+				listeners = listeners || [ ];
+
+				var add = true;
+
+				for (var i = 0; i < listeners.length; i++) {
+					if (listeners[i] == handler) {
+						add = false;
+						break;
+					}
+				}
+
+				var updatedListeners;
+
+				if (add) {
+					updatedListeners = listeners.slice(0);
+					updatedListeners.push(handler);
+				} else {
+					updatedListeners = listeners;
+				}
+
+				return updatedListeners;
+			};
+
+			var subscribe = function(trackingMap, taskName, listenerMap, additionalListenerMaps) {
+				listenerMap[symbol] = addHandler(listenerMap[symbol]);
+
+				if (!trackingMap[symbol]) {
+					trackingMap[symbol] = true;
+
+					var start = true;
+
+					for (var i = 0; i < additionalListenerMaps.length; i++) {
+						if (additionalListenerMaps[i][symbol]) {
+							start = false;
+
+							break;
+						}
 					}
 
-					if (add)
-						__listeners.events.push(handler);
+					if (start) {
+						addTask(taskName, symbol);
+					}
+				}
+			};
+
+			switch (eventId) {
+				case 'events': {
+					__listeners.events = addHandler(__listeners.events);
+
 					break;
 				}
 				case 'marketDepth': {
 					if (arguments.length < 3)
-						throw new Error("Bad number of arguments. For marketUpdate events, please specify a symbol. on('marketUpdate', handler, symbol).");
+						throw new Error("Invalid arguments. Invoke as follows: on('marketDepth', handler, symbol)");
 
-					var symbol = arguments[2];
+					subscribe(__marketDepthSymbols, "MD_GO", __listeners.marketDepth, [ ]);
 
-					if (!__marketDepthSymbols[symbol]) {
-						addTask("MD_GO", symbol);
-						__marketDepthSymbols[symbol] = true;
-					}
-
-					if (!__listeners.marketDepth[symbol])
-						__listeners.marketDepth[symbol] = [];
-
-					var add = true;
-					for (var i = 0; i < __listeners.marketDepth[symbol].length; i++) {
-						if (__listeners.marketDepth[symbol][i] == handler)
-							add = false;
-					}
-
-					if (add)
-						__listeners.marketDepth[symbol].push(handler);
-
-					var bk = getMarketState().getBook(symbol);
-					if (bk)
+					if (getMarketState().getBook(symbol))
 						handler({ type: 'INIT', symbol: symbol });
+
 					break;
 				}
 				case 'marketUpdate': {
 					if (arguments.length < 3)
-						throw new Error("Bad number of arguments. For marketUpdate events, please specify a symbol. on('marketUpdate', handler, symbol).");
+						throw new Error("Invalid arguments. Invoke as follows: on('marketUpdate', handler, symbol)");
 
-					var symbol = arguments[2];
+					subscribe(__marketUpdateSymbols, "MU_GO", __listeners.marketUpdate, [ __listeners.cumulativeVolume ]);
 
-					if (!__marketUpdateSymbols[symbol]) {
-						addTask("MU_GO", symbol);
-						__marketUpdateSymbols[symbol] = true;
-					}
-
-					if (!__listeners.marketUpdate[symbol])
-						__listeners.marketUpdate[symbol] = [];
-
-					var add = true;
-					for (var i = 0; i < __listeners.marketUpdate[symbol].length; i++) {
-						if (__listeners.marketUpdate[symbol][i] == handler)
-							add = false;
-					}
-
-					if (add)
-						__listeners.marketUpdate[symbol].push(handler);
-
-					var q = getMarketState().getQuote(symbol);
-					if (q)
+					if (getMarketState().getQuote(symbol))
 						handler({ type: 'INIT', symbol: symbol });
+
+					break;
+				}
+				case 'cumulativeVolume': {
+					if (arguments.length < 3)
+						throw new Error("Invalid arguments. Invoke as follows: on('cumulativeVolume', handler, symbol)");
+
+					subscribe(__marketUpdateSymbols, "MU_GO", __listeners.cumulativeVolume, [ __listeners.marketUpdate ]);
+
+					getMarketState().getCumulativeVolume(symbol, function(container) {
+						container.on('events', handler);
+					});
+
 					break;
 				}
 				case 'timestamp': {
-					var add = true;
-					for (var i = 0; i < __listeners.timestamp.length; i++) {
-						if (__listeners.timestamp[i] == handler)
-							add = false;
-					}
+					__listeners.timestamp = addHandler(__listeners.timestamp);
 
-					if (add)
-						__listeners.timestamp.push(handler);
 					break;
 				}
 			}
@@ -636,7 +707,6 @@ module.exports = function() {
 			catch (e) {
 				console.error(e);
 				console.log(message);
-				console.trace();
 			}
 		}
 
@@ -673,7 +743,6 @@ module.exports = function() {
 					}
 					else if (idxETX > -1)
 						idx = idxETX;
-
 
 					if (idx > -1) {
 						var epos = idx + 1;
@@ -758,7 +827,7 @@ module.exports = function() {
 							break;
 						case 'MU_GO':
 							cmd = 'GO';
-							suffix = 'SsV';
+							suffix = 'Ssc';
 							break;
 						case 'MD_STOP':
 							cmd = 'STOP';
@@ -766,7 +835,7 @@ module.exports = function() {
 							break;
 						case 'MU_STOP':
 							cmd = 'STOP';
-							suffix = 'Ss';
+							suffix = 'Ssc';
 							break;
 					}
 
@@ -888,7 +957,172 @@ module.exports = function() {
 		}
 	});
 }();
-},{"./../../../common/jQuery/jQueryProvider":1,"./../../../marketState/MarketState":11,"./../../../messageParser/parseMessage":14,"./../../ConnectionBase":5}],11:[function(require,module,exports){
+},{"./../../../common/jQuery/jQueryProvider":1,"./../../../marketState/MarketState":12,"./../../../messageParser/parseMessage":15,"./../../ConnectionBase":5}],11:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	var EVENT_TYPE_UPDATE = 'update';
+	var EVENT_TYPE_RESET = 'reset';
+
+	var CumulativeVolume = function(symbol, tickIncrement) {
+		this.symbol = symbol;
+
+		var handlers = [ ];
+
+		var priceLevels = { };
+		var highPrice = null;
+		var lowPrice = null;
+
+		var addPriceVolume = function(priceString, priceValue) {
+			return priceLevels[priceString] = {
+				price: priceValue,
+				volume: 0
+			};
+		};
+
+		this.on = function(eventType, handler) {
+			if (eventType !== 'events') {
+				return;
+			}
+
+			var i = handlers.indexOf(handler);
+
+			if (i < 0) {
+				var copy = handlers.slice(0);
+
+				copy.push(handler);
+
+				handlers = copy;
+				
+				var priceLevels = this.toArray();
+				
+				for (var j = 0; j < priceLevels; j++) {
+					sendPriceVolumeUpdate(this, handler, priceLevels[j]);
+				}
+			}
+		};
+
+		this.off = function(eventType, handler) {
+			if (eventType !== 'events') {
+				return;
+			}
+
+			var i = handlers.indexOf(handler);
+
+			if (!(i < 0)) {
+				var copy = handlers.slice(0);
+
+				copy.splice(i, 1);
+
+				handlers = copy;
+			}
+		};
+
+		this.getVolume = function(price) {
+			var priceString = price.toString();
+			var priceLevel = priceLevels[priceString];
+
+			if (priceLevel) {
+				return priceLevel.volume;
+			} else {
+				return 0;
+			}
+		};
+
+		this.incrementVolume = function(priceValue, volume) {
+			if (highPrice && lowPrice) {
+				if (priceValue > highPrice) {
+					for (var p = highPrice + tickIncrement; p < priceValue; p += tickIncrement) {
+						broadcastPriceVolumeUpdate(this, handlers, addPriceVolume(p.toString(), p));
+					}
+
+					highPrice = priceValue;
+				} else if (priceValue < lowPrice) {
+					for (var p = lowPrice - tickIncrement; p > priceValue; p -= tickIncrement) {
+						broadcastPriceVolumeUpdate(this, handlers, addPriceVolume(p.toString(), p));
+					}
+
+					lowPrice = priceValue;
+				}
+			} else {
+				lowPrice = highPrice = priceValue;
+			}
+
+			var priceString = priceValue.toString();
+			var priceLevel = priceLevels[priceString];
+
+			if (!priceLevel) {
+				priceLevel = addPriceVolume(priceString, priceValue);
+			}
+
+			priceLevel.volume += volume;
+
+			broadcastPriceVolumeUpdate(this, handlers, priceLevel);
+		};
+
+		this.reset = function() {
+			priceLevels = { };
+			highPrice = null;
+			lowPrice = null;
+
+			for (var i = 0; i < handlers.length; i++) {
+				var handler = handlers[i];
+
+				handler({ container: this, event: EVENT_TYPE_RESET });
+			}
+		};
+
+		this.toArray = function() {
+			var array = [ ];
+
+			for (var p in priceLevels) {
+				var priceLevel = priceLevels[p];
+
+				array.push({
+					price: priceLevel.price,
+					volume: priceLevel.volume
+				});
+			}
+
+			array.sort(function(a, b) {
+				return a.price - b.price;
+			});
+
+			return array;
+		};
+
+		this.dispose = function() {
+			priceLevels = { };
+			highPrice = null;
+			lowPrice = null;
+
+			handlers = [ ];
+		};
+	};
+
+	var sendPriceVolumeUpdate = function(container, handler, priceLevel) {
+		try {
+			handler({
+				container: container,
+				event: EVENT_TYPE_UPDATE,
+				price: priceLevel.price,
+				volume: priceLevel.volume
+			});
+		} catch(e) {
+			console.error('An error was thrown by a cumulative volume observer.', e);
+		}
+	};
+
+	var broadcastPriceVolumeUpdate = function(container, handlers, priceLevel) {
+		for (var i = 0; i < handlers.length; i++) {
+			sendPriceVolumeUpdate(container, handlers[i], priceLevel);
+		}
+	};
+
+	return CumulativeVolume;
+}();
+},{}],12:[function(require,module,exports){
+var CumulativeVolume = require('./CumulativeVolume');
 var Profile = require('./Profile');
 var Quote = require('./Quote');
 
@@ -899,13 +1133,11 @@ module.exports = function() {
 	'use strict';
 
 	var MarketState = function() {
-		var _MAX_TIMEANDSALES = 10;
-
 		var _book = {};
-		var _cvol = {};
 		var _quote = {};
+		var _cvol = {};
+
 		var _timestamp;
-		var _timeAndSales = {};
 
 		var _profileProvider = new ProfileProvider();
 
@@ -935,12 +1167,23 @@ module.exports = function() {
 		var _getCreateBook = function(symbol) {
 			if (!_book[symbol]) {
 				_book[symbol] = {
-					"symbol" : symbol,
-					"bids" : [],
-					"asks" : []
+					symbol : symbol,
+					bids : [],
+					asks : []
 				};
 			}
 			return _book[symbol];
+		};
+
+		var _getCreateCumulativeVolume = function(symbol) {
+			if (!_cvol[symbol]) {
+				_cvol[symbol] = {
+					container: null,
+					callbacks: [ ]
+				};
+			}
+
+			return _cvol[symbol];
 		};
 
 		var _getCreateQuote = function(symbol) {
@@ -951,16 +1194,10 @@ module.exports = function() {
 			return _quote[symbol];
 		};
 
-		var _getCreateTimeAndSales = function(symbol) {
-			if (!_timeAndSales[symbol]) {
-				_timeAndSales[symbol] = {
-					"symbol" : symbol
-				};
-			}
-			return _timeAndSales[symbol];
-		};
 
 		var _processMessage = function(message) {
+			var symbol = message.symbol;
+
 			if (message.type == 'TIMESTAMP') {
 				_timestamp = message.timestamp;
 				return;
@@ -968,20 +1205,52 @@ module.exports = function() {
 
 			// Process book messages first, they don't need profiles, etc.
 			if (message.type == 'BOOK') {
-				var b = _getCreateBook(message.symbol);
+				var b = _getCreateBook(symbol);
 				b.asks = message.asks;
 				b.bids = message.bids;
 				return;
 			}
 
-			var p = Profile.prototype.Profiles[message.symbol];
+			if (message.type == 'REFRESH_CUMULATIVE_VOLUME') {
+				var cv = _getCreateCumulativeVolume(symbol);
+
+				var container = cv.container;
+
+				if (container) {
+					container.reset();
+				} else {
+					cv.container = container = new CumulativeVolume(symbol, message.tickIncrement);
+
+					var callbacks = cv.callbacks || [ ];
+
+					for (var i = 0; i < callbacks.length; i++) {
+						var callback = callbacks[i];
+
+						callback(container);
+					}
+
+					cv.callbacks = null;
+				}
+
+				var priceLevels = message.priceLevels;
+
+				for (var i = 0; i < priceLevels.length; i++) {
+					var priceLevel = priceLevels[i];
+
+					container.incrementVolume(priceLevel.price, priceLevel.volume);
+				}
+
+				return;
+			}
+
+			var p = Profile.prototype.Profiles[symbol];
 			if ((!p) && (message.type != 'REFRESH_QUOTE')) {
-				console.warn('No profile found for ' + message.symbol);
+				console.warn('No profile found for ' + symbol);
 				console.log(message);
 				return;
 			}
 
-			var q = _getCreateQuote(message.symbol);
+			var q = _getCreateQuote(symbol);
 
 			if ((!q.day) && (message.day)) {
 				q.day = message.day;
@@ -1030,6 +1299,13 @@ module.exports = function() {
 					q.highPrice = message.value;
 					q.lowPrice = message.value;
 					q.lastPrice = message.value;
+
+					var cv = _cvol[symbol];
+
+					if (cv && cv.container) {
+						cv.container.reset();
+					}
+
 					break;
 				}
 				case 'OPEN_INTEREST': {
@@ -1104,7 +1380,7 @@ module.exports = function() {
 					break;
 				}
 				case 'REFRESH_QUOTE': {
-					p = new Profile(message.symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement);
+					p = new Profile(symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement);
 
 					q.message = message;
 					q.flag = message.flag;
@@ -1171,11 +1447,26 @@ module.exports = function() {
 
 					q.flag = undefined;
 
+					var cv = _cvol[symbol];
+
+					if (cv && cv.container && message.tradePrice && message.tradeSize) {
+						cv.container.incrementVolume(q.tradePrice, q.tradeSize);
+					}
+
 					// TO DO: Add Time and Sales Tracking
 					break;
 				}
 				case 'TRADE_OUT_OF_SEQUENCE': {
-					q.volume += message.tradeSize;
+					if (message.tradeSize) {
+						q.volume += message.tradeSize;
+					}
+
+					var cv = _cvol[symbol];
+
+					if (cv && cv.container && message.tradePrice && message.tradeSize) {
+						cv.container.incrementVolume(q.tradePrice, q.tradeSize);
+					}
+
 					break;
 				}
 				case 'VOLUME': {
@@ -1198,11 +1489,18 @@ module.exports = function() {
 			getBook: function(symbol) {
 				return _book[symbol];
 			},
-			getCVol: function(symbol) {
-				return _cvol[symbol];
+			getCumulativeVolume: function(symbol, callback) {
+				var cv = _getCreateCumulativeVolume(symbol);
+
+				if (cv.container) {
+					callback(cv.container);
+				} else {
+					cv.callbacks.push(callback);
+				}
 			},
 			getProfile: function(symbol, callback) {
 				var p = Profile.prototype.Profiles[symbol];
+
 				if (!p) {
 					loadProfiles([symbol], function() {
 						p = Profile.prototype.Profiles[symbol];
@@ -1222,12 +1520,13 @@ module.exports = function() {
 		};
 	};
 
+	MarketState.CumulativeVolume = CumulativeVolume;
 	MarketState.Profile = Profile;
     MarketState.Quote = Quote;
 
     return MarketState;
 }();
-},{"./../connection/ProfileProvider":6,"./../util/convertDayCodeToNumber":17,"./Profile":12,"./Quote":13}],12:[function(require,module,exports){
+},{"./../connection/ProfileProvider":6,"./../util/convertDayCodeToNumber":18,"./CumulativeVolume":11,"./Profile":13,"./Quote":14}],13:[function(require,module,exports){
 var parseSymbolType = require('./../util/parseSymbolType');
 var priceFormatter = require('./../util/priceFormatter');
 
@@ -1269,7 +1568,7 @@ module.exports = function() {
 
 	return Profile;
 }();
-},{"./../util/parseSymbolType":18,"./../util/priceFormatter":19}],13:[function(require,module,exports){
+},{"./../util/parseSymbolType":19,"./../util/priceFormatter":20}],14:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1303,7 +1602,7 @@ module.exports = function() {
 		this.ticks = [];
 	};
 }();
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 var XmlDomParser = require('./../common/xml/XmlDomParser');
 
 var parseValue = require('./parseValue');
@@ -1553,6 +1852,32 @@ module.exports = function() {
 							message.type = 'REFRESH_QUOTE';
 							break;
 						}
+						case 'CV': {
+							message.symbol = node.attributes.getNamedItem('symbol').value;
+							message.unitCode = node.attributes.getNamedItem('basecode').value;
+							message.tickIncrement = parseValue(node.attributes.getNamedItem('tickincrement').value, message.unitCode);
+
+							var priceLevelsRaw = node.attributes.getNamedItem('data').value || '';
+							var priceLevels = priceLevelsRaw.split(':');
+
+							for (var i = 0; i < priceLevels.length; i++) {
+								var priceLevelRaw = priceLevels[i];
+								var priceLevelData = priceLevelRaw.split(',');
+
+								priceLevels[i] = {
+									price: parseValue(priceLevelData[0], message.unitCode),
+									volume: parseInt(priceLevelData[1])
+								};
+							}
+
+							priceLevels.sort(function(a, b) {
+								return a.price - b.price;
+							});
+
+							message.priceLevels = priceLevels;
+							message.type = 'REFRESH_CUMULATIVE_VOLUME';
+							break;
+						}
 						default:
 							console.log(msg);
 							break;
@@ -1742,7 +2067,7 @@ module.exports = function() {
 		return message;
 	};
 }();
-},{"./../common/xml/XmlDomParser":3,"./parseTimestamp":15,"./parseValue":16}],15:[function(require,module,exports){
+},{"./../common/xml/XmlDomParser":3,"./parseTimestamp":16,"./parseValue":17}],16:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1775,7 +2100,7 @@ module.exports = function() {
 		return new Date(year, month, day, hour, minute, second, ms);
 	};
 }();
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -1783,7 +2108,7 @@ module.exports = function() {
 
 	return utilities.priceParser;
 }();
-},{"barchart-marketdata-utilities":22}],17:[function(require,module,exports){
+},{"barchart-marketdata-utilities":23}],18:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1799,7 +2124,7 @@ module.exports = function() {
 		return d;
 	};
 }();
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1835,7 +2160,7 @@ module.exports = function() {
 		return null;
 	};
 }();
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -1843,7 +2168,7 @@ module.exports = function() {
 
 	return utilities.priceFormatter;
 }();
-},{"barchart-marketdata-utilities":22}],20:[function(require,module,exports){
+},{"barchart-marketdata-utilities":23}],21:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1919,7 +2244,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 
 module.exports = function() {
@@ -1932,8 +2257,9 @@ module.exports = function() {
 
 		var returnRef = value.toFixed(digits);
 
-		if (thousandsSeparator && !(value < 1000)) {
+		if (thousandsSeparator && !(value > -1000 && value < 1000)) {
 			var length = returnRef.length;
+			var negative = value < 0;
 
 			var found = digits === 0;
 			var counter = 0;
@@ -1941,7 +2267,7 @@ module.exports = function() {
 			var buffer = [];
 
 			for (var i = (length - 1); !(i < 0); i--) {
-				if (counter === 3) {
+				if (counter === 3 && !(negative && i === 0)) {
 					buffer.unshift(thousandsSeparator);
 
 					counter = 0;
@@ -1963,8 +2289,22 @@ module.exports = function() {
 
 		return returnRef;
 	};
+
+	/*
+	 // An alternative to consider ... seems about 15% faster ... not to
+	 // mention much less lengthy ... but, has a problem with more than
+	 // three decimal places ... regular expression needs work ...
+
+	 return function(value, digits, thousandsSeparator) {
+	 	if (typeof value === 'number' && (value || value === 0)) {
+	 		return value.toFixed(digits).replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator || ',');
+	 	} else {
+	 		return '';
+		}
+	 };
+	 */
 }();
-},{"lodash.isnan":30}],22:[function(require,module,exports){
+},{"lodash.isnan":31}],23:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
 var monthCodes = require('./monthCodes');
@@ -1988,7 +2328,7 @@ module.exports = function() {
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":20,"./decimalFormatter":21,"./monthCodes":23,"./priceFormatter":24,"./priceParser":25,"./symbolFormatter":26,"./symbolParser":27,"./timeFormatter":28}],23:[function(require,module,exports){
+},{"./convert":21,"./decimalFormatter":22,"./monthCodes":24,"./priceFormatter":25,"./priceParser":26,"./symbolFormatter":27,"./symbolParser":28,"./timeFormatter":29}],24:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2024,7 +2364,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 var decimalFormatter = require('./decimalFormatter');
 
@@ -2137,7 +2477,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":21,"lodash.isnan":30}],25:[function(require,module,exports){
+},{"./decimalFormatter":22,"lodash.isnan":31}],26:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2204,7 +2544,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2222,7 +2562,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2234,7 +2574,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2350,7 +2690,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
  
@@ -2414,7 +2754,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>

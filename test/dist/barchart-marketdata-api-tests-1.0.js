@@ -26,7 +26,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":20}],2:[function(require,module,exports){
+},{"class.extend":21}],2:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -61,6 +61,170 @@ module.exports = function() {
     });
 }();
 },{"./../XmlDomParserBase":1}],3:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	var EVENT_TYPE_UPDATE = 'update';
+	var EVENT_TYPE_RESET = 'reset';
+
+	var CumulativeVolume = function(symbol, tickIncrement) {
+		this.symbol = symbol;
+
+		var handlers = [ ];
+
+		var priceLevels = { };
+		var highPrice = null;
+		var lowPrice = null;
+
+		var addPriceVolume = function(priceString, priceValue) {
+			return priceLevels[priceString] = {
+				price: priceValue,
+				volume: 0
+			};
+		};
+
+		this.on = function(eventType, handler) {
+			if (eventType !== 'events') {
+				return;
+			}
+
+			var i = handlers.indexOf(handler);
+
+			if (i < 0) {
+				var copy = handlers.slice(0);
+
+				copy.push(handler);
+
+				handlers = copy;
+				
+				var priceLevels = this.toArray();
+				
+				for (var j = 0; j < priceLevels; j++) {
+					sendPriceVolumeUpdate(this, handler, priceLevels[j]);
+				}
+			}
+		};
+
+		this.off = function(eventType, handler) {
+			if (eventType !== 'events') {
+				return;
+			}
+
+			var i = handlers.indexOf(handler);
+
+			if (!(i < 0)) {
+				var copy = handlers.slice(0);
+
+				copy.splice(i, 1);
+
+				handlers = copy;
+			}
+		};
+
+		this.getVolume = function(price) {
+			var priceString = price.toString();
+			var priceLevel = priceLevels[priceString];
+
+			if (priceLevel) {
+				return priceLevel.volume;
+			} else {
+				return 0;
+			}
+		};
+
+		this.incrementVolume = function(priceValue, volume) {
+			if (highPrice && lowPrice) {
+				if (priceValue > highPrice) {
+					for (var p = highPrice + tickIncrement; p < priceValue; p += tickIncrement) {
+						broadcastPriceVolumeUpdate(this, handlers, addPriceVolume(p.toString(), p));
+					}
+
+					highPrice = priceValue;
+				} else if (priceValue < lowPrice) {
+					for (var p = lowPrice - tickIncrement; p > priceValue; p -= tickIncrement) {
+						broadcastPriceVolumeUpdate(this, handlers, addPriceVolume(p.toString(), p));
+					}
+
+					lowPrice = priceValue;
+				}
+			} else {
+				lowPrice = highPrice = priceValue;
+			}
+
+			var priceString = priceValue.toString();
+			var priceLevel = priceLevels[priceString];
+
+			if (!priceLevel) {
+				priceLevel = addPriceVolume(priceString, priceValue);
+			}
+
+			priceLevel.volume += volume;
+
+			broadcastPriceVolumeUpdate(this, handlers, priceLevel);
+		};
+
+		this.reset = function() {
+			priceLevels = { };
+			highPrice = null;
+			lowPrice = null;
+
+			for (var i = 0; i < handlers.length; i++) {
+				var handler = handlers[i];
+
+				handler({ container: this, event: EVENT_TYPE_RESET });
+			}
+		};
+
+		this.toArray = function() {
+			var array = [ ];
+
+			for (var p in priceLevels) {
+				var priceLevel = priceLevels[p];
+
+				array.push({
+					price: priceLevel.price,
+					volume: priceLevel.volume
+				});
+			}
+
+			array.sort(function(a, b) {
+				return a.price - b.price;
+			});
+
+			return array;
+		};
+
+		this.dispose = function() {
+			priceLevels = { };
+			highPrice = null;
+			lowPrice = null;
+
+			handlers = [ ];
+		};
+	};
+
+	var sendPriceVolumeUpdate = function(container, handler, priceLevel) {
+		try {
+			handler({
+				container: container,
+				event: EVENT_TYPE_UPDATE,
+				price: priceLevel.price,
+				volume: priceLevel.volume
+			});
+		} catch(e) {
+			console.error('An error was thrown by a cumulative volume observer.', e);
+		}
+	};
+
+	var broadcastPriceVolumeUpdate = function(container, handlers, priceLevel) {
+		for (var i = 0; i < handlers.length; i++) {
+			sendPriceVolumeUpdate(container, handlers[i], priceLevel);
+		}
+	};
+
+	return CumulativeVolume;
+}();
+},{}],4:[function(require,module,exports){
 var XmlDomParser = require('./../common/xml/XmlDomParser');
 
 var parseValue = require('./parseValue');
@@ -310,6 +474,32 @@ module.exports = function() {
 							message.type = 'REFRESH_QUOTE';
 							break;
 						}
+						case 'CV': {
+							message.symbol = node.attributes.getNamedItem('symbol').value;
+							message.unitCode = node.attributes.getNamedItem('basecode').value;
+							message.tickIncrement = parseValue(node.attributes.getNamedItem('tickincrement').value, message.unitCode);
+
+							var priceLevelsRaw = node.attributes.getNamedItem('data').value || '';
+							var priceLevels = priceLevelsRaw.split(':');
+
+							for (var i = 0; i < priceLevels.length; i++) {
+								var priceLevelRaw = priceLevels[i];
+								var priceLevelData = priceLevelRaw.split(',');
+
+								priceLevels[i] = {
+									price: parseValue(priceLevelData[0], message.unitCode),
+									volume: parseInt(priceLevelData[1])
+								};
+							}
+
+							priceLevels.sort(function(a, b) {
+								return a.price - b.price;
+							});
+
+							message.priceLevels = priceLevels;
+							message.type = 'REFRESH_CUMULATIVE_VOLUME';
+							break;
+						}
 						default:
 							console.log(msg);
 							break;
@@ -499,7 +689,7 @@ module.exports = function() {
 		return message;
 	};
 }();
-},{"./../common/xml/XmlDomParser":2,"./parseTimestamp":4,"./parseValue":5}],4:[function(require,module,exports){
+},{"./../common/xml/XmlDomParser":2,"./parseTimestamp":5,"./parseValue":6}],5:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -532,7 +722,7 @@ module.exports = function() {
 		return new Date(year, month, day, hour, minute, second, ms);
 	};
 }();
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -540,7 +730,7 @@ module.exports = function() {
 
 	return utilities.priceParser;
 }();
-},{"barchart-marketdata-utilities":13}],6:[function(require,module,exports){
+},{"barchart-marketdata-utilities":14}],7:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -548,7 +738,7 @@ module.exports = function() {
 
 	return utilities.convert.baseCodeToUnitCode;
 }();
-},{"barchart-marketdata-utilities":13}],7:[function(require,module,exports){
+},{"barchart-marketdata-utilities":14}],8:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -564,7 +754,7 @@ module.exports = function() {
 		return d;
 	};
 }();
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -572,7 +762,7 @@ module.exports = function() {
 
 	return utilities.convert.unitCodeToBaseCode;
 }();
-},{"barchart-marketdata-utilities":13}],9:[function(require,module,exports){
+},{"barchart-marketdata-utilities":14}],10:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -580,7 +770,7 @@ module.exports = function() {
 
 	return utilities.monthCodes.getCodeToNameMap();
 }();
-},{"barchart-marketdata-utilities":13}],10:[function(require,module,exports){
+},{"barchart-marketdata-utilities":14}],11:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -588,7 +778,7 @@ module.exports = function() {
 
 	return utilities.priceFormatter;
 }();
-},{"barchart-marketdata-utilities":13}],11:[function(require,module,exports){
+},{"barchart-marketdata-utilities":14}],12:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -664,7 +854,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 
 module.exports = function() {
@@ -677,8 +867,9 @@ module.exports = function() {
 
 		var returnRef = value.toFixed(digits);
 
-		if (thousandsSeparator && !(value < 1000)) {
+		if (thousandsSeparator && !(value > -1000 && value < 1000)) {
 			var length = returnRef.length;
+			var negative = value < 0;
 
 			var found = digits === 0;
 			var counter = 0;
@@ -686,7 +877,7 @@ module.exports = function() {
 			var buffer = [];
 
 			for (var i = (length - 1); !(i < 0); i--) {
-				if (counter === 3) {
+				if (counter === 3 && !(negative && i === 0)) {
 					buffer.unshift(thousandsSeparator);
 
 					counter = 0;
@@ -708,8 +899,22 @@ module.exports = function() {
 
 		return returnRef;
 	};
+
+	/*
+	 // An alternative to consider ... seems about 15% faster ... not to
+	 // mention much less lengthy ... but, has a problem with more than
+	 // three decimal places ... regular expression needs work ...
+
+	 return function(value, digits, thousandsSeparator) {
+	 	if (typeof value === 'number' && (value || value === 0)) {
+	 		return value.toFixed(digits).replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator || ',');
+	 	} else {
+	 		return '';
+		}
+	 };
+	 */
 }();
-},{"lodash.isnan":21}],13:[function(require,module,exports){
+},{"lodash.isnan":22}],14:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
 var monthCodes = require('./monthCodes');
@@ -733,7 +938,7 @@ module.exports = function() {
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":11,"./decimalFormatter":12,"./monthCodes":14,"./priceFormatter":15,"./priceParser":16,"./symbolFormatter":17,"./symbolParser":18,"./timeFormatter":19}],14:[function(require,module,exports){
+},{"./convert":12,"./decimalFormatter":13,"./monthCodes":15,"./priceFormatter":16,"./priceParser":17,"./symbolFormatter":18,"./symbolParser":19,"./timeFormatter":20}],15:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -769,7 +974,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 var decimalFormatter = require('./decimalFormatter');
 
@@ -882,7 +1087,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":12,"lodash.isnan":21}],16:[function(require,module,exports){
+},{"./decimalFormatter":13,"lodash.isnan":22}],17:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -949,7 +1154,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -967,7 +1172,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -979,7 +1184,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1095,7 +1300,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
  
@@ -1159,7 +1364,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
@@ -1273,7 +1478,446 @@ function isNumber(value) {
 module.exports = isNaN;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
+var CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
+
+describe('When a cumulative volume container is created with a tick increment of 0.25', function() {
+	var cv;
+
+	var symbol;
+	var tickIncrement;
+
+	beforeEach(function() {
+		cv = new CumulativeVolume(symbol = 'ESZ6', tickIncrement = 0.25);
+	});
+
+	it('the symbol should be the same value as assigned during construction', function() {
+		expect(cv.symbol).toEqual(symbol);
+	});
+
+	it('the price level array should contain zero items', function() {
+		expect(cv.toArray().length).toEqual(0);
+	});
+
+	describe('and 50 contracts are traded at 2172.50', function() {
+		beforeEach(function() {
+			cv.incrementVolume(2172.5, 50);
+		});
+
+		it('should report zero contracts traded at 2172.25', function() {
+			expect(cv.getVolume(2172.25)).toEqual(0);
+		});
+
+		it('should report 50 contracts traded at 2172.50', function() {
+			expect(cv.getVolume(2172.5)).toEqual(50);
+		});
+
+		it('should report zero contracts traded at 2172.75', function() {
+			expect(cv.getVolume(2172.75)).toEqual(0);
+		});
+
+		describe('and the price level array is retrieved', function() {
+			var priceLevels;
+
+			beforeEach(function() {
+				priceLevels = cv.toArray();
+			});
+
+			it('the price level array should contain one item', function() {
+				expect(priceLevels.length).toEqual(1);
+			});
+
+			it('the first price level item should be for 50 contracts', function() {
+				expect(priceLevels[0].volume).toEqual(50);
+			});
+
+			it('the first price level item should be priced at 2172.50', function() {
+				expect(priceLevels[0].price).toEqual(2172.5);
+			});
+		});
+
+		describe('and another 50 contracts are traded at 2172.50', function() {
+			beforeEach(function() {
+				cv.incrementVolume(2172.5, 50);
+			});
+
+			it('should report zero contracts traded at 2172.25', function() {
+				expect(cv.getVolume(2172.25)).toEqual(0);
+			});
+
+			it('should report 50 contracts traded at 2172.50', function() {
+				expect(cv.getVolume(2172.5)).toEqual(100);
+			});
+
+			it('should report zero contracts traded at 2172.75', function() {
+				expect(cv.getVolume(2172.75)).toEqual(0);
+			});
+
+			describe('and the price level array is retrieved', function() {
+				var priceLevels;
+
+				beforeEach(function() {
+					priceLevels = cv.toArray();
+				});
+
+				it('the price level array should contain one item', function() {
+					expect(priceLevels.length).toEqual(1);
+				});
+
+				it('the first price level item should be for 100 contracts', function() {
+					expect(priceLevels[0].volume).toEqual(100);
+				});
+
+				it('the first price level item should be priced at 2172.50', function() {
+					expect(priceLevels[0].price).toEqual(2172.5);
+				});
+			});
+		});
+
+		describe('and 200 contracts are traded at 2172.25', function() {
+			beforeEach(function() {
+				cv.incrementVolume(2172.25, 200);
+			});
+
+			it('should report 200 contracts traded at 2172.25', function() {
+				expect(cv.getVolume(2172.25)).toEqual(200);
+			});
+
+			it('should report 50 contracts traded at 2172.50', function() {
+				expect(cv.getVolume(2172.5)).toEqual(50);
+			});
+
+			it('should report zero contracts traded at 2172.75', function() {
+				expect(cv.getVolume(2172.75)).toEqual(0);
+			});
+
+			describe('and the price level array is retrieved', function() {
+				var priceLevels;
+
+				beforeEach(function() {
+					priceLevels = cv.toArray();
+				});
+
+				it('the price level array should contain two items', function() {
+					expect(priceLevels.length).toEqual(2);
+				});
+
+				it('the first price level item should be for 200 contracts', function() {
+					expect(priceLevels[0].volume).toEqual(200);
+				});
+
+				it('the first price level item should be priced at 2172.25', function() {
+					expect(priceLevels[0].price).toEqual(2172.25);
+				});
+
+				it('the second price level item should be for 50 contracts', function() {
+					expect(priceLevels[1].volume).toEqual(50);
+				});
+
+				it('the second price level item should be priced at 2172.50', function() {
+					expect(priceLevels[1].price).toEqual(2172.5);
+				});
+			});
+		});
+
+		describe('and 3 contracts are traded at 2173.50', function() {
+			beforeEach(function() {
+				cv.incrementVolume(2173.50, 3);
+			});
+
+			it('should report 50 contracts traded at 2172.50', function() {
+				expect(cv.getVolume(2172.5)).toEqual(50);
+			});
+
+			it('should report zero contracts traded at 2172.75', function() {
+				expect(cv.getVolume(2172.75)).toEqual(0);
+			});
+
+			it('should report zero contracts traded at 2173', function() {
+				expect(cv.getVolume(2173)).toEqual(0);
+			});
+
+			it('should report zero contracts traded at 2173.25', function() {
+				expect(cv.getVolume(2173.25)).toEqual(0);
+			});
+
+			it('should report 3 contracts traded at 2173.50', function() {
+				expect(cv.getVolume(2173.50)).toEqual(3);
+			});
+
+			describe('and the price level array is retrieved', function() {
+				var priceLevels;
+
+				beforeEach(function() {
+					priceLevels = cv.toArray();
+				});
+
+				it('the price level array should contain five items', function() {
+					expect(priceLevels.length).toEqual(5);
+				});
+
+				it('the first price level item should be for 50 contracts', function() {
+					expect(priceLevels[0].volume).toEqual(50);
+				});
+
+				it('the first price level item should be priced at 2172.50', function() {
+					expect(priceLevels[0].price).toEqual(2172.5);
+				});
+
+				it('the second price level item should be for zero contracts', function() {
+					expect(priceLevels[1].volume).toEqual(0);
+				});
+
+				it('the second price level item should be priced at 2172.75', function() {
+					expect(priceLevels[1].price).toEqual(2172.75);
+				});
+
+				it('the third price level item should be for zero contracts', function() {
+					expect(priceLevels[2].volume).toEqual(0);
+				});
+
+				it('the third price level item should be priced at 2173.00', function() {
+					expect(priceLevels[2].price).toEqual(2173);
+				});
+
+				it('the fourth price level item should be for zero contracts', function() {
+					expect(priceLevels[3].volume).toEqual(0);
+				});
+
+				it('the fourth price level item should be priced at 2173.25', function() {
+					expect(priceLevels[3].price).toEqual(2173.25);
+				});
+
+				it('the fifth price level item should be for 3 contracts', function() {
+					expect(priceLevels[4].volume).toEqual(3);
+				});
+
+				it('the fifth price level item should be priced at 2173.50', function() {
+					expect(priceLevels[4].price).toEqual(2173.5);
+				});
+			});
+		});
+
+		describe('and 99 contracts are traded at 2172.00', function() {
+			beforeEach(function() {
+				cv.incrementVolume(2172.00, 99);
+			});
+
+			it('should report 99 contracts traded at 2172.00', function() {
+				expect(cv.getVolume(2172.00)).toEqual(99);
+			});
+
+			it('should report zero contracts traded at 2172.25', function() {
+				expect(cv.getVolume(2172.25)).toEqual(0);
+			});
+
+			it('should report 50 contracts traded at 2172.50', function() {
+				expect(cv.getVolume(2172.50)).toEqual(50);
+			});
+
+			describe('and the price level array is retrieved', function() {
+				var priceLevels;
+
+				beforeEach(function() {
+					priceLevels = cv.toArray();
+				});
+
+				it('the price level array should contain three items', function() {
+					expect(priceLevels.length).toEqual(3);
+				});
+
+				it('the first price level item should be for 99 contracts', function() {
+					expect(priceLevels[0].volume).toEqual(99);
+				});
+
+				it('the first price level item should be priced at 2172.00', function() {
+					expect(priceLevels[0].price).toEqual(2172);
+				});
+
+				it('the second price level item should be for zero contracts', function() {
+					expect(priceLevels[1].volume).toEqual(0);
+				});
+
+				it('the second price level item should be priced at 2172.25', function() {
+					expect(priceLevels[1].price).toEqual(2172.25);
+				});
+
+				it('the third price level item should be for 50 contracts', function() {
+					expect(priceLevels[2].volume).toEqual(50);
+				});
+
+				it('the third price level item should be priced at 2172.50', function() {
+					expect(priceLevels[2].price).toEqual(2172.50);
+				});
+			});
+		});
+
+		describe('and the container is reset', function() {
+			beforeEach(function() {
+				cv.reset();
+			});
+
+			describe('and the price level array is retrieved', function() {
+				var priceLevels;
+
+				beforeEach(function() {
+					priceLevels = cv.toArray();
+				});
+
+				it('the price level array should contain zero items', function() {
+					expect(priceLevels.length).toEqual(0);
+				});
+			});
+		});
+	});
+
+	describe('and an observer is added to the container', function() {
+		var spyOne;
+
+		beforeEach(function() {
+			cv.on('events', spyOne = jasmine.createSpy('spyOne'));
+		});
+
+		describe('and 50 contracts are traded at 2172.50', function() {
+			beforeEach(function () {
+				cv.incrementVolume(2172.5, 50);
+			});
+
+			it('the observer should be called once', function() {
+				expect(spyOne).toHaveBeenCalledTimes(1);
+			});
+
+			it('the arguments should refer to the container', function() {
+				expect(spyOne.calls.mostRecent().args[0].container).toBe(cv);
+			});
+
+			it('the arguments should specify an event type of "update"', function() {
+				expect(spyOne.calls.mostRecent().args[0].event).toEqual('update');
+			});
+
+			it('the arguments should specify a price of 2172.5', function() {
+				expect(spyOne.calls.mostRecent().args[0].price).toEqual(2172.5);
+			});
+
+			it('the arguments should specify a volume of 50', function() {
+				expect(spyOne.calls.mostRecent().args[0].volume).toEqual(50);
+			});
+
+			describe('and another 50 contracts are traded at 2172.50', function() {
+				beforeEach(function () {
+					cv.incrementVolume(2172.5, 50);
+				});
+
+				it('the observer should be called once more', function() {
+					expect(spyOne).toHaveBeenCalledTimes(2);
+				});
+
+				it('the arguments should refer to the container', function() {
+					expect(spyOne.calls.mostRecent().args[0].container).toBe(cv);
+				});
+
+				it('the arguments should specify an event type of "update"', function() {
+					expect(spyOne.calls.mostRecent().args[0].event).toEqual('update');
+				});
+
+				it('the arguments should specify a price of 2172.5', function() {
+					expect(spyOne.calls.mostRecent().args[0].price).toEqual(2172.5);
+				});
+
+				it('the arguments should specify a volume of 100', function() {
+					expect(spyOne.calls.mostRecent().args[0].volume).toEqual(100);
+				});
+			});
+
+			describe('and 99 contracts are traded at 2171.75', function() {
+				var spyTwo;
+
+				beforeEach(function () {
+					cv.incrementVolume(2171.75, 99);
+				});
+
+				it('the observer should be called three more times', function() {
+					expect(spyOne).toHaveBeenCalledTimes(4);
+				});
+
+				it('the arguments (for the first call) should specify a price of 2172.25', function() {
+					expect(spyOne.calls.argsFor(1)[0].price).toEqual(2172.25);
+				});
+
+				it('the arguments (for the first call) should specify a volume of zero', function() {
+					expect(spyOne.calls.argsFor(1)[0].volume).toEqual(0);
+				});
+
+				it('the arguments (for the second call) should specify a price of 2172.00', function() {
+					expect(spyOne.calls.argsFor(2)[0].price).toEqual(2172);
+				});
+
+				it('the arguments (for the second call) should specify a volume of zero', function() {
+					expect(spyOne.calls.argsFor(2)[0].volume).toEqual(0);
+				});
+
+				it('the arguments (for the third call) should specify a price of 2171.75', function() {
+					expect(spyOne.calls.argsFor(3)[0].price).toEqual(2171.75);
+				});
+
+				it('the arguments (for the third call) should specify a volume of 99', function() {
+					expect(spyOne.calls.argsFor(3)[0].volume).toEqual(99);
+				});
+			});
+
+			describe('and 555 contracts are traded at 2173.25', function() {
+				beforeEach(function () {
+					cv.incrementVolume(2173.25, 555);
+				});
+
+				it('the observer should be called three more times', function() {
+					expect(spyOne).toHaveBeenCalledTimes(4);
+				});
+
+				it('the arguments (for the first call) should specify a price of 2172.75', function() {
+					expect(spyOne.calls.argsFor(1)[0].price).toEqual(2172.75);
+				});
+
+				it('the arguments (for the first call) should specify a volume of zero', function() {
+					expect(spyOne.calls.argsFor(1)[0].volume).toEqual(0);
+				});
+
+				it('the arguments (for the second call) should specify a price of 2173.00', function() {
+					expect(spyOne.calls.argsFor(2)[0].price).toEqual(2173);
+				});
+
+				it('the arguments (for the second call) should specify a volume of zero', function() {
+					expect(spyOne.calls.argsFor(2)[0].volume).toEqual(0);
+				});
+
+				it('the arguments (for the third call) should specify a price of 2173.25', function() {
+					expect(spyOne.calls.argsFor(3)[0].price).toEqual(2173.25);
+				});
+
+				it('the arguments (for the third call) should specify a volume of 555', function() {
+					expect(spyOne.calls.argsFor(3)[0].volume).toEqual(555);
+				});
+			});
+
+			describe('and the observer is removed from the container', function() {
+				beforeEach(function () {
+					cv.off('events', spyOne);
+				});
+
+				describe('and another 50 contracts are traded at 2172.50', function() {
+					beforeEach(function () {
+						cv.incrementVolume(2172.5, 50);
+					});
+
+					it('the observer should be called once', function() {
+						expect(spyOne).toHaveBeenCalledTimes(1);
+					});
+				});
+			});
+		});
+	});
+});
+},{"../../../lib/marketState/CumulativeVolume":3}],24:[function(require,module,exports){
 var parseMessage = require('../../../lib/messageParser/parseMessage');
 
 describe('when parsing an XML refresh message', function() {
@@ -1472,7 +2116,7 @@ describe('when parsing a DDF message', function() {
 	});
 });
 
-},{"../../../lib/messageParser/parseMessage":3}],23:[function(require,module,exports){
+},{"../../../lib/messageParser/parseMessage":4}],25:[function(require,module,exports){
 var parseValue = require('../../../lib/messageParser/parseValue');
 
 describe('when parsing prices', function() {
@@ -1536,7 +2180,7 @@ describe('when parsing prices', function() {
 		});
 	});
 });
-},{"../../../lib/messageParser/parseValue":5}],24:[function(require,module,exports){
+},{"../../../lib/messageParser/parseValue":6}],26:[function(require,module,exports){
 var convertBaseCodeToUnitCode = require('../../../lib/util/convertBaseCodeToUnitCode');
 
 describe('When converting a baseCode to a unitCode', function() {
@@ -1544,7 +2188,7 @@ describe('When converting a baseCode to a unitCode', function() {
 		expect(convertBaseCodeToUnitCode(-1)).toEqual('2');
 	});
 });
-},{"../../../lib/util/convertBaseCodeToUnitCode":6}],25:[function(require,module,exports){
+},{"../../../lib/util/convertBaseCodeToUnitCode":7}],27:[function(require,module,exports){
 var convertDayCodeToNumber = require('../../../lib/util/convertDayCodeToNumber');
 
 describe('When converting a dayCode to number', function() {
@@ -1756,7 +2400,7 @@ describe('When converting a dayCode to number', function() {
 		expect(convertDayCodeToNumber("u")).toEqual(31);
 	});
 });
-},{"../../../lib/util/convertDayCodeToNumber":7}],26:[function(require,module,exports){
+},{"../../../lib/util/convertDayCodeToNumber":8}],28:[function(require,module,exports){
 var convertUnitCodeToBaseCode = require('../../../lib/util/convertUnitCodeToBaseCode');
 
 describe('When converting a unitCode to a baseCode', function() {
@@ -1764,7 +2408,7 @@ describe('When converting a unitCode to a baseCode', function() {
 		expect(convertUnitCodeToBaseCode('2')).toEqual(-1);
 	});
 });
-},{"../../../lib/util/convertUnitCodeToBaseCode":8}],27:[function(require,module,exports){
+},{"../../../lib/util/convertUnitCodeToBaseCode":9}],29:[function(require,module,exports){
 var monthCodes = require('../../../lib/util/monthCodes');
 
 describe('When looking up a month name by code', function() {
@@ -1822,7 +2466,7 @@ describe('When looking up a month name by code', function() {
 		expect(map.Z).toEqual("December");
 	});
 });
-},{"../../../lib/util/monthCodes":9}],28:[function(require,module,exports){
+},{"../../../lib/util/monthCodes":10}],30:[function(require,module,exports){
 var PriceFormatter = require('../../../lib/util/priceFormatter');
 
 describe('When a price formatter is created', function() {
@@ -1942,4 +2586,4 @@ describe('When a price formatter is created', function() {
 		});
 	});
 });
-},{"../../../lib/util/priceFormatter":10}]},{},[22,23,24,25,26,27,28]);
+},{"../../../lib/util/priceFormatter":11}]},{},[23,24,25,26,27,28,29,30]);

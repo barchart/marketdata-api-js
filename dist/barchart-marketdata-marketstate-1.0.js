@@ -52,7 +52,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":21}],4:[function(require,module,exports){
+},{"class.extend":22}],4:[function(require,module,exports){
 var ProfileProviderBase = require('./../../ProfileProviderBase');
 
 var jQueryProvider = require('./../../../common/jQuery/jQueryProvider');
@@ -90,6 +90,171 @@ module.exports = function() {
     });
 }();
 },{"./../../../common/jQuery/jQueryProvider":1,"./../../ProfileProviderBase":3}],5:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	var EVENT_TYPE_UPDATE = 'update';
+	var EVENT_TYPE_RESET = 'reset';
+
+	var CumulativeVolume = function(symbol, tickIncrement) {
+		this.symbol = symbol;
+
+		var handlers = [ ];
+
+		var priceLevels = { };
+		var highPrice = null;
+		var lowPrice = null;
+
+		var addPriceVolume = function(priceString, priceValue) {
+			return priceLevels[priceString] = {
+				price: priceValue,
+				volume: 0
+			};
+		};
+
+		this.on = function(eventType, handler) {
+			if (eventType !== 'events') {
+				return;
+			}
+
+			var i = handlers.indexOf(handler);
+
+			if (i < 0) {
+				var copy = handlers.slice(0);
+
+				copy.push(handler);
+
+				handlers = copy;
+				
+				var priceLevels = this.toArray();
+				
+				for (var j = 0; j < priceLevels; j++) {
+					sendPriceVolumeUpdate(this, handler, priceLevels[j]);
+				}
+			}
+		};
+
+		this.off = function(eventType, handler) {
+			if (eventType !== 'events') {
+				return;
+			}
+
+			var i = handlers.indexOf(handler);
+
+			if (!(i < 0)) {
+				var copy = handlers.slice(0);
+
+				copy.splice(i, 1);
+
+				handlers = copy;
+			}
+		};
+
+		this.getVolume = function(price) {
+			var priceString = price.toString();
+			var priceLevel = priceLevels[priceString];
+
+			if (priceLevel) {
+				return priceLevel.volume;
+			} else {
+				return 0;
+			}
+		};
+
+		this.incrementVolume = function(priceValue, volume) {
+			if (highPrice && lowPrice) {
+				if (priceValue > highPrice) {
+					for (var p = highPrice + tickIncrement; p < priceValue; p += tickIncrement) {
+						broadcastPriceVolumeUpdate(this, handlers, addPriceVolume(p.toString(), p));
+					}
+
+					highPrice = priceValue;
+				} else if (priceValue < lowPrice) {
+					for (var p = lowPrice - tickIncrement; p > priceValue; p -= tickIncrement) {
+						broadcastPriceVolumeUpdate(this, handlers, addPriceVolume(p.toString(), p));
+					}
+
+					lowPrice = priceValue;
+				}
+			} else {
+				lowPrice = highPrice = priceValue;
+			}
+
+			var priceString = priceValue.toString();
+			var priceLevel = priceLevels[priceString];
+
+			if (!priceLevel) {
+				priceLevel = addPriceVolume(priceString, priceValue);
+			}
+
+			priceLevel.volume += volume;
+
+			broadcastPriceVolumeUpdate(this, handlers, priceLevel);
+		};
+
+		this.reset = function() {
+			priceLevels = { };
+			highPrice = null;
+			lowPrice = null;
+
+			for (var i = 0; i < handlers.length; i++) {
+				var handler = handlers[i];
+
+				handler({ container: this, event: EVENT_TYPE_RESET });
+			}
+		};
+
+		this.toArray = function() {
+			var array = [ ];
+
+			for (var p in priceLevels) {
+				var priceLevel = priceLevels[p];
+
+				array.push({
+					price: priceLevel.price,
+					volume: priceLevel.volume
+				});
+			}
+
+			array.sort(function(a, b) {
+				return a.price - b.price;
+			});
+
+			return array;
+		};
+
+		this.dispose = function() {
+			priceLevels = { };
+			highPrice = null;
+			lowPrice = null;
+
+			handlers = [ ];
+		};
+	};
+
+	var sendPriceVolumeUpdate = function(container, handler, priceLevel) {
+		try {
+			handler({
+				container: container,
+				event: EVENT_TYPE_UPDATE,
+				price: priceLevel.price,
+				volume: priceLevel.volume
+			});
+		} catch(e) {
+			console.error('An error was thrown by a cumulative volume observer.', e);
+		}
+	};
+
+	var broadcastPriceVolumeUpdate = function(container, handlers, priceLevel) {
+		for (var i = 0; i < handlers.length; i++) {
+			sendPriceVolumeUpdate(container, handlers[i], priceLevel);
+		}
+	};
+
+	return CumulativeVolume;
+}();
+},{}],6:[function(require,module,exports){
+var CumulativeVolume = require('./CumulativeVolume');
 var Profile = require('./Profile');
 var Quote = require('./Quote');
 
@@ -100,13 +265,11 @@ module.exports = function() {
 	'use strict';
 
 	var MarketState = function() {
-		var _MAX_TIMEANDSALES = 10;
-
 		var _book = {};
-		var _cvol = {};
 		var _quote = {};
+		var _cvol = {};
+
 		var _timestamp;
-		var _timeAndSales = {};
 
 		var _profileProvider = new ProfileProvider();
 
@@ -136,12 +299,23 @@ module.exports = function() {
 		var _getCreateBook = function(symbol) {
 			if (!_book[symbol]) {
 				_book[symbol] = {
-					"symbol" : symbol,
-					"bids" : [],
-					"asks" : []
+					symbol : symbol,
+					bids : [],
+					asks : []
 				};
 			}
 			return _book[symbol];
+		};
+
+		var _getCreateCumulativeVolume = function(symbol) {
+			if (!_cvol[symbol]) {
+				_cvol[symbol] = {
+					container: null,
+					callbacks: [ ]
+				};
+			}
+
+			return _cvol[symbol];
 		};
 
 		var _getCreateQuote = function(symbol) {
@@ -152,16 +326,10 @@ module.exports = function() {
 			return _quote[symbol];
 		};
 
-		var _getCreateTimeAndSales = function(symbol) {
-			if (!_timeAndSales[symbol]) {
-				_timeAndSales[symbol] = {
-					"symbol" : symbol
-				};
-			}
-			return _timeAndSales[symbol];
-		};
 
 		var _processMessage = function(message) {
+			var symbol = message.symbol;
+
 			if (message.type == 'TIMESTAMP') {
 				_timestamp = message.timestamp;
 				return;
@@ -169,20 +337,52 @@ module.exports = function() {
 
 			// Process book messages first, they don't need profiles, etc.
 			if (message.type == 'BOOK') {
-				var b = _getCreateBook(message.symbol);
+				var b = _getCreateBook(symbol);
 				b.asks = message.asks;
 				b.bids = message.bids;
 				return;
 			}
 
-			var p = Profile.prototype.Profiles[message.symbol];
+			if (message.type == 'REFRESH_CUMULATIVE_VOLUME') {
+				var cv = _getCreateCumulativeVolume(symbol);
+
+				var container = cv.container;
+
+				if (container) {
+					container.reset();
+				} else {
+					cv.container = container = new CumulativeVolume(symbol, message.tickIncrement);
+
+					var callbacks = cv.callbacks || [ ];
+
+					for (var i = 0; i < callbacks.length; i++) {
+						var callback = callbacks[i];
+
+						callback(container);
+					}
+
+					cv.callbacks = null;
+				}
+
+				var priceLevels = message.priceLevels;
+
+				for (var i = 0; i < priceLevels.length; i++) {
+					var priceLevel = priceLevels[i];
+
+					container.incrementVolume(priceLevel.price, priceLevel.volume);
+				}
+
+				return;
+			}
+
+			var p = Profile.prototype.Profiles[symbol];
 			if ((!p) && (message.type != 'REFRESH_QUOTE')) {
-				console.warn('No profile found for ' + message.symbol);
+				console.warn('No profile found for ' + symbol);
 				console.log(message);
 				return;
 			}
 
-			var q = _getCreateQuote(message.symbol);
+			var q = _getCreateQuote(symbol);
 
 			if ((!q.day) && (message.day)) {
 				q.day = message.day;
@@ -231,6 +431,13 @@ module.exports = function() {
 					q.highPrice = message.value;
 					q.lowPrice = message.value;
 					q.lastPrice = message.value;
+
+					var cv = _cvol[symbol];
+
+					if (cv && cv.container) {
+						cv.container.reset();
+					}
+
 					break;
 				}
 				case 'OPEN_INTEREST': {
@@ -305,7 +512,7 @@ module.exports = function() {
 					break;
 				}
 				case 'REFRESH_QUOTE': {
-					p = new Profile(message.symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement);
+					p = new Profile(symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement);
 
 					q.message = message;
 					q.flag = message.flag;
@@ -372,11 +579,26 @@ module.exports = function() {
 
 					q.flag = undefined;
 
+					var cv = _cvol[symbol];
+
+					if (cv && cv.container && message.tradePrice && message.tradeSize) {
+						cv.container.incrementVolume(q.tradePrice, q.tradeSize);
+					}
+
 					// TO DO: Add Time and Sales Tracking
 					break;
 				}
 				case 'TRADE_OUT_OF_SEQUENCE': {
-					q.volume += message.tradeSize;
+					if (message.tradeSize) {
+						q.volume += message.tradeSize;
+					}
+
+					var cv = _cvol[symbol];
+
+					if (cv && cv.container && message.tradePrice && message.tradeSize) {
+						cv.container.incrementVolume(q.tradePrice, q.tradeSize);
+					}
+
 					break;
 				}
 				case 'VOLUME': {
@@ -399,11 +621,18 @@ module.exports = function() {
 			getBook: function(symbol) {
 				return _book[symbol];
 			},
-			getCVol: function(symbol) {
-				return _cvol[symbol];
+			getCumulativeVolume: function(symbol, callback) {
+				var cv = _getCreateCumulativeVolume(symbol);
+
+				if (cv.container) {
+					callback(cv.container);
+				} else {
+					cv.callbacks.push(callback);
+				}
 			},
 			getProfile: function(symbol, callback) {
 				var p = Profile.prototype.Profiles[symbol];
+
 				if (!p) {
 					loadProfiles([symbol], function() {
 						p = Profile.prototype.Profiles[symbol];
@@ -423,12 +652,13 @@ module.exports = function() {
 		};
 	};
 
+	MarketState.CumulativeVolume = CumulativeVolume;
 	MarketState.Profile = Profile;
     MarketState.Quote = Quote;
 
     return MarketState;
 }();
-},{"./../connection/ProfileProvider":2,"./../util/convertDayCodeToNumber":9,"./Profile":6,"./Quote":7}],6:[function(require,module,exports){
+},{"./../connection/ProfileProvider":2,"./../util/convertDayCodeToNumber":10,"./CumulativeVolume":5,"./Profile":7,"./Quote":8}],7:[function(require,module,exports){
 var parseSymbolType = require('./../util/parseSymbolType');
 var priceFormatter = require('./../util/priceFormatter');
 
@@ -470,7 +700,7 @@ module.exports = function() {
 
 	return Profile;
 }();
-},{"./../util/parseSymbolType":10,"./../util/priceFormatter":11}],7:[function(require,module,exports){
+},{"./../util/parseSymbolType":11,"./../util/priceFormatter":12}],8:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -504,7 +734,7 @@ module.exports = function() {
 		this.ticks = [];
 	};
 }();
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var MarketState = require('./MarketState');
 
 module.exports = function() {
@@ -512,7 +742,7 @@ module.exports = function() {
 
 	return MarketState;
 }();
-},{"./MarketState":5}],9:[function(require,module,exports){
+},{"./MarketState":6}],10:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -528,7 +758,7 @@ module.exports = function() {
 		return d;
 	};
 }();
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -564,7 +794,7 @@ module.exports = function() {
 		return null;
 	};
 }();
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -572,7 +802,7 @@ module.exports = function() {
 
 	return utilities.priceFormatter;
 }();
-},{"barchart-marketdata-utilities":14}],12:[function(require,module,exports){
+},{"barchart-marketdata-utilities":15}],13:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -648,7 +878,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 
 module.exports = function() {
@@ -661,8 +891,9 @@ module.exports = function() {
 
 		var returnRef = value.toFixed(digits);
 
-		if (thousandsSeparator && !(value < 1000)) {
+		if (thousandsSeparator && !(value > -1000 && value < 1000)) {
 			var length = returnRef.length;
+			var negative = value < 0;
 
 			var found = digits === 0;
 			var counter = 0;
@@ -670,7 +901,7 @@ module.exports = function() {
 			var buffer = [];
 
 			for (var i = (length - 1); !(i < 0); i--) {
-				if (counter === 3) {
+				if (counter === 3 && !(negative && i === 0)) {
 					buffer.unshift(thousandsSeparator);
 
 					counter = 0;
@@ -692,8 +923,22 @@ module.exports = function() {
 
 		return returnRef;
 	};
+
+	/*
+	 // An alternative to consider ... seems about 15% faster ... not to
+	 // mention much less lengthy ... but, has a problem with more than
+	 // three decimal places ... regular expression needs work ...
+
+	 return function(value, digits, thousandsSeparator) {
+	 	if (typeof value === 'number' && (value || value === 0)) {
+	 		return value.toFixed(digits).replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator || ',');
+	 	} else {
+	 		return '';
+		}
+	 };
+	 */
 }();
-},{"lodash.isnan":22}],14:[function(require,module,exports){
+},{"lodash.isnan":23}],15:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
 var monthCodes = require('./monthCodes');
@@ -717,7 +962,7 @@ module.exports = function() {
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":12,"./decimalFormatter":13,"./monthCodes":15,"./priceFormatter":16,"./priceParser":17,"./symbolFormatter":18,"./symbolParser":19,"./timeFormatter":20}],15:[function(require,module,exports){
+},{"./convert":13,"./decimalFormatter":14,"./monthCodes":16,"./priceFormatter":17,"./priceParser":18,"./symbolFormatter":19,"./symbolParser":20,"./timeFormatter":21}],16:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -753,7 +998,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 var decimalFormatter = require('./decimalFormatter');
 
@@ -866,7 +1111,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":13,"lodash.isnan":22}],17:[function(require,module,exports){
+},{"./decimalFormatter":14,"lodash.isnan":23}],18:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -933,7 +1178,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -951,7 +1196,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -963,7 +1208,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1079,7 +1324,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
  
@@ -1143,7 +1388,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
@@ -1257,5 +1502,5 @@ function isNumber(value) {
 module.exports = isNaN;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[8])(8)
+},{}]},{},[9])(9)
 });

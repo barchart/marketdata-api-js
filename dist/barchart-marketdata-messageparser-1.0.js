@@ -328,6 +328,32 @@ module.exports = function() {
 							message.type = 'REFRESH_QUOTE';
 							break;
 						}
+						case 'CV': {
+							message.symbol = node.attributes.getNamedItem('symbol').value;
+							message.unitCode = node.attributes.getNamedItem('basecode').value;
+							message.tickIncrement = parseValue(node.attributes.getNamedItem('tickincrement').value, message.unitCode);
+
+							var priceLevelsRaw = node.attributes.getNamedItem('data').value || '';
+							var priceLevels = priceLevelsRaw.split(':');
+
+							for (var i = 0; i < priceLevels.length; i++) {
+								var priceLevelRaw = priceLevels[i];
+								var priceLevelData = priceLevelRaw.split(',');
+
+								priceLevels[i] = {
+									price: parseValue(priceLevelData[0], message.unitCode),
+									volume: parseInt(priceLevelData[1])
+								};
+							}
+
+							priceLevels.sort(function(a, b) {
+								return a.price - b.price;
+							});
+
+							message.priceLevels = priceLevels;
+							message.type = 'REFRESH_CUMULATIVE_VOLUME';
+							break;
+						}
 						default:
 							console.log(msg);
 							break;
@@ -647,8 +673,9 @@ module.exports = function() {
 
 		var returnRef = value.toFixed(digits);
 
-		if (thousandsSeparator && !(value < 1000)) {
+		if (thousandsSeparator && !(value > -1000 && value < 1000)) {
 			var length = returnRef.length;
+			var negative = value < 0;
 
 			var found = digits === 0;
 			var counter = 0;
@@ -656,7 +683,7 @@ module.exports = function() {
 			var buffer = [];
 
 			for (var i = (length - 1); !(i < 0); i--) {
-				if (counter === 3) {
+				if (counter === 3 && !(negative && i === 0)) {
 					buffer.unshift(thousandsSeparator);
 
 					counter = 0;
@@ -678,6 +705,20 @@ module.exports = function() {
 
 		return returnRef;
 	};
+
+	/*
+	 // An alternative to consider ... seems about 15% faster ... not to
+	 // mention much less lengthy ... but, has a problem with more than
+	 // three decimal places ... regular expression needs work ...
+
+	 return function(value, digits, thousandsSeparator) {
+	 	if (typeof value === 'number' && (value || value === 0)) {
+	 		return value.toFixed(digits).replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator || ',');
+	 	} else {
+	 		return '';
+		}
+	 };
+	 */
 }();
 },{"lodash.isnan":17}],9:[function(require,module,exports){
 var convert = require('./convert');
