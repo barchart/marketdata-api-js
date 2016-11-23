@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Realtime Example</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+    <script src="../dist/barchart-marketdata-api-1.0.js"></script>
+
+    <script type="text/javascript">
+
+        $(function() {
+            var onCumulativeVolume = function(message) {
+                console.log(message);
+
+                $("#cumulative-volume").html(JSON.stringify(message.container.toArray(), null, 2));
+            };
+
+            var onMarketDepth = function(message) {
+                console.log(message);
+            };
+
+            var onMarketUpdate = function(message) {
+                console.log(message);
+
+                var q = client.getMarketState().getQuote(message.symbol);
+                if (q)
+                    $("#quote").html('Symbol: ' + q.symbol + '<br>Last:' + q.lastPrice);
+            };
+
+            var onTimestamp = function(date) {
+                $("#timestamp").text(date);
+            };
+
+            $("#connect").click(function() {
+                var symbol = $("#symbols").val();
+
+                client.connect('qsws-us-e-01.aws.barchart.com', $("#username").val(), $("#password").val());
+
+                client.on('marketUpdate', onMarketUpdate, symbol);
+                client.on('marketDepth', onMarketDepth, symbol);
+                client.on('cumulativeVolume', onCumulativeVolume, symbol);
+
+                console.log('Symbol count:' + client.getActiveSymbolCount());
+
+                client.on('timestamp', onTimestamp);
+            });
+
+
+            $("#disconnect").click(function() {
+                var symbol = $("#symbols").val();
+
+                client.off('marketUpdate', onMarketUpdate, symbol);
+                client.off('marketDepth', onMarketDepth, symbol);
+                client.off('cumulativeVolume', onCumulativeVolume, symbol);
+
+                console.log('Symbol count:' + client.getActiveSymbolCount());
+
+                client.disconnect();
+            });
+
+            var client = new Barchart.RealtimeData.Connection();
+
+            client.on('events', function(info) {
+                // Basic Network Events
+                console.log(info);
+            });
+        });
+
+    </script>
+    <style type="text/css">
+        body {
+            font-family: Open Sans;
+            font-size: smaller;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            background: gray;
+        }
+
+        #quote, #cumulative-volume {
+            background: white;
+            margin: 0;
+            padding: 0.5em 0.5em 0.5em 0.5em;
+            position: absolute;
+            top: 50px;
+            left: 0.5em;
+            right: 0.5em;
+            overflow: auto;
+            height: 200px;
+        }
+
+        #quote {
+            top: 50px;
+            left: 0.5em;
+            right: 0.5em;
+        }
+
+        #cumulative-volume {
+            top: 250px;
+            left: 0.5em;
+            right: 0.5em;
+        }
+
+        #timestamp {
+            background: rgb(204, 204, 204);
+            height: 15px;
+            margin: 0;
+            padding: 0.5em 0.5em 0.5em 0.5em;
+            position: absolute;
+            left: 0.5em;
+            right: 0.5em;
+            overflow: auto;
+            top : 460px;
+        }
+
+        #form {
+            height: 50px;
+            padding: 0.5em 0.5em 0.5em 0.5em;
+            margin: 0;
+            position: absolute;
+            left: 0.5em;
+            overflow: hidden;
+            right: 0.5em;
+            top: 0.5em;
+        }
+    </style>
+</head>
+<body>
+<div id="quote"></div>
+<div id="cumulative-volume"></div>
+<div id="timestamp">Timestamp</div>
+<form id="form">
+    <input id="symbols" type="text" size="64" value="ESZ6" />
+    <input id="username" type="text" size="32" value="" /> <input id="password" type="text" size="32" value="" />
+    <input id="connect" type="button" value="Connect" />
+    <input id="disconnect" type="button" value="Disconnect" />
+</form>
+</body>
+</html>
