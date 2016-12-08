@@ -226,8 +226,6 @@ module.exports = function() {
 		},
 
 		_getHistoricalData: function(params, callback) {
-			console.log('calling historical data', params);
-
 			var queryString = '';
 
 			for (var p in params) {
@@ -252,8 +250,6 @@ module.exports = function() {
 				} else {
 					historicalData = body;
 				}
-
-				console.log('returning historical data', body);
 
 				callback(historicalData);
 			});
@@ -1952,29 +1948,36 @@ module.exports = function() {
 							break;
 						}
 						case 'CV': {
+							message.type = 'REFRESH_CUMULATIVE_VOLUME';
 							message.symbol = node.attributes.getNamedItem('symbol').value;
 							message.unitCode = node.attributes.getNamedItem('basecode').value;
 							message.tickIncrement = parseValue(node.attributes.getNamedItem('tickincrement').value, message.unitCode);
 
-							var priceLevelsRaw = node.attributes.getNamedItem('data').value || '';
-							var priceLevels = priceLevelsRaw.split(':');
+							var dataAttribute = node.attributes.getNamedItem('data');
 
-							for (var i = 0; i < priceLevels.length; i++) {
-								var priceLevelRaw = priceLevels[i];
-								var priceLevelData = priceLevelRaw.split(',');
+							if (dataAttribute) {
+								var priceLevelsRaw = dataAttribute.value || '';
+								var priceLevels = priceLevelsRaw.split(':');
 
-								priceLevels[i] = {
-									price: parseValue(priceLevelData[0], message.unitCode),
-									volume: parseInt(priceLevelData[1])
-								};
+								for (var i = 0; i < priceLevels.length; i++) {
+									var priceLevelRaw = priceLevels[i];
+									var priceLevelData = priceLevelRaw.split(',');
+
+									priceLevels[i] = {
+										price: parseValue(priceLevelData[0], message.unitCode),
+										volume: parseInt(priceLevelData[1])
+									};
+								}
+
+								priceLevels.sort(function(a, b) {
+									return a.price - b.price;
+								});
+
+								message.priceLevels = priceLevels;
+							} else {
+								message.priceLevels = [];
 							}
 
-							priceLevels.sort(function(a, b) {
-								return a.price - b.price;
-							});
-
-							message.priceLevels = priceLevels;
-							message.type = 'REFRESH_CUMULATIVE_VOLUME';
 							break;
 						}
 						default:

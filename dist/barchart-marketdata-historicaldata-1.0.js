@@ -44,8 +44,6 @@ module.exports = function() {
 		},
 
 		_getHistoricalData: function(params, callback) {
-			console.log('calling historical data', params);
-
 			var queryString = '';
 
 			for (var p in params) {
@@ -70,8 +68,6 @@ module.exports = function() {
 				} else {
 					historicalData = body;
 				}
-
-				console.log('returning historical data', body);
 
 				callback(historicalData);
 			});
