@@ -31,7 +31,7 @@ module.exports = function() {
 
 		if (d > 9) {
 			d++;
-		} else if (d == 0) {
+		} else if (d === 0) {
 			d = 10;
 		}
 
