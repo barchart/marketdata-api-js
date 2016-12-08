@@ -41,26 +41,11 @@ module.exports = function() {
 	return HistoricalDataProviderBase.extend({
 		init: function() {
 
-			var options = {
-				url: 'proxies/historicaldata',
-				method: 'GET',
-				json: true
-			};
-
-			xhr(options, function(error, response, body) {
-				var instrumentData;
-
-				if (error || response.statusCode !== 200) {
-					instrumentData = [ ];
-				} else {
-					instrumentData = body.instruments;
-				}
-
-				callback(instrumentData);
-			});
 		},
 
 		_getHistoricalData: function(params, callback) {
+			console.log('calling historical data', params);
+
 			var queryString = '';
 
 			for (var p in params) {
@@ -85,6 +70,8 @@ module.exports = function() {
 				} else {
 					historicalData = body;
 				}
+
+				console.log('returning historical data', body);
 
 				callback(historicalData);
 			});
