@@ -44,6 +44,7 @@
     "barchart-marketdata-utilities": "1.0.52",
     "class.extend": "0.9.1",
     "lodash.isnan": "3.0.1",
+    "xhr": "^2.3.1",
     "xmldom": "0.1.19"
   },
   "devDependencies": {
