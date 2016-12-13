@@ -129,6 +129,10 @@ module.exports = function() {
 			}
 		};
 
+		this.getTickIncrement = function() {
+			return tickIncrement;
+		};
+
 		this.getVolume = function(price) {
 			var priceString = price.toString();
 			var priceLevel = priceLevels[priceString];
@@ -230,9 +234,25 @@ module.exports = function() {
 		}
 	};
 
+	CumulativeVolume.clone = function(symbol, source) {
+		var clone = new CumulativeVolume(symbol, source.getTickIncrement());
+
+		var data = source.toArray();
+
+		for (var i = 0; i < data.length; i++) {
+			var priceLevel = data[i];
+
+			clone.incrementVolume(priceLevel.price, priceLevel.volume);
+		}
+
+		return clone;
+	};
+
 	return CumulativeVolume;
 }();
 },{}],5:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
 var CumulativeVolume = require('./CumulativeVolume');
 var Profile = require('./Profile');
 var Quote = require('./Quote');
@@ -275,36 +295,85 @@ module.exports = function() {
 			_profileProvider.loadProfileData(symbols, wrappedCallback);
 		};
 
-		var _getCreateBook = function(symbol) {
-			if (!_book[symbol]) {
-				_book[symbol] = {
-					symbol : symbol,
-					bids : [],
-					asks : []
+		var _getOrCreateBook = function(symbol) {
+			var book = _book[symbol];
+
+			if (!book) {
+				book = {
+					symbol: symbol,
+					bids: [],
+					asks: []
 				};
+
+				var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
+				var producerBook = _book[producerSymbol];
+
+				if (producerBook) {
+					book.bids = producerBook.bids.slice(0);
+					book.asks = producerBook.asks.slice(0);
+				}
+
+				_book[symbol] = book;
 			}
-			return _book[symbol];
+
+			return book;
 		};
 
-		var _getCreateCumulativeVolume = function(symbol) {
-			if (!_cvol[symbol]) {
-				_cvol[symbol] = {
+		var _getOrCreateCumulativeVolume = function(symbol) {
+			var cvol = _cvol[symbol];
+
+			if (!cvol) {
+				cvol = {
 					container: null,
 					callbacks: [ ]
 				};
+
+				var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
+				var producerCvol = _cvol[producerSymbol];
+
+				if (producerCvol && producerCvol.container) {
+					cvol.container = CumulativeVolume.clone(symbol, producerCvol.container);
+				}
+
+				_cvol[symbol] = cvol;
 			}
 
-			return _cvol[symbol];
+			return cvol;
 		};
 
-		var _getCreateQuote = function(symbol) {
-			if (!_quote[symbol]) {
-				_quote[symbol] = new Quote();
-				_quote[symbol].symbol = symbol;
+		var _getOrCreateQuote = function(symbol) {
+			var quote = _quote[symbol];
+
+			if (!quote) {
+				var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
+				var producerQuote = _quote[producerSymbol];
+
+				if (producerQuote) {
+					quote = Quote.clone(symbol, producerQuote);
+				} else {
+					quote = new Quote(symbol);
+				}
+
+				_quote[symbol] = quote;
 			}
-			return _quote[symbol];
+
+			return quote;
 		};
 
+		var _getOrCreateProfile = function(symbol) {
+			var p = Profile.prototype.Profiles[symbol];
+
+			if (!p) {
+				var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
+				var producerProfile = Profile.prototype.Profiles[producerSymbol];
+
+				if (producerProfile) {
+					p = new Profile(symbol, producerProfile.name, producerProfile.exchange, producerProfile.unitcode, producerProfile.pointValue, producerProfile.tickIncrement);
+				}
+			}
+
+			return p;
+		};
 
 		var _processMessage = function(message) {
 			var symbol = message.symbol;
@@ -316,14 +385,14 @@ module.exports = function() {
 
 			// Process book messages first, they don't need profiles, etc.
 			if (message.type == 'BOOK') {
-				var b = _getCreateBook(symbol);
+				var b = _getOrCreateBook(symbol);
 				b.asks = message.asks;
 				b.bids = message.bids;
 				return;
 			}
 
 			if (message.type == 'REFRESH_CUMULATIVE_VOLUME') {
-				var cv = _getCreateCumulativeVolume(symbol);
+				var cv = _getOrCreateCumulativeVolume(symbol);
 
 				var container = cv.container;
 
@@ -354,14 +423,14 @@ module.exports = function() {
 				return;
 			}
 
-			var p = Profile.prototype.Profiles[symbol];
+			var p = _getOrCreateProfile(symbol);
 			if ((!p) && (message.type != 'REFRESH_QUOTE')) {
 				console.warn('No profile found for ' + symbol);
 				console.log(message);
 				return;
 			}
 
-			var q = _getCreateQuote(symbol);
+			var q = _getOrCreateQuote(symbol);
 
 			if ((!q.day) && (message.day)) {
 				q.day = message.day;
@@ -601,7 +670,7 @@ module.exports = function() {
 				return _book[symbol];
 			},
 			getCumulativeVolume: function(symbol, callback) {
-				var cv = _getCreateCumulativeVolume(symbol);
+				var cv = _getOrCreateCumulativeVolume(symbol);
 
 				if (cv.container) {
 					callback(cv.container);
@@ -610,15 +679,14 @@ module.exports = function() {
 				}
 			},
 			getProfile: function(symbol, callback) {
-				var p = Profile.prototype.Profiles[symbol];
+				var p =_getOrCreateProfile(symbol);
 
 				if (!p) {
 					loadProfiles([symbol], function() {
 						p = Profile.prototype.Profiles[symbol];
 						callback(p);
 					});
-				}
-				else
+				} else
 					callback(p);
 			},
 			getQuote: function(symbol) {
@@ -637,7 +705,7 @@ module.exports = function() {
 
     return MarketState;
 }();
-},{"./../connection/ProfileProvider":1,"./../util/convertDayCodeToNumber":9,"./CumulativeVolume":4,"./Profile":6,"./Quote":7}],6:[function(require,module,exports){
+},{"./../connection/ProfileProvider":1,"./../util/convertDayCodeToNumber":9,"./CumulativeVolume":4,"./Profile":6,"./Quote":7,"barchart-marketdata-utilities":14}],6:[function(require,module,exports){
 var parseSymbolType = require('./../util/parseSymbolType');
 var priceFormatter = require('./../util/priceFormatter');
 
@@ -683,8 +751,8 @@ module.exports = function() {
 module.exports = function() {
 	'use strict';
 
-	return function() {
-		this.symbol = null;
+	var Quote = function(symbol) {
+		this.symbol = symbol || null;
 		this.message = null;
 		this.flag = null;
 		this.mode = null;
@@ -712,6 +780,20 @@ module.exports = function() {
 		this.time = null;
 		this.ticks = [];
 	};
+
+	Quote.clone = function(symbol, source) {
+		var clone = { };
+
+		for (var p in source) {
+			clone[p] = source[p];
+		}
+
+		clone.symbol = symbol;
+
+		return clone;
+	};
+
+	return Quote;
 }();
 },{}],8:[function(require,module,exports){
 var MarketState = require('./MarketState');
@@ -1180,10 +1262,23 @@ module.exports = function() {
 	'use strict';
 
 	var percentRegex = /(\.RT)$/;
+	var jerqFutureConversionRegex = new RegExp('([A-Z0-9]{1,3})([A-Z]{1})([0-9]{3}|[0-9]{1})?([0-9]{1})$');
 
 	return {
 		displayUsingPercent: function(symbol) {
 			return percentRegex.test(symbol);
+		},
+
+		getProducerSymbol: function(symbol) {
+			var returnRef;
+
+			if (typeof symbol === 'string') {
+				returnRef = symbol.replace(jerqFutureConversionRegex, '$1$2$4');
+			} else {
+				returnRef = null;
+			}
+
+			return returnRef;
 		}
 	};
 }();

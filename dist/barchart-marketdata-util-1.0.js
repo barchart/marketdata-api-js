@@ -13,7 +13,7 @@ module.exports = function() {
 	return function(date) {
 		var d = date.getDate();
 
-		if ((d >= 1) && (d <= 9))
+		if (d >= 1 && d <= 9)
 			return String.fromCharCode(("1").charCodeAt(0) + d - 1);
 		else if (d == 10)
 			return '0';
@@ -536,10 +536,23 @@ module.exports = function() {
 	'use strict';
 
 	var percentRegex = /(\.RT)$/;
+	var jerqFutureConversionRegex = new RegExp('([A-Z0-9]{1,3})([A-Z]{1})([0-9]{3}|[0-9]{1})?([0-9]{1})$');
 
 	return {
 		displayUsingPercent: function(symbol) {
 			return percentRegex.test(symbol);
+		},
+
+		getProducerSymbol: function(symbol) {
+			var returnRef;
+
+			if (typeof symbol === 'string') {
+				returnRef = symbol.replace(jerqFutureConversionRegex, '$1$2$4');
+			} else {
+				returnRef = null;
+			}
+
+			return returnRef;
 		}
 	};
 }();

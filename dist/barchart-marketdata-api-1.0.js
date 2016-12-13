@@ -307,6 +307,8 @@ module.exports = function() {
 	return Connection;
 }();
 },{"./Connection":3}],12:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
 var ConnectionBase = require('./../../ConnectionBase');
 var MarketState = require('./../../../marketState/MarketState');
 var parseMessage = require('./../../../messageParser/parseMessage');
@@ -322,6 +324,8 @@ module.exports = function() {
 
 		var __marketState = new MarketState();
 		var __connection = null;
+
+		var __producerSymbols = {};
 
 		var __marketDepthSymbols = {};
 		var __marketUpdateSymbols = {};
@@ -378,13 +382,12 @@ module.exports = function() {
 					break;
 			}
 
-			if (!listeners)
-				return;
+			if (listeners) {
+				for (var i = 0; i < listeners.length; i++) {
+					var listener = listeners[i];
 
-			for (var i = 0; i < listeners.length; i++) {
-				var listener = listeners[i];
-
-				listener(message);
+					listener(message);
+				}
 			}
 		}
 
@@ -418,12 +421,6 @@ module.exports = function() {
 					broadcastEvent('events', { event: 'disconnect' });
 
 					setTimeout(function() {
-						// Retry the connection
-						// Possible there are some timing issues. Theoretically, is a user is
-						// adding a symbol at the exact same time that this triggers, the new symbol
-						// coould go unheeded, or *just* the new symbol, and the old symbols
-						// would be ignored.
-
 						__connection = null;
 
 						connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
@@ -487,6 +484,7 @@ module.exports = function() {
 
 			__marketDepthSymbols = {};
 			__marketUpdateSymbols = {};
+			__cumulativeVolumeSymbols = {};
 		}
 
 		function handleNetworkMessage(msg) {
@@ -549,45 +547,88 @@ module.exports = function() {
 			}
 
 			var removeHandler = function(listeners) {
-				var found = false;
+				var updatedListeners = (listeners || [ ]).slice(0);
 
-				listeners = listeners || [ ];
-
-				for (var i = listeners.length - 1; !(i < 0); i--) {
-					if (listeners[i] == handler) {
-						listeners.splice(i, 1);
-
-						found = true;
+				for (var i = updatedListeners.length - 1; !(i < 0); i--) {
+					if (updatedListeners[i] === handler) {
+						updatedListeners.splice(i, 1);
 					}
 				}
 
-				return found && listeners.length === 0;
+				return updatedListeners;
 			};
 
-			var unsubscribe = function(trackingMap, taskName, listenerMap, additionalListenerMaps) {
-				if (removeHandler(listenerMap[symbol])) {
-					delete listenerMap[symbol];
-					delete trackingMap[symbol];
+			var getConsumerIsActive = function(consumerSymbol, listenerMaps) {
+				var active = false;
 
-					var stop = true;
+				for (var i = 0; i < listenerMaps.length; i++) {
+					if (listenerMaps[i].hasOwnProperty(consumerSymbol)) {
+						active = true;
+						break;
+					}
+				}
 
-					for (var i = 0; i < additionalListenerMaps.length; i++) {
-						if (additionalListenerMaps[i][symbol]) {
-							stop = false;
+				return active;
+			};
 
-							break;
-						}
+			var unsubscribe = function(trackingMap, taskName, listenerMap, additionalTrackingMaps, additionalListenerMaps) {
+				var consumerSymbol = symbol;
+				var producerSymbol = utilities.symbolParser.getProducerSymbol(consumerSymbol);
+
+				var previousListeners = listenerMap[consumerSymbol] || [ ];
+				var currentListeners = removeHandler(previousListeners);
+
+				listenerMap[consumerSymbol] = currentListeners;
+
+				if (previousListeners.length > 0 && currentListeners.length === 0) {
+					delete listenerMap[consumerSymbol];
+
+					var stopConsumer = true;
+					var stopProducer = true;
+
+					var consumerSymbols = __producerSymbols[producerSymbol] || [];
+
+					if (!getConsumerIsActive(consumerSymbol, additionalListenerMaps)) {
+						stopConsumer = true;
 					}
 
-					if (stop) {
-						addTask(taskName, symbol);
+					if (stopConsumer) {
+						consumerSymbols = consumerSymbols.slice(0);
+
+						for (var i = consumerSymbols.length - 1; !(i < 0); i--) {
+							var otherConsumer = consumerSymbols[i];
+
+							if (otherConsumer === consumerSymbol) {
+								consumerSymbols.splice(i, 1);
+							} else if (getConsumerIsActive(otherConsumer, [ listenerMap ])) {
+								stopProducer = false;
+							}
+						}
+
+						__producerSymbols[producerSymbol] = consumerSymbols;
+					}
+
+					if (stopProducer) {
+						delete trackingMap[producerSymbol];
+
+						for (var i = 0; i < additionalTrackingMaps.length; i++) {
+							if (additionalTrackingMaps[i][producerSymbol]) {
+								stopProducer = false;
+
+								break;
+							}
+						}
+
+						if (stopProducer) {
+							addTask(taskName, producerSymbol);
+						}
 					}
 				}
 			};
 
 			switch (eventId) {
 				case 'events': {
-					removeHandler(__listeners.events);
+					__listeners.events = removeHandler(__listeners.events);
 
 					break;
 				}
@@ -595,7 +636,7 @@ module.exports = function() {
 					if (arguments.length < 3)
 						throw new Error("Invalid arguments. Invoke as follows: off('marketDepth', handler, symbol)");
 
-					unsubscribe(__marketDepthSymbols, "MD_STOP", __listeners.marketDepth, [ ]);
+					unsubscribe(__marketDepthSymbols, "MD_STOP", __listeners.marketDepth, [ ], [ ]);
 
 					break;
 				}
@@ -603,7 +644,7 @@ module.exports = function() {
 					if (arguments.length < 3)
 						throw new Error("Invalid arguments. Invoke as follows: off('marketUpdate', handler, symbol)");
 
-					unsubscribe(__marketUpdateSymbols, "MD_STOP", __listeners.marketUpdate, [ __listeners.cumulativeVolume ]);
+					unsubscribe(__marketUpdateSymbols, "MU_STOP", __listeners.marketUpdate, [ __cumulativeVolumeSymbols ], [ __listeners.cumulativeVolume ]);
 
 					break;
 				}
@@ -611,7 +652,7 @@ module.exports = function() {
 					if (arguments.length < 3)
 						throw new Error("Invalid arguments. Invoke as follows: off('cumulativeVolume', handler, symbol)");
 
-					unsubscribe(__cumulativeVolumeSymbols, "MD_STOP", __listeners.cumulativeVolume, [ __listeners.marketUpdate ]);
+					unsubscribe(__cumulativeVolumeSymbols, "MU_STOP", __listeners.cumulativeVolume, [ __marketUpdateSymbols ], [ __listeners.marketUpdate ]);
 
 					getMarketState().getCumulativeVolume(symbol, function(container) {
 						container.off('events', handler);
@@ -620,7 +661,7 @@ module.exports = function() {
 					break;
 				}
 				case 'timestamp': {
-					removeHandler(__listeners.timestamp);
+					__listeners.timestamp = removeHandler(__listeners.timestamp);
 
 					break;
 				}
@@ -648,7 +689,7 @@ module.exports = function() {
 				var add = true;
 
 				for (var i = 0; i < listeners.length; i++) {
-					if (listeners[i] == handler) {
+					if (listeners[i] === handler) {
 						add = false;
 						break;
 					}
@@ -666,24 +707,44 @@ module.exports = function() {
 				return updatedListeners;
 			};
 
-			var subscribe = function(trackingMap, taskName, listenerMap, additionalListenerMaps) {
-				listenerMap[symbol] = addHandler(listenerMap[symbol]);
+			var subscribe = function(trackingMap, taskName, listenerMap, additionalTrackingMaps) {
+				var consumerSymbol = symbol;
+				var producerSymbol = utilities.symbolParser.getProducerSymbol(consumerSymbol);
 
-				if (!trackingMap[symbol]) {
-					trackingMap[symbol] = true;
+				listenerMap[consumerSymbol] = addHandler(listenerMap[consumerSymbol]);
 
-					var start = true;
+				var startConsumer = true;
+				var startProducer = true;
 
-					for (var i = 0; i < additionalListenerMaps.length; i++) {
-						if (additionalListenerMaps[i][symbol]) {
-							start = false;
+				var consumerSymbols = __producerSymbols[producerSymbol] || [];
+
+				for (var i = 0; i < consumerSymbols.length; i++) {
+					if (consumerSymbols[i] === consumerSymbol) {
+						startConsumer = false;
+						break;
+					}
+				}
+
+				if (startConsumer) {
+					consumerSymbols = consumerSymbols.slice(0);
+					consumerSymbols.push(consumerSymbol);
+
+					__producerSymbols[producerSymbol] = consumerSymbols;
+				}
+
+				if (!trackingMap[producerSymbol]) {
+					trackingMap[producerSymbol] = true;
+
+					for (var i = 0; i < additionalTrackingMaps.length; i++) {
+						if (additionalTrackingMaps[i][producerSymbol]) {
+							startProducer = false;
 
 							break;
 						}
 					}
 
-					if (start) {
-						addTask(taskName, symbol);
+					if (startProducer) {
+						addTask(taskName, producerSymbol);
 					}
 				}
 			};
@@ -709,7 +770,7 @@ module.exports = function() {
 					if (arguments.length < 3)
 						throw new Error("Invalid arguments. Invoke as follows: on('marketUpdate', handler, symbol)");
 
-					subscribe(__marketUpdateSymbols, "MU_GO", __listeners.marketUpdate, [ __listeners.cumulativeVolume ]);
+					subscribe(__marketUpdateSymbols, "MU_GO", __listeners.marketUpdate, [ __cumulativeVolumeSymbols ]);
 
 					if (getMarketState().getQuote(symbol))
 						handler({ type: 'INIT', symbol: symbol });
@@ -720,7 +781,7 @@ module.exports = function() {
 					if (arguments.length < 3)
 						throw new Error("Invalid arguments. Invoke as follows: on('cumulativeVolume', handler, symbol)");
 
-					subscribe(__marketUpdateSymbols, "MU_GO", __listeners.cumulativeVolume, [ __listeners.marketUpdate ]);
+					subscribe(__cumulativeVolumeSymbols, "MU_GO", __listeners.cumulativeVolume, [ __marketUpdateSymbols ]);
 
 					getMarketState().getCumulativeVolume(symbol, function(container) {
 						container.on('events', handler);
@@ -736,29 +797,51 @@ module.exports = function() {
 			}
 		}
 
+		function processMessage(message) {
+			__marketState.processMessage(message);
+
+			switch (message.type) {
+				case 'BOOK':
+					broadcastEvent('marketDepth', message);
+					break;
+				case 'TIMESTAMP':
+					broadcastEvent('timestamp', __marketState.getTimestamp());
+					break;
+				default:
+					broadcastEvent('marketUpdate', message);
+					break;
+			}
+		}
+
 		function onNewMessage(msg) {
 			var message;
+
 			try {
 				message = parseMessage(msg);
-				if (message.type) {
-					__marketState.processMessage(message);
 
-					switch (message.type) {
-						case 'BOOK':
-							broadcastEvent('marketDepth', message);
-							break;
-						case 'TIMESTAMP':
-							broadcastEvent('timestamp', __marketState.getTimestamp());
-							break;
-						default:
-							broadcastEvent('marketUpdate', message);
-							break;
+				if (message.type) {
+					processMessage(message);
+
+					if (message.symbol) {
+						var consumerSymbols = __producerSymbols[message.symbol];
+
+						if (consumerSymbols) {
+							for (var i = 0; i < consumerSymbols.length; i++) {
+								var clone = { };
+
+								for (var p in message) {
+									clone[p] = message[p];
+								}
+
+								clone.symbol = consumerSymbols[i];
+
+								processMessage(clone);
+							}
+						}
 					}
-				}
-				else
+				} else
 					console.log(msg);
-			}
-			catch (e) {
+			} catch (e) {
 				console.error(e);
 				console.log(message);
 			}
@@ -908,18 +991,22 @@ module.exports = function() {
 		}
 
 		function getActiveSymbolCount() {
-			var list = {};
-			for (var k in __marketUpdateSymbols) {
+			var map = {};
+
+			for (var k in __marketUpdateSymbols)
 				if (__marketUpdateSymbols[k] === true)
-					list[k] = true;
-			}
+					map[k] = true;
 
-			for (var k in __marketDepthSymbols) {
+			for (var k in __marketDepthSymbols)
 				if (__marketDepthSymbols[k] === true)
-					list[k] = true;
+					map[k] = true;
+
+			for (var k in __cumulativeVolumeSymbols) {
+				if (__cumulativeVolumeSymbols[k] === true)
+					map[k] = true;
 			}
 
-			return Object.keys(list).length;
+			return Object.keys(map).length;
 		}
 
 		setTimeout(processCommands, 200);
@@ -928,14 +1015,14 @@ module.exports = function() {
 		setTimeout(processFeedMessages, 125);
 
 		return {
-			connect : function(server, username, password){
+			connect: function(server, username, password) {
 				/* always reset when told to connect */
 				__isConsumerDisconnect = false;
 
 				connect(server, username, password);
 				return this;
 			},
-			disconnect: function(){
+			disconnect: function() {
 				/* set to true so we know not to reconnect */
 				__isConsumerDisconnect = true;
 
@@ -943,8 +1030,8 @@ module.exports = function() {
 				return this;
 			},
 			getMarketState: getMarketState,
-			getPassword : getPassword,
-			getUsername : getUsername,
+			getPassword: getPassword,
+			getUsername: getUsername,
 			off: off,
 			on: on,
 			getActiveSymbolCount: getActiveSymbolCount
@@ -993,7 +1080,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"./../../../marketState/MarketState":16,"./../../../messageParser/parseMessage":21,"./../../ConnectionBase":4}],13:[function(require,module,exports){
+},{"./../../../marketState/MarketState":16,"./../../../messageParser/parseMessage":21,"./../../ConnectionBase":4,"barchart-marketdata-utilities":35}],13:[function(require,module,exports){
 var HistoricalDataProvider = require('./../connection/HistoricalDataProvider');
 
 module.exports = function() {
@@ -1085,6 +1172,10 @@ module.exports = function() {
 
 				handlers = copy;
 			}
+		};
+
+		this.getTickIncrement = function() {
+			return tickIncrement;
 		};
 
 		this.getVolume = function(price) {
@@ -1188,9 +1279,25 @@ module.exports = function() {
 		}
 	};
 
+	CumulativeVolume.clone = function(symbol, source) {
+		var clone = new CumulativeVolume(symbol, source.getTickIncrement());
+
+		var data = source.toArray();
+
+		for (var i = 0; i < data.length; i++) {
+			var priceLevel = data[i];
+
+			clone.incrementVolume(priceLevel.price, priceLevel.volume);
+		}
+
+		return clone;
+	};
+
 	return CumulativeVolume;
 }();
 },{}],16:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
 var CumulativeVolume = require('./CumulativeVolume');
 var Profile = require('./Profile');
 var Quote = require('./Quote');
@@ -1233,36 +1340,85 @@ module.exports = function() {
 			_profileProvider.loadProfileData(symbols, wrappedCallback);
 		};
 
-		var _getCreateBook = function(symbol) {
-			if (!_book[symbol]) {
-				_book[symbol] = {
-					symbol : symbol,
-					bids : [],
-					asks : []
+		var _getOrCreateBook = function(symbol) {
+			var book = _book[symbol];
+
+			if (!book) {
+				book = {
+					symbol: symbol,
+					bids: [],
+					asks: []
 				};
+
+				var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
+				var producerBook = _book[producerSymbol];
+
+				if (producerBook) {
+					book.bids = producerBook.bids.slice(0);
+					book.asks = producerBook.asks.slice(0);
+				}
+
+				_book[symbol] = book;
 			}
-			return _book[symbol];
+
+			return book;
 		};
 
-		var _getCreateCumulativeVolume = function(symbol) {
-			if (!_cvol[symbol]) {
-				_cvol[symbol] = {
+		var _getOrCreateCumulativeVolume = function(symbol) {
+			var cvol = _cvol[symbol];
+
+			if (!cvol) {
+				cvol = {
 					container: null,
 					callbacks: [ ]
 				};
+
+				var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
+				var producerCvol = _cvol[producerSymbol];
+
+				if (producerCvol && producerCvol.container) {
+					cvol.container = CumulativeVolume.clone(symbol, producerCvol.container);
+				}
+
+				_cvol[symbol] = cvol;
 			}
 
-			return _cvol[symbol];
+			return cvol;
 		};
 
-		var _getCreateQuote = function(symbol) {
-			if (!_quote[symbol]) {
-				_quote[symbol] = new Quote();
-				_quote[symbol].symbol = symbol;
+		var _getOrCreateQuote = function(symbol) {
+			var quote = _quote[symbol];
+
+			if (!quote) {
+				var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
+				var producerQuote = _quote[producerSymbol];
+
+				if (producerQuote) {
+					quote = Quote.clone(symbol, producerQuote);
+				} else {
+					quote = new Quote(symbol);
+				}
+
+				_quote[symbol] = quote;
 			}
-			return _quote[symbol];
+
+			return quote;
 		};
 
+		var _getOrCreateProfile = function(symbol) {
+			var p = Profile.prototype.Profiles[symbol];
+
+			if (!p) {
+				var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
+				var producerProfile = Profile.prototype.Profiles[producerSymbol];
+
+				if (producerProfile) {
+					p = new Profile(symbol, producerProfile.name, producerProfile.exchange, producerProfile.unitcode, producerProfile.pointValue, producerProfile.tickIncrement);
+				}
+			}
+
+			return p;
+		};
 
 		var _processMessage = function(message) {
 			var symbol = message.symbol;
@@ -1274,14 +1430,14 @@ module.exports = function() {
 
 			// Process book messages first, they don't need profiles, etc.
 			if (message.type == 'BOOK') {
-				var b = _getCreateBook(symbol);
+				var b = _getOrCreateBook(symbol);
 				b.asks = message.asks;
 				b.bids = message.bids;
 				return;
 			}
 
 			if (message.type == 'REFRESH_CUMULATIVE_VOLUME') {
-				var cv = _getCreateCumulativeVolume(symbol);
+				var cv = _getOrCreateCumulativeVolume(symbol);
 
 				var container = cv.container;
 
@@ -1312,14 +1468,14 @@ module.exports = function() {
 				return;
 			}
 
-			var p = Profile.prototype.Profiles[symbol];
+			var p = _getOrCreateProfile(symbol);
 			if ((!p) && (message.type != 'REFRESH_QUOTE')) {
 				console.warn('No profile found for ' + symbol);
 				console.log(message);
 				return;
 			}
 
-			var q = _getCreateQuote(symbol);
+			var q = _getOrCreateQuote(symbol);
 
 			if ((!q.day) && (message.day)) {
 				q.day = message.day;
@@ -1559,7 +1715,7 @@ module.exports = function() {
 				return _book[symbol];
 			},
 			getCumulativeVolume: function(symbol, callback) {
-				var cv = _getCreateCumulativeVolume(symbol);
+				var cv = _getOrCreateCumulativeVolume(symbol);
 
 				if (cv.container) {
 					callback(cv.container);
@@ -1568,15 +1724,14 @@ module.exports = function() {
 				}
 			},
 			getProfile: function(symbol, callback) {
-				var p = Profile.prototype.Profiles[symbol];
+				var p =_getOrCreateProfile(symbol);
 
 				if (!p) {
 					loadProfiles([symbol], function() {
 						p = Profile.prototype.Profiles[symbol];
 						callback(p);
 					});
-				}
-				else
+				} else
 					callback(p);
 			},
 			getQuote: function(symbol) {
@@ -1595,7 +1750,7 @@ module.exports = function() {
 
     return MarketState;
 }();
-},{"./../connection/ProfileProvider":7,"./../util/convertDayCodeToNumber":26,"./CumulativeVolume":15,"./Profile":17,"./Quote":18}],17:[function(require,module,exports){
+},{"./../connection/ProfileProvider":7,"./../util/convertDayCodeToNumber":26,"./CumulativeVolume":15,"./Profile":17,"./Quote":18,"barchart-marketdata-utilities":35}],17:[function(require,module,exports){
 var parseSymbolType = require('./../util/parseSymbolType');
 var priceFormatter = require('./../util/priceFormatter');
 
@@ -1641,8 +1796,8 @@ module.exports = function() {
 module.exports = function() {
 	'use strict';
 
-	return function() {
-		this.symbol = null;
+	var Quote = function(symbol) {
+		this.symbol = symbol || null;
 		this.message = null;
 		this.flag = null;
 		this.mode = null;
@@ -1670,6 +1825,20 @@ module.exports = function() {
 		this.time = null;
 		this.ticks = [];
 	};
+
+	Quote.clone = function(symbol, source) {
+		var clone = { };
+
+		for (var p in source) {
+			clone[p] = source[p];
+		}
+
+		clone.symbol = symbol;
+
+		return clone;
+	};
+
+	return Quote;
 }();
 },{}],19:[function(require,module,exports){
 var MarketState = require('./MarketState');
@@ -2225,7 +2394,7 @@ module.exports = function() {
 	return function(date) {
 		var d = date.getDate();
 
-		if ((d >= 1) && (d <= 9))
+		if (d >= 1 && d <= 9)
 			return String.fromCharCode(("1").charCodeAt(0) + d - 1);
 		else if (d == 10)
 			return '0';
@@ -2748,10 +2917,23 @@ module.exports = function() {
 	'use strict';
 
 	var percentRegex = /(\.RT)$/;
+	var jerqFutureConversionRegex = new RegExp('([A-Z0-9]{1,3})([A-Z]{1})([0-9]{3}|[0-9]{1})?([0-9]{1})$');
 
 	return {
 		displayUsingPercent: function(symbol) {
 			return percentRegex.test(symbol);
+		},
+
+		getProducerSymbol: function(symbol) {
+			var returnRef;
+
+			if (typeof symbol === 'string') {
+				returnRef = symbol.replace(jerqFutureConversionRegex, '$1$2$4');
+			} else {
+				returnRef = null;
+			}
+
+			return returnRef;
 		}
 	};
 }();
