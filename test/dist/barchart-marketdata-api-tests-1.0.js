@@ -26,7 +26,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":22}],2:[function(require,module,exports){
+},{"class.extend":18}],2:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -755,15 +755,7 @@ module.exports = function() {
 
 	return utilities.priceParser;
 }();
-},{"barchart-marketdata-utilities":15}],7:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.convert.baseCodeToUnitCode;
-}();
-},{"barchart-marketdata-utilities":15}],8:[function(require,module,exports){
+},{"barchart-marketdata-utilities":11}],7:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -779,7 +771,7 @@ module.exports = function() {
 	};
 }();
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -795,31 +787,7 @@ module.exports = function() {
 		return d;
 	};
 }();
-},{}],10:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.convert.unitCodeToBaseCode;
-}();
-},{"barchart-marketdata-utilities":15}],11:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.monthCodes.getCodeToNameMap();
-}();
-},{"barchart-marketdata-utilities":15}],12:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.priceFormatter;
-}();
-},{"barchart-marketdata-utilities":15}],13:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -895,7 +863,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],14:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 
 module.exports = function() {
@@ -955,7 +923,7 @@ module.exports = function() {
 	 };
 	 */
 }();
-},{"lodash.isnan":23}],15:[function(require,module,exports){
+},{"lodash.isnan":19}],11:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
 var monthCodes = require('./monthCodes');
@@ -979,7 +947,7 @@ module.exports = function() {
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":13,"./decimalFormatter":14,"./monthCodes":16,"./priceFormatter":17,"./priceParser":18,"./symbolFormatter":19,"./symbolParser":20,"./timeFormatter":21}],16:[function(require,module,exports){
+},{"./convert":9,"./decimalFormatter":10,"./monthCodes":12,"./priceFormatter":13,"./priceParser":14,"./symbolFormatter":15,"./symbolParser":16,"./timeFormatter":17}],12:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1015,7 +983,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],17:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 var decimalFormatter = require('./decimalFormatter');
 
@@ -1128,7 +1096,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":14,"lodash.isnan":23}],18:[function(require,module,exports){
+},{"./decimalFormatter":10,"lodash.isnan":19}],14:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1195,7 +1163,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],19:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1213,16 +1181,142 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],20:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
-	var percentRegex = /(\.RT)$/;
-	var jerqFutureConversionRegex = new RegExp('([A-Z0-9]{1,3})([A-Z]{1})([0-9]{3}|[0-9]{1})?([0-9]{1})$');
+	var exchangeRegex = /^(.*)\\.([A-Z]{1,4})$/i;
 
-	return {
-		displayUsingPercent: function(symbol) {
-			return percentRegex.test(symbol);
+	var jerqFutureConversionRegex = /(.{1,3})([A-Z]{1})([0-9]{3}|[0-9]{1})?([0-9]{1})$/i;
+	var concreteFutureRegex = /^(.{1,3})([A-Z]{1})([0-9]{4}|[0-9]{1,2})$/i;
+	var referenceFutureRegex = /^(.{1,3})(\*{1})([0-9]{1})$/i;
+	var futureSpreadRegex = /^_S_/i;
+	var forexRegex = /^\^([A-Z]{3})([A-Z]{3})$/i;
+	var sectorRegex = /^\-(.*)$/i;
+	var indexRegex = /^\$(.*)$/i;
+	var batsRegex = /^(.*)\.BZ$/i;
+	var usePercentRegex = /(\.RT)$/;
+
+	var symbolParser = {
+		parseInstrumentType: function(symbol) {
+			if (typeof symbol !== 'string') {
+				return null;
+			}
+
+			var exchangeMatch = symbol.match(exchangeRegex);
+
+			if (exchangeMatch !== null) {
+				symbol = exchangeMatch[1];
+			}
+
+			if (futureSpreadRegex.test(symbol)) {
+				return {
+					symbol: symbol,
+					type: 'future_spread'
+				};
+			}
+
+			var staticFutureMatch = symbol.match(concreteFutureRegex);
+
+			if (staticFutureMatch !== null) {
+				var yearString = staticFutureMatch[3];
+				var year = parseInt(yearString);
+
+				if (yearString.length === 1 || yearString.length == 2) {
+					var currentDate = new Date();
+					var currentYear = currentDate.getFullYear();
+
+					var base = Math.pow(10, yearString.length);
+
+					year = year + currentYear - (currentYear % base);
+
+					if (year < currentYear) {
+						year = year + base;
+					}
+				}
+
+				return {
+					symbol: symbol,
+					type: 'future',
+					root: staticFutureMatch[1],
+					dynamic: false,
+					month: staticFutureMatch[2],
+					year: year
+				};
+			}
+
+			const dynamicFutureMatch = symbol.match(referenceFutureRegex);
+
+			if (dynamicFutureMatch !== null) {
+				return {
+					symbol: symbol,
+					type: 'future',
+					root: dynamicFutureMatch[1],
+					dynamic: true,
+					dynamicCode: dynamicFutureMatch[3]
+				};
+			}
+
+			const forexMatch = symbol.match(forexRegex);
+
+			if (forexMatch !== null) {
+				return {
+					symbol: symbol,
+					type: 'forex'
+				};
+			}
+
+			const indexMatch = symbol.match(indexRegex);
+
+			if (indexMatch !== null) {
+				return {
+					symbol: symbol,
+					type: 'index'
+				};
+			}
+
+			const sectorMatch = symbol.match(sectorRegex);
+
+			if (sectorMatch !== null) {
+				return {
+					symbol: symbol,
+					type: 'sector'
+				};
+			}
+
+			return null;
+		},
+
+		getIsConcrete: function(symbol) {
+			return !this.getIsReference(symbol);
+		},
+
+		getIsReference: function(symbol) {
+			return referenceFutureRegex.test(symbol);
+		},
+
+		getIsFuture: function(symbol) {
+			return getIsType(symbol, 'future');
+		},
+
+		getIsFutureSpread: function(symbol) {
+			return getIsType(symbol, 'future_spread');
+		},
+
+		getIsForex: function(symbol) {
+			return getIsType(symbol, 'forex');
+		},
+
+		getIsSector: function(symbol) {
+			return getIsType(symbol, 'sector');
+		},
+
+		getIsIndex: function(symbol) {
+			return getIsType(symbol, 'index');
+		},
+
+		getIsBats: function(symbol) {
+			return batsRegex.test(symbol);
 		},
 
 		getProducerSymbol: function(symbol) {
@@ -1235,10 +1329,22 @@ module.exports = function() {
 			}
 
 			return returnRef;
+		},
+
+		displayUsingPercent: function(symbol) {
+			return usePercentRegex.test(symbol);
 		}
 	};
+
+	var getIsType = function(symbol, type) {
+		var instrumentType = symbolParser.parseInstrumentType(symbol);
+
+		return instrumentType !== null && instrumentType.type === type;
+	};
+
+	return symbolParser;
 }();
-},{}],21:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1354,7 +1460,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],22:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
  
@@ -1418,7 +1524,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],23:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
@@ -1532,7 +1638,7 @@ function isNumber(value) {
 module.exports = isNaN;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],24:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 var CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
 
 describe('When a cumulative volume container is created with a tick increment of 0.25', function() {
@@ -1971,7 +2077,7 @@ describe('When a cumulative volume container is created with a tick increment of
 		});
 	});
 });
-},{"../../../lib/marketState/CumulativeVolume":3}],25:[function(require,module,exports){
+},{"../../../lib/marketState/CumulativeVolume":3}],21:[function(require,module,exports){
 var parseMessage = require('../../../lib/messageParser/parseMessage');
 
 describe('when parsing an XML refresh message', function() {
@@ -2170,7 +2276,7 @@ describe('when parsing a DDF message', function() {
 	});
 });
 
-},{"../../../lib/messageParser/parseMessage":4}],26:[function(require,module,exports){
+},{"../../../lib/messageParser/parseMessage":4}],22:[function(require,module,exports){
 var parseValue = require('../../../lib/messageParser/parseValue');
 
 describe('when parsing prices', function() {
@@ -2234,15 +2340,7 @@ describe('when parsing prices', function() {
 		});
 	});
 });
-},{"../../../lib/messageParser/parseValue":6}],27:[function(require,module,exports){
-var convertBaseCodeToUnitCode = require('../../../lib/util/convertBaseCodeToUnitCode');
-
-describe('When converting a baseCode to a unitCode', function() {
-	it('-1 should translate to "2"', function() {
-		expect(convertBaseCodeToUnitCode(-1)).toEqual('2');
-	});
-});
-},{"../../../lib/util/convertBaseCodeToUnitCode":7}],28:[function(require,module,exports){
+},{"../../../lib/messageParser/parseValue":6}],23:[function(require,module,exports){
 var convertDateToDayCode = require('../../../lib/util/convertDateToDayCode');
 
 describe('When converting a date instance to a day code', function() {
@@ -2370,7 +2468,7 @@ describe('When converting a date instance to a day code', function() {
 		expect(convertDateToDayCode(new Date(2016, 0, 31))).toEqual('U');
 	});
 });
-},{"../../../lib/util/convertDateToDayCode":8}],29:[function(require,module,exports){
+},{"../../../lib/util/convertDateToDayCode":7}],24:[function(require,module,exports){
 var convertDayCodeToNumber = require('../../../lib/util/convertDayCodeToNumber');
 
 describe('When converting a dayCode to number', function() {
@@ -2582,190 +2680,4 @@ describe('When converting a dayCode to number', function() {
 		expect(convertDayCodeToNumber("u")).toEqual(31);
 	});
 });
-},{"../../../lib/util/convertDayCodeToNumber":9}],30:[function(require,module,exports){
-var convertUnitCodeToBaseCode = require('../../../lib/util/convertUnitCodeToBaseCode');
-
-describe('When converting a unitCode to a baseCode', function() {
-	it('"2" should translate to -1', function() {
-		expect(convertUnitCodeToBaseCode('2')).toEqual(-1);
-	});
-});
-},{"../../../lib/util/convertUnitCodeToBaseCode":10}],31:[function(require,module,exports){
-var monthCodes = require('../../../lib/util/monthCodes');
-
-describe('When looking up a month name by code', function() {
-	var map;
-
-	beforeEach(function() {
-		map = monthCodes;
-	});
-
-	it('"F" should map to "January"', function() {
-		expect(map.F).toEqual("January");
-	});
-
-	it('"G" should map to "February"', function() {
-		expect(map.G).toEqual("February");
-	});
-
-	it('"H" should map to "March"', function() {
-		expect(map.H).toEqual("March");
-	});
-
-	it('"J" should map to "April"', function() {
-		expect(map.J).toEqual("April");
-	});
-
-	it('"K" should map to "May"', function() {
-		expect(map.K).toEqual("May");
-	});
-
-	it('"M" should map to "June"', function() {
-		expect(map.M).toEqual("June");
-	});
-
-	it('"N" should map to "July"', function() {
-		expect(map.N).toEqual("July");
-	});
-
-	it('"Q" should map to "August"', function() {
-		expect(map.Q).toEqual("August");
-	});
-
-	it('"U" should map to "September"', function() {
-		expect(map.U).toEqual("September");
-	});
-
-	it('"V" should map to "October"', function() {
-		expect(map.V).toEqual("October");
-	});
-
-	it('"X" should map to "November"', function() {
-		expect(map.X).toEqual("November");
-	});
-
-	it('"Z" should map to "December"', function() {
-		expect(map.Z).toEqual("December");
-	});
-});
-},{"../../../lib/util/monthCodes":11}],32:[function(require,module,exports){
-var PriceFormatter = require('../../../lib/util/priceFormatter');
-
-describe('When a price formatter is created', function() {
-	var priceFormatter;
-
-	describe('with a dash fraction separator and no special fractions', function() {
-		beforeEach(function() {
-			priceFormatter = new PriceFormatter('-', false);
-		});
-
-		it('formats 123 (with unit code 2) as "123-0"', function() {
-			expect(priceFormatter.format(123, '2')).toEqual('123-0');
-		});
-
-		it('formats 123.5 (with unit code 2) as "123-4"', function() {
-			expect(priceFormatter.format(123.5, '2')).toEqual('123-4');
-		});
-
-		it('formats 0.5 (with unit code 2) as "0-4"', function() {
-			expect(priceFormatter.format(0.5, '2')).toEqual('0-4');
-		});
-
-		it('formats 0 (with unit code 2) as "0-0"', function() {
-			expect(priceFormatter.format(0, '2')).toEqual('0-0');
-		});
-
-		it('formats zero-length string (with unit code 2) as zero-length string', function() {
-			expect(priceFormatter.format('', '2')).toEqual('');
-		});
-
-		it('formats undefined (with unit code 2) as zero-length string', function() {
-			expect(priceFormatter.format(undefined, '2')).toEqual('');
-		});
-
-		it('formats null (with unit code 2) as zero-length string', function() {
-			expect(priceFormatter.format(null, '2')).toEqual('');
-		});
-
-		it('formats Number.NaN (with unit code 2) as zero-length string', function() {
-			expect(priceFormatter.format(Number.NaN, '2')).toEqual('');
-		});
-	});
-
-	describe('with a tick fraction separator and no special fractions', function() {
-		beforeEach(function() {
-			priceFormatter = new PriceFormatter('\'', false);
-		});
-
-		it('formats 123 (with unit code 2) as "123\'0"', function() {
-			expect(priceFormatter.format(123, '2')).toEqual('123\'0');
-		});
-
-		it('formats 123.5 (with unit code 2) as "123\'4"', function() {
-			expect(priceFormatter.format(123.5, '2')).toEqual('123\'4');
-		});
-
-		it('formats 0.5 (with unit code 2) as "0\'4"', function() {
-			expect(priceFormatter.format(0.5, '2')).toEqual('0\'4');
-		});
-
-		it('formats 0 (with unit code 2) as "0\'0"', function() {
-			expect(priceFormatter.format(0, '2')).toEqual('0\'0');
-		});
-
-		it('formats zero-length string (with unit code 2) as zero-length string', function() {
-			expect(priceFormatter.format('', '2')).toEqual('');
-		});
-
-		it('formats undefined (with unit code 2) as zero-length string', function() {
-			expect(priceFormatter.format(undefined, '2')).toEqual('');
-		});
-
-		it('formats null (with unit code 2) as zero-length string', function() {
-			expect(priceFormatter.format(null, '2')).toEqual('');
-		});
-
-		it('formats Number.NaN (with unit code 2) as zero-length string', function() {
-			expect(priceFormatter.format(Number.NaN, '2')).toEqual('');
-		});
-	});
-
-	describe('with no fraction separator and no special fractions', function() {
-		beforeEach(function() {
-			priceFormatter = new PriceFormatter('', false);
-		});
-
-		it('formats 123 (with unit code 2) as "1230"', function() {
-			expect(priceFormatter.format(123, '2')).toEqual('1230');
-		});
-
-		it('formats 123.5 (with unit code 2) as "1234"', function() {
-			expect(priceFormatter.format(123.5, '2')).toEqual('1234');
-		});
-
-		it('formats 0.5 (with unit code 2) as "4"', function() {
-			expect(priceFormatter.format(0.5, '2')).toEqual('4');
-		});
-
-		it('formats 0 (with unit code 2) as "0"', function() {
-			expect(priceFormatter.format(0, '2')).toEqual('0');
-		});
-
-		it('formats zero-length string (with unit code 2) as zero-length string', function() {
-			expect(priceFormatter.format('', '2')).toEqual('');
-		});
-
-		it('formats undefined (with unit code 2) as zero-length string', function() {
-			expect(priceFormatter.format(undefined, '2')).toEqual('');
-		});
-
-		it('formats null (with unit code 2) as zero-length string', function() {
-			expect(priceFormatter.format(null, '2')).toEqual('');
-		});
-
-		it('formats Number.NaN (with unit code 2) as zero-length string', function() {
-			expect(priceFormatter.format(Number.NaN, '2')).toEqual('');
-		});
-	});
-});
-},{"../../../lib/util/priceFormatter":12}]},{},[24,25,26,27,28,29,30,31,32]);
+},{"../../../lib/util/convertDayCodeToNumber":8}]},{},[20,21,22,23,24]);

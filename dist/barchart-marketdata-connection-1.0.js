@@ -2257,42 +2257,14 @@ module.exports = function() {
 	};
 }();
 },{}],18:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
 module.exports = function() {
 	'use strict';
 
-	return function(symbol) {
-		if (symbol.substring(0, 3) == '_S_') {
-			return {
-				'type' : 'future_spread'
-			};
-		}
-
-		var re1 = /[0-9]$/;
-
-		// If we end in a number, then we are a future
-
-		if (re1.test(symbol)) {
-			var re2 = /^(.{1,3})([A-Z])([0-9]{1,4})$/i;
-			var ary = re2.exec(symbol);
-			var year = parseInt(ary[3]);
-			if (year < 10)
-				year += 2010;
-			else if (year < 100)
-				year += 2000;
-
-			return {
-				type: 'future',
-				symbol: ary[0],
-				root: ary[1],
-				month: ary[2],
-				year: year
-			};
-		}
-
-		return null;
-	};
+	return utilities.symbolParser.parseInstrumentType;
 }();
-},{}],19:[function(require,module,exports){
+},{"barchart-marketdata-utilities":22}],19:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -2698,12 +2670,138 @@ module.exports = function() {
 module.exports = function() {
 	'use strict';
 
-	var percentRegex = /(\.RT)$/;
-	var jerqFutureConversionRegex = new RegExp('([A-Z0-9]{1,3})([A-Z]{1})([0-9]{3}|[0-9]{1})?([0-9]{1})$');
+	var exchangeRegex = /^(.*)\\.([A-Z]{1,4})$/i;
 
-	return {
-		displayUsingPercent: function(symbol) {
-			return percentRegex.test(symbol);
+	var jerqFutureConversionRegex = /(.{1,3})([A-Z]{1})([0-9]{3}|[0-9]{1})?([0-9]{1})$/i;
+	var concreteFutureRegex = /^(.{1,3})([A-Z]{1})([0-9]{4}|[0-9]{1,2})$/i;
+	var referenceFutureRegex = /^(.{1,3})(\*{1})([0-9]{1})$/i;
+	var futureSpreadRegex = /^_S_/i;
+	var forexRegex = /^\^([A-Z]{3})([A-Z]{3})$/i;
+	var sectorRegex = /^\-(.*)$/i;
+	var indexRegex = /^\$(.*)$/i;
+	var batsRegex = /^(.*)\.BZ$/i;
+	var usePercentRegex = /(\.RT)$/;
+
+	var symbolParser = {
+		parseInstrumentType: function(symbol) {
+			if (typeof symbol !== 'string') {
+				return null;
+			}
+
+			var exchangeMatch = symbol.match(exchangeRegex);
+
+			if (exchangeMatch !== null) {
+				symbol = exchangeMatch[1];
+			}
+
+			if (futureSpreadRegex.test(symbol)) {
+				return {
+					symbol: symbol,
+					type: 'future_spread'
+				};
+			}
+
+			var staticFutureMatch = symbol.match(concreteFutureRegex);
+
+			if (staticFutureMatch !== null) {
+				var yearString = staticFutureMatch[3];
+				var year = parseInt(yearString);
+
+				if (yearString.length === 1 || yearString.length == 2) {
+					var currentDate = new Date();
+					var currentYear = currentDate.getFullYear();
+
+					var base = Math.pow(10, yearString.length);
+
+					year = year + currentYear - (currentYear % base);
+
+					if (year < currentYear) {
+						year = year + base;
+					}
+				}
+
+				return {
+					symbol: symbol,
+					type: 'future',
+					root: staticFutureMatch[1],
+					dynamic: false,
+					month: staticFutureMatch[2],
+					year: year
+				};
+			}
+
+			const dynamicFutureMatch = symbol.match(referenceFutureRegex);
+
+			if (dynamicFutureMatch !== null) {
+				return {
+					symbol: symbol,
+					type: 'future',
+					root: dynamicFutureMatch[1],
+					dynamic: true,
+					dynamicCode: dynamicFutureMatch[3]
+				};
+			}
+
+			const forexMatch = symbol.match(forexRegex);
+
+			if (forexMatch !== null) {
+				return {
+					symbol: symbol,
+					type: 'forex'
+				};
+			}
+
+			const indexMatch = symbol.match(indexRegex);
+
+			if (indexMatch !== null) {
+				return {
+					symbol: symbol,
+					type: 'index'
+				};
+			}
+
+			const sectorMatch = symbol.match(sectorRegex);
+
+			if (sectorMatch !== null) {
+				return {
+					symbol: symbol,
+					type: 'sector'
+				};
+			}
+
+			return null;
+		},
+
+		getIsConcrete: function(symbol) {
+			return !this.getIsReference(symbol);
+		},
+
+		getIsReference: function(symbol) {
+			return referenceFutureRegex.test(symbol);
+		},
+
+		getIsFuture: function(symbol) {
+			return getIsType(symbol, 'future');
+		},
+
+		getIsFutureSpread: function(symbol) {
+			return getIsType(symbol, 'future_spread');
+		},
+
+		getIsForex: function(symbol) {
+			return getIsType(symbol, 'forex');
+		},
+
+		getIsSector: function(symbol) {
+			return getIsType(symbol, 'sector');
+		},
+
+		getIsIndex: function(symbol) {
+			return getIsType(symbol, 'index');
+		},
+
+		getIsBats: function(symbol) {
+			return batsRegex.test(symbol);
 		},
 
 		getProducerSymbol: function(symbol) {
@@ -2716,8 +2814,20 @@ module.exports = function() {
 			}
 
 			return returnRef;
+		},
+
+		displayUsingPercent: function(symbol) {
+			return usePercentRegex.test(symbol);
 		}
 	};
+
+	var getIsType = function(symbol, type) {
+		var instrumentType = symbolParser.parseInstrumentType(symbol);
+
+		return instrumentType !== null && instrumentType.type === type;
+	};
+
+	return symbolParser;
 }();
 },{}],28:[function(require,module,exports){
 module.exports = function() {
@@ -3230,15 +3340,6 @@ function _createXHR(options) {
         return body
     }
 
-    var failureResponse = {
-                body: undefined,
-                headers: {},
-                statusCode: 0,
-                method: method,
-                url: uri,
-                rawRequest: xhr
-            }
-
     function errorFunc(evt) {
         clearTimeout(timeoutTimer)
         if(!(evt instanceof Error)){
@@ -3299,6 +3400,14 @@ function _createXHR(options) {
     var sync = !!options.sync
     var isJson = false
     var timeoutTimer
+    var failureResponse = {
+        body: undefined,
+        headers: {},
+        statusCode: 0,
+        method: method,
+        url: uri,
+        rawRequest: xhr
+    }
 
     if ("json" in options && options.json !== false) {
         isJson = true
