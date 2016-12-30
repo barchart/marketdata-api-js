@@ -567,7 +567,7 @@ module.exports = function() {
 				};
 			}
 
-			const dynamicFutureMatch = symbol.match(referenceFutureRegex);
+			var dynamicFutureMatch = symbol.match(referenceFutureRegex);
 
 			if (dynamicFutureMatch !== null) {
 				return {
@@ -579,7 +579,7 @@ module.exports = function() {
 				};
 			}
 
-			const forexMatch = symbol.match(forexRegex);
+			var forexMatch = symbol.match(forexRegex);
 
 			if (forexMatch !== null) {
 				return {
@@ -588,7 +588,7 @@ module.exports = function() {
 				};
 			}
 
-			const indexMatch = symbol.match(indexRegex);
+			var indexMatch = symbol.match(indexRegex);
 
 			if (indexMatch !== null) {
 				return {
@@ -597,7 +597,7 @@ module.exports = function() {
 				};
 			}
 
-			const sectorMatch = symbol.match(sectorRegex);
+			var sectorMatch = symbol.match(sectorRegex);
 
 			if (sectorMatch !== null) {
 				return {
