@@ -26,7 +26,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":18}],2:[function(require,module,exports){
+},{"class.extend":16}],2:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -755,39 +755,7 @@ module.exports = function() {
 
 	return utilities.priceParser;
 }();
-},{"barchart-marketdata-utilities":11}],7:[function(require,module,exports){
-module.exports = function() {
-	'use strict';
-
-	return function(date) {
-		var d = date.getDate();
-
-		if (d >= 1 && d <= 9)
-			return String.fromCharCode(("1").charCodeAt(0) + d - 1);
-		else if (d == 10)
-			return '0';
-		else
-			return String.fromCharCode(("A").charCodeAt(0) + d - 11);
-	};
-}();
-
-},{}],8:[function(require,module,exports){
-module.exports = function() {
-	'use strict';
-
-	return function(dayCode) {
-		var d = parseInt(dayCode, 31);
-
-		if (d > 9) {
-			d++;
-		} else if (d === 0) {
-			d = 10;
-		}
-
-		return d;
-	};
-}();
-},{}],9:[function(require,module,exports){
+},{"barchart-marketdata-utilities":9}],7:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -860,10 +828,33 @@ module.exports = function() {
 				default:
 					return 0;
 			}
+		},
+
+		dateToDayCode: function(date) {
+			var d = date.getDate();
+
+			if (d >= 1 && d <= 9)
+				return String.fromCharCode(("1").charCodeAt(0) + d - 1);
+			else if (d == 10)
+				return '0';
+			else
+				return String.fromCharCode(("A").charCodeAt(0) + d - 11);
+		},
+
+		dayCodeToNumber: function(dayCode) {
+			var d = parseInt(dayCode, 31);
+
+			if (d > 9) {
+				d++;
+			} else if (d === 0) {
+				d = 10;
+			}
+
+			return d;
 		}
 	};
 }();
-},{}],10:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 
 module.exports = function() {
@@ -923,7 +914,7 @@ module.exports = function() {
 	 };
 	 */
 }();
-},{"lodash.isnan":19}],11:[function(require,module,exports){
+},{"lodash.isnan":17}],9:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
 var monthCodes = require('./monthCodes');
@@ -947,7 +938,7 @@ module.exports = function() {
 		timeFormatter: timeFormatter
 	};
 }();
-},{"./convert":9,"./decimalFormatter":10,"./monthCodes":12,"./priceFormatter":13,"./priceParser":14,"./symbolFormatter":15,"./symbolParser":16,"./timeFormatter":17}],12:[function(require,module,exports){
+},{"./convert":7,"./decimalFormatter":8,"./monthCodes":10,"./priceFormatter":11,"./priceParser":12,"./symbolFormatter":13,"./symbolParser":14,"./timeFormatter":15}],10:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -983,7 +974,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],13:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 var decimalFormatter = require('./decimalFormatter');
 
@@ -1096,7 +1087,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":10,"lodash.isnan":19}],14:[function(require,module,exports){
+},{"./decimalFormatter":8,"lodash.isnan":17}],12:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1163,7 +1154,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],15:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1181,7 +1172,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],16:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1344,7 +1335,7 @@ module.exports = function() {
 
 	return symbolParser;
 }();
-},{}],17:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1460,7 +1451,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],18:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
  
@@ -1524,7 +1515,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],19:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 (function (global){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
@@ -1638,7 +1629,7 @@ function isNumber(value) {
 module.exports = isNaN;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],20:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 var CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
 
 describe('When a cumulative volume container is created with a tick increment of 0.25', function() {
@@ -2077,7 +2068,7 @@ describe('When a cumulative volume container is created with a tick increment of
 		});
 	});
 });
-},{"../../../lib/marketState/CumulativeVolume":3}],21:[function(require,module,exports){
+},{"../../../lib/marketState/CumulativeVolume":3}],19:[function(require,module,exports){
 var parseMessage = require('../../../lib/messageParser/parseMessage');
 
 describe('when parsing an XML refresh message', function() {
@@ -2276,7 +2267,7 @@ describe('when parsing a DDF message', function() {
 	});
 });
 
-},{"../../../lib/messageParser/parseMessage":4}],22:[function(require,module,exports){
+},{"../../../lib/messageParser/parseMessage":4}],20:[function(require,module,exports){
 var parseValue = require('../../../lib/messageParser/parseValue');
 
 describe('when parsing prices', function() {
@@ -2340,344 +2331,4 @@ describe('when parsing prices', function() {
 		});
 	});
 });
-},{"../../../lib/messageParser/parseValue":6}],23:[function(require,module,exports){
-var convertDateToDayCode = require('../../../lib/util/convertDateToDayCode');
-
-describe('When converting a date instance to a day code', function() {
-	it('"Jan 1, 2016" should translate to 1', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 1))).toEqual('1');
-	});
-
-	it('"Jan 2, 2016" should translate to 2', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 2))).toEqual('2');
-	});
-
-	it('"Jan 3, 2016" should translate to 3', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 3))).toEqual('3');
-	});
-
-	it('"Jan 4, 2016" should translate to 4', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 4))).toEqual('4');
-	});
-
-	it('"Jan 5, 2016" should translate to 5', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 5))).toEqual('5');
-	});
-
-	it('"Jan 6, 2016" should translate to 6', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 6))).toEqual('6');
-	});
-
-	it('"Jan 7, 2016" should translate to 7', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 7))).toEqual('7');
-	});
-
-	it('"Jan 8, 2016" should translate to 8', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 8))).toEqual('8');
-	});
-
-	it('"Jan 9, 2016" should translate to 9', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 9))).toEqual('9');
-	});
-
-	it('"Jan 10, 2016" should translate to 0', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 10))).toEqual('0');
-	});
-
-	it('"Jan 11, 2016" should translate to A', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 11))).toEqual('A');
-	});
-
-	it('"Jan 12, 2016" should translate to B', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 12))).toEqual('B');
-	});
-
-	it('"Jan 13, 2016" should translate to C', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 13))).toEqual('C');
-	});
-
-	it('"Jan 14, 2016" should translate to D', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 14))).toEqual('D');
-	});
-
-	it('"Jan 15, 2016" should translate to E', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 15))).toEqual('E');
-	});
-
-	it('"Jan 16, 2016" should translate to F', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 16))).toEqual('F');
-	});
-
-	it('"Jan 17, 2016" should translate to G', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 17))).toEqual('G');
-	});
-
-	it('"Jan 18, 2016" should translate to H', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 18))).toEqual('H');
-	});
-
-	it('"Jan 19, 2016" should translate to I', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 19))).toEqual('I');
-	});
-
-	it('"Jan 20, 2016" should translate to J', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 20))).toEqual('J');
-	});
-
-	it('"Jan 21, 2016" should translate to K', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 21))).toEqual('K');
-	});
-
-	it('"Jan 22, 2016" should translate to L', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 22))).toEqual('L');
-	});
-
-	it('"Jan 23, 2016" should translate to M', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 23))).toEqual('M');
-	});
-
-	it('"Jan 24, 2016" should translate to N', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 24))).toEqual('N');
-	});
-
-	it('"Jan 25, 2016" should translate to O', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 25))).toEqual('O');
-	});
-
-	it('"Jan 26, 2016" should translate to P', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 26))).toEqual('P');
-	});
-
-	it('"Jan 27, 2016" should translate to Q', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 27))).toEqual('Q');
-	});
-
-	it('"Jan 28, 2016" should translate to R', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 28))).toEqual('R');
-	});
-
-	it('"Jan 29, 2016" should translate to S', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 29))).toEqual('S');
-	});
-
-	it('"Jan 30, 2016" should translate to T', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 30))).toEqual('T');
-	});
-
-	it('"Jan 31, 2016" should translate to U', function() {
-		expect(convertDateToDayCode(new Date(2016, 0, 31))).toEqual('U');
-	});
-});
-},{"../../../lib/util/convertDateToDayCode":7}],24:[function(require,module,exports){
-var convertDayCodeToNumber = require('../../../lib/util/convertDayCodeToNumber');
-
-describe('When converting a dayCode to number', function() {
-	it('"1" should translate to 1', function() {
-		expect(convertDayCodeToNumber("1")).toEqual(1);
-	});
-
-	it('"2" should translate to 2', function() {
-		expect(convertDayCodeToNumber("2")).toEqual(2);
-	});
-
-	it('"3" should translate to 3', function() {
-		expect(convertDayCodeToNumber("3")).toEqual(3);
-	});
-
-	it('"4" should translate to 4', function() {
-		expect(convertDayCodeToNumber("4")).toEqual(4);
-	});
-
-	it('"5" should translate to 5', function() {
-		expect(convertDayCodeToNumber("5")).toEqual(5);
-	});
-
-	it('"6" should translate to 6', function() {
-		expect(convertDayCodeToNumber("6")).toEqual(6);
-	});
-
-	it('"7" should translate to 7', function() {
-		expect(convertDayCodeToNumber("7")).toEqual(7);
-	});
-
-	it('"8" should translate to 8', function() {
-		expect(convertDayCodeToNumber("8")).toEqual(8);
-	});
-
-	it('"9" should translate to 9', function() {
-		expect(convertDayCodeToNumber("9")).toEqual(9);
-	});
-
-	it('"0" should translate to 10', function() {
-		expect(convertDayCodeToNumber("0")).toEqual(10);
-	});
-
-	it('"A" should translate to 11', function() {
-		expect(convertDayCodeToNumber("A")).toEqual(11);
-	});
-
-	it('"a" should translate to 11', function() {
-		expect(convertDayCodeToNumber("a")).toEqual(11);
-	});
-
-	it('"B" should translate to 12', function() {
-		expect(convertDayCodeToNumber("B")).toEqual(12);
-	});
-
-	it('"b" should translate to 12', function() {
-		expect(convertDayCodeToNumber("b")).toEqual(12);
-	});
-
-	it('"C" should translate to 13', function() {
-		expect(convertDayCodeToNumber("C")).toEqual(13);
-	});
-
-	it('"c" should translate to 13', function() {
-		expect(convertDayCodeToNumber("c")).toEqual(13);
-	});
-
-	it('"D" should translate to 14', function() {
-		expect(convertDayCodeToNumber("D")).toEqual(14);
-	});
-
-	it('"d" should translate to 14', function() {
-		expect(convertDayCodeToNumber("d")).toEqual(14);
-	});
-
-	it('"E" should translate to 15', function() {
-		expect(convertDayCodeToNumber("E")).toEqual(15);
-	});
-
-	it('"e" should translate to 15', function() {
-		expect(convertDayCodeToNumber("e")).toEqual(15);
-	});
-
-	it('"F" should translate to 16', function() {
-		expect(convertDayCodeToNumber("F")).toEqual(16);
-	});
-
-	it('"f" should translate to 16', function() {
-		expect(convertDayCodeToNumber("f")).toEqual(16);
-	});
-
-	it('"G" should translate to 17', function() {
-		expect(convertDayCodeToNumber("G")).toEqual(17);
-	});
-
-	it('"g" should translate to 17', function() {
-		expect(convertDayCodeToNumber("g")).toEqual(17);
-	});
-
-	it('"H" should translate to 18', function() {
-		expect(convertDayCodeToNumber("H")).toEqual(18);
-	});
-
-	it('"h" should translate to 18', function() {
-		expect(convertDayCodeToNumber("h")).toEqual(18);
-	});
-
-	it('"I" should translate to 19', function() {
-		expect(convertDayCodeToNumber("I")).toEqual(19);
-	});
-
-	it('"i" should translate to 19', function() {
-		expect(convertDayCodeToNumber("i")).toEqual(19);
-	});
-
-	it('"J" should translate to 20', function() {
-		expect(convertDayCodeToNumber("J")).toEqual(20);
-	});
-
-	it('"j" should translate to 20', function() {
-		expect(convertDayCodeToNumber("j")).toEqual(20);
-	});
-
-	it('"K" should translate to 21', function() {
-		expect(convertDayCodeToNumber("K")).toEqual(21);
-	});
-
-	it('"k" should translate to 21', function() {
-		expect(convertDayCodeToNumber("k")).toEqual(21);
-	});
-
-	it('"L" should translate to 22', function() {
-		expect(convertDayCodeToNumber("L")).toEqual(22);
-	});
-
-	it('"l" should translate to 22', function() {
-		expect(convertDayCodeToNumber("l")).toEqual(22);
-	});
-
-	it('"M" should translate to 23', function() {
-		expect(convertDayCodeToNumber("M")).toEqual(23);
-	});
-
-	it('"m" should translate to 23', function() {
-		expect(convertDayCodeToNumber("m")).toEqual(23);
-	});
-
-	it('"N" should translate to 24', function() {
-		expect(convertDayCodeToNumber("N")).toEqual(24);
-	});
-
-	it('"n" should translate to 24', function() {
-		expect(convertDayCodeToNumber("n")).toEqual(24);
-	});
-
-	it('"O" should translate to 25', function() {
-		expect(convertDayCodeToNumber("O")).toEqual(25);
-	});
-
-	it('"o" should translate to 25', function() {
-		expect(convertDayCodeToNumber("o")).toEqual(25);
-	});
-
-	it('"P" should translate to 26', function() {
-		expect(convertDayCodeToNumber("P")).toEqual(26);
-	});
-
-	it('"p" should translate to 26', function() {
-		expect(convertDayCodeToNumber("p")).toEqual(26);
-	});
-
-	it('"Q" should translate to 27', function() {
-		expect(convertDayCodeToNumber("Q")).toEqual(27);
-	});
-
-	it('"q" should translate to 27', function() {
-		expect(convertDayCodeToNumber("q")).toEqual(27);
-	});
-
-	it('"R" should translate to 28', function() {
-		expect(convertDayCodeToNumber("R")).toEqual(28);
-	});
-
-	it('"r" should translate to 28', function() {
-		expect(convertDayCodeToNumber("r")).toEqual(28);
-	});
-
-	it('"S" should translate to 29', function() {
-		expect(convertDayCodeToNumber("S")).toEqual(29);
-	});
-
-	it('"s" should translate to 29', function() {
-		expect(convertDayCodeToNumber("s")).toEqual(29);
-	});
-
-	it('"T" should translate to 30', function() {
-		expect(convertDayCodeToNumber("T")).toEqual(30);
-	});
-
-	it('"t" should translate to 30', function() {
-		expect(convertDayCodeToNumber("t")).toEqual(30);
-	});
-
-	it('"U" should translate to 31', function() {
-		expect(convertDayCodeToNumber("U")).toEqual(31);
-	});
-
-	it('"u" should translate to 31', function() {
-		expect(convertDayCodeToNumber("u")).toEqual(31);
-	});
-});
-},{"../../../lib/util/convertDayCodeToNumber":8}]},{},[20,21,22,23,24]);
+},{"../../../lib/messageParser/parseValue":6}]},{},[18,19,20]);

@@ -7,38 +7,24 @@ module.exports = function() {
 	return utilities.convert.baseCodeToUnitCode;
 }();
 },{"barchart-marketdata-utilities":12}],2:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
 module.exports = function() {
 	'use strict';
 
-	return function(date) {
-		var d = date.getDate();
-
-		if (d >= 1 && d <= 9)
-			return String.fromCharCode(("1").charCodeAt(0) + d - 1);
-		else if (d == 10)
-			return '0';
-		else
-			return String.fromCharCode(("A").charCodeAt(0) + d - 11);
-	};
+	return utilities.convert.dateToDayCode;
 }();
 
-},{}],3:[function(require,module,exports){
+},{"barchart-marketdata-utilities":12}],3:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
 module.exports = function() {
 	'use strict';
 
-	return function(dayCode) {
-		var d = parseInt(dayCode, 31);
-
-		if (d > 9) {
-			d++;
-		} else if (d === 0) {
-			d = 10;
-		}
-
-		return d;
-	};
+	return utilities.convert.dayCodeToNumber;
 }();
-},{}],4:[function(require,module,exports){
+
+},{"barchart-marketdata-utilities":12}],4:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 module.exports = function() {
@@ -182,6 +168,29 @@ module.exports = function() {
 				default:
 					return 0;
 			}
+		},
+
+		dateToDayCode: function(date) {
+			var d = date.getDate();
+
+			if (d >= 1 && d <= 9)
+				return String.fromCharCode(("1").charCodeAt(0) + d - 1);
+			else if (d == 10)
+				return '0';
+			else
+				return String.fromCharCode(("A").charCodeAt(0) + d - 11);
+		},
+
+		dayCodeToNumber: function(dayCode) {
+			var d = parseInt(dayCode, 31);
+
+			if (d > 9) {
+				d++;
+			} else if (d === 0) {
+				d = 10;
+			}
+
+			return d;
 		}
 	};
 }();
