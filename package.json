@@ -41,7 +41,7 @@
     "HTML5"
   ],
   "dependencies": {
-    "barchart-marketdata-utilities": "1.0.56",
+    "barchart-marketdata-utilities": "1.0.57",
     "class.extend": "0.9.1",
     "lodash.isnan": "3.0.1",
     "xhr": "2.3.2",
