@@ -277,7 +277,7 @@ module.exports = function() {
 				for (var i = 0; i < instrumentData.length; i++) {
 					var instrumentDataItem = instrumentData[i];
 
-					if (instrumentDataItem.status === 200) {
+					if (instrumentDataItem.status !== 404) {
 						new Profile(
 							instrumentDataItem.lookup,
 							instrumentDataItem.symbol_description,
