@@ -820,27 +820,36 @@ module.exports = function() {
 				message = parseMessage(msg);
 
 				if (message.type) {
-					processMessage(message);
-
 					if (message.symbol) {
 						var consumerSymbols = __producerSymbols[message.symbol];
 
 						if (consumerSymbols) {
 							for (var i = 0; i < consumerSymbols.length; i++) {
-								var clone = { };
+								var consumerSymbol = consumerSymbols[i];
 
-								for (var p in message) {
-									clone[p] = message[p];
+								var messageToProcess;
+
+								if (consumerSymbol === message.symbol) {
+									messageToProcess = message;
+								} else {
+									messageToProcess = { };
+
+									for (var p in message) {
+										messageToProcess[p] = message[p];
+									}
+
+									messageToProcess.symbol = consumerSymbol;
 								}
 
-								clone.symbol = consumerSymbols[i];
-
-								processMessage(clone);
+								processMessage(messageToProcess);
 							}
 						}
+					} else {
+						processMessage(message);
 					}
-				} else
+				} else {
 					console.log(msg);
+				}
 			} catch (e) {
 				console.error(e);
 				console.log(message);
@@ -2838,7 +2847,7 @@ module.exports = function() {
 			str = str.replace(getReplaceExpression(thousandsSeparator), '');
 		}
 
-		if (str.indexOf('.') > 0) {
+		if (!(str.indexOf('.') < 0)) {
 			return parseFloat(str);
 		}
 
@@ -2936,19 +2945,23 @@ module.exports = function() {
 			var staticFutureMatch = symbol.match(concreteFutureRegex);
 
 			if (staticFutureMatch !== null) {
+				var currentDate = new Date();
+				var currentYear = currentDate.getFullYear();
+
 				var yearString = staticFutureMatch[3];
 				var year = parseInt(yearString);
 
-				if (yearString.length === 1 || yearString.length == 2) {
-					var currentDate = new Date();
-					var currentYear = currentDate.getFullYear();
-
-					var base = Math.pow(10, yearString.length);
-
-					year = year + currentYear - (currentYear % base);
+				if (year < 10) {
+					year = Math.floor(currentYear / 10) * 10 + year;
+				} else if (year < 100) {
+					year = Math.floor(currentYear / 100) * 100 + year;
 
 					if (year < currentYear) {
-						year = year + base;
+						var alternateYear = year + 100;
+
+						if (currentYear - year > alternateYear - currentYear) {
+							year = alternateYear;
+						}
 					}
 				}
 

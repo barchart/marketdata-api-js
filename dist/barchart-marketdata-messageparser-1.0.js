@@ -948,7 +948,7 @@ module.exports = function() {
 			str = str.replace(getReplaceExpression(thousandsSeparator), '');
 		}
 
-		if (str.indexOf('.') > 0) {
+		if (!(str.indexOf('.') < 0)) {
 			return parseFloat(str);
 		}
 
@@ -1046,19 +1046,23 @@ module.exports = function() {
 			var staticFutureMatch = symbol.match(concreteFutureRegex);
 
 			if (staticFutureMatch !== null) {
+				var currentDate = new Date();
+				var currentYear = currentDate.getFullYear();
+
 				var yearString = staticFutureMatch[3];
 				var year = parseInt(yearString);
 
-				if (yearString.length === 1 || yearString.length == 2) {
-					var currentDate = new Date();
-					var currentYear = currentDate.getFullYear();
-
-					var base = Math.pow(10, yearString.length);
-
-					year = year + currentYear - (currentYear % base);
+				if (year < 10) {
+					year = Math.floor(currentYear / 10) * 10 + year;
+				} else if (year < 100) {
+					year = Math.floor(currentYear / 100) * 100 + year;
 
 					if (year < currentYear) {
-						year = year + base;
+						var alternateYear = year + 100;
+
+						if (currentYear - year > alternateYear - currentYear) {
+							year = alternateYear;
+						}
 					}
 				}
 
