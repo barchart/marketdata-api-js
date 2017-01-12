@@ -41,11 +41,9 @@
     "HTML5"
   ],
   "dependencies": {
-    "barchart-marketdata-utilities": "1.0.58",
+    "barchart-marketdata-utilities": "1.0.59",
     "class.extend": "0.9.1",
-    "lodash.isnan": "3.0.1",
-    "xhr": "2.3.2",
-    "xmldom": "0.1.19"
+    "xhr": "2.3.2"
   },
   "devDependencies": {
     "browserify": "~11.2.0",
@@ -61,7 +59,6 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^1.5.1",
     "gulp-util": "^3.0.7",
-    "jasmine": "^2.4.1",
     "run-sequence": "~1.1.4",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
