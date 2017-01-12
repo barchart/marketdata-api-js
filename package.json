@@ -1,6 +1,6 @@
 {
   "name": "marketdata-api-js",
-  "version": "1.0.72",
+  "version": "2.0.0",
   "description": "Barchart Marketdata API for Javascript",
   "author": {
     "name": "Eero Pikat",
@@ -42,7 +42,6 @@
   ],
   "dependencies": {
     "barchart-marketdata-utilities": "1.0.59",
-    "class.extend": "0.9.1",
     "xhr": "2.3.2"
   },
   "devDependencies": {
