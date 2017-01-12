@@ -1,5 +1,5 @@
 .gitignore
 .idea
 node_modules
-doc
+docs
 .DS_Store
