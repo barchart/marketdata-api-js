@@ -634,14 +634,14 @@ module.exports = function () {
 					var stopConsumer = true;
 					var stopProducer = true;
 
-					var _consumerSymbols = __producerSymbols[producerSymbol] || [];
+					var consumerSymbols = __producerSymbols[producerSymbol] || [];
 
 					if (!getConsumerIsActive(consumerSymbol, additionalListenerMaps)) {
 						stopConsumer = true;
 					}
 
 					if (stopConsumer) {
-						_consumerSymbols = _consumerSymbols.filter(function (candidate) {
+						consumerSymbols = consumerSymbols.filter(function (candidate) {
 							var returnVal = candidate !== consumerSymbol;
 
 							if (!returnVal && getConsumerIsActive(candidate, [listenerMap])) {
@@ -651,7 +651,7 @@ module.exports = function () {
 							return returnVal;
 						});
 
-						__producerSymbols[producerSymbol] = _consumerSymbols;
+						__producerSymbols[producerSymbol] = consumerSymbols;
 					}
 
 					if (stopProducer) {
@@ -698,7 +698,7 @@ module.exports = function () {
 
 					unsubscribe(__cumulativeVolumeSymbols, "MU_STOP", __listeners.cumulativeVolume, [__marketUpdateSymbols], [__listeners.marketUpdate]);
 
-					getMarketState().getCumulativeVolume(symbol, function (container) {
+					__marketState.getCumulativeVolume(symbol, function (container) {
 						container.off('events', handler);
 					});
 
@@ -751,17 +751,17 @@ module.exports = function () {
 
 				listenerMap[consumerSymbol] = addHandler(listenerMap[consumerSymbol]);
 
+				var consumerSymbols = __producerSymbols[producerSymbol] || [];
+
 				var startConsumer = !consumerSymbols.some(function (candidate) {
 					return candidate === consumerSymbol;
 				});
 
 				if (startConsumer) {
-					var _consumerSymbols2 = __producerSymbols[producerSymbol] || [];
+					consumerSymbols = consumerSymbols.slice(0);
+					consumerSymbols.push(consumerSymbol);
 
-					_consumerSymbols2 = _consumerSymbols2.slice(0);
-					_consumerSymbols2.push(consumerSymbol);
-
-					__producerSymbols[producerSymbol] = _consumerSymbols2;
+					__producerSymbols[producerSymbol] = consumerSymbols;
 				}
 
 				if (!trackingMap[producerSymbol]) {
@@ -788,7 +788,7 @@ module.exports = function () {
 
 					subscribe(__marketDepthSymbols, "MD_GO", __listeners.marketDepth, []);
 
-					if (getMarketState().getBook(symbol)) {
+					if (__marketState.getBook(symbol)) {
 						handler({ type: 'INIT', symbol: symbol });
 					}
 
@@ -800,7 +800,7 @@ module.exports = function () {
 
 					subscribe(__marketUpdateSymbols, "MU_GO", __listeners.marketUpdate, [__cumulativeVolumeSymbols]);
 
-					if (getMarketState().getQuote(symbol)) {
+					if (__marketState.getQuote(symbol)) {
 						handler({ type: 'INIT', symbol: symbol });
 					}
 
@@ -812,7 +812,7 @@ module.exports = function () {
 
 					subscribe(__cumulativeVolumeSymbols, "MU_GO", __listeners.cumulativeVolume, [__marketUpdateSymbols]);
 
-					getMarketState().getCumulativeVolume(symbol, function (container) {
+					__marketState.getCumulativeVolume(symbol, function (container) {
 						container.on('events', handler);
 					});
 
@@ -847,9 +847,9 @@ module.exports = function () {
 
 				if (message.type) {
 					if (message.symbol) {
-						var _consumerSymbols3 = __producerSymbols[message.symbol] || [];
+						var consumerSymbols = __producerSymbols[message.symbol] || [];
 
-						_consumerSymbols3.forEach(function (consumerSymbol) {
+						consumerSymbols.forEach(function (consumerSymbol) {
 							var messageToProcess = void 0;
 
 							if (consumerSymbol === message.symbol) {
@@ -1009,7 +1009,7 @@ module.exports = function () {
 							break;
 					}
 
-					__commands.push(command + ' ' + symbols.join(',') + '=' + suffix);
+					__commands.push(command + ' ' + task.symbols.join(',') + '=' + suffix);
 				}
 			}
 
@@ -1082,8 +1082,8 @@ module.exports = function () {
 
 		_createClass(Connection, [{
 			key: '_connect',
-			value: function _connect(server, username, password) {
-				this._internal.connect(server, username, password);
+			value: function _connect() {
+				this._internal.connect(this.getServer(), this.getUsername(), this.getPassword());
 			}
 		}, {
 			key: '_disconnect',
@@ -1294,10 +1294,10 @@ module.exports = function () {
 				var array = Object.keys(this._priceLevels).map(function (p) {
 					var priceLevel = _this3._priceLevels[p];
 
-					array.push({
+					return {
 						price: priceLevel.price,
 						volume: priceLevel.volume
-					});
+					};
 				});
 
 				array.sort(function (a, b) {
@@ -1430,10 +1430,10 @@ module.exports = function () {
 		};
 
 		var _getOrCreateCumulativeVolume = function _getOrCreateCumulativeVolume(symbol) {
-			var cvol = _cvol[symbol];
+			var cv = _cvol[symbol];
 
-			if (!cvol) {
-				cvol = {
+			if (!cv) {
+				cv = {
 					container: null,
 					callbacks: []
 				};
@@ -1442,13 +1442,13 @@ module.exports = function () {
 				var producerCvol = _cvol[producerSymbol];
 
 				if (producerCvol && producerCvol.container) {
-					cvol.container = CumulativeVolume.clone(symbol, producerCvol.container);
+					cv.container = CumulativeVolume.clone(symbol, producerCvol.container);
 				}
 
-				_cvol[symbol] = cvol;
+				_cvol[symbol] = cv;
 			}
 
-			return cvol;
+			return cv;
 		};
 
 		var _getOrCreateQuote = function _getOrCreateQuote(symbol) {
@@ -1475,7 +1475,7 @@ module.exports = function () {
 
 			if (!p) {
 				var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
-				var producerProfile = Profile.prototype.Profiles[producerSymbol];
+				var producerProfile = Profile.Profiles[producerSymbol];
 
 				if (producerProfile) {
 					p = new Profile(symbol, producerProfile.name, producerProfile.exchange, producerProfile.unitcode, producerProfile.pointValue, producerProfile.tickIncrement);
@@ -1508,7 +1508,7 @@ module.exports = function () {
 
 				var _ret = function () {
 					var cv = _getOrCreateCumulativeVolume(symbol);
-					var container = cvol.container;
+					var container = cv.container;
 
 					if (container) {
 						container.reset();
@@ -1859,7 +1859,7 @@ module.exports = function () {
 		}, {
 			key: 'processMessage',
 			value: function processMessage(message) {
-				return this._internal.getTimestamp(message);
+				return this._internal.processMessage(message);
 			}
 		}], [{
 			key: 'CumulativeVolume',

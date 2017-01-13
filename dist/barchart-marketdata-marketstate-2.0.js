@@ -255,10 +255,10 @@ module.exports = function () {
 				var array = Object.keys(this._priceLevels).map(function (p) {
 					var priceLevel = _this3._priceLevels[p];
 
-					array.push({
+					return {
 						price: priceLevel.price,
 						volume: priceLevel.volume
-					});
+					};
 				});
 
 				array.sort(function (a, b) {
@@ -391,10 +391,10 @@ module.exports = function () {
 		};
 
 		var _getOrCreateCumulativeVolume = function _getOrCreateCumulativeVolume(symbol) {
-			var cvol = _cvol[symbol];
+			var cv = _cvol[symbol];
 
-			if (!cvol) {
-				cvol = {
+			if (!cv) {
+				cv = {
 					container: null,
 					callbacks: []
 				};
@@ -403,13 +403,13 @@ module.exports = function () {
 				var producerCvol = _cvol[producerSymbol];
 
 				if (producerCvol && producerCvol.container) {
-					cvol.container = CumulativeVolume.clone(symbol, producerCvol.container);
+					cv.container = CumulativeVolume.clone(symbol, producerCvol.container);
 				}
 
-				_cvol[symbol] = cvol;
+				_cvol[symbol] = cv;
 			}
 
-			return cvol;
+			return cv;
 		};
 
 		var _getOrCreateQuote = function _getOrCreateQuote(symbol) {
@@ -436,7 +436,7 @@ module.exports = function () {
 
 			if (!p) {
 				var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
-				var producerProfile = Profile.prototype.Profiles[producerSymbol];
+				var producerProfile = Profile.Profiles[producerSymbol];
 
 				if (producerProfile) {
 					p = new Profile(symbol, producerProfile.name, producerProfile.exchange, producerProfile.unitcode, producerProfile.pointValue, producerProfile.tickIncrement);
@@ -469,7 +469,7 @@ module.exports = function () {
 
 				var _ret = function () {
 					var cv = _getOrCreateCumulativeVolume(symbol);
-					var container = cvol.container;
+					var container = cv.container;
 
 					if (container) {
 						container.reset();
@@ -820,7 +820,7 @@ module.exports = function () {
 		}, {
 			key: 'processMessage',
 			value: function processMessage(message) {
-				return this._internal.getTimestamp(message);
+				return this._internal.processMessage(message);
 			}
 		}], [{
 			key: 'CumulativeVolume',
