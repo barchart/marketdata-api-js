@@ -7,12 +7,14 @@
     <script src="../dist/barchart-marketdata-api-2.0.js"></script>
 
     <script type="text/javascript">
-
         $(function() {
             var onCumulativeVolume = function(message) {
                 console.log(message);
 
-                $("#cumulative-volume").html(JSON.stringify(message.container.toArray(), null, 2));
+                var regex = new RegExp('({"price":' + message.price.toString() + ',"volume":[0-9]+})', 'g');
+                var html = JSON.stringify(message.container.toArray()).replace(regex, '<strong>$1</strong>');
+
+                $("#cumulative-volume").html(html);
             };
 
             var onMarketDepth = function(message) {
