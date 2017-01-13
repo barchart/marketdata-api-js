@@ -11,8 +11,15 @@
             var onCumulativeVolume = function(message) {
                 console.log(message);
 
-                var regex = new RegExp('({"price":' + message.price.toString() + ',"volume":[0-9]+})', 'g');
-                var html = JSON.stringify(message.container.toArray()).replace(regex, '<strong>$1</strong>');
+                var html;
+
+                if (message.event === 'reset') {
+                    html = '';
+                } else if (message.event === 'update') {
+					var regex = new RegExp('({"price":' + message.price.toString() + ',"volume":[0-9]+})', 'g');
+
+					html = JSON.stringify(message.container.toArray()).replace(regex, '<strong>$1</strong>');
+                }
 
                 $("#cumulative-volume").html(html);
             };
