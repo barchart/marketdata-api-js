@@ -45,6 +45,10 @@
     "xhr": "2.3.2"
   },
   "devDependencies": {
+    "babel-plugin-external-helpers-2": "^6.3.13",
+    "babel-preset-es2015": "^6.9.0",
+    "babelify": "^7.3.0",
+    "babelify-external-helpers": "^1.1.0",
     "browserify": "~11.2.0",
     "git-get-status": "^1.0.5",
     "glob": "^6.0.1",
@@ -68,6 +72,18 @@
     "./lib/connection/websocket/Connection.js": "./lib/connection/websocket/browser/Connection.js",
     "./lib/connection/http/HistoricalDataProvider.js": "./lib/connection/http/browser/HistoricalDataProvider.js",
     "./lib/connection/http/ProfileProvider.js": "./lib/connection/http/browser/ProfileProvider.js"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015"
+          ]
+        }
+      ]
+    ]
   },
   "license": "MIT",
   "private": false

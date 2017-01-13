@@ -1,156 +1,139 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g=(g.Barchart||(g.Barchart = {}));g=(g.RealtimeData||(g.RealtimeData = {}));g.HistoricalData = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+'use strict';
+
 var HistoricalDataProvider = require('./http/HistoricalDataProvider');
 
-module.exports = function() {
+module.exports = function () {
 	'use strict';
 
 	return HistoricalDataProvider;
 }();
-},{"./http/HistoricalDataProvider":3}],2:[function(require,module,exports){
-var Class = require('class.extend');
 
-module.exports = function() {
+},{"./http/HistoricalDataProvider":3}],2:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+module.exports = function () {
 	'use strict';
 
-	return Class.extend({
-		init: function() {
-
-		},
-
-		getHistoricalData: function(parameters, callback) {
-			return this._getHistoricalData(parameters, callback);
-		},
-
-		_getHistoricalData: function(parameters, callback) {
-			return null;
-		},
-
-		toString: function() {
-			return '[HistoricalDataProviderBase]';
+	var HistoricalDataProviderBase = function () {
+		function HistoricalDataProviderBase() {
+			_classCallCheck(this, HistoricalDataProviderBase);
 		}
-	});
+
+		_createClass(HistoricalDataProviderBase, [{
+			key: 'getHistoricalData',
+			value: function getHistoricalData(parameters, callback) {
+				var _this = this;
+
+				return Promise.resolve().then(function () {
+					return _this._getHistoricalData(parameters, callback);
+				});
+			}
+		}, {
+			key: '_getHistoricalData',
+			value: function _getHistoricalData(parameters, callback) {
+				return [];
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[HistoricalDataProviderBase]';
+			}
+		}]);
+
+		return HistoricalDataProviderBase;
+	}();
+
+	return HistoricalDataProviderBase;
 }();
-},{"class.extend":5}],3:[function(require,module,exports){
+
+},{}],3:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var xhr = require('xhr');
 
 var HistoricalDataProviderBase = require('./../../HistoricalDataProviderBase');
 
-module.exports = function() {
+module.exports = function () {
 	'use strict';
 
-	return HistoricalDataProviderBase.extend({
-		init: function() {
+	var HistoricalDataProvider = function (_HistoricalDataProvid) {
+		_inherits(HistoricalDataProvider, _HistoricalDataProvid);
 
-		},
+		function HistoricalDataProvider() {
+			_classCallCheck(this, HistoricalDataProvider);
 
-		_getHistoricalData: function(params, callback) {
-			var queryString = '';
-
-			for (var p in params) {
-				if (queryString !== '') {
-					queryString += '&';
-				}
-
-				queryString += encodeURIComponent(p) + '=' + encodeURIComponent(params[p]);
-			}
-
-			var options = {
-				url: encodeURI('proxies/historicaldata/?' + queryString),
-				method: 'GET',
-				json: true
-			};
-
-			xhr(options, function(error, response, body) {
-				var historicalData;
-
-				if (error || response.statusCode !== 200) {
-					historicalData = [ ];
-				} else {
-					historicalData = body;
-				}
-
-				callback(historicalData);
-			});
-		},
-
-		toString: function() {
-			return '[HistoricalDataProvider]';
+			return _possibleConstructorReturn(this, (HistoricalDataProvider.__proto__ || Object.getPrototypeOf(HistoricalDataProvider)).call(this));
 		}
-	});
+
+		_createClass(HistoricalDataProvider, [{
+			key: '_getHistoricalData',
+			value: function _getHistoricalData(params, callback) {
+				return new Promise(function (resolveCallback) {
+					var queryStrings = Object.keys(params).map(function (key) {
+						return encodeURIComponent(key) + '=' + encodeURIComponent(params[p]);
+					});
+
+					var options = {
+						url: encodeURI('proxies/historicaldata/?' + queryStrings.join('&')),
+						method: 'GET',
+						json: true
+					};
+
+					xhr(options, function (error, response, body) {
+						var historicalData;
+
+						if (error || response.statusCode !== 200) {
+							historicalData = [];
+						} else {
+							historicalData = body;
+						}
+
+						if (typeof callback === 'function') {
+							callback(historicalData);
+						}
+
+						resolveCallback(historicalData);
+					});
+				});
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[HistoricalDataProvider]';
+			}
+		}]);
+
+		return HistoricalDataProvider;
+	}(HistoricalDataProviderBase);
+
+	return HistoricalDataProvider;
 }();
-},{"./../../HistoricalDataProviderBase":2,"xhr":11}],4:[function(require,module,exports){
+
+},{"./../../HistoricalDataProviderBase":2,"xhr":10}],4:[function(require,module,exports){
+'use strict';
+
 var HistoricalDataProvider = require('./../connection/HistoricalDataProvider');
 
-module.exports = function() {
+module.exports = function () {
 	'use strict';
 
 	return HistoricalDataProvider;
 }();
+
 },{"./../connection/HistoricalDataProvider":1}],5:[function(require,module,exports){
-(function(){
-  var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
- 
-  // The base Class implementation (does nothing)
-  this.Class = function(){};
- 
-  // Create a new Class that inherits from this class
-  Class.extend = function(prop) {
-    var _super = this.prototype;
-   
-    // Instantiate a base class (but only create the instance,
-    // don't run the init constructor)
-    initializing = true;
-    var prototype = new this();
-    initializing = false;
-   
-    // Copy the properties over onto the new prototype
-    for (var name in prop) {
-      // Check if we're overwriting an existing function
-      prototype[name] = typeof prop[name] == "function" &&
-        typeof _super[name] == "function" && fnTest.test(prop[name]) ?
-        (function(name, fn){
-          return function() {
-            var tmp = this._super;
-           
-            // Add a new ._super() method that is the same method
-            // but on the super-class
-            this._super = _super[name];
-           
-            // The method only need to be bound temporarily, so we
-            // remove it when we're done executing
-            var ret = fn.apply(this, arguments);        
-            this._super = tmp;
-           
-            return ret;
-          };
-        })(name, prop[name]) :
-        prop[name];
-    }
-   
-    // The dummy class constructor
-    function Class() {
-      // All construction is actually done in the init method
-      if ( !initializing && this.init )
-        this.init.apply(this, arguments);
-    }
-   
-    // Populate our constructed prototype object
-    Class.prototype = prototype;
-   
-    // Enforce the constructor to be what we expect
-    Class.prototype.constructor = Class;
- 
-    // And make this class extendable
-    Class.extend = arguments.callee;
-   
-    return Class;
-  };
-
-  //I only added this line
-  module.exports = Class;
-})();
-
-},{}],6:[function(require,module,exports){
 var isFunction = require('is-function')
 
 module.exports = forEach
@@ -198,7 +181,7 @@ function forEachObject(object, iterator, context) {
     }
 }
 
-},{"is-function":8}],7:[function(require,module,exports){
+},{"is-function":7}],6:[function(require,module,exports){
 (function (global){
 if (typeof window !== "undefined") {
     module.exports = window;
@@ -211,7 +194,7 @@ if (typeof window !== "undefined") {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -228,7 +211,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var trim = require('trim')
   , forEach = require('for-each')
   , isArray = function(arg) {
@@ -260,7 +243,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":6,"trim":10}],10:[function(require,module,exports){
+},{"for-each":5,"trim":9}],9:[function(require,module,exports){
 
 exports = module.exports = trim;
 
@@ -276,7 +259,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 var window = require("global/window")
 var isFunction = require("is-function")
@@ -516,7 +499,7 @@ function getXml(xhr) {
 
 function noop() {}
 
-},{"global/window":7,"is-function":8,"parse-headers":9,"xtend":12}],12:[function(require,module,exports){
+},{"global/window":6,"is-function":7,"parse-headers":8,"xtend":11}],11:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;

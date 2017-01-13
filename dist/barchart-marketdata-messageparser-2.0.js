@@ -1,4 +1,58 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g=(g.Barchart||(g.Barchart = {}));g=(g.RealtimeData||(g.RealtimeData = {}));g.MessageParser = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+'use strict';
+
+var parseMessage = require('./parseMessage');
+var parseTimestamp = require('./parseTimestamp');
+var parseValue = require('./parseValue');
+
+module.exports = function () {
+	'use strict';
+
+	return {
+		parseMessage: parseMessage,
+		parseTimestamp: parseTimestamp,
+		parseValue: parseValue,
+
+		Parse: parseMessage,
+		ParseTimestamp: parseTimestamp,
+		ParseValue: parseValue
+	};
+}();
+
+},{"./parseMessage":2,"./parseTimestamp":3,"./parseValue":4}],2:[function(require,module,exports){
+'use strict';
+
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function () {
+	'use strict';
+
+	return utilities.messageParser;
+}();
+
+},{"barchart-marketdata-utilities":9}],3:[function(require,module,exports){
+'use strict';
+
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function () {
+	'use strict';
+
+	return utilities.timestampParser;
+}();
+
+},{"barchart-marketdata-utilities":9}],4:[function(require,module,exports){
+'use strict';
+
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function () {
+	'use strict';
+
+	return utilities.priceParser;
+}();
+
+},{"barchart-marketdata-utilities":9}],5:[function(require,module,exports){
 var Class = require('class.extend');
 
 module.exports = function() {
@@ -26,7 +80,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":16}],2:[function(require,module,exports){
+},{"class.extend":18}],6:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -60,193 +114,198 @@ module.exports = function() {
         }
     });
 }();
-},{"./../XmlDomParserBase":1}],3:[function(require,module,exports){
+},{"./../XmlDomParserBase":5}],7:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
-	var EVENT_TYPE_UPDATE = 'update';
-	var EVENT_TYPE_RESET = 'reset';
+	return {
+		unitCodeToBaseCode: function(unitCode) {
+			switch (unitCode) {
+				case '2':
+					return -1;
+				case '3':
+					return -2;
+				case '4':
+					return -3;
+				case '5':
+					return -4;
+				case '6':
+					return -5;
+				case '7':
+					return -6;
+				case '8':
+					return 0;
+				case '9':
+					return 1;
+				case 'A':
+					return 2;
+				case 'B':
+					return 3;
+				case 'C':
+					return 4;
+				case 'D':
+					return 5;
+				case 'E':
+					return 6;
+				case 'F':
+					return 7;
+				default:
+					return 0;
+			}
+		},
 
-	var CumulativeVolume = function(symbol, tickIncrement) {
-		this.symbol = symbol;
+		baseCodeToUnitCode: function(baseCode) {
+			switch (baseCode) {
+				case -1:
+					return '2';
+				case -2:
+					return '3';
+				case -3:
+					return '4';
+				case -4:
+					return '5';
+				case -5:
+					return '6';
+				case -6:
+					return '7';
+				case 0:
+					return '8';
+				case 1:
+					return '9';
+				case 2:
+					return 'A';
+				case 3:
+					return 'B';
+				case 4:
+					return 'C';
+				case 5:
+					return 'D';
+				case 6:
+					return 'E';
+				case 7:
+					return 'F';
+				default:
+					return 0;
+			}
+		},
 
-		var handlers = [ ];
+		dateToDayCode: function(date) {
+			var d = date.getDate();
 
-		var priceLevels = { };
-		var highPrice = null;
-		var lowPrice = null;
+			if (d >= 1 && d <= 9)
+				return String.fromCharCode(("1").charCodeAt(0) + d - 1);
+			else if (d == 10)
+				return '0';
+			else
+				return String.fromCharCode(("A").charCodeAt(0) + d - 11);
+		},
 
-		var addPriceVolume = function(priceString, priceValue) {
-			return priceLevels[priceString] = {
-				price: priceValue,
-				volume: 0
-			};
-		};
+		dayCodeToNumber: function(dayCode) {
+			var d = parseInt(dayCode, 31);
 
-		this.on = function(eventType, handler) {
-			if (eventType !== 'events') {
-				return;
+			if (d > 9) {
+				d++;
+			} else if (d === 0) {
+				d = 10;
 			}
 
-			var i = handlers.indexOf(handler);
-
-			if (i < 0) {
-				var copy = handlers.slice(0);
-
-				copy.push(handler);
-
-				handlers = copy;
-				
-				var priceLevels = this.toArray();
-				
-				for (var j = 0; j < priceLevels; j++) {
-					sendPriceVolumeUpdate(this, handler, priceLevels[j]);
-				}
-			}
-		};
-
-		this.off = function(eventType, handler) {
-			if (eventType !== 'events') {
-				return;
-			}
-
-			var i = handlers.indexOf(handler);
-
-			if (!(i < 0)) {
-				var copy = handlers.slice(0);
-
-				copy.splice(i, 1);
-
-				handlers = copy;
-			}
-		};
-
-		this.getTickIncrement = function() {
-			return tickIncrement;
-		};
-
-		this.getVolume = function(price) {
-			var priceString = price.toString();
-			var priceLevel = priceLevels[priceString];
-
-			if (priceLevel) {
-				return priceLevel.volume;
-			} else {
-				return 0;
-			}
-		};
-
-		this.incrementVolume = function(priceValue, volume) {
-			if (highPrice && lowPrice) {
-				if (priceValue > highPrice) {
-					for (var p = highPrice + tickIncrement; p < priceValue; p += tickIncrement) {
-						broadcastPriceVolumeUpdate(this, handlers, addPriceVolume(p.toString(), p));
-					}
-
-					highPrice = priceValue;
-				} else if (priceValue < lowPrice) {
-					for (var p = lowPrice - tickIncrement; p > priceValue; p -= tickIncrement) {
-						broadcastPriceVolumeUpdate(this, handlers, addPriceVolume(p.toString(), p));
-					}
-
-					lowPrice = priceValue;
-				}
-			} else {
-				lowPrice = highPrice = priceValue;
-			}
-
-			var priceString = priceValue.toString();
-			var priceLevel = priceLevels[priceString];
-
-			if (!priceLevel) {
-				priceLevel = addPriceVolume(priceString, priceValue);
-			}
-
-			priceLevel.volume += volume;
-
-			broadcastPriceVolumeUpdate(this, handlers, priceLevel);
-		};
-
-		this.reset = function() {
-			priceLevels = { };
-			highPrice = null;
-			lowPrice = null;
-
-			for (var i = 0; i < handlers.length; i++) {
-				var handler = handlers[i];
-
-				handler({ container: this, event: EVENT_TYPE_RESET });
-			}
-		};
-
-		this.toArray = function() {
-			var array = [ ];
-
-			for (var p in priceLevels) {
-				var priceLevel = priceLevels[p];
-
-				array.push({
-					price: priceLevel.price,
-					volume: priceLevel.volume
-				});
-			}
-
-			array.sort(function(a, b) {
-				return a.price - b.price;
-			});
-
-			return array;
-		};
-
-		this.dispose = function() {
-			priceLevels = { };
-			highPrice = null;
-			lowPrice = null;
-
-			handlers = [ ];
-		};
-	};
-
-	var sendPriceVolumeUpdate = function(container, handler, priceLevel) {
-		try {
-			handler({
-				container: container,
-				event: EVENT_TYPE_UPDATE,
-				price: priceLevel.price,
-				volume: priceLevel.volume
-			});
-		} catch(e) {
-			console.error('An error was thrown by a cumulative volume observer.', e);
+			return d;
 		}
 	};
-
-	var broadcastPriceVolumeUpdate = function(container, handlers, priceLevel) {
-		for (var i = 0; i < handlers.length; i++) {
-			sendPriceVolumeUpdate(container, handlers[i], priceLevel);
-		}
-	};
-
-	CumulativeVolume.clone = function(symbol, source) {
-		var clone = new CumulativeVolume(symbol, source.getTickIncrement());
-
-		var data = source.toArray();
-
-		for (var i = 0; i < data.length; i++) {
-			var priceLevel = data[i];
-
-			clone.incrementVolume(priceLevel.price, priceLevel.volume);
-		}
-
-		return clone;
-	};
-
-	return CumulativeVolume;
 }();
-},{}],4:[function(require,module,exports){
-var XmlDomParser = require('./../common/xml/XmlDomParser');
+},{}],8:[function(require,module,exports){
+var lodashIsNaN = require('lodash.isnan');
 
-var parseValue = require('./parseValue');
-var parseTimestamp = require('./parseTimestamp');
+module.exports = function() {
+	'use strict';
+
+	return function(value, digits, thousandsSeparator) {
+		if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
+			return '';
+		}
+
+		var returnRef = value.toFixed(digits);
+
+		if (thousandsSeparator && !(value > -1000 && value < 1000)) {
+			var length = returnRef.length;
+			var negative = value < 0;
+
+			var found = digits === 0;
+			var counter = 0;
+
+			var buffer = [];
+
+			for (var i = (length - 1); !(i < 0); i--) {
+				if (counter === 3 && !(negative && i === 0)) {
+					buffer.unshift(thousandsSeparator);
+
+					counter = 0;
+				}
+
+				var character = returnRef.charAt(i);
+
+				buffer.unshift(character);
+
+				if (found) {
+					counter = counter + 1;
+				} else if (character === '.') {
+					found = true;
+				}
+			}
+
+			returnRef = buffer.join('');
+		}
+
+		return returnRef;
+	};
+
+	/*
+	 // An alternative to consider ... seems about 15% faster ... not to
+	 // mention much less lengthy ... but, has a problem with more than
+	 // three decimal places ... regular expression needs work ...
+
+	 return function(value, digits, thousandsSeparator) {
+	 	if (typeof value === 'number' && (value || value === 0)) {
+	 		return value.toFixed(digits).replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator || ',');
+	 	} else {
+	 		return '';
+		}
+	 };
+	 */
+}();
+},{"lodash.isnan":19}],9:[function(require,module,exports){
+var convert = require('./convert');
+var decimalFormatter = require('./decimalFormatter');
+var messageParser = require('./messageParser');
+var monthCodes = require('./monthCodes');
+var priceFormatter = require('./priceFormatter');
+var symbolFormatter = require('./symbolFormatter');
+var symbolParser = require('./symbolParser');
+var priceParser = require('./priceParser');
+var timeFormatter = require('./timeFormatter');
+var timestampParser = require('./timestampParser');
+
+module.exports = function() {
+	'use strict';
+
+	return {
+		convert: convert,
+		decimalFormatter: decimalFormatter,
+		monthCodes: monthCodes,
+		messageParser: messageParser,
+		priceFormatter: priceFormatter,
+		symbolParser: symbolParser,
+		priceParser: priceParser,
+		symbolFormatter: symbolFormatter,
+		timeFormatter: timeFormatter,
+		timestampParser: timestampParser
+	};
+}();
+},{"./convert":7,"./decimalFormatter":8,"./messageParser":10,"./monthCodes":11,"./priceFormatter":12,"./priceParser":13,"./symbolFormatter":14,"./symbolParser":15,"./timeFormatter":16,"./timestampParser":17}],10:[function(require,module,exports){
+var XmlDomParser = require('./common/xml/XmlDomParser');
+
+var parseValue = require('./priceParser');
+var parseTimestamp = require('./timestampParser');
 
 module.exports = function() {
 	'use strict';
@@ -714,231 +773,7 @@ module.exports = function() {
 		return message;
 	};
 }();
-},{"./../common/xml/XmlDomParser":2,"./parseTimestamp":5,"./parseValue":6}],5:[function(require,module,exports){
-module.exports = function() {
-	'use strict';
-
-	return function(bytes) {
-		if (bytes.length !== 9)
-			return null;
-
-		var year = (bytes.charCodeAt(0) * 100) + bytes.charCodeAt(1) - 64;
-		var month = bytes.charCodeAt(2) - 64 - 1;
-		var day = bytes.charCodeAt(3) - 64;
-		var hour = bytes.charCodeAt(4) - 64;
-		var minute = bytes.charCodeAt(5) - 64;
-		var second = bytes.charCodeAt(6) - 64;
-		var ms = (0xFF & bytes.charCodeAt(7)) + ((0xFF & bytes.charCodeAt(8)) << 8);
-
-		// 2016/02/17. JERQ is providing us with date and time values that
-		// are meant to be interpreted in the exchange's local timezone.
-		//
-		// This is interesting because different time values (e.g. 14:30 and
-		// 13:30) can refer to the same moment (e.g. EST for US equities and
-		// CST for US futures).
-		//
-		// Furthermore, when we use the timezone-sensitive Date object, we
-		// create a problem. The represents (computer) local time. So, for
-		// server applications, it is recommended that we use UTC -- so
-		// that the values (hours) are not changed when JSON serialized
-		// to ISO-8601 format. Then, the issue is passed along to the
-		// consumer (which must ignore the timezone too).
-
-		return new Date(year, month, day, hour, minute, second, ms);
-	};
-}();
-},{}],6:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.priceParser;
-}();
-},{"barchart-marketdata-utilities":9}],7:[function(require,module,exports){
-module.exports = function() {
-	'use strict';
-
-	return {
-		unitCodeToBaseCode: function(unitCode) {
-			switch (unitCode) {
-				case '2':
-					return -1;
-				case '3':
-					return -2;
-				case '4':
-					return -3;
-				case '5':
-					return -4;
-				case '6':
-					return -5;
-				case '7':
-					return -6;
-				case '8':
-					return 0;
-				case '9':
-					return 1;
-				case 'A':
-					return 2;
-				case 'B':
-					return 3;
-				case 'C':
-					return 4;
-				case 'D':
-					return 5;
-				case 'E':
-					return 6;
-				case 'F':
-					return 7;
-				default:
-					return 0;
-			}
-		},
-
-		baseCodeToUnitCode: function(baseCode) {
-			switch (baseCode) {
-				case -1:
-					return '2';
-				case -2:
-					return '3';
-				case -3:
-					return '4';
-				case -4:
-					return '5';
-				case -5:
-					return '6';
-				case -6:
-					return '7';
-				case 0:
-					return '8';
-				case 1:
-					return '9';
-				case 2:
-					return 'A';
-				case 3:
-					return 'B';
-				case 4:
-					return 'C';
-				case 5:
-					return 'D';
-				case 6:
-					return 'E';
-				case 7:
-					return 'F';
-				default:
-					return 0;
-			}
-		},
-
-		dateToDayCode: function(date) {
-			var d = date.getDate();
-
-			if (d >= 1 && d <= 9)
-				return String.fromCharCode(("1").charCodeAt(0) + d - 1);
-			else if (d == 10)
-				return '0';
-			else
-				return String.fromCharCode(("A").charCodeAt(0) + d - 11);
-		},
-
-		dayCodeToNumber: function(dayCode) {
-			var d = parseInt(dayCode, 31);
-
-			if (d > 9) {
-				d++;
-			} else if (d === 0) {
-				d = 10;
-			}
-
-			return d;
-		}
-	};
-}();
-},{}],8:[function(require,module,exports){
-var lodashIsNaN = require('lodash.isnan');
-
-module.exports = function() {
-	'use strict';
-
-	return function(value, digits, thousandsSeparator) {
-		if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
-			return '';
-		}
-
-		var returnRef = value.toFixed(digits);
-
-		if (thousandsSeparator && !(value > -1000 && value < 1000)) {
-			var length = returnRef.length;
-			var negative = value < 0;
-
-			var found = digits === 0;
-			var counter = 0;
-
-			var buffer = [];
-
-			for (var i = (length - 1); !(i < 0); i--) {
-				if (counter === 3 && !(negative && i === 0)) {
-					buffer.unshift(thousandsSeparator);
-
-					counter = 0;
-				}
-
-				var character = returnRef.charAt(i);
-
-				buffer.unshift(character);
-
-				if (found) {
-					counter = counter + 1;
-				} else if (character === '.') {
-					found = true;
-				}
-			}
-
-			returnRef = buffer.join('');
-		}
-
-		return returnRef;
-	};
-
-	/*
-	 // An alternative to consider ... seems about 15% faster ... not to
-	 // mention much less lengthy ... but, has a problem with more than
-	 // three decimal places ... regular expression needs work ...
-
-	 return function(value, digits, thousandsSeparator) {
-	 	if (typeof value === 'number' && (value || value === 0)) {
-	 		return value.toFixed(digits).replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator || ',');
-	 	} else {
-	 		return '';
-		}
-	 };
-	 */
-}();
-},{"lodash.isnan":17}],9:[function(require,module,exports){
-var convert = require('./convert');
-var decimalFormatter = require('./decimalFormatter');
-var monthCodes = require('./monthCodes');
-var priceFormatter = require('./priceFormatter');
-var symbolFormatter = require('./symbolFormatter');
-var symbolParser = require('./symbolParser');
-var priceParser = require('./priceParser');
-var timeFormatter = require('./timeFormatter');
-
-module.exports = function() {
-	'use strict';
-
-	return {
-		convert: convert,
-		decimalFormatter: decimalFormatter,
-		monthCodes: monthCodes,
-		priceFormatter: priceFormatter,
-		symbolParser: symbolParser,
-		priceParser: priceParser,
-		symbolFormatter: symbolFormatter,
-		timeFormatter: timeFormatter
-	};
-}();
-},{"./convert":7,"./decimalFormatter":8,"./monthCodes":10,"./priceFormatter":11,"./priceParser":12,"./symbolFormatter":13,"./symbolParser":14,"./timeFormatter":15}],10:[function(require,module,exports){
+},{"./common/xml/XmlDomParser":6,"./priceParser":13,"./timestampParser":17}],11:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -974,7 +809,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 var decimalFormatter = require('./decimalFormatter');
 
@@ -1087,7 +922,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":8,"lodash.isnan":17}],12:[function(require,module,exports){
+},{"./decimalFormatter":8,"lodash.isnan":19}],13:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1154,7 +989,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1172,7 +1007,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1339,7 +1174,7 @@ module.exports = function() {
 
 	return symbolParser;
 }();
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1455,7 +1290,40 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	return function(bytes) {
+		if (bytes.length !== 9)
+			return null;
+
+		var year = (bytes.charCodeAt(0) * 100) + bytes.charCodeAt(1) - 64;
+		var month = bytes.charCodeAt(2) - 64 - 1;
+		var day = bytes.charCodeAt(3) - 64;
+		var hour = bytes.charCodeAt(4) - 64;
+		var minute = bytes.charCodeAt(5) - 64;
+		var second = bytes.charCodeAt(6) - 64;
+		var ms = (0xFF & bytes.charCodeAt(7)) + ((0xFF & bytes.charCodeAt(8)) << 8);
+
+		// 2016/02/17. JERQ is providing us with date and time values that
+		// are meant to be interpreted in the exchange's local timezone.
+		//
+		// This is interesting because different time values (e.g. 14:30 and
+		// 13:30) can refer to the same moment (e.g. EST for US equities and
+		// CST for US futures).
+		//
+		// Furthermore, when we use the timezone-sensitive Date object, we
+		// create a problem. The represents (computer) local time. So, for
+		// server applications, it is recommended that we use UTC -- so
+		// that the values (hours) are not changed when JSON serialized
+		// to ISO-8601 format. Then, the issue is passed along to the
+		// consumer (which must ignore the timezone too).
+
+		return new Date(year, month, day, hour, minute, second, ms);
+	};
+}();
+},{}],18:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
  
@@ -1519,10 +1387,9 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],17:[function(require,module,exports){
-(function (global){
+},{}],19:[function(require,module,exports){
 /**
- * lodash 3.0.1 (Custom Build) <https://lodash.com/>
+ * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
  * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -1534,7 +1401,7 @@ module.exports = function() {
 var numberTag = '[object Number]';
 
 /** Used for built-in method references. */
-var objectProto = global.Object.prototype;
+var objectProto = Object.prototype;
 
 /**
  * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
@@ -1632,707 +1499,5 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],18:[function(require,module,exports){
-var CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
-
-describe('When a cumulative volume container is created with a tick increment of 0.25', function() {
-	var cv;
-
-	var symbol;
-	var tickIncrement;
-
-	beforeEach(function() {
-		cv = new CumulativeVolume(symbol = 'ESZ6', tickIncrement = 0.25);
-	});
-
-	it('the symbol should be the same value as assigned during construction', function() {
-		expect(cv.symbol).toEqual(symbol);
-	});
-
-	it('the price level array should contain zero items', function() {
-		expect(cv.toArray().length).toEqual(0);
-	});
-
-	describe('and 50 contracts are traded at 2172.50', function() {
-		beforeEach(function() {
-			cv.incrementVolume(2172.5, 50);
-		});
-
-		it('should report zero contracts traded at 2172.25', function() {
-			expect(cv.getVolume(2172.25)).toEqual(0);
-		});
-
-		it('should report 50 contracts traded at 2172.50', function() {
-			expect(cv.getVolume(2172.5)).toEqual(50);
-		});
-
-		it('should report zero contracts traded at 2172.75', function() {
-			expect(cv.getVolume(2172.75)).toEqual(0);
-		});
-
-		describe('and the price level array is retrieved', function() {
-			var priceLevels;
-
-			beforeEach(function() {
-				priceLevels = cv.toArray();
-			});
-
-			it('the price level array should contain one item', function() {
-				expect(priceLevels.length).toEqual(1);
-			});
-
-			it('the first price level item should be for 50 contracts', function() {
-				expect(priceLevels[0].volume).toEqual(50);
-			});
-
-			it('the first price level item should be priced at 2172.50', function() {
-				expect(priceLevels[0].price).toEqual(2172.5);
-			});
-		});
-
-		describe('and another 50 contracts are traded at 2172.50', function() {
-			beforeEach(function() {
-				cv.incrementVolume(2172.5, 50);
-			});
-
-			it('should report zero contracts traded at 2172.25', function() {
-				expect(cv.getVolume(2172.25)).toEqual(0);
-			});
-
-			it('should report 50 contracts traded at 2172.50', function() {
-				expect(cv.getVolume(2172.5)).toEqual(100);
-			});
-
-			it('should report zero contracts traded at 2172.75', function() {
-				expect(cv.getVolume(2172.75)).toEqual(0);
-			});
-
-			describe('and the price level array is retrieved', function() {
-				var priceLevels;
-
-				beforeEach(function() {
-					priceLevels = cv.toArray();
-				});
-
-				it('the price level array should contain one item', function() {
-					expect(priceLevels.length).toEqual(1);
-				});
-
-				it('the first price level item should be for 100 contracts', function() {
-					expect(priceLevels[0].volume).toEqual(100);
-				});
-
-				it('the first price level item should be priced at 2172.50', function() {
-					expect(priceLevels[0].price).toEqual(2172.5);
-				});
-			});
-		});
-
-		describe('and 200 contracts are traded at 2172.25', function() {
-			beforeEach(function() {
-				cv.incrementVolume(2172.25, 200);
-			});
-
-			it('should report 200 contracts traded at 2172.25', function() {
-				expect(cv.getVolume(2172.25)).toEqual(200);
-			});
-
-			it('should report 50 contracts traded at 2172.50', function() {
-				expect(cv.getVolume(2172.5)).toEqual(50);
-			});
-
-			it('should report zero contracts traded at 2172.75', function() {
-				expect(cv.getVolume(2172.75)).toEqual(0);
-			});
-
-			describe('and the price level array is retrieved', function() {
-				var priceLevels;
-
-				beforeEach(function() {
-					priceLevels = cv.toArray();
-				});
-
-				it('the price level array should contain two items', function() {
-					expect(priceLevels.length).toEqual(2);
-				});
-
-				it('the first price level item should be for 200 contracts', function() {
-					expect(priceLevels[0].volume).toEqual(200);
-				});
-
-				it('the first price level item should be priced at 2172.25', function() {
-					expect(priceLevels[0].price).toEqual(2172.25);
-				});
-
-				it('the second price level item should be for 50 contracts', function() {
-					expect(priceLevels[1].volume).toEqual(50);
-				});
-
-				it('the second price level item should be priced at 2172.50', function() {
-					expect(priceLevels[1].price).toEqual(2172.5);
-				});
-			});
-		});
-
-		describe('and 3 contracts are traded at 2173.50', function() {
-			beforeEach(function() {
-				cv.incrementVolume(2173.50, 3);
-			});
-
-			it('should report 50 contracts traded at 2172.50', function() {
-				expect(cv.getVolume(2172.5)).toEqual(50);
-			});
-
-			it('should report zero contracts traded at 2172.75', function() {
-				expect(cv.getVolume(2172.75)).toEqual(0);
-			});
-
-			it('should report zero contracts traded at 2173', function() {
-				expect(cv.getVolume(2173)).toEqual(0);
-			});
-
-			it('should report zero contracts traded at 2173.25', function() {
-				expect(cv.getVolume(2173.25)).toEqual(0);
-			});
-
-			it('should report 3 contracts traded at 2173.50', function() {
-				expect(cv.getVolume(2173.50)).toEqual(3);
-			});
-
-			describe('and the price level array is retrieved', function() {
-				var priceLevels;
-
-				beforeEach(function() {
-					priceLevels = cv.toArray();
-				});
-
-				it('the price level array should contain five items', function() {
-					expect(priceLevels.length).toEqual(5);
-				});
-
-				it('the first price level item should be for 50 contracts', function() {
-					expect(priceLevels[0].volume).toEqual(50);
-				});
-
-				it('the first price level item should be priced at 2172.50', function() {
-					expect(priceLevels[0].price).toEqual(2172.5);
-				});
-
-				it('the second price level item should be for zero contracts', function() {
-					expect(priceLevels[1].volume).toEqual(0);
-				});
-
-				it('the second price level item should be priced at 2172.75', function() {
-					expect(priceLevels[1].price).toEqual(2172.75);
-				});
-
-				it('the third price level item should be for zero contracts', function() {
-					expect(priceLevels[2].volume).toEqual(0);
-				});
-
-				it('the third price level item should be priced at 2173.00', function() {
-					expect(priceLevels[2].price).toEqual(2173);
-				});
-
-				it('the fourth price level item should be for zero contracts', function() {
-					expect(priceLevels[3].volume).toEqual(0);
-				});
-
-				it('the fourth price level item should be priced at 2173.25', function() {
-					expect(priceLevels[3].price).toEqual(2173.25);
-				});
-
-				it('the fifth price level item should be for 3 contracts', function() {
-					expect(priceLevels[4].volume).toEqual(3);
-				});
-
-				it('the fifth price level item should be priced at 2173.50', function() {
-					expect(priceLevels[4].price).toEqual(2173.5);
-				});
-			});
-		});
-
-		describe('and 99 contracts are traded at 2172.00', function() {
-			beforeEach(function() {
-				cv.incrementVolume(2172.00, 99);
-			});
-
-			it('should report 99 contracts traded at 2172.00', function() {
-				expect(cv.getVolume(2172.00)).toEqual(99);
-			});
-
-			it('should report zero contracts traded at 2172.25', function() {
-				expect(cv.getVolume(2172.25)).toEqual(0);
-			});
-
-			it('should report 50 contracts traded at 2172.50', function() {
-				expect(cv.getVolume(2172.50)).toEqual(50);
-			});
-
-			describe('and the price level array is retrieved', function() {
-				var priceLevels;
-
-				beforeEach(function() {
-					priceLevels = cv.toArray();
-				});
-
-				it('the price level array should contain three items', function() {
-					expect(priceLevels.length).toEqual(3);
-				});
-
-				it('the first price level item should be for 99 contracts', function() {
-					expect(priceLevels[0].volume).toEqual(99);
-				});
-
-				it('the first price level item should be priced at 2172.00', function() {
-					expect(priceLevels[0].price).toEqual(2172);
-				});
-
-				it('the second price level item should be for zero contracts', function() {
-					expect(priceLevels[1].volume).toEqual(0);
-				});
-
-				it('the second price level item should be priced at 2172.25', function() {
-					expect(priceLevels[1].price).toEqual(2172.25);
-				});
-
-				it('the third price level item should be for 50 contracts', function() {
-					expect(priceLevels[2].volume).toEqual(50);
-				});
-
-				it('the third price level item should be priced at 2172.50', function() {
-					expect(priceLevels[2].price).toEqual(2172.50);
-				});
-			});
-		});
-
-		describe('and the container is reset', function() {
-			beforeEach(function() {
-				cv.reset();
-			});
-
-			describe('and the price level array is retrieved', function() {
-				var priceLevels;
-
-				beforeEach(function() {
-					priceLevels = cv.toArray();
-				});
-
-				it('the price level array should contain zero items', function() {
-					expect(priceLevels.length).toEqual(0);
-				});
-			});
-		});
-	});
-
-	describe('and an observer is added to the container', function() {
-		var spyOne;
-
-		beforeEach(function() {
-			cv.on('events', spyOne = jasmine.createSpy('spyOne'));
-		});
-
-		describe('and 50 contracts are traded at 2172.50', function() {
-			beforeEach(function () {
-				cv.incrementVolume(2172.5, 50);
-			});
-
-			it('the observer should be called once', function() {
-				expect(spyOne).toHaveBeenCalledTimes(1);
-			});
-
-			it('the arguments should refer to the container', function() {
-				expect(spyOne.calls.mostRecent().args[0].container).toBe(cv);
-			});
-
-			it('the arguments should specify an event type of "update"', function() {
-				expect(spyOne.calls.mostRecent().args[0].event).toEqual('update');
-			});
-
-			it('the arguments should specify a price of 2172.5', function() {
-				expect(spyOne.calls.mostRecent().args[0].price).toEqual(2172.5);
-			});
-
-			it('the arguments should specify a volume of 50', function() {
-				expect(spyOne.calls.mostRecent().args[0].volume).toEqual(50);
-			});
-
-			describe('and another 50 contracts are traded at 2172.50', function() {
-				beforeEach(function () {
-					cv.incrementVolume(2172.5, 50);
-				});
-
-				it('the observer should be called once more', function() {
-					expect(spyOne).toHaveBeenCalledTimes(2);
-				});
-
-				it('the arguments should refer to the container', function() {
-					expect(spyOne.calls.mostRecent().args[0].container).toBe(cv);
-				});
-
-				it('the arguments should specify an event type of "update"', function() {
-					expect(spyOne.calls.mostRecent().args[0].event).toEqual('update');
-				});
-
-				it('the arguments should specify a price of 2172.5', function() {
-					expect(spyOne.calls.mostRecent().args[0].price).toEqual(2172.5);
-				});
-
-				it('the arguments should specify a volume of 100', function() {
-					expect(spyOne.calls.mostRecent().args[0].volume).toEqual(100);
-				});
-			});
-
-			describe('and 99 contracts are traded at 2171.75', function() {
-				var spyTwo;
-
-				beforeEach(function () {
-					cv.incrementVolume(2171.75, 99);
-				});
-
-				it('the observer should be called three more times', function() {
-					expect(spyOne).toHaveBeenCalledTimes(4);
-				});
-
-				it('the arguments (for the first call) should specify a price of 2172.25', function() {
-					expect(spyOne.calls.argsFor(1)[0].price).toEqual(2172.25);
-				});
-
-				it('the arguments (for the first call) should specify a volume of zero', function() {
-					expect(spyOne.calls.argsFor(1)[0].volume).toEqual(0);
-				});
-
-				it('the arguments (for the second call) should specify a price of 2172.00', function() {
-					expect(spyOne.calls.argsFor(2)[0].price).toEqual(2172);
-				});
-
-				it('the arguments (for the second call) should specify a volume of zero', function() {
-					expect(spyOne.calls.argsFor(2)[0].volume).toEqual(0);
-				});
-
-				it('the arguments (for the third call) should specify a price of 2171.75', function() {
-					expect(spyOne.calls.argsFor(3)[0].price).toEqual(2171.75);
-				});
-
-				it('the arguments (for the third call) should specify a volume of 99', function() {
-					expect(spyOne.calls.argsFor(3)[0].volume).toEqual(99);
-				});
-			});
-
-			describe('and 555 contracts are traded at 2173.25', function() {
-				beforeEach(function () {
-					cv.incrementVolume(2173.25, 555);
-				});
-
-				it('the observer should be called three more times', function() {
-					expect(spyOne).toHaveBeenCalledTimes(4);
-				});
-
-				it('the arguments (for the first call) should specify a price of 2172.75', function() {
-					expect(spyOne.calls.argsFor(1)[0].price).toEqual(2172.75);
-				});
-
-				it('the arguments (for the first call) should specify a volume of zero', function() {
-					expect(spyOne.calls.argsFor(1)[0].volume).toEqual(0);
-				});
-
-				it('the arguments (for the second call) should specify a price of 2173.00', function() {
-					expect(spyOne.calls.argsFor(2)[0].price).toEqual(2173);
-				});
-
-				it('the arguments (for the second call) should specify a volume of zero', function() {
-					expect(spyOne.calls.argsFor(2)[0].volume).toEqual(0);
-				});
-
-				it('the arguments (for the third call) should specify a price of 2173.25', function() {
-					expect(spyOne.calls.argsFor(3)[0].price).toEqual(2173.25);
-				});
-
-				it('the arguments (for the third call) should specify a volume of 555', function() {
-					expect(spyOne.calls.argsFor(3)[0].volume).toEqual(555);
-				});
-			});
-
-			describe('and the observer is removed from the container', function() {
-				beforeEach(function () {
-					cv.off('events', spyOne);
-				});
-
-				describe('and another 50 contracts are traded at 2172.50', function() {
-					beforeEach(function () {
-						cv.incrementVolume(2172.5, 50);
-					});
-
-					it('the observer should be called once', function() {
-						expect(spyOne).toHaveBeenCalledTimes(1);
-					});
-				});
-			});
-		});
-	});
+},{}]},{},[1])(1)
 });
-},{"../../../lib/marketState/CumulativeVolume":3}],19:[function(require,module,exports){
-var parseMessage = require('../../../lib/messageParser/parseMessage');
-
-describe('when parsing an XML refresh message', function() {
-	describe('for an instrument that has settled and has a postmarket (form-T) trade', function() {
-		var x;
-
-		beforeEach(function() {
-			x = parseMessage('%<QUOTE symbol="AAPL" name="Apple Inc" exchange="NASDAQ" basecode="A" pointvalue="1.0" tickincrement="1" ddfexchange="Q" flag="s" lastupdate="20160920163525" bid="11345" bidsize="10" ask="11352" asksize="1" mode="I"><SESSION day="J" session="R" timestamp="20160920171959" open="11305" high="11412" low="11251" last="11357" previous="11358" settlement="11357" tradesize="1382944" volume="36258067" numtrades="143218" pricevolume="3548806897.06" tradetime="20160920160000" ticks=".." id="combined"/><SESSION day="I" timestamp="20160919000000" open="11519" high="11618" low="11325" last="11358" previous="11492" settlement="11358" volume="47010000" ticks=".." id="previous"/><SESSION day="J" session="R" previous="11358" volume="13198" id="session_J_R"/><SESSION day="J" session="T" timestamp="20160920172007" last="11355" previous="11358" tradesize="500" volume="656171" numtrades="1118" pricevolume="74390050.90" tradetime="20160920172007" ticks="+-" id="session_J_T"/></QUOTE>');
-		});
-
-		it('the "flag" should be "s"', function() {
-			expect(x.flag).toEqual('s');
-		});
-
-		it('the "session" should not be "T"', function() {
-			expect(x.session).toEqual('T');
-		});
-
-		it('the "sessionT" should be true', function() {
-			expect(x.sessionT).toEqual(true);
-		});
-
-		it('the "lastPrice" should be 113.57', function() {
-			expect(x.lastPrice).toEqual(113.57);
-		});
-
-		it('the "lastPriceT" should be 113.55', function() {
-			expect(x.lastPriceT).toEqual(113.55);
-		});
-
-		it('the "volume" should come from the "combined" session', function() {
-			expect(x.volume).toEqual(36258067);
-		});
-	});
-
-	describe('for an instrument that is not settled, but has a postmarket (form-T) trade', function() {
-		var x;
-
-		beforeEach(function() {
-			x = parseMessage('%<QUOTE symbol="BAC" name="Bank of America Corp" exchange="NYSE" basecode="A" pointvalue="1.0" tickincrement="1" ddfexchange="N" lastupdate="20160920152208" bid="1558" bidsize="20" ask="1559" asksize="1" mode="I"><SESSION day="J" session="R" timestamp="20160920160021" open="1574" high="1576" low="1551" last="1560" previous="1559" tradesize="1483737" volume="67399368" numtrades="96903" pricevolume="1041029293.48" tradetime="20160920160021" ticks=".." id="combined"/><SESSION day="I" timestamp="20160919000000" open="1555" high="1578" low="1555" last="1559" previous="1549" settlement="1559" volume="66174800" ticks=".." id="previous"/><SESSION day="J" session="R" previous="1559" volume="1772" id="session_J_R"/><SESSION day="J" session="T" timestamp="20160920160527" last="1559" previous="1559" tradesize="1175" volume="296998" numtrades="356" pricevolume="4652652.89" tradetime="20160920160527" ticks=".." id="session_J_T"/></QUOTE>');
-		});
-
-		it('the "flag" should not be "s"', function() {
-			expect(x.flag).not.toEqual('s');
-		});
-
-		it('the "session" should not be "T"', function() {
-			expect(x.session).not.toEqual('T');
-		});
-
-		it('the "sessionT" should be true', function() {
-			expect(x.sessionT).toEqual(true);
-		});
-
-		it('the "lastPrice" should be 15.60', function() {
-			expect(x.lastPrice).toEqual(15.60);
-		});
-
-		it('the "lastPriceT" should be 15.59', function() {
-			expect(x.lastPriceT).toEqual(15.59);
-		});
-
-		it('the "volume" should come from the "combined" session', function() {
-			expect(x.volume).toEqual(67399368);
-		});
-	});
-});
-
-describe('when parsing a DDF message', function() {
-	describe('for a 2,Z message for SIRI, 3@3.94', function() {
-		var x;
-
-		beforeEach(function() {
-			x = parseMessage('\x012SIRI,Z AQ15394,3,1I');
-		});
-
-		it('the "record" should be "2"', function() {
-			expect(x.record).toEqual('2');
-		});
-
-		it('the "subrecord" should be "Z"', function() {
-			expect(x.subrecord).toEqual('Z');
-		});
-
-		it('the "symbol" should be "SIRI"', function() {
-			expect(x.symbol).toEqual('SIRI');
-		});
-
-		it('the "type" should be "TRADE_OUT_OF_SEQUENCE"', function() {
-			expect(x.type).toEqual('TRADE_OUT_OF_SEQUENCE');
-		});
-
-		it('the "tradePrice" should be 3.94', function() {
-			expect(x.tradePrice).toEqual(3.94);
-		});
-
-		it('the "tradeSize" should be 3', function() {
-			expect(x.tradeSize).toEqual(3);
-		});
-	});
-
-	describe('for a 2,Z message for SIRI, 2998262@3.95', function() {
-		var x;
-
-		beforeEach(function() {
-			x = parseMessage('\x012SIRI,Z AQ15395,2998262,1W');
-		});
-
-		it('the "record" should be "2"', function() {
-			expect(x.record).toEqual('2');
-		});
-
-		it('the "subrecord" should be "Z"', function() {
-			expect(x.subrecord).toEqual('Z');
-		});
-
-		it('the "symbol" should be "SIRI"', function() {
-			expect(x.symbol).toEqual('SIRI');
-		});
-
-		it('the "type" should be "TRADE_OUT_OF_SEQUENCE"', function() {
-			expect(x.type).toEqual('TRADE_OUT_OF_SEQUENCE');
-		});
-
-		it('the "tradePrice" should be 3.95', function() {
-			expect(x.tradePrice).toEqual(3.95);
-		});
-
-		it('the "tradeSize" should be 2998262', function() {
-			expect(x.tradeSize).toEqual(2998262);
-		});
-	});
-
-	describe('for a 2,0 message for AAPL', function() {
-		var x;
-
-		beforeEach(function() {
-			x = parseMessage('\x012AAPL,0\x02AQ1510885,D0M \x03\x14PHWQT@\x04$');
-		});
-
-		it('the "record" should be "2"', function() {
-			expect(x.record).toEqual('2');
-		});
-
-		it('the "subrecord" should be "0"', function() {
-			expect(x.subrecord).toEqual('0');
-		});
-
-		it('the "symbol" should be "AAPL"', function() {
-			expect(x.symbol).toEqual('AAPL');
-		});
-
-		it('the "type" should be "SETTLEMENT"', function() {
-			expect(x.type).toEqual('SETTLEMENT');
-		});
-
-		it('the "value" should be 108.85', function() {
-			expect(x.value).toEqual(108.85);
-		});
-	});
-
-	describe('for a 2,Z message for TSLA', function() {
-		var x;
-
-		beforeEach(function() {
-			x = parseMessage('\x012TSLA,Z\x02AQ1521201,3,TI\x03');
-		});
-
-		it('the "record" should be "2"', function() {
-			expect(x.record).toEqual('2');
-		});
-
-		it('the "subrecord" should be "Z"', function() {
-			expect(x.subrecord).toEqual('Z');
-		});
-
-		it('the "symbol" should be "AAPL"', function() {
-			expect(x.symbol).toEqual('TSLA');
-		});
-
-		it('the "type" should be "TRADE_OUT_OF_SEQUENCE"', function() {
-			expect(x.type).toEqual('TRADE_OUT_OF_SEQUENCE');
-		});
-
-		it('the "tradePrice" should be "212.01"', function() {
-			expect(x.tradePrice).toEqual(212.01);
-		});
-
-		it('the "day" should be "T"', function() {
-			expect(x.day).toEqual('T');
-		});
-
-		it('the "session" should be "I"', function() {
-			expect(x.session).toEqual('I');
-		});
-	});
-});
-
-},{"../../../lib/messageParser/parseMessage":4}],20:[function(require,module,exports){
-var parseValue = require('../../../lib/messageParser/parseValue');
-
-describe('when parsing prices', function() {
-	'use strict';
-
-	describe('with a decimal fraction separator', function() {
-		it('returns 377 (with unit code 2) when parsing "377.000"', function() {
-			expect(parseValue('377.000', '2')).toEqual(377);
-		});
-
-		it('returns 377.5 (with unit code 2) when parsing "377.500"', function() {
-			expect(parseValue('377.500', '2')).toEqual(377.5);
-		});
-
-		it('returns 377.75 (with unit code 2) when parsing "377.750"', function() {
-			expect(parseValue('377.750', '2')).toEqual(377.75);
-		});
-	});
-
-	describe('with a dash fraction separator', function() {
-		it('returns 123 (with unit code 2) when parsing "123-0"', function() {
-			expect(parseValue('123-0', '2')).toEqual(123);
-		});
-
-		it('returns 123.5 (with unit code 2) when parsing "123-4"', function() {
-			expect(parseValue('123-4', '2')).toEqual(123.5);
-		});
-
-		it('returns 0.5 (with unit code 2) when parsing "0-4"', function() {
-			expect(parseValue('0-4', '2')).toEqual(0.5);
-		});
-
-		it('returns 0 (with unit code 2) when parsing "0-0"', function() {
-			expect(parseValue('0-0', '2')).toEqual(0);
-		});
-
-		it('returns undefined (with unit code 2) when parsing zero-length string', function() {
-			expect(parseValue('', '2')).toEqual(undefined);
-		});
-	});
-
-	describe('with a tick fraction separator', function() {
-		it('returns 123 (with unit code 2) when parsing "123\'0"', function() {
-			expect(parseValue('123\'0', '2')).toEqual(123);
-		});
-
-		it('returns 123.5 (with unit code 2) when parsing "123\'4"', function() {
-			expect(parseValue('123\'4', '2')).toEqual(123.5);
-		});
-
-		it('returns 0.5 (with unit code 2) when parsing "0\'4"', function() {
-			expect(parseValue('0\'4', '2')).toEqual(0.5);
-		});
-
-		it('returns 0 (with unit code 2) when parsing "0\'0"', function() {
-			expect(parseValue('0\'0', '2')).toEqual(0);
-		});
-
-		it('returns undefined (with unit code 2) when parsing zero-length string', function() {
-			expect(parseValue('', '2')).toEqual(undefined);
-		});
-	});
-});
-},{"../../../lib/messageParser/parseValue":6}]},{},[18,19,20]);
