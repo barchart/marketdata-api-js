@@ -1,4 +1,46 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g=(g.Barchart||(g.Barchart = {}));g=(g.RealtimeData||(g.RealtimeData = {}));g.MessageParser = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var parseMessage = require('./parseMessage');
+var parseTimestamp = require('./parseTimestamp');
+var parseValue = require('./parseValue');
+
+module.exports = function() {
+	'use strict';
+
+	return {
+		parseMessage: parseMessage,
+		parseTimestamp: parseTimestamp,
+		parseValue: parseValue,
+
+		Parse: parseMessage,
+		ParseTimestamp: parseTimestamp,
+		ParseValue: parseValue
+	};
+}();
+},{"./parseMessage":2,"./parseTimestamp":3,"./parseValue":4}],2:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.messageParser;
+}();
+},{"barchart-marketdata-utilities":9}],3:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.timestampParser;
+}();
+},{"barchart-marketdata-utilities":9}],4:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.priceParser;
+}();
+},{"barchart-marketdata-utilities":9}],5:[function(require,module,exports){
 var Class = require('class.extend');
 
 module.exports = function() {
@@ -26,7 +68,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":16}],2:[function(require,module,exports){
+},{"class.extend":18}],6:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -60,29 +102,197 @@ module.exports = function() {
         }
     });
 }();
-},{"./../XmlDomParserBase":1}],3:[function(require,module,exports){
-var parseMessage = require('./parseMessage');
-var parseTimestamp = require('./parseTimestamp');
-var parseValue = require('./parseValue');
+},{"./../XmlDomParserBase":5}],7:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	return {
+		unitCodeToBaseCode: function(unitCode) {
+			switch (unitCode) {
+				case '2':
+					return -1;
+				case '3':
+					return -2;
+				case '4':
+					return -3;
+				case '5':
+					return -4;
+				case '6':
+					return -5;
+				case '7':
+					return -6;
+				case '8':
+					return 0;
+				case '9':
+					return 1;
+				case 'A':
+					return 2;
+				case 'B':
+					return 3;
+				case 'C':
+					return 4;
+				case 'D':
+					return 5;
+				case 'E':
+					return 6;
+				case 'F':
+					return 7;
+				default:
+					return 0;
+			}
+		},
+
+		baseCodeToUnitCode: function(baseCode) {
+			switch (baseCode) {
+				case -1:
+					return '2';
+				case -2:
+					return '3';
+				case -3:
+					return '4';
+				case -4:
+					return '5';
+				case -5:
+					return '6';
+				case -6:
+					return '7';
+				case 0:
+					return '8';
+				case 1:
+					return '9';
+				case 2:
+					return 'A';
+				case 3:
+					return 'B';
+				case 4:
+					return 'C';
+				case 5:
+					return 'D';
+				case 6:
+					return 'E';
+				case 7:
+					return 'F';
+				default:
+					return 0;
+			}
+		},
+
+		dateToDayCode: function(date) {
+			var d = date.getDate();
+
+			if (d >= 1 && d <= 9)
+				return String.fromCharCode(("1").charCodeAt(0) + d - 1);
+			else if (d == 10)
+				return '0';
+			else
+				return String.fromCharCode(("A").charCodeAt(0) + d - 11);
+		},
+
+		dayCodeToNumber: function(dayCode) {
+			var d = parseInt(dayCode, 31);
+
+			if (d > 9) {
+				d++;
+			} else if (d === 0) {
+				d = 10;
+			}
+
+			return d;
+		}
+	};
+}();
+},{}],8:[function(require,module,exports){
+var lodashIsNaN = require('lodash.isnan');
+
+module.exports = function() {
+	'use strict';
+
+	return function(value, digits, thousandsSeparator, useParenthesis) {
+		if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
+			return '';
+		}
+
+		var applyParenthesis = value < 0 && useParenthesis === true;
+
+		if (applyParenthesis) {
+			value = 0 - value;
+		}
+
+		var returnRef = value.toFixed(digits);
+
+		if (thousandsSeparator && !(value > -1000 && value < 1000)) {
+			var length = returnRef.length;
+			var negative = value < 0;
+
+			var found = digits === 0;
+			var counter = 0;
+
+			var buffer = [];
+
+			for (var i = (length - 1); !(i < 0); i--) {
+				if (counter === 3 && !(negative && i === 0)) {
+					buffer.unshift(thousandsSeparator);
+
+					counter = 0;
+				}
+
+				var character = returnRef.charAt(i);
+
+				buffer.unshift(character);
+
+				if (found) {
+					counter = counter + 1;
+				} else if (character === '.') {
+					found = true;
+				}
+			}
+
+			if (applyParenthesis) {
+				buffer.unshift('(')
+				buffer.push(')');
+			}
+
+			returnRef = buffer.join('');
+		} else if (applyParenthesis) {
+			returnRef = '(' + returnRef + ')';
+		}
+
+		return returnRef;
+	};
+}();
+},{"lodash.isnan":19}],9:[function(require,module,exports){
+var convert = require('./convert');
+var decimalFormatter = require('./decimalFormatter');
+var messageParser = require('./messageParser');
+var monthCodes = require('./monthCodes');
+var priceFormatter = require('./priceFormatter');
+var symbolFormatter = require('./symbolFormatter');
+var symbolParser = require('./symbolParser');
+var priceParser = require('./priceParser');
+var timeFormatter = require('./timeFormatter');
+var timestampParser = require('./timestampParser');
 
 module.exports = function() {
 	'use strict';
 
 	return {
-		parseMessage: parseMessage,
-		parseTimestamp: parseTimestamp,
-		parseValue: parseValue,
-
-		Parse: parseMessage,
-		ParseTimestamp: parseTimestamp,
-		ParseValue: parseValue
+		convert: convert,
+		decimalFormatter: decimalFormatter,
+		monthCodes: monthCodes,
+		messageParser: messageParser,
+		priceFormatter: priceFormatter,
+		symbolParser: symbolParser,
+		priceParser: priceParser,
+		symbolFormatter: symbolFormatter,
+		timeFormatter: timeFormatter,
+		timestampParser: timestampParser
 	};
 }();
-},{"./parseMessage":4,"./parseTimestamp":5,"./parseValue":6}],4:[function(require,module,exports){
-var XmlDomParser = require('./../common/xml/XmlDomParser');
+},{"./convert":7,"./decimalFormatter":8,"./messageParser":10,"./monthCodes":11,"./priceFormatter":12,"./priceParser":13,"./symbolFormatter":14,"./symbolParser":15,"./timeFormatter":16,"./timestampParser":17}],10:[function(require,module,exports){
+var XmlDomParser = require('./common/xml/XmlDomParser');
 
-var parseValue = require('./parseValue');
-var parseTimestamp = require('./parseTimestamp');
+var parseValue = require('./priceParser');
+var parseTimestamp = require('./timestampParser');
 
 module.exports = function() {
 	'use strict';
@@ -294,10 +504,10 @@ module.exports = function() {
 										var lastPriceT = t.lastPrice;
 
 										if (lastPriceT) {
+											message.lastPriceT = lastPriceT;
+
 											var tradeTimeT = t.tradeTime;
 											var tradeSizeT = t.tradeSize;
-
-											message.lastPriceT = lastPriceT;
 
 											if (tradeTimeT) {
 												var noon = new Date(tradeTimeT.getFullYear(), tradeTimeT.getMonth(), tradeTimeT.getDate(), 12, 0, 0, 0);
@@ -305,19 +515,25 @@ module.exports = function() {
 												message.sessionT = tradeTimeT.getTime() > noon.getTime();
 											}
 
-											if (tradeTimeT)
-												message.tradeTime = tradeTimeT; // might be a problem (we've split lastPrice and lastPriceT -- we might need to split times)
-											if (tradeSizeT)
-												message.tradeSize = tradeSizeT;
-
 											if (premarket || postmarket) {
 												message.session = 'T';
 
+												if (tradeTimeT) {
+													message.tradeTime = tradeTimeT;
+												}
+
+												if (tradeSizeT) {
+													message.tradeSize = tradeSizeT;
+												}
+
 												if (premarket) {
-													if (t.volume)
+													if (t.volume) {
 														message.volume = t.volume;
-													if (t.previousPrice)
+													}
+
+													if (t.previousPrice) {
 														message.previousPrice = t.previousPrice;
+													}
 												}
 											}
 										}
@@ -550,231 +766,7 @@ module.exports = function() {
 		return message;
 	};
 }();
-},{"./../common/xml/XmlDomParser":2,"./parseTimestamp":5,"./parseValue":6}],5:[function(require,module,exports){
-module.exports = function() {
-	'use strict';
-
-	return function(bytes) {
-		if (bytes.length !== 9)
-			return null;
-
-		var year = (bytes.charCodeAt(0) * 100) + bytes.charCodeAt(1) - 64;
-		var month = bytes.charCodeAt(2) - 64 - 1;
-		var day = bytes.charCodeAt(3) - 64;
-		var hour = bytes.charCodeAt(4) - 64;
-		var minute = bytes.charCodeAt(5) - 64;
-		var second = bytes.charCodeAt(6) - 64;
-		var ms = (0xFF & bytes.charCodeAt(7)) + ((0xFF & bytes.charCodeAt(8)) << 8);
-
-		// 2016/02/17. JERQ is providing us with date and time values that
-		// are meant to be interpreted in the exchange's local timezone.
-		//
-		// This is interesting because different time values (e.g. 14:30 and
-		// 13:30) can refer to the same moment (e.g. EST for US equities and
-		// CST for US futures).
-		//
-		// Furthermore, when we use the timezone-sensitive Date object, we
-		// create a problem. The represents (computer) local time. So, for
-		// server applications, it is recommended that we use UTC -- so
-		// that the values (hours) are not changed when JSON serialized
-		// to ISO-8601 format. Then, the issue is passed along to the
-		// consumer (which must ignore the timezone too).
-
-		return new Date(year, month, day, hour, minute, second, ms);
-	};
-}();
-},{}],6:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.priceParser;
-}();
-},{"barchart-marketdata-utilities":9}],7:[function(require,module,exports){
-module.exports = function() {
-	'use strict';
-
-	return {
-		unitCodeToBaseCode: function(unitCode) {
-			switch (unitCode) {
-				case '2':
-					return -1;
-				case '3':
-					return -2;
-				case '4':
-					return -3;
-				case '5':
-					return -4;
-				case '6':
-					return -5;
-				case '7':
-					return -6;
-				case '8':
-					return 0;
-				case '9':
-					return 1;
-				case 'A':
-					return 2;
-				case 'B':
-					return 3;
-				case 'C':
-					return 4;
-				case 'D':
-					return 5;
-				case 'E':
-					return 6;
-				case 'F':
-					return 7;
-				default:
-					return 0;
-			}
-		},
-
-		baseCodeToUnitCode: function(baseCode) {
-			switch (baseCode) {
-				case -1:
-					return '2';
-				case -2:
-					return '3';
-				case -3:
-					return '4';
-				case -4:
-					return '5';
-				case -5:
-					return '6';
-				case -6:
-					return '7';
-				case 0:
-					return '8';
-				case 1:
-					return '9';
-				case 2:
-					return 'A';
-				case 3:
-					return 'B';
-				case 4:
-					return 'C';
-				case 5:
-					return 'D';
-				case 6:
-					return 'E';
-				case 7:
-					return 'F';
-				default:
-					return 0;
-			}
-		},
-
-		dateToDayCode: function(date) {
-			var d = date.getDate();
-
-			if (d >= 1 && d <= 9)
-				return String.fromCharCode(("1").charCodeAt(0) + d - 1);
-			else if (d == 10)
-				return '0';
-			else
-				return String.fromCharCode(("A").charCodeAt(0) + d - 11);
-		},
-
-		dayCodeToNumber: function(dayCode) {
-			var d = parseInt(dayCode, 31);
-
-			if (d > 9) {
-				d++;
-			} else if (d === 0) {
-				d = 10;
-			}
-
-			return d;
-		}
-	};
-}();
-},{}],8:[function(require,module,exports){
-var lodashIsNaN = require('lodash.isnan');
-
-module.exports = function() {
-	'use strict';
-
-	return function(value, digits, thousandsSeparator) {
-		if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
-			return '';
-		}
-
-		var returnRef = value.toFixed(digits);
-
-		if (thousandsSeparator && !(value > -1000 && value < 1000)) {
-			var length = returnRef.length;
-			var negative = value < 0;
-
-			var found = digits === 0;
-			var counter = 0;
-
-			var buffer = [];
-
-			for (var i = (length - 1); !(i < 0); i--) {
-				if (counter === 3 && !(negative && i === 0)) {
-					buffer.unshift(thousandsSeparator);
-
-					counter = 0;
-				}
-
-				var character = returnRef.charAt(i);
-
-				buffer.unshift(character);
-
-				if (found) {
-					counter = counter + 1;
-				} else if (character === '.') {
-					found = true;
-				}
-			}
-
-			returnRef = buffer.join('');
-		}
-
-		return returnRef;
-	};
-
-	/*
-	 // An alternative to consider ... seems about 15% faster ... not to
-	 // mention much less lengthy ... but, has a problem with more than
-	 // three decimal places ... regular expression needs work ...
-
-	 return function(value, digits, thousandsSeparator) {
-	 	if (typeof value === 'number' && (value || value === 0)) {
-	 		return value.toFixed(digits).replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator || ',');
-	 	} else {
-	 		return '';
-		}
-	 };
-	 */
-}();
-},{"lodash.isnan":17}],9:[function(require,module,exports){
-var convert = require('./convert');
-var decimalFormatter = require('./decimalFormatter');
-var monthCodes = require('./monthCodes');
-var priceFormatter = require('./priceFormatter');
-var symbolFormatter = require('./symbolFormatter');
-var symbolParser = require('./symbolParser');
-var priceParser = require('./priceParser');
-var timeFormatter = require('./timeFormatter');
-
-module.exports = function() {
-	'use strict';
-
-	return {
-		convert: convert,
-		decimalFormatter: decimalFormatter,
-		monthCodes: monthCodes,
-		priceFormatter: priceFormatter,
-		symbolParser: symbolParser,
-		priceParser: priceParser,
-		symbolFormatter: symbolFormatter,
-		timeFormatter: timeFormatter
-	};
-}();
-},{"./convert":7,"./decimalFormatter":8,"./monthCodes":10,"./priceFormatter":11,"./priceParser":12,"./symbolFormatter":13,"./symbolParser":14,"./timeFormatter":15}],10:[function(require,module,exports){
+},{"./common/xml/XmlDomParser":6,"./priceParser":13,"./timestampParser":17}],11:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -810,7 +802,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 var decimalFormatter = require('./decimalFormatter');
 
@@ -821,23 +813,24 @@ module.exports = function() {
 		return ['000', Math.floor(value)].join('').substr(-1 * digits);
 	}
 
-	return function(fractionSeparator, specialFractions, thousandsSeparator) {
+	return function(fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
 		var format;
 
 		function getWholeNumberAsString(value) {
 			var val = Math.floor(value);
 
-			if ((val === 0) && (fractionSeparator === ''))
+			if ((val === 0) && (fractionSeparator === '')) {
 				return '';
-			else
+			} else {
 				return val;
+			}
 		}
 
 		function formatDecimal(value, digits) {
-			return decimalFormatter(value, digits, thousandsSeparator);
+			return decimalFormatter(value, digits, thousandsSeparator, useParenthesis);
 		}
 
-		if (fractionSeparator == '.') { // Decimals
+		if (fractionSeparator === '.') {
 			format = function(value, unitcode) {
 				switch (unitcode) {
 					case '2':
@@ -867,53 +860,68 @@ module.exports = function() {
 					case 'E':
 						return formatDecimal(value, 6);
 					default:
-						if (value === '' || value === undefined || value === null || lodashIsNaN(value))
+						if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
 							return '';
-						else
+						} else {
 							return value;
+						}
 				}
 			};
 		} else {
 			format = function(value, unitcode) {
-				if (value === '' || value === undefined || value === null || lodashIsNaN(value))
+				if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
 					return '';
+				}
 
-				var sign = (value >= 0) ? '' : '-';
-				value = Math.abs(value);
+				var originalValue = value;
+				var negative = value < 0;
+				var value = Math.abs(value);
 
-				// Well, damn it, sometimes code that is beautiful just doesn't work quite right.
-				// return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
-				// will fail when Math.floor(value) is 0 and the fractionSeparator is '', since 0.500 => 04 instead of just 4
+				var prefix;
+				var suffix;
+
+				if (negative) {
+					if (useParenthesis === true) {
+						prefix = '(';
+						suffix = ')';
+					} else {
+						prefix = '-';
+						suffix = '';
+					}
+				} else {
+					prefix = '';
+					suffix = '';
+				}
 
 				switch (unitcode) {
 					case '2':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1), suffix].join('');
 					case '3':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2), suffix].join('');
 					case '4':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2), suffix].join('');
 					case '5':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2))].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2)), suffix].join('');
 					case '6':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3), suffix].join('');
 					case '7':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3), suffix].join('');
 					case '8':
-						return sign + formatDecimal(value, 0);
+						return formatDecimal(originalValue, 0);
 					case '9':
-						return sign + formatDecimal(value, 1);
+						return formatDecimal(originalValue, 1);
 					case 'A':
-						return sign + formatDecimal(value, 2);
+						return formatDecimal(originalValue, 2);
 					case 'B':
-						return sign + formatDecimal(value, 3);
+						return formatDecimal(originalValue, 3);
 					case 'C':
-						return sign + formatDecimal(value, 4);
+						return formatDecimal(originalValue, 4);
 					case 'D':
-						return sign + formatDecimal(value, 5);
+						return formatDecimal(originalValue, 5);
 					case 'E':
-						return sign + formatDecimal(value, 6);
+						return formatDecimal(originalValue, 6);
 					default:
-						return sign + value;
+						return originalValue;
 				}
 			};
 		}
@@ -923,7 +931,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":8,"lodash.isnan":17}],12:[function(require,module,exports){
+},{"./decimalFormatter":8,"lodash.isnan":19}],13:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -990,7 +998,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1008,7 +1016,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1175,7 +1183,7 @@ module.exports = function() {
 
 	return symbolParser;
 }();
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1291,7 +1299,40 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	return function(bytes) {
+		if (bytes.length !== 9)
+			return null;
+
+		var year = (bytes.charCodeAt(0) * 100) + bytes.charCodeAt(1) - 64;
+		var month = bytes.charCodeAt(2) - 64 - 1;
+		var day = bytes.charCodeAt(3) - 64;
+		var hour = bytes.charCodeAt(4) - 64;
+		var minute = bytes.charCodeAt(5) - 64;
+		var second = bytes.charCodeAt(6) - 64;
+		var ms = (0xFF & bytes.charCodeAt(7)) + ((0xFF & bytes.charCodeAt(8)) << 8);
+
+		// 2016/02/17. JERQ is providing us with date and time values that
+		// are meant to be interpreted in the exchange's local timezone.
+		//
+		// This is interesting because different time values (e.g. 14:30 and
+		// 13:30) can refer to the same moment (e.g. EST for US equities and
+		// CST for US futures).
+		//
+		// Furthermore, when we use the timezone-sensitive Date object, we
+		// create a problem. The represents (computer) local time. So, for
+		// server applications, it is recommended that we use UTC -- so
+		// that the values (hours) are not changed when JSON serialized
+		// to ISO-8601 format. Then, the issue is passed along to the
+		// consumer (which must ignore the timezone too).
+
+		return new Date(year, month, day, hour, minute, second, ms);
+	};
+}();
+},{}],18:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
  
@@ -1355,10 +1396,9 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],17:[function(require,module,exports){
-(function (global){
+},{}],19:[function(require,module,exports){
 /**
- * lodash 3.0.1 (Custom Build) <https://lodash.com/>
+ * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
  * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -1370,7 +1410,7 @@ module.exports = function() {
 var numberTag = '[object Number]';
 
 /** Used for built-in method references. */
-var objectProto = global.Object.prototype;
+var objectProto = Object.prototype;
 
 /**
  * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
@@ -1468,6 +1508,5 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[3])(3)
+},{}]},{},[1])(1)
 });

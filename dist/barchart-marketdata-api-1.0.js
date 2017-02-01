@@ -1,66 +1,4 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}(g.Barchart || (g.Barchart = {})).RealtimeData = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var Class = require('class.extend');
-
-module.exports = function() {
-    'use strict';
-
-    return Class.extend({
-        init: function() {
-
-        },
-
-        parse: function(textDocument) {
-            if (typeof textDocument !== 'string') {
-                throw new Error('The "textDocument" argument must be a string.');
-            }
-
-            return this._parse(textDocument);
-        },
-
-        _parse: function(textDocument) {
-            return null;
-        },
-
-        toString: function() {
-            return '[XmlDomParserBase]';
-        }
-    });
-}();
-},{"class.extend":42}],2:[function(require,module,exports){
-var XmlDomParserBase = require('./../XmlDomParserBase');
-
-module.exports = function() {
-    'use strict';
-
-    return XmlDomParserBase.extend({
-        init: function() {
-            if (window.DOMParser) {
-                this._xmlDomParser = new DOMParser();
-            } else {
-                this._xmlDomParser = null;
-            }
-        },
-
-        _parse: function(textDocument) {
-            var xmlDocument;
-
-            if (this._xmlDomParser) {
-                xmlDocument = this._xmlDomParser.parseFromString(textDocument, 'text/xml');
-            } else {
-                xmlDocument = new ActiveXObject('Microsoft.XMLDOM');
-                xmlDocument.async = 'false';
-                xmlDocument.loadXML(textDocument);
-            }
-
-            return xmlDocument;
-        },
-
-        toString: function() {
-            return '[XmlDomParser]';
-        }
-    });
-}();
-},{"./../XmlDomParserBase":1}],3:[function(require,module,exports){
 var Connection = require('./websocket/Connection');
 
 module.exports = function() {
@@ -68,7 +6,7 @@ module.exports = function() {
 
     return Connection;
 }();
-},{"./websocket/Connection":12}],4:[function(require,module,exports){
+},{"./websocket/Connection":10}],2:[function(require,module,exports){
 var Class = require('class.extend');
 
 module.exports = function() {
@@ -148,7 +86,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":42}],5:[function(require,module,exports){
+},{"class.extend":44}],3:[function(require,module,exports){
 var HistoricalDataProvider = require('./http/HistoricalDataProvider');
 
 module.exports = function() {
@@ -156,7 +94,7 @@ module.exports = function() {
 
 	return HistoricalDataProvider;
 }();
-},{"./http/HistoricalDataProvider":9}],6:[function(require,module,exports){
+},{"./http/HistoricalDataProvider":7}],4:[function(require,module,exports){
 var Class = require('class.extend');
 
 module.exports = function() {
@@ -180,7 +118,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":42}],7:[function(require,module,exports){
+},{"class.extend":44}],5:[function(require,module,exports){
 var ProfileProvider = require('./http/ProfileProvider');
 
 module.exports = function() {
@@ -188,7 +126,7 @@ module.exports = function() {
 
 	return ProfileProvider;
 }();
-},{"./http/ProfileProvider":10}],8:[function(require,module,exports){
+},{"./http/ProfileProvider":8}],6:[function(require,module,exports){
 var Class = require('class.extend');
 
 module.exports = function() {
@@ -212,7 +150,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"class.extend":42}],9:[function(require,module,exports){
+},{"class.extend":44}],7:[function(require,module,exports){
 var xhr = require('xhr');
 
 var HistoricalDataProviderBase = require('./../../HistoricalDataProviderBase');
@@ -260,7 +198,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"./../../HistoricalDataProviderBase":6,"xhr":49}],10:[function(require,module,exports){
+},{"./../../HistoricalDataProviderBase":4,"xhr":51}],8:[function(require,module,exports){
 var xhr = require('xhr');
 
 var ProfileProviderBase = require('./../../ProfileProviderBase');
@@ -298,7 +236,7 @@ module.exports = function() {
         }
     });
 }();
-},{"./../../ProfileProviderBase":8,"xhr":49}],11:[function(require,module,exports){
+},{"./../../ProfileProviderBase":6,"xhr":51}],9:[function(require,module,exports){
 var Connection = require('./Connection');
 
 module.exports = function() {
@@ -306,7 +244,7 @@ module.exports = function() {
 
 	return Connection;
 }();
-},{"./Connection":3}],12:[function(require,module,exports){
+},{"./Connection":1}],10:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 var ConnectionBase = require('./../../ConnectionBase');
@@ -1089,7 +1027,7 @@ module.exports = function() {
 		}
 	});
 }();
-},{"./../../../marketState/MarketState":16,"./../../../messageParser/parseMessage":21,"./../../ConnectionBase":4,"barchart-marketdata-utilities":35}],13:[function(require,module,exports){
+},{"./../../../marketState/MarketState":14,"./../../../messageParser/parseMessage":19,"./../../ConnectionBase":2,"barchart-marketdata-utilities":35}],11:[function(require,module,exports){
 var HistoricalDataProvider = require('./../connection/HistoricalDataProvider');
 
 module.exports = function() {
@@ -1097,7 +1035,7 @@ module.exports = function() {
 
 	return HistoricalDataProvider;
 }();
-},{"./../connection/HistoricalDataProvider":5}],14:[function(require,module,exports){
+},{"./../connection/HistoricalDataProvider":3}],12:[function(require,module,exports){
 var connection = require('./connection/index');
 var historicalData = require('./historicalData/index');
 var MarketState = require('./marketState/index');
@@ -1122,7 +1060,7 @@ module.exports = function() {
 		util: util
 	};
 }();
-},{"./connection/index":11,"./historicalData/index":13,"./marketState/index":19,"./messageParser/index":20,"./util/index":28}],15:[function(require,module,exports){
+},{"./connection/index":9,"./historicalData/index":11,"./marketState/index":17,"./messageParser/index":18,"./util/index":26}],13:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1304,7 +1242,7 @@ module.exports = function() {
 
 	return CumulativeVolume;
 }();
-},{}],16:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var utilities = require('barchart-marketdata-utilities');
 
 var CumulativeVolume = require('./CumulativeVolume');
@@ -1764,7 +1702,7 @@ module.exports = function() {
 
     return MarketState;
 }();
-},{"./../connection/ProfileProvider":7,"./../util/convertDayCodeToNumber":26,"./CumulativeVolume":15,"./Profile":17,"./Quote":18,"barchart-marketdata-utilities":35}],17:[function(require,module,exports){
+},{"./../connection/ProfileProvider":5,"./../util/convertDayCodeToNumber":24,"./CumulativeVolume":13,"./Profile":15,"./Quote":16,"barchart-marketdata-utilities":35}],15:[function(require,module,exports){
 var parseSymbolType = require('./../util/parseSymbolType');
 var priceFormatter = require('./../util/priceFormatter');
 
@@ -1806,7 +1744,7 @@ module.exports = function() {
 
 	return Profile;
 }();
-},{"./../util/parseSymbolType":30,"./../util/priceFormatter":31}],18:[function(require,module,exports){
+},{"./../util/parseSymbolType":28,"./../util/priceFormatter":29}],16:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -1854,7 +1792,7 @@ module.exports = function() {
 
 	return Quote;
 }();
-},{}],19:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 var MarketState = require('./MarketState');
 
 module.exports = function() {
@@ -1862,7 +1800,7 @@ module.exports = function() {
 
 	return MarketState;
 }();
-},{"./MarketState":16}],20:[function(require,module,exports){
+},{"./MarketState":14}],18:[function(require,module,exports){
 var parseMessage = require('./parseMessage');
 var parseTimestamp = require('./parseTimestamp');
 var parseValue = require('./parseValue');
@@ -1880,11 +1818,380 @@ module.exports = function() {
 		ParseValue: parseValue
 	};
 }();
-},{"./parseMessage":21,"./parseTimestamp":22,"./parseValue":23}],21:[function(require,module,exports){
-var XmlDomParser = require('./../common/xml/XmlDomParser');
+},{"./parseMessage":19,"./parseTimestamp":20,"./parseValue":21}],19:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
 
-var parseValue = require('./parseValue');
-var parseTimestamp = require('./parseTimestamp');
+module.exports = function() {
+	'use strict';
+
+	return utilities.messageParser;
+}();
+},{"barchart-marketdata-utilities":35}],20:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.timestampParser;
+}();
+},{"barchart-marketdata-utilities":35}],21:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.priceParser;
+}();
+},{"barchart-marketdata-utilities":35}],22:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.convert.baseCodeToUnitCode;
+}();
+},{"barchart-marketdata-utilities":35}],23:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.convert.dateToDayCode;
+}();
+
+},{"barchart-marketdata-utilities":35}],24:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.convert.dayCodeToNumber;
+}();
+
+},{"barchart-marketdata-utilities":35}],25:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.convert.unitCodeToBaseCode;
+}();
+},{"barchart-marketdata-utilities":35}],26:[function(require,module,exports){
+var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode');
+var convertDateToDayCode = require('./convertDateToDayCode');
+var convertDayCodeToNumber = require('./convertDayCodeToNumber');
+var convertUnitCodeToBaseCode = require('./convertUnitCodeToBaseCode');
+var monthCodes = require('./monthCodes');
+var parseSymbolType = require('./parseSymbolType');
+var priceFormatter = require('./priceFormatter');
+var timeFormatter = require('./timeFormatter');
+
+module.exports = function() {
+	'use strict';
+
+	return {
+		convertBaseCodeToUnitCode: convertBaseCodeToUnitCode,
+		convertUnitCodeToBaseCode: convertUnitCodeToBaseCode,
+		convertDateToDayCode: convertDateToDayCode,
+		convertDayCodeToNumber: convertDayCodeToNumber,
+		monthCodes: monthCodes,
+		parseSymbolType: parseSymbolType,
+
+		BaseCode2UnitCode: convertBaseCodeToUnitCode,
+		DateToDayCode: convertDateToDayCode,
+		DayCodeToNumber: convertDayCodeToNumber,
+		MonthCodes: monthCodes,
+		ParseSymbolType: parseSymbolType,
+		PriceFormatter: priceFormatter,
+		TimeFormatter: timeFormatter,
+		UnitCode2BaseCode: convertUnitCodeToBaseCode
+	};
+}();
+},{"./convertBaseCodeToUnitCode":22,"./convertDateToDayCode":23,"./convertDayCodeToNumber":24,"./convertUnitCodeToBaseCode":25,"./monthCodes":27,"./parseSymbolType":28,"./priceFormatter":29,"./timeFormatter":30}],27:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.monthCodes.getCodeToNameMap();
+}();
+},{"barchart-marketdata-utilities":35}],28:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.symbolParser.parseInstrumentType;
+}();
+},{"barchart-marketdata-utilities":35}],29:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.priceFormatter;
+}();
+},{"barchart-marketdata-utilities":35}],30:[function(require,module,exports){
+var utilities = require('barchart-marketdata-utilities');
+
+module.exports = function() {
+	'use strict';
+
+	return utilities.timeFormatter;
+}();
+},{"barchart-marketdata-utilities":35}],31:[function(require,module,exports){
+var Class = require('class.extend');
+
+module.exports = function() {
+    'use strict';
+
+    return Class.extend({
+        init: function() {
+
+        },
+
+        parse: function(textDocument) {
+            if (typeof textDocument !== 'string') {
+                throw new Error('The "textDocument" argument must be a string.');
+            }
+
+            return this._parse(textDocument);
+        },
+
+        _parse: function(textDocument) {
+            return null;
+        },
+
+        toString: function() {
+            return '[XmlDomParserBase]';
+        }
+    });
+}();
+},{"class.extend":44}],32:[function(require,module,exports){
+var XmlDomParserBase = require('./../XmlDomParserBase');
+
+module.exports = function() {
+    'use strict';
+
+    return XmlDomParserBase.extend({
+        init: function() {
+            if (window.DOMParser) {
+                this._xmlDomParser = new DOMParser();
+            } else {
+                this._xmlDomParser = null;
+            }
+        },
+
+        _parse: function(textDocument) {
+            var xmlDocument;
+
+            if (this._xmlDomParser) {
+                xmlDocument = this._xmlDomParser.parseFromString(textDocument, 'text/xml');
+            } else {
+                xmlDocument = new ActiveXObject('Microsoft.XMLDOM');
+                xmlDocument.async = 'false';
+                xmlDocument.loadXML(textDocument);
+            }
+
+            return xmlDocument;
+        },
+
+        toString: function() {
+            return '[XmlDomParser]';
+        }
+    });
+}();
+},{"./../XmlDomParserBase":31}],33:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	return {
+		unitCodeToBaseCode: function(unitCode) {
+			switch (unitCode) {
+				case '2':
+					return -1;
+				case '3':
+					return -2;
+				case '4':
+					return -3;
+				case '5':
+					return -4;
+				case '6':
+					return -5;
+				case '7':
+					return -6;
+				case '8':
+					return 0;
+				case '9':
+					return 1;
+				case 'A':
+					return 2;
+				case 'B':
+					return 3;
+				case 'C':
+					return 4;
+				case 'D':
+					return 5;
+				case 'E':
+					return 6;
+				case 'F':
+					return 7;
+				default:
+					return 0;
+			}
+		},
+
+		baseCodeToUnitCode: function(baseCode) {
+			switch (baseCode) {
+				case -1:
+					return '2';
+				case -2:
+					return '3';
+				case -3:
+					return '4';
+				case -4:
+					return '5';
+				case -5:
+					return '6';
+				case -6:
+					return '7';
+				case 0:
+					return '8';
+				case 1:
+					return '9';
+				case 2:
+					return 'A';
+				case 3:
+					return 'B';
+				case 4:
+					return 'C';
+				case 5:
+					return 'D';
+				case 6:
+					return 'E';
+				case 7:
+					return 'F';
+				default:
+					return 0;
+			}
+		},
+
+		dateToDayCode: function(date) {
+			var d = date.getDate();
+
+			if (d >= 1 && d <= 9)
+				return String.fromCharCode(("1").charCodeAt(0) + d - 1);
+			else if (d == 10)
+				return '0';
+			else
+				return String.fromCharCode(("A").charCodeAt(0) + d - 11);
+		},
+
+		dayCodeToNumber: function(dayCode) {
+			var d = parseInt(dayCode, 31);
+
+			if (d > 9) {
+				d++;
+			} else if (d === 0) {
+				d = 10;
+			}
+
+			return d;
+		}
+	};
+}();
+},{}],34:[function(require,module,exports){
+var lodashIsNaN = require('lodash.isnan');
+
+module.exports = function() {
+	'use strict';
+
+	return function(value, digits, thousandsSeparator, useParenthesis) {
+		if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
+			return '';
+		}
+
+		var applyParenthesis = value < 0 && useParenthesis === true;
+
+		if (applyParenthesis) {
+			value = 0 - value;
+		}
+
+		var returnRef = value.toFixed(digits);
+
+		if (thousandsSeparator && !(value > -1000 && value < 1000)) {
+			var length = returnRef.length;
+			var negative = value < 0;
+
+			var found = digits === 0;
+			var counter = 0;
+
+			var buffer = [];
+
+			for (var i = (length - 1); !(i < 0); i--) {
+				if (counter === 3 && !(negative && i === 0)) {
+					buffer.unshift(thousandsSeparator);
+
+					counter = 0;
+				}
+
+				var character = returnRef.charAt(i);
+
+				buffer.unshift(character);
+
+				if (found) {
+					counter = counter + 1;
+				} else if (character === '.') {
+					found = true;
+				}
+			}
+
+			if (applyParenthesis) {
+				buffer.unshift('(')
+				buffer.push(')');
+			}
+
+			returnRef = buffer.join('');
+		} else if (applyParenthesis) {
+			returnRef = '(' + returnRef + ')';
+		}
+
+		return returnRef;
+	};
+}();
+},{"lodash.isnan":48}],35:[function(require,module,exports){
+var convert = require('./convert');
+var decimalFormatter = require('./decimalFormatter');
+var messageParser = require('./messageParser');
+var monthCodes = require('./monthCodes');
+var priceFormatter = require('./priceFormatter');
+var symbolFormatter = require('./symbolFormatter');
+var symbolParser = require('./symbolParser');
+var priceParser = require('./priceParser');
+var timeFormatter = require('./timeFormatter');
+var timestampParser = require('./timestampParser');
+
+module.exports = function() {
+	'use strict';
+
+	return {
+		convert: convert,
+		decimalFormatter: decimalFormatter,
+		monthCodes: monthCodes,
+		messageParser: messageParser,
+		priceFormatter: priceFormatter,
+		symbolParser: symbolParser,
+		priceParser: priceParser,
+		symbolFormatter: symbolFormatter,
+		timeFormatter: timeFormatter,
+		timestampParser: timestampParser
+	};
+}();
+},{"./convert":33,"./decimalFormatter":34,"./messageParser":36,"./monthCodes":37,"./priceFormatter":38,"./priceParser":39,"./symbolFormatter":40,"./symbolParser":41,"./timeFormatter":42,"./timestampParser":43}],36:[function(require,module,exports){
+var XmlDomParser = require('./common/xml/XmlDomParser');
+
+var parseValue = require('./priceParser');
+var parseTimestamp = require('./timestampParser');
 
 module.exports = function() {
 	'use strict';
@@ -2096,10 +2403,10 @@ module.exports = function() {
 										var lastPriceT = t.lastPrice;
 
 										if (lastPriceT) {
+											message.lastPriceT = lastPriceT;
+
 											var tradeTimeT = t.tradeTime;
 											var tradeSizeT = t.tradeSize;
-
-											message.lastPriceT = lastPriceT;
 
 											if (tradeTimeT) {
 												var noon = new Date(tradeTimeT.getFullYear(), tradeTimeT.getMonth(), tradeTimeT.getDate(), 12, 0, 0, 0);
@@ -2107,19 +2414,25 @@ module.exports = function() {
 												message.sessionT = tradeTimeT.getTime() > noon.getTime();
 											}
 
-											if (tradeTimeT)
-												message.tradeTime = tradeTimeT; // might be a problem (we've split lastPrice and lastPriceT -- we might need to split times)
-											if (tradeSizeT)
-												message.tradeSize = tradeSizeT;
-
 											if (premarket || postmarket) {
 												message.session = 'T';
 
+												if (tradeTimeT) {
+													message.tradeTime = tradeTimeT;
+												}
+
+												if (tradeSizeT) {
+													message.tradeSize = tradeSizeT;
+												}
+
 												if (premarket) {
-													if (t.volume)
+													if (t.volume) {
 														message.volume = t.volume;
-													if (t.previousPrice)
+													}
+
+													if (t.previousPrice) {
 														message.previousPrice = t.previousPrice;
+													}
 												}
 											}
 										}
@@ -2352,328 +2665,7 @@ module.exports = function() {
 		return message;
 	};
 }();
-},{"./../common/xml/XmlDomParser":2,"./parseTimestamp":22,"./parseValue":23}],22:[function(require,module,exports){
-module.exports = function() {
-	'use strict';
-
-	return function(bytes) {
-		if (bytes.length !== 9)
-			return null;
-
-		var year = (bytes.charCodeAt(0) * 100) + bytes.charCodeAt(1) - 64;
-		var month = bytes.charCodeAt(2) - 64 - 1;
-		var day = bytes.charCodeAt(3) - 64;
-		var hour = bytes.charCodeAt(4) - 64;
-		var minute = bytes.charCodeAt(5) - 64;
-		var second = bytes.charCodeAt(6) - 64;
-		var ms = (0xFF & bytes.charCodeAt(7)) + ((0xFF & bytes.charCodeAt(8)) << 8);
-
-		// 2016/02/17. JERQ is providing us with date and time values that
-		// are meant to be interpreted in the exchange's local timezone.
-		//
-		// This is interesting because different time values (e.g. 14:30 and
-		// 13:30) can refer to the same moment (e.g. EST for US equities and
-		// CST for US futures).
-		//
-		// Furthermore, when we use the timezone-sensitive Date object, we
-		// create a problem. The represents (computer) local time. So, for
-		// server applications, it is recommended that we use UTC -- so
-		// that the values (hours) are not changed when JSON serialized
-		// to ISO-8601 format. Then, the issue is passed along to the
-		// consumer (which must ignore the timezone too).
-
-		return new Date(year, month, day, hour, minute, second, ms);
-	};
-}();
-},{}],23:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.priceParser;
-}();
-},{"barchart-marketdata-utilities":35}],24:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.convert.baseCodeToUnitCode;
-}();
-},{"barchart-marketdata-utilities":35}],25:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.convert.dateToDayCode;
-}();
-
-},{"barchart-marketdata-utilities":35}],26:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.convert.dayCodeToNumber;
-}();
-
-},{"barchart-marketdata-utilities":35}],27:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.convert.unitCodeToBaseCode;
-}();
-},{"barchart-marketdata-utilities":35}],28:[function(require,module,exports){
-var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode');
-var convertDateToDayCode = require('./convertDateToDayCode');
-var convertDayCodeToNumber = require('./convertDayCodeToNumber');
-var convertUnitCodeToBaseCode = require('./convertUnitCodeToBaseCode');
-var monthCodes = require('./monthCodes');
-var parseSymbolType = require('./parseSymbolType');
-var priceFormatter = require('./priceFormatter');
-var timeFormatter = require('./timeFormatter');
-
-module.exports = function() {
-	'use strict';
-
-	return {
-		convertBaseCodeToUnitCode: convertBaseCodeToUnitCode,
-		convertUnitCodeToBaseCode: convertUnitCodeToBaseCode,
-		convertDateToDayCode: convertDateToDayCode,
-		convertDayCodeToNumber: convertDayCodeToNumber,
-		monthCodes: monthCodes,
-		parseSymbolType: parseSymbolType,
-
-		BaseCode2UnitCode: convertBaseCodeToUnitCode,
-		DateToDayCode: convertDateToDayCode,
-		DayCodeToNumber: convertDayCodeToNumber,
-		MonthCodes: monthCodes,
-		ParseSymbolType: parseSymbolType,
-		PriceFormatter: priceFormatter,
-		TimeFormatter: timeFormatter,
-		UnitCode2BaseCode: convertUnitCodeToBaseCode
-	};
-}();
-},{"./convertBaseCodeToUnitCode":24,"./convertDateToDayCode":25,"./convertDayCodeToNumber":26,"./convertUnitCodeToBaseCode":27,"./monthCodes":29,"./parseSymbolType":30,"./priceFormatter":31,"./timeFormatter":32}],29:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.monthCodes.getCodeToNameMap();
-}();
-},{"barchart-marketdata-utilities":35}],30:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.symbolParser.parseInstrumentType;
-}();
-},{"barchart-marketdata-utilities":35}],31:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.priceFormatter;
-}();
-},{"barchart-marketdata-utilities":35}],32:[function(require,module,exports){
-var utilities = require('barchart-marketdata-utilities');
-
-module.exports = function() {
-	'use strict';
-
-	return utilities.timeFormatter;
-}();
-},{"barchart-marketdata-utilities":35}],33:[function(require,module,exports){
-module.exports = function() {
-	'use strict';
-
-	return {
-		unitCodeToBaseCode: function(unitCode) {
-			switch (unitCode) {
-				case '2':
-					return -1;
-				case '3':
-					return -2;
-				case '4':
-					return -3;
-				case '5':
-					return -4;
-				case '6':
-					return -5;
-				case '7':
-					return -6;
-				case '8':
-					return 0;
-				case '9':
-					return 1;
-				case 'A':
-					return 2;
-				case 'B':
-					return 3;
-				case 'C':
-					return 4;
-				case 'D':
-					return 5;
-				case 'E':
-					return 6;
-				case 'F':
-					return 7;
-				default:
-					return 0;
-			}
-		},
-
-		baseCodeToUnitCode: function(baseCode) {
-			switch (baseCode) {
-				case -1:
-					return '2';
-				case -2:
-					return '3';
-				case -3:
-					return '4';
-				case -4:
-					return '5';
-				case -5:
-					return '6';
-				case -6:
-					return '7';
-				case 0:
-					return '8';
-				case 1:
-					return '9';
-				case 2:
-					return 'A';
-				case 3:
-					return 'B';
-				case 4:
-					return 'C';
-				case 5:
-					return 'D';
-				case 6:
-					return 'E';
-				case 7:
-					return 'F';
-				default:
-					return 0;
-			}
-		},
-
-		dateToDayCode: function(date) {
-			var d = date.getDate();
-
-			if (d >= 1 && d <= 9)
-				return String.fromCharCode(("1").charCodeAt(0) + d - 1);
-			else if (d == 10)
-				return '0';
-			else
-				return String.fromCharCode(("A").charCodeAt(0) + d - 11);
-		},
-
-		dayCodeToNumber: function(dayCode) {
-			var d = parseInt(dayCode, 31);
-
-			if (d > 9) {
-				d++;
-			} else if (d === 0) {
-				d = 10;
-			}
-
-			return d;
-		}
-	};
-}();
-},{}],34:[function(require,module,exports){
-var lodashIsNaN = require('lodash.isnan');
-
-module.exports = function() {
-	'use strict';
-
-	return function(value, digits, thousandsSeparator) {
-		if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
-			return '';
-		}
-
-		var returnRef = value.toFixed(digits);
-
-		if (thousandsSeparator && !(value > -1000 && value < 1000)) {
-			var length = returnRef.length;
-			var negative = value < 0;
-
-			var found = digits === 0;
-			var counter = 0;
-
-			var buffer = [];
-
-			for (var i = (length - 1); !(i < 0); i--) {
-				if (counter === 3 && !(negative && i === 0)) {
-					buffer.unshift(thousandsSeparator);
-
-					counter = 0;
-				}
-
-				var character = returnRef.charAt(i);
-
-				buffer.unshift(character);
-
-				if (found) {
-					counter = counter + 1;
-				} else if (character === '.') {
-					found = true;
-				}
-			}
-
-			returnRef = buffer.join('');
-		}
-
-		return returnRef;
-	};
-
-	/*
-	 // An alternative to consider ... seems about 15% faster ... not to
-	 // mention much less lengthy ... but, has a problem with more than
-	 // three decimal places ... regular expression needs work ...
-
-	 return function(value, digits, thousandsSeparator) {
-	 	if (typeof value === 'number' && (value || value === 0)) {
-	 		return value.toFixed(digits).replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator || ',');
-	 	} else {
-	 		return '';
-		}
-	 };
-	 */
-}();
-},{"lodash.isnan":46}],35:[function(require,module,exports){
-var convert = require('./convert');
-var decimalFormatter = require('./decimalFormatter');
-var monthCodes = require('./monthCodes');
-var priceFormatter = require('./priceFormatter');
-var symbolFormatter = require('./symbolFormatter');
-var symbolParser = require('./symbolParser');
-var priceParser = require('./priceParser');
-var timeFormatter = require('./timeFormatter');
-
-module.exports = function() {
-	'use strict';
-
-	return {
-		convert: convert,
-		decimalFormatter: decimalFormatter,
-		monthCodes: monthCodes,
-		priceFormatter: priceFormatter,
-		symbolParser: symbolParser,
-		priceParser: priceParser,
-		symbolFormatter: symbolFormatter,
-		timeFormatter: timeFormatter
-	};
-}();
-},{"./convert":33,"./decimalFormatter":34,"./monthCodes":36,"./priceFormatter":37,"./priceParser":38,"./symbolFormatter":39,"./symbolParser":40,"./timeFormatter":41}],36:[function(require,module,exports){
+},{"./common/xml/XmlDomParser":32,"./priceParser":39,"./timestampParser":43}],37:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2709,7 +2701,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 var decimalFormatter = require('./decimalFormatter');
 
@@ -2720,23 +2712,24 @@ module.exports = function() {
 		return ['000', Math.floor(value)].join('').substr(-1 * digits);
 	}
 
-	return function(fractionSeparator, specialFractions, thousandsSeparator) {
+	return function(fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
 		var format;
 
 		function getWholeNumberAsString(value) {
 			var val = Math.floor(value);
 
-			if ((val === 0) && (fractionSeparator === ''))
+			if ((val === 0) && (fractionSeparator === '')) {
 				return '';
-			else
+			} else {
 				return val;
+			}
 		}
 
 		function formatDecimal(value, digits) {
-			return decimalFormatter(value, digits, thousandsSeparator);
+			return decimalFormatter(value, digits, thousandsSeparator, useParenthesis);
 		}
 
-		if (fractionSeparator == '.') { // Decimals
+		if (fractionSeparator === '.') {
 			format = function(value, unitcode) {
 				switch (unitcode) {
 					case '2':
@@ -2766,53 +2759,68 @@ module.exports = function() {
 					case 'E':
 						return formatDecimal(value, 6);
 					default:
-						if (value === '' || value === undefined || value === null || lodashIsNaN(value))
+						if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
 							return '';
-						else
+						} else {
 							return value;
+						}
 				}
 			};
 		} else {
 			format = function(value, unitcode) {
-				if (value === '' || value === undefined || value === null || lodashIsNaN(value))
+				if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
 					return '';
+				}
 
-				var sign = (value >= 0) ? '' : '-';
-				value = Math.abs(value);
+				var originalValue = value;
+				var negative = value < 0;
+				var value = Math.abs(value);
 
-				// Well, damn it, sometimes code that is beautiful just doesn't work quite right.
-				// return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
-				// will fail when Math.floor(value) is 0 and the fractionSeparator is '', since 0.500 => 04 instead of just 4
+				var prefix;
+				var suffix;
+
+				if (negative) {
+					if (useParenthesis === true) {
+						prefix = '(';
+						suffix = ')';
+					} else {
+						prefix = '-';
+						suffix = '';
+					}
+				} else {
+					prefix = '';
+					suffix = '';
+				}
 
 				switch (unitcode) {
 					case '2':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1), suffix].join('');
 					case '3':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2), suffix].join('');
 					case '4':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2), suffix].join('');
 					case '5':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2))].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2)), suffix].join('');
 					case '6':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3), suffix].join('');
 					case '7':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3), suffix].join('');
 					case '8':
-						return sign + formatDecimal(value, 0);
+						return formatDecimal(originalValue, 0);
 					case '9':
-						return sign + formatDecimal(value, 1);
+						return formatDecimal(originalValue, 1);
 					case 'A':
-						return sign + formatDecimal(value, 2);
+						return formatDecimal(originalValue, 2);
 					case 'B':
-						return sign + formatDecimal(value, 3);
+						return formatDecimal(originalValue, 3);
 					case 'C':
-						return sign + formatDecimal(value, 4);
+						return formatDecimal(originalValue, 4);
 					case 'D':
-						return sign + formatDecimal(value, 5);
+						return formatDecimal(originalValue, 5);
 					case 'E':
-						return sign + formatDecimal(value, 6);
+						return formatDecimal(originalValue, 6);
 					default:
-						return sign + value;
+						return originalValue;
 				}
 			};
 		}
@@ -2822,7 +2830,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":34,"lodash.isnan":46}],38:[function(require,module,exports){
+},{"./decimalFormatter":34,"lodash.isnan":48}],39:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2889,7 +2897,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2907,7 +2915,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -3074,7 +3082,7 @@ module.exports = function() {
 
 	return symbolParser;
 }();
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -3190,7 +3198,40 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
+module.exports = function() {
+	'use strict';
+
+	return function(bytes) {
+		if (bytes.length !== 9)
+			return null;
+
+		var year = (bytes.charCodeAt(0) * 100) + bytes.charCodeAt(1) - 64;
+		var month = bytes.charCodeAt(2) - 64 - 1;
+		var day = bytes.charCodeAt(3) - 64;
+		var hour = bytes.charCodeAt(4) - 64;
+		var minute = bytes.charCodeAt(5) - 64;
+		var second = bytes.charCodeAt(6) - 64;
+		var ms = (0xFF & bytes.charCodeAt(7)) + ((0xFF & bytes.charCodeAt(8)) << 8);
+
+		// 2016/02/17. JERQ is providing us with date and time values that
+		// are meant to be interpreted in the exchange's local timezone.
+		//
+		// This is interesting because different time values (e.g. 14:30 and
+		// 13:30) can refer to the same moment (e.g. EST for US equities and
+		// CST for US futures).
+		//
+		// Furthermore, when we use the timezone-sensitive Date object, we
+		// create a problem. The represents (computer) local time. So, for
+		// server applications, it is recommended that we use UTC -- so
+		// that the values (hours) are not changed when JSON serialized
+		// to ISO-8601 format. Then, the issue is passed along to the
+		// consumer (which must ignore the timezone too).
+
+		return new Date(year, month, day, hour, minute, second, ms);
+	};
+}();
+},{}],44:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
  
@@ -3254,7 +3295,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],43:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var isFunction = require('is-function')
 
 module.exports = forEach
@@ -3302,7 +3343,7 @@ function forEachObject(object, iterator, context) {
     }
 }
 
-},{"is-function":45}],44:[function(require,module,exports){
+},{"is-function":47}],46:[function(require,module,exports){
 (function (global){
 if (typeof window !== "undefined") {
     module.exports = window;
@@ -3315,7 +3356,7 @@ if (typeof window !== "undefined") {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],45:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -3332,10 +3373,9 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],46:[function(require,module,exports){
-(function (global){
+},{}],48:[function(require,module,exports){
 /**
- * lodash 3.0.1 (Custom Build) <https://lodash.com/>
+ * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
  * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -3347,7 +3387,7 @@ function isFunction (fn) {
 var numberTag = '[object Number]';
 
 /** Used for built-in method references. */
-var objectProto = global.Object.prototype;
+var objectProto = Object.prototype;
 
 /**
  * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
@@ -3445,8 +3485,7 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],47:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 var trim = require('trim')
   , forEach = require('for-each')
   , isArray = function(arg) {
@@ -3478,7 +3517,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":43,"trim":48}],48:[function(require,module,exports){
+},{"for-each":45,"trim":50}],50:[function(require,module,exports){
 
 exports = module.exports = trim;
 
@@ -3494,7 +3533,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],49:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 "use strict";
 var window = require("global/window")
 var isFunction = require("is-function")
@@ -3734,7 +3773,7 @@ function getXml(xhr) {
 
 function noop() {}
 
-},{"global/window":44,"is-function":45,"parse-headers":47,"xtend":50}],50:[function(require,module,exports){
+},{"global/window":46,"is-function":47,"parse-headers":49,"xtend":52}],52:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -3755,5 +3794,5 @@ function extend() {
     return target
 }
 
-},{}]},{},[14])(14)
+},{}]},{},[12])(12)
 });
