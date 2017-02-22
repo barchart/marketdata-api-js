@@ -504,26 +504,38 @@ module.exports = function() {
 										var lastPriceT = t.lastPrice;
 
 										if (lastPriceT) {
-											message.lastPriceT = lastPriceT;
-
 											var tradeTimeT = t.tradeTime;
 											var tradeSizeT = t.tradeSize;
+
+											var sessionIsEvening;
 
 											if (tradeTimeT) {
 												var noon = new Date(tradeTimeT.getFullYear(), tradeTimeT.getMonth(), tradeTimeT.getDate(), 12, 0, 0, 0);
 
-												message.sessionT = tradeTimeT.getTime() > noon.getTime();
+												sessionIsEvening = tradeTimeT.getTime() > noon.getTime();
+											} else {
+												sessionIsEvening = false;
+											}
+
+											message.sessionT = sessionIsEvening;
+
+											var sessionIsCurrent = premarket || sessionIsEvening;
+
+											if (sessionIsCurrent) {
+												message.lastPriceT = lastPriceT;
 											}
 
 											if (premarket || postmarket) {
 												message.session = 'T';
 
-												if (tradeTimeT) {
-													message.tradeTime = tradeTimeT;
-												}
+												if (sessionIsCurrent) {
+													if (tradeTimeT) {
+														message.tradeTime = tradeTimeT;
+													}
 
-												if (tradeSizeT) {
-													message.tradeSize = tradeSizeT;
+													if (tradeSizeT) {
+														message.tradeSize = tradeSizeT;
+													}
 												}
 
 												if (premarket) {
