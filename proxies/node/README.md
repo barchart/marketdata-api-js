@@ -48,4 +48,4 @@ Now, the following console output should appear:
 
 Now, you can make requests for historical data. Navigate the the following URL:
 
-http://localhost:8080/proxies/historicaldata/?username=your-username&password=your-password&symbol=TSLA&interval=daily&start=20170101&end=20110131
+http://localhost:8080/proxies/historicaldata/?username=your-username&password=your-password&symbol=TSLA&interval=daily&start=20170101
