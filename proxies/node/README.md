@@ -1,4 +1,4 @@
-#Example Proxy Server For Historical Data
+## Example Proxy Server For Historical Data
 
 A proxy server for HTTP requests to [Barchart's](https://www.barchart.com) historical data servers, built with []Node.js](https://nodejs.org/en/).
 
@@ -16,12 +16,12 @@ We are investigating two alternatives:
 * Hosting a proxy server, eliminating the need for clients to host a proxy server.
 
 
-# Prerequisites
+## Prerequisites
 
 Ensure that Node.js (version 6, or later) is installed on your machine.
 
 
-# Demonstration
+## Demonstration
 
 First, open a command prompt and make sure your in the following directory:
 
@@ -44,7 +44,7 @@ Now, the following console output should appear:
     [INFO] app - Starting started on port 8080.
 
 
-# Testing
+## Testing
 
 Now, you can make requests for historical data. Navigate the the following URL:
 
