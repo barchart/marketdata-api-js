@@ -1,153 +1,248 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Realtime Example</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <title>Barchart Streaming Market Data</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" type="text/css">
+    <link rel="stylesheet" href="example.css" type="text/css">
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script src="../dist/barchart-marketdata-api-2.0.js"></script>
 
     <script type="text/javascript">
-        $(function() {
-            var onCumulativeVolume = function(message) {
-                console.log(message);
+		'use strict';
 
-                var html;
+		var PageModel = function() {
+			var that = this;
+			var connection = null;
 
-                if (message.event === 'reset') {
-                    html = '';
-                } else if (message.event === 'update') {
-					var regex = new RegExp('({"price":' + message.price.toString() + ',"volume":[0-9]+})', 'g');
+			that.server = ko.observable('qsws-us-e-01.aws.barchart.com');
 
-					html = JSON.stringify(message.container.toArray()).replace(regex, '<strong>$1</strong>');
+			that.username = ko.observable('');
+			that.password = ko.observable('');
+
+			that.symbol = ko.observable('');
+			that.version = ko.observable(Barchart.Streaming.version);
+
+			that.connected = ko.observable(false);
+			that.connecting = ko.observable(false);
+
+			that.activeTemplate = ko.observable('disconnected-template');
+
+			that.rows = ko.observableArray();
+			that.item = ko.observable(null);
+
+			that.canConnect = ko.computed(function() {
+				return !that.connecting() && !that.connected();
+			});
+			that.canDisconnect = ko.computed(function() {
+				return that.connected();
+			});
+
+			that.connect = function() {
+                that.disconnect();
+
+                var server = that.server();
+                var username = that.username();
+                var password = that.password();
+
+                if (!server || !username || !password) {
+                	return;
                 }
 
-                $("#cumulative-volume").html(html);
+                that.connecting(true);
+
+                connection = new Barchart.Streaming.Connection();
+                connection.connect(server, username, password);
+
+				that.connecting(false);
+				that.connected(true);
+
+				that.activeTemplate('grid-template');
             };
 
-            var onMarketDepth = function(message) {
-                console.log(message);
+			that.disconnect = function() {
+				if (connection === null) {
+					return;
+				}
 
-                var b = client.getMarketState().getBook(message.symbol);
+                connection.disconnect();
+                connection = null;
+
+				that.rows.removeAll();
+
+                that.connecting(false);
+                that.connected(false);
+
+                that.activeTemplate('disconnected-template');
+			};
+
+			that.addSymbol = function() {
+                var symbol = that.symbol();
+
+                if (!symbol) {
+                	return;
+                }
+
+                var model = new RowModel(symbol);
+
+                var handleMarketUpdate = function(message) {
+                	model.quote(connection.getMarketState().getQuote(symbol));
+                };
+
+                model.handler(handleMarketUpdate);
+
+                connection.on('marketUpdate', handleMarketUpdate, symbol);
+
+                this.rows.push(model);
             };
 
-            var onMarketUpdate = function(message) {
-                console.log(message);
+			that.removeSymbol = function(model) {
+			    connection.off('marketUpdate', model.handler(), model.symbol);
 
-                var q = client.getMarketState().getQuote(message.symbol);
-
-                if (q)
-                    $("#quote").html('Symbol: ' + q.symbol + '<br>Last:' + q.lastPrice);
+			    this.rows.remove(model);
             };
 
-            var onTimestamp = function(date) {
-                $("#timestamp").text(date);
+			that.showGrid = function() {
+				that.activeTemplate('grid-template');
+
+				that.item(null);
             };
 
-            $("#connect").click(function() {
-                var symbol = $("#symbols").val();
+			that.showItemDetail = function(model) {
+			    that.item(model);
 
-                client.connect('qsws-us-e-01.aws.barchart.com', $("#username").val(), $("#password").val());
+				that.activeTemplate('grid-item-details');
+            };
 
-                client.on('marketUpdate', onMarketUpdate, symbol);
-                client.on('marketDepth', onMarketDepth, symbol);
-                client.on('cumulativeVolume', onCumulativeVolume, symbol);
+			that.itemDisplay = ko.computed(function() {
+                var item = that.item();
 
-                console.log('Symbol count:' + client.getActiveSymbolCount());
-
-                client.on('timestamp', onTimestamp);
+                if (item && item.quote()) {
+					return JSON.stringify(item.quote(), null, 2);
+				} else {
+                	return null;
+                }
             });
 
+            that.disconnect();
+		};
 
-            $("#disconnect").click(function() {
-                var symbol = $("#symbols").val();
+		var RowModel = function(symbol) {
+		    var that = this;
 
-                client.off('marketUpdate', onMarketUpdate, symbol);
-                client.off('marketDepth', onMarketDepth, symbol);
-                client.off('cumulativeVolume', onCumulativeVolume, symbol);
+		    this.symbol = symbol;
 
-                console.log('Symbol count:' + client.getActiveSymbolCount());
+		    this.handler = ko.observable(null);
+		    this.quote = ko.observable(null);
+        };
 
-                client.disconnect();
-            });
+		$(document).ready(function() {
+			var pageModel = new PageModel();
 
-            var client = new Barchart.RealtimeData.Connection();
-
-            client.on('events', function(info) {
-                // Basic Network Events
-                console.log(info);
-            });
-        });
-
+            ko.applyBindings(pageModel, $('body')[0]);
+		});
     </script>
-    <style type="text/css">
-        body {
-            font-family: Open Sans;
-            font-size: smaller;
-            overflow: hidden;
-            padding: 0;
-            margin: 0;
-            width: 100%;
-            height: 100%;
-            background: gray;
-        }
 
-        #quote, #cumulative-volume {
-            background: white;
-            margin: 0;
-            padding: 0.5em 0.5em 0.5em 0.5em;
-            position: absolute;
-            top: 50px;
-            left: 0.5em;
-            right: 0.5em;
-            overflow: auto;
-            height: 200px;
-        }
+    <script type="text/html" id="grid-template">
+        <table class="table table-striped small">
+            <thead>
+            <th class="left col-md-1"></th>
+            <th class="left col-md-1">Symbol</th>
+            <th class="left col-md-2">Bid Price</th>
+            <th class="left col-md-2">Ask Price</th>
+            <th class="left col-md-2">Last Price</th>
+            <th class="left col-md-2">Volume</th>
+            <th class="left col-md-2">Trades</th>
+            </thead>
+            <tbody data-bind="template: { name: 'grid-item-template', foreach: rows }"></tbody>
+        </table>
+    </script>
 
-        #quote {
-            top: 50px;
-            left: 0.5em;
-            right: 0.5em;
-        }
+    <script type="text/html" id="grid-item-template">
+        <tr>
+            <td class="center col-md-1 alert-action-buttons">
+                <span class="text-button text-button-black glyphicon glyphicon-search" data-bind="click: function() { $parent.showItemDetail($data); }"></span>
+                <span class="text-button text-button-black glyphicon glyphicon-remove" data-bind="click: function() { $parent.removeSymbol($data); }"></span>
+            </td>
+            <td class="left col-md-1" data-bind="text: symbol"></td>
 
-        #cumulative-volume {
-            top: 250px;
-            left: 0.5em;
-            right: 0.5em;
-        }
+            <!-- ko if: quote() !== null -->
+            <!-- ko with: quote -->
+            <td class="left col-md-2" data-bind="text: bidPrice"></td>
+            <td class="left col-md-2" data-bind="text: askPrice"></td>
+            <td class="left col-md-2" data-bind="text: lastPrice"></td>
+            <td class="left col-md-2" data-bind="text: volume"></td>
+            <td class="left col-md-2" data-bind="text: numberOfTrades"></td>
+            <!-- /ko -->
+            <!-- /ko -->
+            <!-- ko if: quote() === null -->
+            <td class="left col-md-2"></td>
+            <td class="left col-md-2"></td>
+            <td class="left col-md-2"></td>
+            <td class="left col-md-2"></td>
+            <td class="left col-md-2"></td>
+            <!-- /ko -->
+        </tr>
+    </script>
 
-        #timestamp {
-            background: rgb(204, 204, 204);
-            height: 15px;
-            margin: 0;
-            padding: 0.5em 0.5em 0.5em 0.5em;
-            position: absolute;
-            left: 0.5em;
-            right: 0.5em;
-            overflow: auto;
-            top : 460px;
-        }
+    <script type="text/html" id="grid-item-details">
+        <pre data-bind="text: itemDisplay"></pre>
+    </script>
 
-        #form {
-            height: 50px;
-            padding: 0.5em 0.5em 0.5em 0.5em;
-            margin: 0;
-            position: absolute;
-            left: 0.5em;
-            overflow: hidden;
-            right: 0.5em;
-            top: 0.5em;
-        }
-    </style>
+    <script type="text/html" id="disconnected-template">
+        <div class="container-center-outer">
+            <div class="container-center-inner">
+                <form class="form-horizontal login">
+                    <div class="form-group" data-bind="css: { 'has-error': server().length === 0 }">
+                        <label class="pull-left">Server</label>
+                        <input class="form-control" data-bind="value: server" type="text" placeholder="Server">
+                    </div>
+                    <div class="form-group" data-bind="css: { 'has-error': username().length === 0 }">
+                        <label class="pull-left">Username</label>
+                        <input class="form-control" data-bind="value: username" type="text" placeholder="Username">
+                    </div>
+                    <div class="form-group" data-bind="css: { 'has-error': password().length === 0 }">
+                        <label class="pull-left">Password</label>
+                        <input class="form-control" data-bind="value: password" type="password" placeholder="Password">
+                    </div>
+                    <div class="form-group buttons">
+                        <button class="form-control btn btn-primary" type="button" data-bind="click: connect, enable: canConnect">Connect</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/html" id="header-template">
+        <div class="pull-left">
+            <h4 class="pull-left">Barchart Streaming Market Data</h4>
+
+            <div class="header-action-buttons pull-right form-inline" data-bind="visible: connected">
+                <input class="form-control" data-bind="value: symbol" type="text" placeholder="Add Symbol">
+                <span class="text-button glyphicon glyphicon-plus" data-bind="click: addSymbol"></span>
+                <span class="text-button glyphicon glyphicon-th-list" data-bind="click: showGrid"></span>
+                <span class="text-button glyphicon glyphicon-remove" data-bind="click: disconnect, visible: canDisconnect"></span>
+                <span class="text-button glyphicon glyphicon-earphone" data-bind="click: connect, visible: canConnect"></span>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/html" id="footer-template">
+        <h4 class="pull-left"><a href="https://github.com/barchart/marketdata-api-js">[marketdata-api-js]</a><span data-bind="visible: connected"> <span data-bind="text: username"></span>@<span data-bind="text: server"></span></span></h4>
+        <h4 class="pull-right">Client Version: <span data-bind="text: version()"></span></h4>
+    </script>
 </head>
 <body>
-<div id="quote"></div>
-<div id="cumulative-volume"></div>
-<div id="timestamp">Timestamp</div>
-<form id="form">
-    <input id="symbols" type="text" size="64" value="ESH2017" />
-    <input id="username" type="text" size="32" value="" /> <input id="password" type="text" size="32" value="" />
-    <input id="connect" type="button" value="Connect" />
-    <input id="disconnect" type="button" value="Disconnect" />
-</form>
+<div class="header" data-bind="template: { name: 'header-template' }"></div>
+<div class="main" data-bind="template: { name: activeTemplate }"></div>
+<div class="footer" data-bind="template: { name: 'footer-template' }"></div>
 </body>
 </html>
