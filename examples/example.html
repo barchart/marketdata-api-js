@@ -35,6 +35,8 @@
 			that.connected = ko.observable(false);
 			that.connecting = ko.observable(false);
 
+			that.mode = ko.observable('Streaming');
+
 			that.canConnect = ko.computed(function() {
 				return !that.connecting() && !that.connected();
 			});
@@ -247,6 +249,22 @@
 					connection.on('cumulativeVolume', handleCumulativeVolume, symbol);
                 }
 			};
+
+			that.setStreamingMode = function() {
+				that.mode('Streaming');
+
+				if (connection !== null) {
+					connection.setPollingFrequency(null);
+                }
+            };
+
+			that.setPollingMode = function() {
+				that.mode('Polling');
+
+				if (connection !== null) {
+					connection.setPollingFrequency(5000);
+				}
+            };
 			
             that.disconnect();
 		};
@@ -408,6 +426,21 @@
                 <span class="text-button glyphicon glyphicon-plus" data-bind="click: addSymbol"></span>
                 <span class="text-button glyphicon glyphicon-remove" data-bind="click: disconnect, visible: canDisconnect"></span>
                 <span class="text-button glyphicon glyphicon-earphone" data-bind="click: connect, visible: canConnect"></span>
+            </div>
+        </div>
+        <div class="pull-right">
+            <div class="header-action-buttons pull-right form-inline" data-bind="visible: connected">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary form-control" data-bind="text: mode"></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle form-control" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="caret"></span>
+                        <span class="sr-only"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a href="#" data-bind="click: setStreamingMode">Streaming</a></li>
+                        <li><a href="#" data-bind="click: setPollingMode">Polling (5 seconds)</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </script>

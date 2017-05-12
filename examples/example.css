@@ -45,6 +45,9 @@ h4 {
     line-height: 50px;
     margin-left: 10px;
 }
+.header .header-action-buttons .btn-group {
+    margin-top: 8px;
+}
 .header input {
     position: relative;
     top: -4px;
