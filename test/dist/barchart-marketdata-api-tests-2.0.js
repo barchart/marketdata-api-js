@@ -1,9 +1,34 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
+module.exports = function () {
+	'use strict';
+
+	var object = {
+		keys: function keys(target) {
+			var keys = [];
+
+			for (var k in target) {
+				if (target.hasOwnProperty(k)) {
+					keys.push(k);
+				}
+			}
+
+			return keys;
+		}
+	};
+
+	return object;
+}();
+
+},{}],2:[function(require,module,exports){
+'use strict';
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var object = require('./../common/lang/object');
 
 module.exports = function () {
 	'use strict';
@@ -13,11 +38,30 @@ module.exports = function () {
 		reset: 'reset'
 	};
 
+	/**
+  * @typedef PriceLevel
+  * @inner
+  * @type Object
+  * @property {number} price
+  * @property {number} volume
+  */
+
+	/**
+  * An aggregation of the total volume traded at each price level for a
+  * single instrument.
+  *
+  * @public
+  */
+
 	var CumulativeVolume = function () {
 		function CumulativeVolume(symbol, tickIncrement) {
 			_classCallCheck(this, CumulativeVolume);
 
+			/**
+    * @property {string} symbol
+    */
 			this.symbol = symbol;
+
 			this._tickIncrement = tickIncrement;
 
 			this._handlers = [];
@@ -26,6 +70,21 @@ module.exports = function () {
 			this._highPrice = null;
 			this._lowPrice = null;
 		}
+
+		/**
+   * <p>Registers an event handler for a given event.</p>
+   * <p>The following events are supported:
+   * <ul>
+   *   <li>update -- when a new price level is added, or an existing price level mutates.</li>
+   *   <li>reset -- when all price levels are cleared.</li>
+   * </ul>
+   * </p>
+   *
+   * @ignore
+   * @param {string} eventType
+   * @param {function} handler - callback notified each time the event occurs
+   */
+
 
 		_createClass(CumulativeVolume, [{
 			key: 'on',
@@ -49,6 +108,15 @@ module.exports = function () {
 					});
 				}
 			}
+
+			/**
+    * Unregisters an event handler for a given event. See {@link CumulativeVolume#on}.
+    *
+    * @ignore
+    * @param {string} eventType - the event which was passed to {@link CumulativeVolume#on}
+    * @param {function} handler - the callback which was passed to {@link CumulativeVolume#on}
+    */
+
 		}, {
 			key: 'off',
 			value: function off(eventType, handler) {
@@ -65,11 +133,25 @@ module.exports = function () {
 					this._handlers = copy;
 				}
 			}
+
+			/**
+    * @ignore
+    */
+
 		}, {
 			key: 'getTickIncrement',
 			value: function getTickIncrement() {
 				return this._tickIncrement;
 			}
+
+			/**
+    * Given a numeric price, returns the volume traded at that price level.
+    *
+    * @public
+    * @param {number} price
+    * @returns {number}
+    */
+
 		}, {
 			key: 'getVolume',
 			value: function getVolume(price) {
@@ -82,38 +164,56 @@ module.exports = function () {
 					return 0;
 				}
 			}
+
+			/**
+    * Increments the volume at a given price level. Used primarily
+    * when a trade occurs.
+    *
+    * @ignore
+    * @param {number} price
+    * @param {number} volume - amount to add to existing cumulative volume
+    */
+
 		}, {
 			key: 'incrementVolume',
-			value: function incrementVolume(priceValue, volume) {
+			value: function incrementVolume(price, volume) {
 				if (this._highPrice && this._lowPrice) {
-					if (priceValue > this._highPrice) {
-						for (var p = this._highPrice + this._tickIncrement; p < priceValue; p += this._tickIncrement) {
+					if (price > this._highPrice) {
+						for (var p = this._highPrice + this._tickIncrement; p < price; p += this._tickIncrement) {
 							broadcastPriceVolumeUpdate(this, this._handlers, addPriceVolume(this._priceLevels, p.toString(), p));
 						}
 
-						this._highPrice = priceValue;
-					} else if (priceValue < this._lowPrice) {
-						for (var _p = this._lowPrice - this._tickIncrement; _p > priceValue; _p -= this._tickIncrement) {
+						this._highPrice = price;
+					} else if (price < this._lowPrice) {
+						for (var _p = this._lowPrice - this._tickIncrement; _p > price; _p -= this._tickIncrement) {
 							broadcastPriceVolumeUpdate(this, this._handlers, addPriceVolume(this._priceLevels, _p.toString(), _p));
 						}
 
-						this._lowPrice = priceValue;
+						this._lowPrice = price;
 					}
 				} else {
-					this._lowPrice = this._highPrice = priceValue;
+					this._lowPrice = this._highPrice = price;
 				}
 
-				var priceString = priceValue.toString();
+				var priceString = price.toString();
 				var priceLevel = this._priceLevels[priceString];
 
 				if (!priceLevel) {
-					priceLevel = addPriceVolume(this._priceLevels, priceString, priceValue);
+					priceLevel = addPriceVolume(this._priceLevels, priceString, price);
 				}
 
 				priceLevel.volume += volume;
 
 				broadcastPriceVolumeUpdate(this, this._handlers, priceLevel);
 			}
+
+			/**
+    * Clears the data structure. Used primarily when a "reset" message
+    * is received.
+    *
+    * @ignore
+    */
+
 		}, {
 			key: 'reset',
 			value: function reset() {
@@ -127,12 +227,20 @@ module.exports = function () {
 					handler({ container: _this2, event: events.reset });
 				});
 			}
+
+			/**
+    * Returns an array of all price levels. This is an expensive operation. Observing
+    * an ongoing subscription is preferred (see {@link Connection#on}).
+    *
+    * @return {PriceLevel[]}
+    */
+
 		}, {
 			key: 'toArray',
 			value: function toArray() {
 				var _this3 = this;
 
-				var array = Object.keys(this._priceLevels).map(function (p) {
+				var array = object.keys(this._priceLevels).map(function (p) {
 					var priceLevel = _this3._priceLevels[p];
 
 					return {
@@ -156,6 +264,17 @@ module.exports = function () {
 
 				this._handlers = [];
 			}
+
+			/**
+    * Copies the price levels from one {@link CumulativeVolume} instance to
+    * a newly {@link CumulativeVolume} created instance.
+    *
+    * @ignore
+    * @param {string} symbol - The symbol to assign to the cloned instance.
+    * @param {CumulativeVolume} source - The instance to copy.
+    * @return {CumulativeVolume}
+    */
+
 		}], [{
 			key: 'clone',
 			value: function clone(symbol, source) {
@@ -191,9 +310,9 @@ module.exports = function () {
 		});
 	};
 
-	var addPriceVolume = function addPriceVolume(priceLevels, priceString, priceValue) {
+	var addPriceVolume = function addPriceVolume(priceLevels, priceString, price) {
 		var priceLevel = {
-			price: priceValue,
+			price: price,
 			volume: 0
 		};
 
@@ -205,7 +324,7 @@ module.exports = function () {
 	return CumulativeVolume;
 }();
 
-},{}],2:[function(require,module,exports){
+},{"./../common/lang/object":1}],3:[function(require,module,exports){
 'use strict';
 
 var CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
@@ -647,4 +766,4 @@ describe('When a cumulative volume container is created with a tick increment of
 	});
 });
 
-},{"../../../lib/marketState/CumulativeVolume":1}]},{},[2]);
+},{"../../../lib/marketState/CumulativeVolume":2}]},{},[3]);

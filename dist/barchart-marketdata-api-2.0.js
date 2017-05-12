@@ -1,4 +1,27 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}(g.Barchart || (g.Barchart = {})).RealtimeData = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}(g.Barchart || (g.Barchart = {})).Streaming = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+'use strict';
+
+module.exports = function () {
+	'use strict';
+
+	var object = {
+		keys: function keys(target) {
+			var keys = [];
+
+			for (var k in target) {
+				if (target.hasOwnProperty(k)) {
+					keys.push(k);
+				}
+			}
+
+			return keys;
+		}
+	};
+
+	return object;
+}();
+
+},{}],2:[function(require,module,exports){
 'use strict';
 
 var Connection = require('./websocket/Connection');
@@ -9,7 +32,7 @@ module.exports = function () {
     return Connection;
 }();
 
-},{"./websocket/Connection":10}],2:[function(require,module,exports){
+},{"./websocket/Connection":11}],3:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -21,6 +44,14 @@ var MarketState = require('./../marketState/MarketState');
 module.exports = function () {
 	'use strict';
 
+	/**
+  * Object used to connect to market data server, request data feeds, and
+  * query market state.
+  *
+  * @public
+  * @interface
+  */
+
 	var ConnectionBase = function () {
 		function ConnectionBase() {
 			_classCallCheck(this, ConnectionBase);
@@ -30,7 +61,18 @@ module.exports = function () {
 			this._password = null;
 
 			this._marketState = new MarketState();
+			this._pollingFrequency = null;
 		}
+
+		/**
+   * Connects to the given server with username and password.
+   *
+   * @public
+   * @param {string} server
+   * @param {string} username
+   * @param {string} password
+   */
+
 
 		_createClass(ConnectionBase, [{
 			key: 'connect',
@@ -41,11 +83,24 @@ module.exports = function () {
 
 				this._connect();
 			}
+
+			/**
+    * @protected
+    * @ignore
+    */
+
 		}, {
 			key: '_connect',
 			value: function _connect() {
 				return;
 			}
+
+			/**
+    * Forces a disconnect from the server.
+    *
+    * @public
+    */
+
 		}, {
 			key: 'disconnect',
 			value: function disconnect() {
@@ -55,26 +110,66 @@ module.exports = function () {
 
 				this._disconnect();
 			}
+
+			/**
+    * @protected
+    * @ignore
+    */
+
 		}, {
 			key: '_disconnect',
 			value: function _disconnect() {
 				return;
 			}
+
+			/**
+    * Initiates a subscription to an {@link Subscription.EventType} and
+    * registers the callback for notifications.
+    *
+    * @public
+    * @param {Subscription.EventType} eventType
+    * @param {function} callback - notified each time the event occurs
+    * @param {...string=} symbols - one or more symbols, if applicable to the given {@link Subscription.EventType}
+    */
+
 		}, {
 			key: 'on',
 			value: function on() {
 				this._on.apply(this, arguments);
 			}
+
+			/**
+    * @protected
+    * @ignore
+    */
+
 		}, {
 			key: '_on',
 			value: function _on() {
 				return;
 			}
+
+			/**
+    * Stops notification of the callback for the {@link Subscription.EventType}.
+    * See {@link ConnectionBase#on}.
+    *
+    * @public
+    * @param {Subscription.EventType} eventType - the {@link Subscription.EventType} which was passed to {@link ConnectionBase#on}
+    * @param {function} callback - the callback which was passed to {@link ConnectionBase#on}
+    * @param {...string=} symbols - one or more symbols, if applicable to the given {@link Subscription.EventType}
+    */
+
 		}, {
 			key: 'off',
 			value: function off() {
 				this._off.apply(this, arguments);
 			}
+
+			/**
+    * @protected
+    * @ignore
+    */
+
 		}, {
 			key: '_off',
 			value: function _off() {
@@ -90,21 +185,88 @@ module.exports = function () {
 			value: function _getActiveSymbolCount() {
 				return null;
 			}
+
+			/**
+    * The frequency, in milliseconds, used to poll for changes to {@link Quote}
+    * objects. A null value indicates streaming updates (default).
+    *
+    * @return {number|null}
+    */
+
+		}, {
+			key: 'getPollingFrequency',
+			value: function getPollingFrequency() {
+				return this._pollingFrequency;
+			}
+
+			/**
+    * Sets the polling frequency, in milliseconds. A null value indicates
+    * streaming market updates (where polling is not used).
+    *
+    * @param {number|null} pollingFrequency
+    */
+
+		}, {
+			key: 'setPollingFrequency',
+			value: function setPollingFrequency(pollingFrequency) {
+				if (this._pollingFrequency !== pollingFrequency) {
+					if (pollingFrequency && pollingFrequency > 0) {
+						this._pollingFrequency = pollingFrequency;
+					} else {
+						this._pollingFrequency = null;
+					}
+
+					this._onPollingFrequencyChanged(this._pollingFrequency);
+				}
+			}
+
+			/**
+    * @protected
+    * @ignore
+    */
+
+		}, {
+			key: '_onPollingFrequencyChanged',
+			value: function _onPollingFrequencyChanged(pollingFrequency) {
+				return;
+			}
+
+			/**
+    * Returns the {@link MarketState} singleton, which can be used to access {@link Quote}, {@link Profile}, and {@link CumulativeVolume} objects.
+    *
+    * @return {MarketState}
+    */
+
 		}, {
 			key: 'getMarketState',
 			value: function getMarketState() {
 				return this._marketState;
 			}
+
+			/**
+    * @returns {null|string}
+    */
+
 		}, {
 			key: 'getServer',
 			value: function getServer() {
 				return this._server;
 			}
+
+			/**
+    * @returns {null|string}
+    */
+
 		}, {
 			key: 'getPassword',
 			value: function getPassword() {
 				return this._password;
 			}
+
+			/**
+    * @returns {null|string}
+    */
+
 		}, {
 			key: 'getUsername',
 			value: function getUsername() {
@@ -123,7 +285,7 @@ module.exports = function () {
 	return ConnectionBase;
 }();
 
-},{"./../marketState/MarketState":14}],3:[function(require,module,exports){
+},{"./../marketState/MarketState":15}],4:[function(require,module,exports){
 'use strict';
 
 var HistoricalDataProvider = require('./http/HistoricalDataProvider');
@@ -134,7 +296,7 @@ module.exports = function () {
 	return HistoricalDataProvider;
 }();
 
-},{"./http/HistoricalDataProvider":7}],4:[function(require,module,exports){
+},{"./http/HistoricalDataProvider":8}],5:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -144,10 +306,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 module.exports = function () {
 	'use strict';
 
+	/**
+  * An object which can lookup historical data.
+  *
+  * @ignore
+  * @interface
+  */
+
 	var HistoricalDataProviderBase = function () {
 		function HistoricalDataProviderBase() {
 			_classCallCheck(this, HistoricalDataProviderBase);
 		}
+
+		/**
+   * Performs asynchronous lookup of historical data.
+   *
+   * @public
+   */
+
 
 		_createClass(HistoricalDataProviderBase, [{
 			key: 'getHistoricalData',
@@ -158,6 +334,12 @@ module.exports = function () {
 					return _this._getHistoricalData(parameters, callback);
 				});
 			}
+
+			/**
+    * @protected
+    * @ignore
+    */
+
 		}, {
 			key: '_getHistoricalData',
 			value: function _getHistoricalData(parameters, callback) {
@@ -176,7 +358,7 @@ module.exports = function () {
 	return HistoricalDataProviderBase;
 }();
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 var ProfileProvider = require('./http/ProfileProvider');
@@ -187,7 +369,7 @@ module.exports = function () {
 	return ProfileProvider;
 }();
 
-},{"./http/ProfileProvider":8}],6:[function(require,module,exports){
+},{"./http/ProfileProvider":9}],7:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -197,10 +379,27 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 module.exports = function () {
 	'use strict';
 
+	/**
+  * An object which can lookup {@link Profile} instances.
+  *
+  * @ignore
+  * @interface
+  */
+
 	var ProfileProviderBase = function () {
 		function ProfileProviderBase() {
 			_classCallCheck(this, ProfileProviderBase);
 		}
+
+		/**
+   * Performs asynchronous lookup of instrument metadata.
+   *
+   * @public
+   * @param {string[]} symbols - An array of symbols.
+   * @param {function} callback - Optional. A callback that is invoked with the {@link Profile} instances.
+   * @returns {Promise} The {@link Profile} instances, as a promise.
+   */
+
 
 		_createClass(ProfileProviderBase, [{
 			key: 'loadProfileData',
@@ -211,6 +410,12 @@ module.exports = function () {
 					return _this._loadProfileData(symbols, callback);
 				});
 			}
+
+			/**
+    * @protected
+    * @ignore
+    */
+
 		}, {
 			key: '_loadProfileData',
 			value: function _loadProfileData(symbols, callback) {
@@ -229,7 +434,7 @@ module.exports = function () {
 	return ProfileProviderBase;
 }();
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -240,12 +445,21 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var xhr = require('xhr');
+var xhr = require('xhr'),
+    object = require('./../../../common/lang/object');
 
 var HistoricalDataProviderBase = require('./../../HistoricalDataProviderBase');
 
 module.exports = function () {
 	'use strict';
+
+	/**
+  * <p>This implementation is intended for browser-based environments.</p>
+  *
+  * @ignore
+  * @extends HistoricalDataProviderBase
+  * @variation browser
+  */
 
 	var HistoricalDataProvider = function (_HistoricalDataProvid) {
 		_inherits(HistoricalDataProvider, _HistoricalDataProvid);
@@ -260,7 +474,7 @@ module.exports = function () {
 			key: '_getHistoricalData',
 			value: function _getHistoricalData(params, callback) {
 				return new Promise(function (resolveCallback) {
-					var queryStrings = Object.keys(params).map(function (key) {
+					var queryStrings = object.keys(params).map(function (key) {
 						return encodeURIComponent(key) + '=' + encodeURIComponent(params[p]);
 					});
 
@@ -271,7 +485,7 @@ module.exports = function () {
 					};
 
 					xhr(options, function (error, response, body) {
-						var historicalData;
+						var historicalData = void 0;
 
 						if (error || response.statusCode !== 200) {
 							historicalData = [];
@@ -300,7 +514,7 @@ module.exports = function () {
 	return HistoricalDataProvider;
 }();
 
-},{"./../../HistoricalDataProviderBase":4,"xhr":51}],8:[function(require,module,exports){
+},{"./../../../common/lang/object":1,"./../../HistoricalDataProviderBase":5,"xhr":52}],9:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -317,6 +531,14 @@ var ProfileProviderBase = require('./../../ProfileProviderBase');
 
 module.exports = function () {
 	'use strict';
+
+	/**
+  * <p>This implementation is intended for browser-based environments.</p>
+  *
+  * @ignore
+  * @extends ProfileProviderBase
+  * @variation browser
+  */
 
 	var ProfileProvider = function (_ProfileProviderBase) {
 		_inherits(ProfileProvider, _ProfileProviderBase);
@@ -338,7 +560,7 @@ module.exports = function () {
 					};
 
 					xhr(options, function (error, response, body) {
-						var instrumentData;
+						var instrumentData = void 0;
 
 						if (error || response.statusCode !== 200) {
 							instrumentData = [];
@@ -367,7 +589,7 @@ module.exports = function () {
 	return ProfileProvider;
 }();
 
-},{"./../../ProfileProviderBase":6,"xhr":51}],9:[function(require,module,exports){
+},{"./../../ProfileProviderBase":7,"xhr":52}],10:[function(require,module,exports){
 'use strict';
 
 var Connection = require('./Connection');
@@ -378,7 +600,7 @@ module.exports = function () {
 	return Connection;
 }();
 
-},{"./Connection":1}],10:[function(require,module,exports){
+},{"./Connection":2}],11:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -391,8 +613,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var utilities = require('barchart-marketdata-utilities');
 
-var ConnectionBase = require('./../../ConnectionBase');
-var parseMessage = require('./../../../messageParser/parseMessage');
+var object = require('./../../../common/lang/object');
+
+var ConnectionBase = require('./../../ConnectionBase'),
+    parseMessage = require('./../../../messageParser/parseMessage');
 
 module.exports = function () {
 	'use strict';
@@ -420,6 +644,9 @@ module.exports = function () {
 
 		var __state = state.disconnected;
 		var __isConsumerDisconnect = false;
+		var __pollingFrequency = null;
+
+		var __taskPumpToken = null;
 
 		var __connection = null;
 
@@ -514,15 +741,15 @@ module.exports = function () {
 
 						connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
 
-						Object.keys(__marketUpdateSymbols).forEach(function (symbol) {
+						object.keys(__marketUpdateSymbols).forEach(function (symbol) {
 							addTask('MU_GO', symbol);
 						});
 
-						Object.keys(__cumulativeVolumeSymbols).forEach(function (symbol) {
+						object.keys(__cumulativeVolumeSymbols).forEach(function (symbol) {
 							addTask('MU_GO', symbol);
 						});
 
-						Object.keys(__marketDepthSymbols).forEach(function (symbol) {
+						object.keys(__marketDepthSymbols).forEach(function (symbol) {
 							addTask('MD_GO', symbol);
 						});
 					}, _RECONNECT_INTERVAL);
@@ -540,7 +767,7 @@ module.exports = function () {
 			}
 		}
 
-		function disconnect() {
+		function dropConnection() {
 			__state = state.disconnected;
 
 			if (__connection !== null) {
@@ -548,6 +775,10 @@ module.exports = function () {
 				__connection.close();
 				__connection = null;
 			}
+		}
+
+		function disconnect() {
+			dropConnection();
 
 			__tasks = [];
 			__commands = [];
@@ -733,7 +964,7 @@ module.exports = function () {
 					return candidate === handler;
 				});
 
-				var updatedListeners;
+				var updatedListeners = void 0;
 
 				if (add) {
 					updatedListeners = listeners.slice(0);
@@ -982,8 +1213,8 @@ module.exports = function () {
 			setTimeout(pumpMessages, 125);
 		}
 
-		function pumpTasks() {
-			if (__state == state.authenticated) {
+		function pumpStreamingTasks() {
+			if (__state === state.authenticated) {
 				while (__tasks.length > 0) {
 					var task = __tasks.shift();
 
@@ -1013,37 +1244,83 @@ module.exports = function () {
 				}
 			}
 
-			setTimeout(pumpTasks, 250);
+			__taskPumpToken = setTimeout(pumpStreamingTasks, 250);
+		}
+
+		function pumpPollingTasks() {
+			if (__state === state.authenticated && __commands.length === 0) {
+				__tasks = [];
+
+				var getBatches = function getBatches(symbols) {
+					var partitions = [];
+
+					while (symbols.length !== 0) {
+						partitions.push(symbols.splice(0, 250));
+					}
+
+					return partitions;
+				};
+
+				var quoteBatches = getBatches(getUniqueSymbols([__marketUpdateSymbols, __cumulativeVolumeSymbols]));
+
+				quoteBatches.forEach(function (batch) {
+					__commands.push('GO' + ' ' + batch.join(',') + '=' + 'sc');
+				});
+
+				var bookBatches = getBatches(object.keys(__marketDepthSymbols));
+
+				quoteBatches.forEach(function (batch) {
+					__commands.push('GO' + ' ' + batch.join(',') + '=' + 'b');
+				});
+			}
+
+			__taskPumpToken = setTimeout(pumpPollingTasks, __pollingFrequency);
+		}
+
+		function setPollingFrequency(pollingFrequency) {
+			__pollingFrequency = pollingFrequency;
+
+			startTaskPump();
+			dropConnection();
+		}
+
+		function getUniqueSymbols(maps) {
+			return object.keys(maps.reduce(function (aggregator, map) {
+				for (var k in map) {
+					if (map[k] === true) {
+						aggregator[k] = true;
+					}
+				}
+
+				return aggregator;
+			}, {}));
 		}
 
 		function getActiveSymbolCount() {
-			var map = {};
+			return getUniqueSymbols([__marketUpdateSymbols, __marketDepthSymbols, __cumulativeVolumeSymbols]).length;
+		}
 
-			for (var k in __marketUpdateSymbols) {
-				if (__marketUpdateSymbols[k] === true) {
-					map[k] = true;
-				}
+		function startTaskPump() {
+			if (__taskPumpToken !== null) {
+				clearTimeout(__taskPumpToken);
 			}
 
-			for (var _k in __marketDepthSymbols) {
-				if (__marketDepthSymbols[_k] === true) {
-					map[_k] = true;
-				}
+			var pumpDelegate = void 0;
+
+			if (__pollingFrequency) {
+				pumpDelegate = pumpPollingTasks;
+			} else {
+				pumpDelegate = pumpStreamingTasks;
 			}
 
-			for (var _k2 in __cumulativeVolumeSymbols) {
-				if (__cumulativeVolumeSymbols[_k2] === true) {
-					map[_k2] = true;
-				}
-			}
-
-			return Object.keys(map).length;
+			pumpDelegate();
 		}
 
 		setTimeout(processCommands, 200);
 		setTimeout(pumpMessages, 125);
-		setTimeout(pumpTasks, 250);
 		setTimeout(processFeedMessages, 125);
+
+		startTaskPump();
 
 		function userConnect(server, username, password) {
 			// always reset when told to connect
@@ -1064,9 +1341,18 @@ module.exports = function () {
 			disconnect: userDisconnect,
 			off: off,
 			on: on,
-			getActiveSymbolCount: getActiveSymbolCount
+			getActiveSymbolCount: getActiveSymbolCount,
+			setPollingFrequency: setPollingFrequency
 		};
 	}
+
+	/**
+  * Entry point for library. This implementation is intended for browser environments and uses built-in Websocket support.
+  *
+  * @public
+  * @extends ConnectionBase
+  * @variation browser
+  */
 
 	var Connection = function (_ConnectionBase) {
 		_inherits(Connection, _ConnectionBase);
@@ -1106,6 +1392,11 @@ module.exports = function () {
 				return this._internal.getActiveSymbolCount();
 			}
 		}, {
+			key: '_onPollingFrequencyChanged',
+			value: function _onPollingFrequencyChanged(pollingFrequency) {
+				return this._internal.setPollingFrequency(pollingFrequency);
+			}
+		}, {
 			key: 'toString',
 			value: function toString() {
 				return '[Connection]';
@@ -1118,7 +1409,7 @@ module.exports = function () {
 	return Connection;
 }();
 
-},{"./../../../messageParser/parseMessage":19,"./../../ConnectionBase":2,"barchart-marketdata-utilities":35}],11:[function(require,module,exports){
+},{"./../../../common/lang/object":1,"./../../../messageParser/parseMessage":20,"./../../ConnectionBase":3,"barchart-marketdata-utilities":36}],12:[function(require,module,exports){
 'use strict';
 
 var HistoricalDataProvider = require('./../connection/HistoricalDataProvider');
@@ -1129,14 +1420,14 @@ module.exports = function () {
 	return HistoricalDataProvider;
 }();
 
-},{"./../connection/HistoricalDataProvider":3}],12:[function(require,module,exports){
+},{"./../connection/HistoricalDataProvider":4}],13:[function(require,module,exports){
 'use strict';
 
-var connection = require('./connection/index');
-var historicalData = require('./historicalData/index');
-var MarketState = require('./marketState/index');
-var messageParser = require('./messageParser/index');
-var util = require('./util/index');
+var connection = require('./connection/index'),
+    historicalData = require('./historicalData/index'),
+    MarketState = require('./marketState/index'),
+    messageParser = require('./messageParser/index'),
+    util = require('./util/index');
 
 module.exports = function () {
 	'use strict';
@@ -1153,16 +1444,20 @@ module.exports = function () {
 		messageParser: messageParser,
 
 		Util: util,
-		util: util
+		util: util,
+
+		version: '0.0.0'
 	};
 }();
 
-},{"./connection/index":9,"./historicalData/index":11,"./marketState/index":17,"./messageParser/index":18,"./util/index":26}],13:[function(require,module,exports){
+},{"./connection/index":10,"./historicalData/index":12,"./marketState/index":18,"./messageParser/index":19,"./util/index":27}],14:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var object = require('./../common/lang/object');
 
 module.exports = function () {
 	'use strict';
@@ -1172,11 +1467,30 @@ module.exports = function () {
 		reset: 'reset'
 	};
 
+	/**
+  * @typedef PriceLevel
+  * @inner
+  * @type Object
+  * @property {number} price
+  * @property {number} volume
+  */
+
+	/**
+  * An aggregation of the total volume traded at each price level for a
+  * single instrument.
+  *
+  * @public
+  */
+
 	var CumulativeVolume = function () {
 		function CumulativeVolume(symbol, tickIncrement) {
 			_classCallCheck(this, CumulativeVolume);
 
+			/**
+    * @property {string} symbol
+    */
 			this.symbol = symbol;
+
 			this._tickIncrement = tickIncrement;
 
 			this._handlers = [];
@@ -1185,6 +1499,21 @@ module.exports = function () {
 			this._highPrice = null;
 			this._lowPrice = null;
 		}
+
+		/**
+   * <p>Registers an event handler for a given event.</p>
+   * <p>The following events are supported:
+   * <ul>
+   *   <li>update -- when a new price level is added, or an existing price level mutates.</li>
+   *   <li>reset -- when all price levels are cleared.</li>
+   * </ul>
+   * </p>
+   *
+   * @ignore
+   * @param {string} eventType
+   * @param {function} handler - callback notified each time the event occurs
+   */
+
 
 		_createClass(CumulativeVolume, [{
 			key: 'on',
@@ -1208,6 +1537,15 @@ module.exports = function () {
 					});
 				}
 			}
+
+			/**
+    * Unregisters an event handler for a given event. See {@link CumulativeVolume#on}.
+    *
+    * @ignore
+    * @param {string} eventType - the event which was passed to {@link CumulativeVolume#on}
+    * @param {function} handler - the callback which was passed to {@link CumulativeVolume#on}
+    */
+
 		}, {
 			key: 'off',
 			value: function off(eventType, handler) {
@@ -1224,11 +1562,25 @@ module.exports = function () {
 					this._handlers = copy;
 				}
 			}
+
+			/**
+    * @ignore
+    */
+
 		}, {
 			key: 'getTickIncrement',
 			value: function getTickIncrement() {
 				return this._tickIncrement;
 			}
+
+			/**
+    * Given a numeric price, returns the volume traded at that price level.
+    *
+    * @public
+    * @param {number} price
+    * @returns {number}
+    */
+
 		}, {
 			key: 'getVolume',
 			value: function getVolume(price) {
@@ -1241,38 +1593,56 @@ module.exports = function () {
 					return 0;
 				}
 			}
+
+			/**
+    * Increments the volume at a given price level. Used primarily
+    * when a trade occurs.
+    *
+    * @ignore
+    * @param {number} price
+    * @param {number} volume - amount to add to existing cumulative volume
+    */
+
 		}, {
 			key: 'incrementVolume',
-			value: function incrementVolume(priceValue, volume) {
+			value: function incrementVolume(price, volume) {
 				if (this._highPrice && this._lowPrice) {
-					if (priceValue > this._highPrice) {
-						for (var p = this._highPrice + this._tickIncrement; p < priceValue; p += this._tickIncrement) {
+					if (price > this._highPrice) {
+						for (var p = this._highPrice + this._tickIncrement; p < price; p += this._tickIncrement) {
 							broadcastPriceVolumeUpdate(this, this._handlers, addPriceVolume(this._priceLevels, p.toString(), p));
 						}
 
-						this._highPrice = priceValue;
-					} else if (priceValue < this._lowPrice) {
-						for (var _p = this._lowPrice - this._tickIncrement; _p > priceValue; _p -= this._tickIncrement) {
+						this._highPrice = price;
+					} else if (price < this._lowPrice) {
+						for (var _p = this._lowPrice - this._tickIncrement; _p > price; _p -= this._tickIncrement) {
 							broadcastPriceVolumeUpdate(this, this._handlers, addPriceVolume(this._priceLevels, _p.toString(), _p));
 						}
 
-						this._lowPrice = priceValue;
+						this._lowPrice = price;
 					}
 				} else {
-					this._lowPrice = this._highPrice = priceValue;
+					this._lowPrice = this._highPrice = price;
 				}
 
-				var priceString = priceValue.toString();
+				var priceString = price.toString();
 				var priceLevel = this._priceLevels[priceString];
 
 				if (!priceLevel) {
-					priceLevel = addPriceVolume(this._priceLevels, priceString, priceValue);
+					priceLevel = addPriceVolume(this._priceLevels, priceString, price);
 				}
 
 				priceLevel.volume += volume;
 
 				broadcastPriceVolumeUpdate(this, this._handlers, priceLevel);
 			}
+
+			/**
+    * Clears the data structure. Used primarily when a "reset" message
+    * is received.
+    *
+    * @ignore
+    */
+
 		}, {
 			key: 'reset',
 			value: function reset() {
@@ -1286,12 +1656,20 @@ module.exports = function () {
 					handler({ container: _this2, event: events.reset });
 				});
 			}
+
+			/**
+    * Returns an array of all price levels. This is an expensive operation. Observing
+    * an ongoing subscription is preferred (see {@link Connection#on}).
+    *
+    * @return {PriceLevel[]}
+    */
+
 		}, {
 			key: 'toArray',
 			value: function toArray() {
 				var _this3 = this;
 
-				var array = Object.keys(this._priceLevels).map(function (p) {
+				var array = object.keys(this._priceLevels).map(function (p) {
 					var priceLevel = _this3._priceLevels[p];
 
 					return {
@@ -1315,6 +1693,17 @@ module.exports = function () {
 
 				this._handlers = [];
 			}
+
+			/**
+    * Copies the price levels from one {@link CumulativeVolume} instance to
+    * a newly {@link CumulativeVolume} created instance.
+    *
+    * @ignore
+    * @param {string} symbol - The symbol to assign to the cloned instance.
+    * @param {CumulativeVolume} source - The instance to copy.
+    * @return {CumulativeVolume}
+    */
+
 		}], [{
 			key: 'clone',
 			value: function clone(symbol, source) {
@@ -1350,9 +1739,9 @@ module.exports = function () {
 		});
 	};
 
-	var addPriceVolume = function addPriceVolume(priceLevels, priceString, priceValue) {
+	var addPriceVolume = function addPriceVolume(priceLevels, priceString, price) {
 		var priceLevel = {
-			price: priceValue,
+			price: price,
 			volume: 0
 		};
 
@@ -1364,23 +1753,21 @@ module.exports = function () {
 	return CumulativeVolume;
 }();
 
-},{}],14:[function(require,module,exports){
+},{"./../common/lang/object":1}],15:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var utilities = require('barchart-marketdata-utilities');
 
-var CumulativeVolume = require('./CumulativeVolume');
-var Profile = require('./Profile');
-var Quote = require('./Quote');
+var CumulativeVolume = require('./CumulativeVolume'),
+    Profile = require('./Profile'),
+    Quote = require('./Quote');
 
-var dayCodeToNumber = require('./../util/convertDayCodeToNumber');
-var ProfileProvider = require('./../connection/ProfileProvider');
+var dayCodeToNumber = require('./../util/convertDayCodeToNumber'),
+    ProfileProvider = require('./../connection/ProfileProvider');
 
 module.exports = function () {
 	'use strict';
@@ -1504,39 +1891,28 @@ module.exports = function () {
 			}
 
 			if (message.type == 'REFRESH_CUMULATIVE_VOLUME') {
-				var priceLevels;
+				var _cv = _getOrCreateCumulativeVolume(symbol);
+				var container = _cv.container;
 
-				var _ret = function () {
-					var cv = _getOrCreateCumulativeVolume(symbol);
-					var container = cv.container;
+				if (container) {
+					container.reset();
+				} else {
+					_cv.container = container = new CumulativeVolume(symbol, message.tickIncrement);
 
-					if (container) {
-						container.reset();
-					} else {
-						cv.container = container = new CumulativeVolume(symbol, message.tickIncrement);
+					var callbacks = _cv.callbacks || [];
 
-						var callbacks = cv.callbacks || [];
-
-						callbacks.forEach(function (callback) {
-							callback(container);
-						});
-
-						cv.callbacks = null;
-					}
-
-					priceLevels = message.priceLevels;
-
-
-					message.priceLevels.forEach(function (priceLevel) {
-						container.incrementVolume(priceLevel.price, priceLevel.volume);
+					callbacks.forEach(function (callback) {
+						callback(container);
 					});
 
-					return {
-						v: void 0
-					};
-				}();
+					_cv.callbacks = null;
+				}
 
-				if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+				message.priceLevels.forEach(function (priceLevel) {
+					container.incrementVolume(priceLevel.price, priceLevel.volume);
+				});
+
+				return;
 			}
 
 			var p = _getOrCreateProfile(symbol);
@@ -1777,12 +2153,23 @@ module.exports = function () {
 
 		var _getCumulativeVolume = function _getCumulativeVolume(symbol, callback) {
 			var cv = _getOrCreateCumulativeVolume(symbol);
+			var promise = void 0;
 
 			if (cv.container) {
-				callback(cv.container);
+				promise = Promise.resolve(cv.container);
 			} else {
-				cv.callbacks.push(callback);
+				promise = new Promise(function (resolveCallback) {
+					cv.callbacks.push(resolveCallback);
+				});
 			}
+
+			return promise.then(function (cv) {
+				if (typeof callback === 'function') {
+					callback(cv);
+				}
+
+				return cv;
+			});
 		};
 
 		var _getProfile = function _getProfile(symbol, callback) {
@@ -1797,7 +2184,7 @@ module.exports = function () {
 				});
 			}
 
-			promise = promise.then(function (p) {
+			return promise.then(function (p) {
 				if (typeof callback === 'function') {
 					callback(p);
 				}
@@ -1824,6 +2211,24 @@ module.exports = function () {
 		};
 	}
 
+	/**
+  * @typedef Book
+  * @type Object
+  * @property {string} symbol
+  * @property {Object[]} bids
+  * @property {Object[]} asks
+  */
+
+	/**
+  * <p>Repository for current market state. This repository will only contain
+  * data for an instrument after a subscription has been established using
+  * the {@link Connection#on} function.</p>
+  * <p>Access the singleton instance using the {@link ConnectionBase#getMarketState}
+  * function.</p>
+  *
+  * @public
+  */
+
 	var MarketState = function () {
 		function MarketState() {
 			_classCallCheck(this, MarketState);
@@ -1831,46 +2236,103 @@ module.exports = function () {
 			this._internal = MarketStateInternal();
 		}
 
+		/**
+   * @public
+   * @param {string} symbol
+   * @return {Book}
+   */
+
+
 		_createClass(MarketState, [{
 			key: 'getBook',
 			value: function getBook(symbol) {
 				return this._internal.getBook(symbol);
 			}
+
+			/**
+    * @public
+    * @param {string} symbol
+    * @param {function=} callback - invoked when the {@link CumulativeVolume} instance becomes available
+    * @returns {Promise} The {@link CumulativeVolume} instance, as a promise
+    */
+
 		}, {
 			key: 'getCumulativeVolume',
 			value: function getCumulativeVolume(symbol, callback) {
 				return this._internal.getCumulativeVolume(symbol, callback);
 			}
+
+			/**
+    * @public
+    * @param {string} symbol
+    * @param {function=} callback - invoked when the {@link Profile} instance becomes available
+    * @returns {Promise} The {@link Profile} instance, as a promise.
+    */
+
 		}, {
 			key: 'getProfile',
 			value: function getProfile(symbol, callback) {
 				return this._internal.getProfile(symbol, callback);
 			}
+
+			/**
+    * @public
+    * @param {string} symbol
+    * @return {Quote}
+    */
+
 		}, {
 			key: 'getQuote',
 			value: function getQuote(symbol) {
 				return this._internal.getQuote(symbol);
 			}
+
+			/**
+    * Returns the time the most recent market data message was received.
+    * @public
+    * @return {Date}
+    */
+
 		}, {
 			key: 'getTimestamp',
 			value: function getTimestamp() {
 				return this._internal.getTimestamp();
 			}
+
+			/**
+    * @ignore
+    */
+
 		}, {
 			key: 'processMessage',
 			value: function processMessage(message) {
 				return this._internal.processMessage(message);
 			}
+
+			/**
+    * @ignore
+    */
+
 		}], [{
 			key: 'CumulativeVolume',
 			get: function get() {
 				return CumulativeVolume;
 			}
+
+			/**
+    * @ignore
+    */
+
 		}, {
 			key: 'Profile',
 			get: function get() {
 				return Profile;
 			}
+
+			/**
+    * @ignore
+    */
+
 		}, {
 			key: 'Quote',
 			get: function get() {
@@ -1884,15 +2346,15 @@ module.exports = function () {
 	return MarketState;
 }();
 
-},{"./../connection/ProfileProvider":5,"./../util/convertDayCodeToNumber":24,"./CumulativeVolume":13,"./Profile":15,"./Quote":16,"barchart-marketdata-utilities":35}],15:[function(require,module,exports){
+},{"./../connection/ProfileProvider":6,"./../util/convertDayCodeToNumber":25,"./CumulativeVolume":14,"./Profile":16,"./Quote":17,"barchart-marketdata-utilities":36}],16:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var parseSymbolType = require('./../util/parseSymbolType');
-var priceFormatter = require('./../util/priceFormatter');
+var parseSymbolType = require('./../util/parseSymbolType'),
+    priceFormatter = require('./../util/priceFormatter');
 
 module.exports = function () {
 	'use strict';
@@ -1900,23 +2362,63 @@ module.exports = function () {
 	var profiles = {};
 	var formatter = priceFormatter('-', true, ',').format;
 
+	/**
+  * Describes an instrument.
+  *
+  * @public
+  */
+
 	var Profile = function () {
 		function Profile(symbol, name, exchange, unitCode, pointValue, tickIncrement) {
 			_classCallCheck(this, Profile);
 
+			/**
+    * @property {string} symbol - the instrument's symbol
+    */
 			this.symbol = symbol;
+
+			/**
+    * @property {string} name - the instrument's name
+    */
 			this.name = name;
+
+			/**
+    * @property {string} exchange - the code for the listing exchange
+    */
 			this.exchange = exchange;
+
+			/**
+    * @property {string} unitCode - code used to describe how a price should be formatted
+    */
 			this.unitCode = unitCode;
+
+			/**
+    * @property {string} pointValue - the change in dollar value for a one point change in price
+    */
 			this.pointValue = pointValue;
+
+			/**
+    * @property {number} tickIncrement - the minimum price movement
+    */
 			this.tickIncrement = tickIncrement;
 
 			var info = parseSymbolType(this.symbol);
 
 			if (info) {
 				if (info.type === 'future') {
+					/**
+      * @property {undefined|string} root - he root symbol, if a future; otherwise undefined
+      */
 					this.root = info.root;
+
+					/**
+      * @property {undefined|string} month - the month code, if a future; otherwise undefined
+      */
 					this.month = info.month;
+
+					/**
+      * @property {undefined|number} year - the expiration year, if a symbol; otherwise undefined
+      */
 					this.year = info.year;
 				}
 			}
@@ -1924,28 +2426,59 @@ module.exports = function () {
 			profiles[symbol] = this;
 		}
 
+		/**
+   * Given a numeric price, returns a human-readable price.
+   *
+   * @public
+   * @param {number} price
+   * @returns {string}
+   */
+
+
 		_createClass(Profile, [{
 			key: 'formatPrice',
 			value: function formatPrice(price) {
 				return formatter(price);
 			}
+
+			/**
+    * Configures the logic used to format all prices using the {@link Profile#formatPrice} instance function.
+    *
+    * @public
+    * @param {string} fractionSeparator - usually a dash or a period
+    * @param {boolean} specialFractions - usually true
+    * @param {string=} thousandsSeparator - usually a comma
+    */
+
 		}], [{
 			key: 'setPriceFormatter',
 			value: function setPriceFormatter(fractionSeparator, specialFractions, thousandsSeparator) {
 				formatter = priceFormatter(fractionSeparator, specialFractions, thousandsSeparator).format;
 			}
+
+			/**
+    * Alias for {@link Profile.setPriceFormatter} function.
+    *
+    * @deprecated
+    * @public
+    * @see {@link Profile.setPriceFormatter}
+    */
+
 		}, {
 			key: 'PriceFormatter',
 			value: function PriceFormatter(fractionSeparator, specialFractions, thousandsSeparator) {
 				Profile.setPriceFormatter(fractionSeparator, specialFractions, thousandsSeparator);
 			}
+
+			/**
+    * @protected
+    * @ignore
+    */
+
 		}, {
 			key: 'Profiles',
 			get: function get() {
 				return profiles;
-			},
-			set: function set(p) {
-				profiles = p;
 			}
 		}]);
 
@@ -1955,7 +2488,7 @@ module.exports = function () {
 	return Profile;
 }();
 
-},{"./../util/parseSymbolType":28,"./../util/priceFormatter":29}],16:[function(require,module,exports){
+},{"./../util/parseSymbolType":29,"./../util/priceFormatter":30}],17:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1965,35 +2498,100 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 module.exports = function () {
 	'use strict';
 
+	/**
+  * Current market conditions for an instrument.
+  *
+  * @public
+  */
+
 	var Quote = function () {
 		function Quote(symbol) {
 			_classCallCheck(this, Quote);
 
+			/**
+    * @property {string} symbol - The instrument's symbol.
+    */
 			this.symbol = symbol || null;
+
+			/**
+    * @property {string} message - last DDF message that caused a mutation to this instance
+    */
 			this.message = null;
+
+			/**
+    * @property {string} flag - market status, will have one of three values: p, s, or undefined
+    */
 			this.flag = null;
+
 			this.mode = null;
+
+			/**
+    * @property {string} day - one character code that indicates day of the month of the current trading session
+    */
 			this.day = null;
+
+			/**
+    * @property {number} dayNum - day of the month of the current trading session
+    */
 			this.dayNum = 0;
+
 			this.session = null;
 			this.lastUpdate = null;
+
+			/**
+    * @property {number} bidPrice - top-of-book price on the buy side
+    */
 			this.bidPrice = null;
+
+			/**
+    * @property {number} bidSize - top-of-book quantity on the buy side
+    */
 			this.bidSize = null;
+
+			/**
+    * @property {number} askPrice - top-of-book price on the sell side
+    */
 			this.askPrice = null;
+
+			/**
+    * @property {number} askSize - top-of-book quantity on the sell side
+    */
 			this.askSize = null;
+
+			/**
+    * @property {number} lastPrice - most recent price (not necessarily a trade)
+    */
 			this.lastPrice = null;
+
+			/**
+    * @property {number} tradePrice - most recent trade price
+    */
 			this.tradePrice = null;
+
+			/**
+    * @property {number} tradeSize - most recent trade quantity
+    */
 			this.tradeSize = null;
+
 			this.numberOfTrades = null;
 			this.vwap1 = null; // Exchange Provided
 			this.vwap2 = null; // Calculated
+
+			/**
+    * @property {number} settlementPrice
+    */
 			this.settlementPrice = null;
 			this.openPrice = null;
 			this.highPrice = null;
 			this.lowPrice = null;
 			this.volume = null;
 			this.openInterest = null;
+
+			/**
+    * @property {number} previousPrice - price from the previous session
+    */
 			this.previousPrice = null;
+
 			this.time = null;
 			this.ticks = [];
 		}
@@ -2014,7 +2612,7 @@ module.exports = function () {
 	return Quote;
 }();
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 var MarketState = require('./MarketState');
@@ -2025,12 +2623,12 @@ module.exports = function () {
 	return MarketState;
 }();
 
-},{"./MarketState":14}],18:[function(require,module,exports){
+},{"./MarketState":15}],19:[function(require,module,exports){
 'use strict';
 
-var parseMessage = require('./parseMessage');
-var parseTimestamp = require('./parseTimestamp');
-var parseValue = require('./parseValue');
+var parseMessage = require('./parseMessage'),
+    parseTimestamp = require('./parseTimestamp'),
+    parseValue = require('./parseValue');
 
 module.exports = function () {
 	'use strict';
@@ -2046,7 +2644,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./parseMessage":19,"./parseTimestamp":20,"./parseValue":21}],19:[function(require,module,exports){
+},{"./parseMessage":20,"./parseTimestamp":21,"./parseValue":22}],20:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2057,7 +2655,7 @@ module.exports = function () {
 	return utilities.messageParser;
 }();
 
-},{"barchart-marketdata-utilities":35}],20:[function(require,module,exports){
+},{"barchart-marketdata-utilities":36}],21:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2068,7 +2666,7 @@ module.exports = function () {
 	return utilities.timestampParser;
 }();
 
-},{"barchart-marketdata-utilities":35}],21:[function(require,module,exports){
+},{"barchart-marketdata-utilities":36}],22:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2079,7 +2677,7 @@ module.exports = function () {
 	return utilities.priceParser;
 }();
 
-},{"barchart-marketdata-utilities":35}],22:[function(require,module,exports){
+},{"barchart-marketdata-utilities":36}],23:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2090,7 +2688,7 @@ module.exports = function () {
 	return utilities.convert.baseCodeToUnitCode;
 }();
 
-},{"barchart-marketdata-utilities":35}],23:[function(require,module,exports){
+},{"barchart-marketdata-utilities":36}],24:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2101,7 +2699,7 @@ module.exports = function () {
 	return utilities.convert.dateToDayCode;
 }();
 
-},{"barchart-marketdata-utilities":35}],24:[function(require,module,exports){
+},{"barchart-marketdata-utilities":36}],25:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2112,7 +2710,7 @@ module.exports = function () {
 	return utilities.convert.dayCodeToNumber;
 }();
 
-},{"barchart-marketdata-utilities":35}],25:[function(require,module,exports){
+},{"barchart-marketdata-utilities":36}],26:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2123,17 +2721,17 @@ module.exports = function () {
 	return utilities.convert.unitCodeToBaseCode;
 }();
 
-},{"barchart-marketdata-utilities":35}],26:[function(require,module,exports){
+},{"barchart-marketdata-utilities":36}],27:[function(require,module,exports){
 'use strict';
 
-var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode');
-var convertDateToDayCode = require('./convertDateToDayCode');
-var convertDayCodeToNumber = require('./convertDayCodeToNumber');
-var convertUnitCodeToBaseCode = require('./convertUnitCodeToBaseCode');
-var monthCodes = require('./monthCodes');
-var parseSymbolType = require('./parseSymbolType');
-var priceFormatter = require('./priceFormatter');
-var timeFormatter = require('./timeFormatter');
+var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode'),
+    convertDateToDayCode = require('./convertDateToDayCode'),
+    convertDayCodeToNumber = require('./convertDayCodeToNumber'),
+    convertUnitCodeToBaseCode = require('./convertUnitCodeToBaseCode'),
+    monthCodes = require('./monthCodes'),
+    parseSymbolType = require('./parseSymbolType'),
+    priceFormatter = require('./priceFormatter'),
+    timeFormatter = require('./timeFormatter');
 
 module.exports = function () {
 	'use strict';
@@ -2157,7 +2755,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convertBaseCodeToUnitCode":22,"./convertDateToDayCode":23,"./convertDayCodeToNumber":24,"./convertUnitCodeToBaseCode":25,"./monthCodes":27,"./parseSymbolType":28,"./priceFormatter":29,"./timeFormatter":30}],27:[function(require,module,exports){
+},{"./convertBaseCodeToUnitCode":23,"./convertDateToDayCode":24,"./convertDayCodeToNumber":25,"./convertUnitCodeToBaseCode":26,"./monthCodes":28,"./parseSymbolType":29,"./priceFormatter":30,"./timeFormatter":31}],28:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2168,7 +2766,7 @@ module.exports = function () {
 	return utilities.monthCodes.getCodeToNameMap();
 }();
 
-},{"barchart-marketdata-utilities":35}],28:[function(require,module,exports){
+},{"barchart-marketdata-utilities":36}],29:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2179,7 +2777,7 @@ module.exports = function () {
 	return utilities.symbolParser.parseInstrumentType;
 }();
 
-},{"barchart-marketdata-utilities":35}],29:[function(require,module,exports){
+},{"barchart-marketdata-utilities":36}],30:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2190,7 +2788,7 @@ module.exports = function () {
 	return utilities.priceFormatter;
 }();
 
-},{"barchart-marketdata-utilities":35}],30:[function(require,module,exports){
+},{"barchart-marketdata-utilities":36}],31:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2201,7 +2799,7 @@ module.exports = function () {
 	return utilities.timeFormatter;
 }();
 
-},{"barchart-marketdata-utilities":35}],31:[function(require,module,exports){
+},{"barchart-marketdata-utilities":36}],32:[function(require,module,exports){
 var Class = require('class.extend');
 
 module.exports = function() {
@@ -2229,7 +2827,7 @@ module.exports = function() {
         }
     });
 }();
-},{"class.extend":44}],32:[function(require,module,exports){
+},{"class.extend":45}],33:[function(require,module,exports){
 var XmlDomParserBase = require('./../XmlDomParserBase');
 
 module.exports = function() {
@@ -2263,7 +2861,7 @@ module.exports = function() {
         }
     });
 }();
-},{"./../XmlDomParserBase":31}],33:[function(require,module,exports){
+},{"./../XmlDomParserBase":32}],34:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2362,15 +2960,21 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 
 module.exports = function() {
 	'use strict';
 
-	return function(value, digits, thousandsSeparator) {
+	return function(value, digits, thousandsSeparator, useParenthesis) {
 		if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
 			return '';
+		}
+
+		var applyParenthesis = value < 0 && useParenthesis === true;
+
+		if (applyParenthesis) {
+			value = 0 - value;
 		}
 
 		var returnRef = value.toFixed(digits);
@@ -2402,27 +3006,20 @@ module.exports = function() {
 				}
 			}
 
+			if (applyParenthesis) {
+				buffer.unshift('(')
+				buffer.push(')');
+			}
+
 			returnRef = buffer.join('');
+		} else if (applyParenthesis) {
+			returnRef = '(' + returnRef + ')';
 		}
 
 		return returnRef;
 	};
-
-	/*
-	 // An alternative to consider ... seems about 15% faster ... not to
-	 // mention much less lengthy ... but, has a problem with more than
-	 // three decimal places ... regular expression needs work ...
-
-	 return function(value, digits, thousandsSeparator) {
-	 	if (typeof value === 'number' && (value || value === 0)) {
-	 		return value.toFixed(digits).replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator || ',');
-	 	} else {
-	 		return '';
-		}
-	 };
-	 */
 }();
-},{"lodash.isnan":48}],35:[function(require,module,exports){
+},{"lodash.isnan":49}],36:[function(require,module,exports){
 var convert = require('./convert');
 var decimalFormatter = require('./decimalFormatter');
 var messageParser = require('./messageParser');
@@ -2450,7 +3047,7 @@ module.exports = function() {
 		timestampParser: timestampParser
 	};
 }();
-},{"./convert":33,"./decimalFormatter":34,"./messageParser":36,"./monthCodes":37,"./priceFormatter":38,"./priceParser":39,"./symbolFormatter":40,"./symbolParser":41,"./timeFormatter":42,"./timestampParser":43}],36:[function(require,module,exports){
+},{"./convert":34,"./decimalFormatter":35,"./messageParser":37,"./monthCodes":38,"./priceFormatter":39,"./priceParser":40,"./symbolFormatter":41,"./symbolParser":42,"./timeFormatter":43,"./timestampParser":44}],37:[function(require,module,exports){
 var XmlDomParser = require('./common/xml/XmlDomParser');
 
 var parseValue = require('./priceParser');
@@ -2669,27 +3266,45 @@ module.exports = function() {
 											var tradeTimeT = t.tradeTime;
 											var tradeSizeT = t.tradeSize;
 
-											message.lastPriceT = lastPriceT;
+											var sessionIsEvening;
 
 											if (tradeTimeT) {
 												var noon = new Date(tradeTimeT.getFullYear(), tradeTimeT.getMonth(), tradeTimeT.getDate(), 12, 0, 0, 0);
 
-												message.sessionT = tradeTimeT.getTime() > noon.getTime();
+												sessionIsEvening = tradeTimeT.getTime() > noon.getTime();
+											} else {
+												sessionIsEvening = false;
 											}
 
-											if (tradeTimeT)
-												message.tradeTime = tradeTimeT; // might be a problem (we've split lastPrice and lastPriceT -- we might need to split times)
-											if (tradeSizeT)
-												message.tradeSize = tradeSizeT;
+											message.sessionT = sessionIsEvening;
+
+											var sessionIsCurrent = premarket || sessionIsEvening;
+
+											if (sessionIsCurrent) {
+												message.lastPriceT = lastPriceT;
+											}
 
 											if (premarket || postmarket) {
 												message.session = 'T';
 
+												if (sessionIsCurrent) {
+													if (tradeTimeT) {
+														message.tradeTime = tradeTimeT;
+													}
+
+													if (tradeSizeT) {
+														message.tradeSize = tradeSizeT;
+													}
+												}
+
 												if (premarket) {
-													if (t.volume)
+													if (t.volume) {
 														message.volume = t.volume;
-													if (t.previousPrice)
+													}
+
+													if (t.previousPrice) {
 														message.previousPrice = t.previousPrice;
+													}
 												}
 											}
 										}
@@ -2922,7 +3537,7 @@ module.exports = function() {
 		return message;
 	};
 }();
-},{"./common/xml/XmlDomParser":32,"./priceParser":39,"./timestampParser":43}],37:[function(require,module,exports){
+},{"./common/xml/XmlDomParser":33,"./priceParser":40,"./timestampParser":44}],38:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -2958,7 +3573,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 var lodashIsNaN = require('lodash.isnan');
 var decimalFormatter = require('./decimalFormatter');
 
@@ -2969,23 +3584,24 @@ module.exports = function() {
 		return ['000', Math.floor(value)].join('').substr(-1 * digits);
 	}
 
-	return function(fractionSeparator, specialFractions, thousandsSeparator) {
+	return function(fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
 		var format;
 
 		function getWholeNumberAsString(value) {
 			var val = Math.floor(value);
 
-			if ((val === 0) && (fractionSeparator === ''))
+			if ((val === 0) && (fractionSeparator === '')) {
 				return '';
-			else
+			} else {
 				return val;
+			}
 		}
 
 		function formatDecimal(value, digits) {
-			return decimalFormatter(value, digits, thousandsSeparator);
+			return decimalFormatter(value, digits, thousandsSeparator, useParenthesis);
 		}
 
-		if (fractionSeparator == '.') { // Decimals
+		if (fractionSeparator === '.') {
 			format = function(value, unitcode) {
 				switch (unitcode) {
 					case '2':
@@ -3015,53 +3631,68 @@ module.exports = function() {
 					case 'E':
 						return formatDecimal(value, 6);
 					default:
-						if (value === '' || value === undefined || value === null || lodashIsNaN(value))
+						if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
 							return '';
-						else
+						} else {
 							return value;
+						}
 				}
 			};
 		} else {
 			format = function(value, unitcode) {
-				if (value === '' || value === undefined || value === null || lodashIsNaN(value))
+				if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
 					return '';
+				}
 
-				var sign = (value >= 0) ? '' : '-';
-				value = Math.abs(value);
+				var originalValue = value;
+				var negative = value < 0;
+				var value = Math.abs(value);
 
-				// Well, damn it, sometimes code that is beautiful just doesn't work quite right.
-				// return [sign, Math.floor(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
-				// will fail when Math.floor(value) is 0 and the fractionSeparator is '', since 0.500 => 04 instead of just 4
+				var prefix;
+				var suffix;
+
+				if (negative) {
+					if (useParenthesis === true) {
+						prefix = '(';
+						suffix = ')';
+					} else {
+						prefix = '-';
+						suffix = '';
+					}
+				} else {
+					prefix = '';
+					suffix = '';
+				}
 
 				switch (unitcode) {
 					case '2':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 8, 1), suffix].join('');
 					case '3':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 16, 2), suffix].join('');
 					case '4':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * 32, 2), suffix].join('');
 					case '5':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2))].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 64), (specialFractions ? 3 : 2)), suffix].join('');
 					case '6':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 128), 3), suffix].join('');
 					case '7':
-						return [sign, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3)].join('');
+						return [prefix, getWholeNumberAsString(value), fractionSeparator, frontPad((value - Math.floor(value)) * (specialFractions ? 320 : 256), 3), suffix].join('');
 					case '8':
-						return sign + formatDecimal(value, 0);
+						return formatDecimal(originalValue, 0);
 					case '9':
-						return sign + formatDecimal(value, 1);
+						return formatDecimal(originalValue, 1);
 					case 'A':
-						return sign + formatDecimal(value, 2);
+						return formatDecimal(originalValue, 2);
 					case 'B':
-						return sign + formatDecimal(value, 3);
+						return formatDecimal(originalValue, 3);
 					case 'C':
-						return sign + formatDecimal(value, 4);
+						return formatDecimal(originalValue, 4);
 					case 'D':
-						return sign + formatDecimal(value, 5);
+						return formatDecimal(originalValue, 5);
 					case 'E':
-						return sign + formatDecimal(value, 6);
+						return formatDecimal(originalValue, 6);
 					default:
-						return sign + value;
+						return originalValue;
 				}
 			};
 		}
@@ -3071,7 +3702,7 @@ module.exports = function() {
 		};
 	};
 }();
-},{"./decimalFormatter":34,"lodash.isnan":48}],39:[function(require,module,exports){
+},{"./decimalFormatter":35,"lodash.isnan":49}],40:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -3138,7 +3769,7 @@ module.exports = function() {
 		}
 	};
 }();
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -3156,7 +3787,7 @@ module.exports = function() {
  		}
 	};
 }();
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -3323,7 +3954,7 @@ module.exports = function() {
 
 	return symbolParser;
 }();
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -3439,7 +4070,7 @@ module.exports = function() {
 		return ('00' + value).substr(-2);
 	}
 }();
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 module.exports = function() {
 	'use strict';
 
@@ -3472,7 +4103,7 @@ module.exports = function() {
 		return new Date(year, month, day, hour, minute, second, ms);
 	};
 }();
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
  
@@ -3536,7 +4167,7 @@ module.exports = function() {
   module.exports = Class;
 })();
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 var isFunction = require('is-function')
 
 module.exports = forEach
@@ -3584,20 +4215,24 @@ function forEachObject(object, iterator, context) {
     }
 }
 
-},{"is-function":47}],46:[function(require,module,exports){
+},{"is-function":48}],47:[function(require,module,exports){
 (function (global){
+var win;
+
 if (typeof window !== "undefined") {
-    module.exports = window;
+    win = window;
 } else if (typeof global !== "undefined") {
-    module.exports = global;
+    win = global;
 } else if (typeof self !== "undefined"){
-    module.exports = self;
+    win = self;
 } else {
-    module.exports = {};
+    win = {};
 }
 
+module.exports = win;
+
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -3614,7 +4249,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -3726,7 +4361,7 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 var trim = require('trim')
   , forEach = require('for-each')
   , isArray = function(arg) {
@@ -3758,7 +4393,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":45,"trim":50}],50:[function(require,module,exports){
+},{"for-each":46,"trim":51}],51:[function(require,module,exports){
 
 exports = module.exports = trim;
 
@@ -3774,7 +4409,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 "use strict";
 var window = require("global/window")
 var isFunction = require("is-function")
@@ -4014,7 +4649,7 @@ function getXml(xhr) {
 
 function noop() {}
 
-},{"global/window":46,"is-function":47,"parse-headers":49,"xtend":52}],52:[function(require,module,exports){
+},{"global/window":47,"is-function":48,"parse-headers":50,"xtend":53}],53:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -4035,5 +4670,5 @@ function extend() {
     return target
 }
 
-},{}]},{},[12])(12)
+},{}]},{},[13])(13)
 });
