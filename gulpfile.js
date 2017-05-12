@@ -12,6 +12,7 @@ var jasmine = require('gulp-jasmine');
 var jsdoc = require('gulp-jsdoc3');
 var jshint = require('gulp-jshint');
 var rename = require('gulp-rename');
+var replace = require('gulp-replace');
 var runSequence = require('run-sequence');
 var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
