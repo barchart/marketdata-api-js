@@ -52,8 +52,16 @@ gulp.task('document', function (cb) {
 		.pipe(jsdoc(config, cb));
 });
 
+gulp.task('embed-version', function () {
+	var version = getVersionFromPackage();
+
+	return gulp.src(['./lib/index.js'])
+		.pipe(replace(/(version:\s*')([0-9]+\.[0-9]+\.[0-9]+)(')/g, '$1' + version + '$3'))
+		.pipe(gulp.dest('./lib/'));
+});
+
 gulp.task('commit-changes', function () {
-    return gulp.src([ './', './dist/', './test/', './package.json', './bower.json', './lib/alerts/index.js' ])
+    return gulp.src([ './', './dist/', './test/', './package.json', './bower.json', './lib/index.js' ])
         .pipe(git.add())
         .pipe(git.commit('Release. Bump version number'));
 });
@@ -93,7 +101,7 @@ gulp.task('build-browser-tests', function () {
 
 gulp.task('build-browser-components', [ 'build-connection', 'build-util', 'build-historical-data', 'build-market-state', 'build-message-parser' ]);
 
-gulp.task('build', [ 'build-browser', 'build-browser-components' ]);
+gulp.task('build', [ 'build-browser' ]);
 
 gulp.task('execute-browser-tests', function () {
     return gulp.src('test/dist/barchart-marketdata-api-tests-' + getVersionForComponent() + '.js')
@@ -130,6 +138,7 @@ gulp.task('release', function (callback) {
         'execute-node-tests',
 		'document',
         'bump-version',
+		'embed-version',
         'commit-changes',
         'push-changes',
         'create-tag',

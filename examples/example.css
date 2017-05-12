@@ -68,6 +68,17 @@ h4 {
     width: 300px;
 }
 
+.main .view-buttons {
+    margin-bottom: 10px;
+}
+
+.main .updated {
+    color: white;
+    background-color: black;
+
+    font-weight: bold;
+}
+
 .footer {
     position: absolute;
     bottom: 0px;

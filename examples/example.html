@@ -10,7 +10,6 @@
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
@@ -29,21 +28,48 @@
 			that.password = ko.observable('');
 
 			that.symbol = ko.observable('');
+			that.symbolFocus = ko.observable(false);
+
 			that.version = ko.observable(Barchart.Streaming.version);
 
 			that.connected = ko.observable(false);
 			that.connecting = ko.observable(false);
-
-			that.activeTemplate = ko.observable('disconnected-template');
-
-			that.rows = ko.observableArray();
-			that.item = ko.observable(null);
 
 			that.canConnect = ko.computed(function() {
 				return !that.connecting() && !that.connected();
 			});
 			that.canDisconnect = ko.computed(function() {
 				return that.connected();
+			});
+			
+			that.activeTemplate = ko.observable('disconnected-template');
+
+			that.rows = ko.observableArray();
+			that.item = ko.observable(null);
+
+			var handleEvents = function(data) {
+				if (data.event) {
+					var event = data.event;
+
+					if (event === 'login success') {
+						that.connecting(false);
+						that.connected(true);
+
+						that.showGrid();
+                    }
+
+					toastr.info(data.event);
+				}
+            };
+
+			that.itemDisplay = ko.computed(function() {
+				var item = that.item();
+
+				if (item && item.quote()) {
+					return JSON.stringify(item.quote(), null, 2);
+				} else {
+					return null;
+				}
 			});
 
 			that.connect = function() {
@@ -59,13 +85,15 @@
 
                 that.connecting(true);
 
+                if (connection) {
+                	connection.off('events', handleEvents);
+                }
+
                 connection = new Barchart.Streaming.Connection();
+
+                connection.on('events', handleEvents);
+
                 connection.connect(server, username, password);
-
-				that.connecting(false);
-				that.connected(true);
-
-				that.activeTemplate('grid-template');
             };
 
 			that.disconnect = function() {
@@ -84,6 +112,14 @@
                 that.activeTemplate('disconnected-template');
 			};
 
+			that.handleLoginKeypress = function(d, e) {
+				if (e.keyCode === 13) {
+                    that.connect();
+                }
+
+                return true;
+            };
+
 			that.addSymbol = function() {
                 var symbol = that.symbol();
 
@@ -97,51 +133,161 @@
                 	model.quote(connection.getMarketState().getQuote(symbol));
                 };
 
-                model.handler(handleMarketUpdate);
+                model.setMarketUpdateHandler(handleMarketUpdate);
 
                 connection.on('marketUpdate', handleMarketUpdate, symbol);
 
-                this.rows.push(model);
+                that.rows.push(model);
+
+                that.showGrid();
             };
 
 			that.removeSymbol = function(model) {
-			    connection.off('marketUpdate', model.handler(), model.symbol);
+				if (model.getMarketUpdateHandler()) {
+					connection.off('marketUpdate', model.getMarketUpdateHandler(), model.symbol);
+				}
 
-			    this.rows.remove(model);
+				if (model.getCumulativeVolumeHandler()) {
+					connection.off('cumulativeVolume', model.getCumulativeVolumeHandler(), model.symbol);
+				}
+
+			    that.rows.remove(model);
             };
+
+			that.handleSymbolKeypress = function(d, e) {
+				if (e.keyCode === 13) {
+					that.addSymbol();
+				}
+
+				return true;
+			};
 
 			that.showGrid = function() {
 				that.activeTemplate('grid-template');
 
 				that.item(null);
+				that.symbolFocus(true);
             };
 
 			that.showItemDetail = function(model) {
+				that.symbol(model.symbol);
 			    that.item(model);
 
 				that.activeTemplate('grid-item-details');
             };
 
-			that.itemDisplay = ko.computed(function() {
-                var item = that.item();
+			that.showCumulativeVolume = function(model) {
+				that.symbol(model.symbol);
+				that.item(model);
 
-                if (item && item.quote()) {
-					return JSON.stringify(item.quote(), null, 2);
-				} else {
-                	return null;
+				that.activeTemplate('grid-cumulative-volume-template');
+
+				var symbol = model.symbol;
+				var priceLevels = model.priceLevels;
+
+				if (!model.getCumulativeVolumeHandler()) {
+					connection.getMarketState().getCumulativeVolume(symbol)
+                        .then(function(cumulativeVolume) {
+						    var items = cumulativeVolume.toArray();
+
+						    for (var i = 0; i < items.length; i++) {
+						    	var item = items[i];
+
+								priceLevels.push(new PriceLevelModel(item.price, item.volume));
+                            }
+
+						    model.cumulativeVolumeReady(true);
+                        });
+
+					var handleCumulativeVolume = function(message) {
+						if (!model.cumulativeVolumeReady()) {
+							return;
+                        }
+
+						if (message.event === 'reset') {
+							priceLevels.removeAll();
+                        } else if (message.event === 'update') {
+							var firstPriceLevel = null;
+
+                            var priceLevel = ko.utils.arrayFirst(priceLevels(), function(item) {
+                                if (firstPriceLevel === null) {
+                                	firstPriceLevel = item;
+                                }
+
+                            	return message.price === item.price();
+                            }) || null;
+
+                            var existing = priceLevel !== null;
+
+                            if (existing) {
+								priceLevel.volume(message.volume);
+							} else {
+                            	priceLevel = new PriceLevelModel(message.price, message.volume);
+
+								if (priceLevels.length === 0 || firstPriceLevel.price() > message.price()) {
+                                    priceLevels.unshift(priceLevel);
+								} else {
+									priceLevels.push(priceLevel);
+								}
+                            }
+
+                            var last = model.priceLevelLast();
+
+                            if (last !== null) {
+                            	last.updated(false);
+                            }
+
+                            priceLevel.updated(true);
+
+                            model.priceLevelLast(priceLevel);
+                        }
+					};
+
+					model.setCumulativeVolumeHandler(handleCumulativeVolume);
+					connection.on('cumulativeVolume', handleCumulativeVolume, symbol);
                 }
-            });
-
+			};
+			
             that.disconnect();
 		};
 
 		var RowModel = function(symbol) {
 		    var that = this;
 
-		    this.symbol = symbol;
+		    that.symbol = symbol;
 
-		    this.handler = ko.observable(null);
-		    this.quote = ko.observable(null);
+			that.quote = ko.observable(null);
+
+			that.priceLevels = ko.observableArray();
+			that.priceLevelLast = ko.observable(null);
+
+			that.cumulativeVolumeReady = ko.observable(false);
+
+		    that.handlers = { };
+
+		    that.setMarketUpdateHandler = function(handler) {
+		    	that.handlers.marketUpdate = handler;
+            };
+
+		    that.getMarketUpdateHandler = function() {
+		    	return that.handlers.marketUpdate;
+            };
+
+			that.setCumulativeVolumeHandler = function(handler) {
+				that.handlers.cumulativeVolume = handler;
+			};
+
+			that.getCumulativeVolumeHandler = function() {
+				return that.handlers.cumulativeVolume;
+			};
+        };
+
+		var PriceLevelModel = function(price, volume) {
+		    var that = this;
+
+		    that.price = ko.observable(price);
+		    that.volume = ko.observable(volume);
+		    that.updated = ko.observable(false);
         };
 
 		$(document).ready(function() {
@@ -170,6 +316,7 @@
         <tr>
             <td class="center col-md-1 alert-action-buttons">
                 <span class="text-button text-button-black glyphicon glyphicon-search" data-bind="click: function() { $parent.showItemDetail($data); }"></span>
+                <span class="text-button text-button-black glyphicon glyphicon-signal" data-bind="click: function() { $parent.showCumulativeVolume($data); }"></span>
                 <span class="text-button text-button-black glyphicon glyphicon-remove" data-bind="click: function() { $parent.removeSymbol($data); }"></span>
             </td>
             <td class="left col-md-1" data-bind="text: symbol"></td>
@@ -194,7 +341,38 @@
     </script>
 
     <script type="text/html" id="grid-item-details">
+        <div class="view-buttons">
+            <span class="text-button text-button-black glyphicon glyphicon-arrow-left" data-bind="click: showGrid"></span>
+        </div>
+
         <pre data-bind="text: itemDisplay"></pre>
+    </script>
+
+    <script type="text/html" id="grid-cumulative-volume-template">
+        <div class="view-buttons">
+            <span class="text-button text-button-black glyphicon glyphicon-arrow-left" data-bind="click: showGrid"></span>
+        </div>
+        <!-- ko with: item -->
+        <table class="table table-striped small" data-bind="visible: cumulativeVolumeReady() === true">
+            <thead>
+            <th class="left col-md-2">Price Level</th>
+            <th class="left col-md-2">Cumulative Volume</th>
+            </thead>
+            <tbody data-bind="template: { name: 'grid-cumulative-volume-item-template', foreach: priceLevels }"></tbody>
+        </table>
+        <div class="container-center-outer" data-bind="visible: cumulativeVolumeReady() === false">
+            <div class="container-center-inner">
+                <h4>Loading Cumulative Volume...</h4>
+            </div>
+        </div>
+        <!-- /ko -->
+    </script>
+
+    <script type="text/html" id="grid-cumulative-volume-item-template">
+        <tr>
+            <td class="left col-md-2" data-bind="text: price, css: { updated: updated }"></td>
+            <td class="left col-md-2" data-bind="text: volume, css: { updated: updated }"></td>
+        </tr>
     </script>
 
     <script type="text/html" id="disconnected-template">
@@ -203,15 +381,15 @@
                 <form class="form-horizontal login">
                     <div class="form-group" data-bind="css: { 'has-error': server().length === 0 }">
                         <label class="pull-left">Server</label>
-                        <input class="form-control" data-bind="value: server" type="text" placeholder="Server">
+                        <input class="form-control" data-bind="textInput: server" type="text" placeholder="Server">
                     </div>
-                    <div class="form-group" data-bind="css: { 'has-error': username().length === 0 }">
+                    <div class="form-group" data-bind="css: { 'has-error': username().length === 0 }, event: { keypress: handleLoginKeypress }">
                         <label class="pull-left">Username</label>
-                        <input class="form-control" data-bind="value: username" type="text" placeholder="Username">
+                        <input class="form-control" data-bind="textInput: username, hasFocus: true" type="text" placeholder="Username">
                     </div>
-                    <div class="form-group" data-bind="css: { 'has-error': password().length === 0 }">
+                    <div class="form-group" data-bind="css: { 'has-error': password().length === 0 }, event: { keypress: handleLoginKeypress }">
                         <label class="pull-left">Password</label>
-                        <input class="form-control" data-bind="value: password" type="password" placeholder="Password">
+                        <input class="form-control" data-bind="textInput: password" type="password" placeholder="Password">
                     </div>
                     <div class="form-group buttons">
                         <button class="form-control btn btn-primary" type="button" data-bind="click: connect, enable: canConnect">Connect</button>
@@ -226,9 +404,8 @@
             <h4 class="pull-left">Barchart Streaming Market Data</h4>
 
             <div class="header-action-buttons pull-right form-inline" data-bind="visible: connected">
-                <input class="form-control" data-bind="value: symbol" type="text" placeholder="Add Symbol">
+                <input class="form-control" data-bind="textInput: symbol, hasFocus: symbolFocus, event: { keypress: handleSymbolKeypress }" type="text" placeholder="Add Symbol">
                 <span class="text-button glyphicon glyphicon-plus" data-bind="click: addSymbol"></span>
-                <span class="text-button glyphicon glyphicon-th-list" data-bind="click: showGrid"></span>
                 <span class="text-button glyphicon glyphicon-remove" data-bind="click: disconnect, visible: canDisconnect"></span>
                 <span class="text-button glyphicon glyphicon-earphone" data-bind="click: connect, visible: canConnect"></span>
             </div>
@@ -236,7 +413,7 @@
     </script>
 
     <script type="text/html" id="footer-template">
-        <h4 class="pull-left"><a href="https://github.com/barchart/marketdata-api-js">[marketdata-api-js]</a><span data-bind="visible: connected"> <span data-bind="text: username"></span>@<span data-bind="text: server"></span></span></h4>
+        <h4 class="pull-left"><a href="https://github.com/barchart/marketdata-api-js" target="_blank">[marketdata-api-js]</a><span data-bind="visible: connected"> <span data-bind="text: username"></span>@<span data-bind="text: server"></span></span></h4>
         <h4 class="pull-right">Client Version: <span data-bind="text: version()"></span></h4>
     </script>
 </head>
