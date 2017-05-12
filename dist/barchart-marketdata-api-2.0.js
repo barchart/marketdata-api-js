@@ -643,10 +643,9 @@ module.exports = function () {
 		var __marketState = marketState;
 
 		var __state = state.disconnected;
-		var __isConsumerDisconnect = false;
-		var __pollingFrequency = null;
+		var __suppressReconnect = false;
 
-		var __taskPumpToken = null;
+		var __pollingFrequency = null;
 
 		var __connection = null;
 
@@ -709,8 +708,36 @@ module.exports = function () {
 			}
 		}
 
+		function enqueueGoTasks() {
+			object.keys(__marketUpdateSymbols).forEach(function (symbol) {
+				addTask('MU_GO', symbol);
+			});
+
+			object.keys(__cumulativeVolumeSymbols).forEach(function (symbol) {
+				addTask('MU_GO', symbol);
+			});
+
+			object.keys(__marketDepthSymbols).forEach(function (symbol) {
+				addTask('MD_GO', symbol);
+			});
+		}
+
+		function enqueueStopTasks() {
+			object.keys(__marketUpdateSymbols).forEach(function (symbol) {
+				addTask('MU_STOP', symbol);
+			});
+
+			object.keys(__cumulativeVolumeSymbols).forEach(function (symbol) {
+				addTask('MU_STOP', symbol);
+			});
+
+			object.keys(__marketDepthSymbols).forEach(function (symbol) {
+				addTask('MU_STOP', symbol);
+			});
+		}
+
 		function connect(server, username, password) {
-			if (__connection || __isConsumerDisconnect) {
+			if (__connection || __suppressReconnect) {
 				return;
 			}
 
@@ -741,17 +768,7 @@ module.exports = function () {
 
 						connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
 
-						object.keys(__marketUpdateSymbols).forEach(function (symbol) {
-							addTask('MU_GO', symbol);
-						});
-
-						object.keys(__cumulativeVolumeSymbols).forEach(function (symbol) {
-							addTask('MU_GO', symbol);
-						});
-
-						object.keys(__marketDepthSymbols).forEach(function (symbol) {
-							addTask('MD_GO', symbol);
-						});
+						enqueueGoTasks();
 					}, _RECONNECT_INTERVAL);
 				};
 
@@ -767,18 +784,13 @@ module.exports = function () {
 			}
 		}
 
-		function dropConnection() {
+		function disconnect() {
 			__state = state.disconnected;
 
 			if (__connection !== null) {
 				__connection.send('LOGOUT\r\n');
 				__connection.close();
-				__connection = null;
 			}
-		}
-
-		function disconnect() {
-			dropConnection();
 
 			__tasks = [];
 			__commands = [];
@@ -1105,13 +1117,15 @@ module.exports = function () {
 		}
 
 		function processCommands() {
-			var command = __commands.shift();
+			if (__state === state.authenticating || __state === state.authenticated) {
+				var command = __commands.shift();
 
-			while (command) {
-				console.log(command);
+				while (command) {
+					console.log(command);
 
-				__connection.send(command);
-				command = __commands.shift();
+					__connection.send(command);
+					command = __commands.shift();
+				}
 			}
 
 			setTimeout(processCommands, 200);
@@ -1213,38 +1227,46 @@ module.exports = function () {
 			setTimeout(pumpMessages, 125);
 		}
 
-		function pumpStreamingTasks() {
+		function pumpStreamingTasks(forced) {
 			if (__state === state.authenticated) {
 				while (__tasks.length > 0) {
 					var task = __tasks.shift();
 
-					var command = '';
-					var suffix = '';
+					if (task.callback) {
+						task.callback();
+					} else if (task.id) {
+						var command = '';
+						var suffix = '';
 
-					switch (task.id) {
-						case 'MD_GO':
-							command = 'GO';
-							suffix = 'Bb';
-							break;
-						case 'MU_GO':
-							command = 'GO';
-							suffix = 'Ssc';
-							break;
-						case 'MD_STOP':
-							command = 'STOP';
-							suffix = 'Bb';
-							break;
-						case 'MU_STOP':
-							command = 'STOP';
-							suffix = 'Ssc';
-							break;
+						switch (task.id) {
+							case 'MD_GO':
+								command = 'GO';
+								suffix = 'Bb';
+								break;
+							case 'MU_GO':
+								command = 'GO';
+								suffix = 'Ssc';
+								break;
+							case 'MD_STOP':
+								command = 'STOP';
+								suffix = 'Bb';
+								break;
+							case 'MU_STOP':
+								command = 'STOP';
+								suffix = 'Ssc';
+								break;
+						}
+
+						__commands.push(command + ' ' + task.symbols.join(',') + '=' + suffix);
 					}
-
-					__commands.push(command + ' ' + task.symbols.join(',') + '=' + suffix);
 				}
 			}
 
-			__taskPumpToken = setTimeout(pumpStreamingTasks, 250);
+			if (forced) {
+				return;
+			}
+
+			resetTaskPump(false);
 		}
 
 		function pumpPollingTasks() {
@@ -1274,14 +1296,15 @@ module.exports = function () {
 				});
 			}
 
-			__taskPumpToken = setTimeout(pumpPollingTasks, __pollingFrequency);
+			resetTaskPump(true);
 		}
 
 		function setPollingFrequency(pollingFrequency) {
-			__pollingFrequency = pollingFrequency;
+			if (__pollingFrequency === pollingFrequency) {
+				return;
+			}
 
-			startTaskPump();
-			dropConnection();
+			__pollingFrequency = pollingFrequency;
 		}
 
 		function getUniqueSymbols(maps) {
@@ -1300,45 +1323,54 @@ module.exports = function () {
 			return getUniqueSymbols([__marketUpdateSymbols, __marketDepthSymbols, __cumulativeVolumeSymbols]).length;
 		}
 
-		function startTaskPump() {
-			if (__taskPumpToken !== null) {
-				clearTimeout(__taskPumpToken);
-			}
-
+		function resetTaskPump(polling) {
 			var pumpDelegate = void 0;
+			var milliseconds = void 0;
 
 			if (__pollingFrequency) {
+				if (!polling) {
+					enqueueStopTasks();
+					pumpStreamingTasks(true);
+				}
+
 				pumpDelegate = pumpPollingTasks;
+				milliseconds = __pollingFrequency;
 			} else {
+				if (polling) {
+					enqueueGoTasks();
+				}
+
 				pumpDelegate = pumpStreamingTasks;
+				milliseconds = 250;
 			}
 
-			pumpDelegate();
+			setTimeout(pumpDelegate, milliseconds);
 		}
 
 		setTimeout(processCommands, 200);
 		setTimeout(pumpMessages, 125);
 		setTimeout(processFeedMessages, 125);
+		setTimeout(resetTaskPump, 250);
 
-		startTaskPump();
-
-		function userConnect(server, username, password) {
-			// always reset when told to connect
-			__isConsumerDisconnect = false;
+		function initializeConnection(server, username, password) {
+			__suppressReconnect = false;
 
 			connect(server, username, password);
 		}
 
-		function userDisconnect() {
-			// set to true so we know not to reconnect
-			__isConsumerDisconnect = true;
+		function terminateConnection() {
+			__suppressReconnect = true;
+
+			__loginInfo.username = null;
+			__loginInfo.password = null;
+			__loginInfo.server = null;
 
 			disconnect();
 		}
 
 		return {
-			connect: userConnect,
-			disconnect: userDisconnect,
+			connect: initializeConnection,
+			disconnect: terminateConnection,
 			off: off,
 			on: on,
 			getActiveSymbolCount: getActiveSymbolCount,
@@ -1446,7 +1478,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '2.0.2'
+		version: '2.0.3'
 	};
 }();
 
