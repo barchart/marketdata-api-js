@@ -134,12 +134,12 @@ gulp.task('test', [ 'execute-tests' ]);
 gulp.task('release', function (callback) {
     runSequence(
         'ensure-clean-working-directory',
+		'bump-version',
+		'embed-version',
         'build',
         'build-browser-tests',
         'execute-node-tests',
 		'document',
-        'bump-version',
-		'embed-version',
         'commit-changes',
         'push-changes',
         'create-tag',
