@@ -1446,7 +1446,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '0.0.0'
+		version: '2.0.2'
 	};
 }();
 
