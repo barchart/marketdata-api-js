@@ -43,7 +43,7 @@
 			that.canDisconnect = ko.computed(function() {
 				return that.connected();
 			});
-			
+
 			that.activeTemplate = ko.observable('disconnected-template');
 
 			that.rows = ko.observableArray();
@@ -265,7 +265,7 @@
 					connection.setPollingFrequency(5000);
 				}
             };
-			
+
             that.disconnect();
 		};
 
@@ -437,8 +437,8 @@
                         <span class="sr-only"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a href="#" data-bind="click: setStreamingMode">Streaming</a></li>
-                        <li><a href="#" data-bind="click: setPollingMode">Polling (5 seconds)</a></li>
+                        <li><a href="#" data-bind="click: setStreamingMode">Push (Streaming)</a></li>
+                        <li><a href="#" data-bind="click: setPollingMode">Pull (5 second Poll)</a></li>
                     </ul>
                 </div>
             </div>
