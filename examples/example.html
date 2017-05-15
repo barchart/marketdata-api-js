@@ -32,6 +32,8 @@
 
 			that.version = ko.observable(Barchart.Streaming.version);
 
+			that.activeTemplate = ko.observable('disconnected-template');
+
 			that.connected = ko.observable(false);
 			that.connecting = ko.observable(false);
 
@@ -43,8 +45,12 @@
 			that.canDisconnect = ko.computed(function() {
 				return that.connected();
 			});
+			that.canReset = ko.computed(function() {
+				var connected = that.connected();
+                var activeTemplate = that.activeTemplate();
 
-			that.activeTemplate = ko.observable('disconnected-template');
+                return connected && activeTemplate !== 'grid-template';
+            });
 
 			that.rows = ko.observableArray();
 			that.item = ko.observable(null);
@@ -359,17 +365,10 @@
     </script>
 
     <script type="text/html" id="grid-item-details">
-        <div class="view-buttons">
-            <span class="text-button text-button-black glyphicon glyphicon-arrow-left" data-bind="click: showGrid"></span>
-        </div>
-
         <pre data-bind="text: itemDisplay"></pre>
     </script>
 
     <script type="text/html" id="grid-cumulative-volume-template">
-        <div class="view-buttons">
-            <span class="text-button text-button-black glyphicon glyphicon-arrow-left" data-bind="click: showGrid"></span>
-        </div>
         <!-- ko with: item -->
         <table class="table table-striped small" data-bind="visible: cumulativeVolumeReady() === true">
             <thead>
@@ -418,8 +417,12 @@
     </script>
 
     <script type="text/html" id="header-template">
-        <div class="pull-left">
-            <h4 class="pull-left">Barchart Streaming Market Data</h4>
+        <div class="pull-left" data-bind="css: { 'can-reset': canReset}">
+            <div class="header-action-buttons form-inline pull-left back-button center">
+                <span class="text-button text-button glyphicon glyphicon-arrow-left" data-bind="click: showGrid"></span>
+            </div>
+
+            <h4 class="pull-left header-text">Barchart Streaming Market Data</h4>
 
             <div class="header-action-buttons pull-right form-inline" data-bind="visible: connected">
                 <input class="form-control" data-bind="textInput: symbol, hasFocus: symbolFocus, event: { keypress: handleSymbolKeypress }" type="text" placeholder="Add Symbol">

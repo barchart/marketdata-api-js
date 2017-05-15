@@ -52,6 +52,21 @@ h4 {
     position: relative;
     top: -4px;
 }
+.header .header-text {
+    margin-left: 30px;
+    padding-left:10px;
+}
+.header .back-button {
+    display: none;
+    margin-left: 0px;
+}
+.header .can-reset .header-text {
+    margin-left: 0px;
+}
+.header .can-reset .back-button {
+    width: 30px;
+    display: block;
+}
 
 .main {
     position: absolute;
