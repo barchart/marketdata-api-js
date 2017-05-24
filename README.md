@@ -12,5 +12,9 @@ Note: to obtain a free testing username/password, please contact solutions@barch
 Open the following file in a browser:
 
     ./examples/example.html
+    
+Or, the visit the hosted version of the example page here:
+
+- [https://examples.aws.barchart.com/marketdata-api-js/example.html](https://examples.aws.barchart.com/marketdata-api-js/example.html)
 
 ## [Read the Wiki for full documentation](https://github.com/barchart/marketdata-api-js/wiki)
