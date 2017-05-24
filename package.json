@@ -70,9 +70,7 @@
     "watchify": "~3.4.0"
   },
   "browser": {
-    "./lib/connection/websocket/Connection.js": "./lib/connection/websocket/browser/Connection.js",
-    "./lib/connection/http/HistoricalDataProvider.js": "./lib/connection/http/browser/HistoricalDataProvider.js",
-    "./lib/connection/http/ProfileProvider.js": "./lib/connection/http/browser/ProfileProvider.js"
+    "./lib/connection/websocket/Connection.js": "./lib/connection/websocket/browser/Connection.js"
   },
   "browserify": {
     "transform": [
