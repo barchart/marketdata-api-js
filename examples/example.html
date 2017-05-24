@@ -30,14 +30,14 @@
 			that.symbol = ko.observable('');
 			that.symbolFocus = ko.observable(false);
 
-			that.version = ko.observable(Barchart.Streaming.version);
+			that.mode = ko.observable('Streaming');
 
 			that.activeTemplate = ko.observable('disconnected-template');
 
+			that.version = ko.observable(Barchart.Streaming.version);
+
 			that.connected = ko.observable(false);
 			that.connecting = ko.observable(false);
-
-			that.mode = ko.observable('Streaming');
 
 			that.canConnect = ko.computed(function() {
 				return !that.connecting() && !that.connected();
