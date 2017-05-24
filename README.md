@@ -17,4 +17,25 @@ Or, the visit the hosted version of the example page here:
 
 - [https://examples.aws.barchart.com/marketdata-api-js/example.html](https://examples.aws.barchart.com/marketdata-api-js/example.html)
 
-## [Read the Wiki for full documentation](https://github.com/barchart/marketdata-api-js/wiki)
+## Documentation
+
+### Wiki
+
+[Read the Wiki for full documentation](https://github.com/barchart/marketdata-api-js/wiki)
+
+## Code Documentation
+
+1. Clone the repository
+
+    `> git clone git@github.com:barchart/marketdata-api-js.git`
+
+2. Download the dependencies.
+
+    `> cd marketdata-api-js`
+    `> npm install`
+
+3. Generate [JSDoc](http://usejsdoc.org/) output.
+
+    `> gulp document`
+    
+4. The output will be written to a /docs directory. Load /docs/index.html in a browser.
