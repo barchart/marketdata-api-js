@@ -1137,7 +1137,7 @@ module.exports = function () {
 	return Connection;
 }();
 
-},{"./../../../common/lang/object":1,"./../../../messageParser/parseMessage":13,"./../../ConnectionBase":3,"barchart-marketdata-utilities":29}],6:[function(require,module,exports){
+},{"./../../../common/lang/object":1,"./../../../messageParser/parseMessage":13,"./../../ConnectionBase":3,"barchart-marketdata-utilities":30}],6:[function(require,module,exports){
 'use strict';
 
 var connection = require('./connection/index'),
@@ -1159,11 +1159,11 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '2.0.5'
+		version: '2.0.6'
 	};
 }();
 
-},{"./connection/index":4,"./marketState/index":11,"./messageParser/index":12,"./util/index":20}],7:[function(require,module,exports){
+},{"./connection/index":4,"./marketState/index":11,"./messageParser/index":12,"./util/index":21}],7:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2044,7 +2044,7 @@ module.exports = function () {
 	return MarketState;
 }();
 
-},{"./../util/convertDayCodeToNumber":18,"./CumulativeVolume":7,"./Profile":9,"./Quote":10,"barchart-marketdata-utilities":29}],9:[function(require,module,exports){
+},{"./../util/convertDayCodeToNumber":19,"./CumulativeVolume":7,"./Profile":9,"./Quote":10,"barchart-marketdata-utilities":30}],9:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2186,7 +2186,7 @@ module.exports = function () {
 	return Profile;
 }();
 
-},{"./../util/parseSymbolType":22,"./../util/priceFormatter":23}],10:[function(require,module,exports){
+},{"./../util/parseSymbolType":23,"./../util/priceFormatter":24}],10:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2353,7 +2353,7 @@ module.exports = function () {
 	return utilities.messageParser;
 }();
 
-},{"barchart-marketdata-utilities":29}],14:[function(require,module,exports){
+},{"barchart-marketdata-utilities":30}],14:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2364,7 +2364,7 @@ module.exports = function () {
 	return utilities.timestampParser;
 }();
 
-},{"barchart-marketdata-utilities":29}],15:[function(require,module,exports){
+},{"barchart-marketdata-utilities":30}],15:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2375,7 +2375,65 @@ module.exports = function () {
 	return utilities.priceParser;
 }();
 
-},{"barchart-marketdata-utilities":29}],16:[function(require,module,exports){
+},{"barchart-marketdata-utilities":30}],16:[function(require,module,exports){
+'use strict';
+
+var xhr = require('xhr');
+
+module.exports = function () {
+	'use strict';
+
+	/**
+  * Promise-based utility for resolving symbol aliases (e.g. ES*1 is a reference
+  * to the front month for the ES contract -- not a concrete symbol). This
+  * implementation is for use in browser environments.
+  *
+  * @public
+  * @param {string} - The symbol to lookup (i.e. the alias).
+  * @returns {Promise<string>}
+  */
+
+	return function (symbol) {
+		return Promise.resolve().then(function () {
+			if (typeof symbol !== 'string') {
+				throw new Error('The "symbol" argument must be a string.');
+			}
+
+			if (symbol.length === 0) {
+				throw new Error('The "symbol" argument must be at least one character.');
+			}
+
+			return new Promise(function (resolveCallback, rejectCallback) {
+				try {
+					var options = {
+						url: 'https://instruments-prod.aws.barchart.com/instruments/' + encodeURIComponent(symbol),
+						method: 'GET'
+					};
+
+					xhr(options, function (error, response, body) {
+						if (error) {
+							rejectCallback(error);
+						} else if (response.statusCode !== 200) {
+							rejectCallback('The server returned an HTTP ' + response.statusCode + ' response code.');
+						} else {
+							var _response = JSON.parse(body);
+
+							if (!_response || !_response.instrument || !_response.instrument.symbol) {
+								rejectCallback('The server was unable to resolve symbol ' + symbol + '.');
+							} else {
+								resolveCallback(_response.instrument.symbol);
+							}
+						}
+					});
+				} catch (e) {
+					rejectCallback(e);
+				}
+			});
+		});
+	};
+}();
+
+},{"xhr":45}],17:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2386,7 +2444,7 @@ module.exports = function () {
 	return utilities.convert.baseCodeToUnitCode;
 }();
 
-},{"barchart-marketdata-utilities":29}],17:[function(require,module,exports){
+},{"barchart-marketdata-utilities":30}],18:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2397,7 +2455,7 @@ module.exports = function () {
 	return utilities.convert.dateToDayCode;
 }();
 
-},{"barchart-marketdata-utilities":29}],18:[function(require,module,exports){
+},{"barchart-marketdata-utilities":30}],19:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2408,7 +2466,7 @@ module.exports = function () {
 	return utilities.convert.dayCodeToNumber;
 }();
 
-},{"barchart-marketdata-utilities":29}],19:[function(require,module,exports){
+},{"barchart-marketdata-utilities":30}],20:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2419,7 +2477,7 @@ module.exports = function () {
 	return utilities.convert.unitCodeToBaseCode;
 }();
 
-},{"barchart-marketdata-utilities":29}],20:[function(require,module,exports){
+},{"barchart-marketdata-utilities":30}],21:[function(require,module,exports){
 'use strict';
 
 var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode'),
@@ -2429,6 +2487,7 @@ var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode'),
     monthCodes = require('./monthCodes'),
     parseSymbolType = require('./parseSymbolType'),
     priceFormatter = require('./priceFormatter'),
+    symbolResolver = require('./symbolResolver'),
     timeFormatter = require('./timeFormatter');
 
 module.exports = function () {
@@ -2441,6 +2500,7 @@ module.exports = function () {
 		convertDayCodeToNumber: convertDayCodeToNumber,
 		monthCodes: monthCodes,
 		parseSymbolType: parseSymbolType,
+		symbolResolver: symbolResolver,
 
 		BaseCode2UnitCode: convertBaseCodeToUnitCode,
 		DateToDayCode: convertDateToDayCode,
@@ -2453,7 +2513,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convertBaseCodeToUnitCode":16,"./convertDateToDayCode":17,"./convertDayCodeToNumber":18,"./convertUnitCodeToBaseCode":19,"./monthCodes":21,"./parseSymbolType":22,"./priceFormatter":23,"./timeFormatter":24}],21:[function(require,module,exports){
+},{"./convertBaseCodeToUnitCode":17,"./convertDateToDayCode":18,"./convertDayCodeToNumber":19,"./convertUnitCodeToBaseCode":20,"./monthCodes":22,"./parseSymbolType":23,"./priceFormatter":24,"./symbolResolver":16,"./timeFormatter":25}],22:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2464,7 +2524,7 @@ module.exports = function () {
 	return utilities.monthCodes.getCodeToNameMap();
 }();
 
-},{"barchart-marketdata-utilities":29}],22:[function(require,module,exports){
+},{"barchart-marketdata-utilities":30}],23:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2475,7 +2535,7 @@ module.exports = function () {
 	return utilities.symbolParser.parseInstrumentType;
 }();
 
-},{"barchart-marketdata-utilities":29}],23:[function(require,module,exports){
+},{"barchart-marketdata-utilities":30}],24:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2486,7 +2546,7 @@ module.exports = function () {
 	return utilities.priceFormatter;
 }();
 
-},{"barchart-marketdata-utilities":29}],24:[function(require,module,exports){
+},{"barchart-marketdata-utilities":30}],25:[function(require,module,exports){
 'use strict';
 
 var utilities = require('barchart-marketdata-utilities');
@@ -2497,7 +2557,7 @@ module.exports = function () {
 	return utilities.timeFormatter;
 }();
 
-},{"barchart-marketdata-utilities":29}],25:[function(require,module,exports){
+},{"barchart-marketdata-utilities":30}],26:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2539,7 +2599,7 @@ module.exports = function () {
     return XmlDomParserBase;
 }();
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2599,7 +2659,7 @@ module.exports = function () {
     return XmlDomParser;
 }();
 
-},{"./../XmlDomParserBase":25}],27:[function(require,module,exports){
+},{"./../XmlDomParserBase":26}],28:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -2702,7 +2762,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 var lodashIsNaN = require('lodash.isnan');
@@ -2764,7 +2824,7 @@ module.exports = function () {
 	};
 }();
 
-},{"lodash.isnan":38}],29:[function(require,module,exports){
+},{"lodash.isnan":42}],30:[function(require,module,exports){
 'use strict';
 
 var convert = require('./convert'),
@@ -2795,7 +2855,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convert":27,"./decimalFormatter":28,"./messageParser":30,"./monthCodes":31,"./priceFormatter":32,"./priceParser":33,"./symbolFormatter":34,"./symbolParser":35,"./timeFormatter":36,"./timestampParser":37}],30:[function(require,module,exports){
+},{"./convert":28,"./decimalFormatter":29,"./messageParser":31,"./monthCodes":32,"./priceFormatter":33,"./priceParser":34,"./symbolFormatter":35,"./symbolParser":36,"./timeFormatter":37,"./timestampParser":38}],31:[function(require,module,exports){
 'use strict';
 
 var parseValue = require('./priceParser'),
@@ -3270,7 +3330,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./common/xml/XmlDomParser":26,"./priceParser":33,"./timestampParser":37}],31:[function(require,module,exports){
+},{"./common/xml/XmlDomParser":27,"./priceParser":34,"./timestampParser":38}],32:[function(require,module,exports){
 "use strict";
 
 module.exports = function () {
@@ -3309,7 +3369,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 'use strict';
 
 var lodashIsNaN = require('lodash.isnan');
@@ -3442,7 +3502,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./decimalFormatter":28,"lodash.isnan":38}],33:[function(require,module,exports){
+},{"./decimalFormatter":29,"lodash.isnan":42}],34:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -3518,7 +3578,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -3535,7 +3595,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -3557,8 +3617,6 @@ module.exports = function () {
 
 		return instrumentType !== null && instrumentType.type === type;
 	}
-
-	console.log('here');
 
 	var symbolParser = {
 		parseInstrumentType: function parseInstrumentType(symbol) {
@@ -3702,7 +3760,7 @@ module.exports = function () {
 	return symbolParser;
 }();
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -3821,7 +3879,7 @@ module.exports = function () {
 	}
 }();
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -3858,7 +3916,89 @@ module.exports = function () {
 	};
 }();
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
+var isFunction = require('is-function')
+
+module.exports = forEach
+
+var toString = Object.prototype.toString
+var hasOwnProperty = Object.prototype.hasOwnProperty
+
+function forEach(list, iterator, context) {
+    if (!isFunction(iterator)) {
+        throw new TypeError('iterator must be a function')
+    }
+
+    if (arguments.length < 3) {
+        context = this
+    }
+    
+    if (toString.call(list) === '[object Array]')
+        forEachArray(list, iterator, context)
+    else if (typeof list === 'string')
+        forEachString(list, iterator, context)
+    else
+        forEachObject(list, iterator, context)
+}
+
+function forEachArray(array, iterator, context) {
+    for (var i = 0, len = array.length; i < len; i++) {
+        if (hasOwnProperty.call(array, i)) {
+            iterator.call(context, array[i], i, array)
+        }
+    }
+}
+
+function forEachString(string, iterator, context) {
+    for (var i = 0, len = string.length; i < len; i++) {
+        // no such thing as a sparse string.
+        iterator.call(context, string.charAt(i), i, string)
+    }
+}
+
+function forEachObject(object, iterator, context) {
+    for (var k in object) {
+        if (hasOwnProperty.call(object, k)) {
+            iterator.call(context, object[k], k, object)
+        }
+    }
+}
+
+},{"is-function":41}],40:[function(require,module,exports){
+(function (global){
+var win;
+
+if (typeof window !== "undefined") {
+    win = window;
+} else if (typeof global !== "undefined") {
+    win = global;
+} else if (typeof self !== "undefined"){
+    win = self;
+} else {
+    win = {};
+}
+
+module.exports = win;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],41:[function(require,module,exports){
+module.exports = isFunction
+
+var toString = Object.prototype.toString
+
+function isFunction (fn) {
+  var string = toString.call(fn)
+  return string === '[object Function]' ||
+    (typeof fn === 'function' && string !== '[object RegExp]') ||
+    (typeof window !== 'undefined' &&
+     // IE8 and below
+     (fn === window.setTimeout ||
+      fn === window.alert ||
+      fn === window.confirm ||
+      fn === window.prompt))
+};
+
+},{}],42:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -3969,6 +4109,315 @@ function isNumber(value) {
 }
 
 module.exports = isNaN;
+
+},{}],43:[function(require,module,exports){
+var trim = require('trim')
+  , forEach = require('for-each')
+  , isArray = function(arg) {
+      return Object.prototype.toString.call(arg) === '[object Array]';
+    }
+
+module.exports = function (headers) {
+  if (!headers)
+    return {}
+
+  var result = {}
+
+  forEach(
+      trim(headers).split('\n')
+    , function (row) {
+        var index = row.indexOf(':')
+          , key = trim(row.slice(0, index)).toLowerCase()
+          , value = trim(row.slice(index + 1))
+
+        if (typeof(result[key]) === 'undefined') {
+          result[key] = value
+        } else if (isArray(result[key])) {
+          result[key].push(value)
+        } else {
+          result[key] = [ result[key], value ]
+        }
+      }
+  )
+
+  return result
+}
+},{"for-each":39,"trim":44}],44:[function(require,module,exports){
+
+exports = module.exports = trim;
+
+function trim(str){
+  return str.replace(/^\s*|\s*$/g, '');
+}
+
+exports.left = function(str){
+  return str.replace(/^\s*/, '');
+};
+
+exports.right = function(str){
+  return str.replace(/\s*$/, '');
+};
+
+},{}],45:[function(require,module,exports){
+"use strict";
+var window = require("global/window")
+var isFunction = require("is-function")
+var parseHeaders = require("parse-headers")
+var xtend = require("xtend")
+
+module.exports = createXHR
+createXHR.XMLHttpRequest = window.XMLHttpRequest || noop
+createXHR.XDomainRequest = "withCredentials" in (new createXHR.XMLHttpRequest()) ? createXHR.XMLHttpRequest : window.XDomainRequest
+
+forEachArray(["get", "put", "post", "patch", "head", "delete"], function(method) {
+    createXHR[method === "delete" ? "del" : method] = function(uri, options, callback) {
+        options = initParams(uri, options, callback)
+        options.method = method.toUpperCase()
+        return _createXHR(options)
+    }
+})
+
+function forEachArray(array, iterator) {
+    for (var i = 0; i < array.length; i++) {
+        iterator(array[i])
+    }
+}
+
+function isEmpty(obj){
+    for(var i in obj){
+        if(obj.hasOwnProperty(i)) return false
+    }
+    return true
+}
+
+function initParams(uri, options, callback) {
+    var params = uri
+
+    if (isFunction(options)) {
+        callback = options
+        if (typeof uri === "string") {
+            params = {uri:uri}
+        }
+    } else {
+        params = xtend(options, {uri: uri})
+    }
+
+    params.callback = callback
+    return params
+}
+
+function createXHR(uri, options, callback) {
+    options = initParams(uri, options, callback)
+    return _createXHR(options)
+}
+
+function _createXHR(options) {
+    if(typeof options.callback === "undefined"){
+        throw new Error("callback argument missing")
+    }
+
+    var called = false
+    var callback = function cbOnce(err, response, body){
+        if(!called){
+            called = true
+            options.callback(err, response, body)
+        }
+    }
+
+    function readystatechange() {
+        if (xhr.readyState === 4) {
+            loadFunc()
+        }
+    }
+
+    function getBody() {
+        // Chrome with requestType=blob throws errors arround when even testing access to responseText
+        var body = undefined
+
+        if (xhr.response) {
+            body = xhr.response
+        } else {
+            body = xhr.responseText || getXml(xhr)
+        }
+
+        if (isJson) {
+            try {
+                body = JSON.parse(body)
+            } catch (e) {}
+        }
+
+        return body
+    }
+
+    function errorFunc(evt) {
+        clearTimeout(timeoutTimer)
+        if(!(evt instanceof Error)){
+            evt = new Error("" + (evt || "Unknown XMLHttpRequest Error") )
+        }
+        evt.statusCode = 0
+        return callback(evt, failureResponse)
+    }
+
+    // will load the data & process the response in a special response object
+    function loadFunc() {
+        if (aborted) return
+        var status
+        clearTimeout(timeoutTimer)
+        if(options.useXDR && xhr.status===undefined) {
+            //IE8 CORS GET successful response doesn't have a status field, but body is fine
+            status = 200
+        } else {
+            status = (xhr.status === 1223 ? 204 : xhr.status)
+        }
+        var response = failureResponse
+        var err = null
+
+        if (status !== 0){
+            response = {
+                body: getBody(),
+                statusCode: status,
+                method: method,
+                headers: {},
+                url: uri,
+                rawRequest: xhr
+            }
+            if(xhr.getAllResponseHeaders){ //remember xhr can in fact be XDR for CORS in IE
+                response.headers = parseHeaders(xhr.getAllResponseHeaders())
+            }
+        } else {
+            err = new Error("Internal XMLHttpRequest Error")
+        }
+        return callback(err, response, response.body)
+    }
+
+    var xhr = options.xhr || null
+
+    if (!xhr) {
+        if (options.cors || options.useXDR) {
+            xhr = new createXHR.XDomainRequest()
+        }else{
+            xhr = new createXHR.XMLHttpRequest()
+        }
+    }
+
+    var key
+    var aborted
+    var uri = xhr.url = options.uri || options.url
+    var method = xhr.method = options.method || "GET"
+    var body = options.body || options.data || null
+    var headers = xhr.headers = options.headers || {}
+    var sync = !!options.sync
+    var isJson = false
+    var timeoutTimer
+    var failureResponse = {
+        body: undefined,
+        headers: {},
+        statusCode: 0,
+        method: method,
+        url: uri,
+        rawRequest: xhr
+    }
+
+    if ("json" in options && options.json !== false) {
+        isJson = true
+        headers["accept"] || headers["Accept"] || (headers["Accept"] = "application/json") //Don't override existing accept header declared by user
+        if (method !== "GET" && method !== "HEAD") {
+            headers["content-type"] || headers["Content-Type"] || (headers["Content-Type"] = "application/json") //Don't override existing accept header declared by user
+            body = JSON.stringify(options.json === true ? body : options.json)
+        }
+    }
+
+    xhr.onreadystatechange = readystatechange
+    xhr.onload = loadFunc
+    xhr.onerror = errorFunc
+    // IE9 must have onprogress be set to a unique function.
+    xhr.onprogress = function () {
+        // IE must die
+    }
+    xhr.onabort = function(){
+        aborted = true;
+    }
+    xhr.ontimeout = errorFunc
+    xhr.open(method, uri, !sync, options.username, options.password)
+    //has to be after open
+    if(!sync) {
+        xhr.withCredentials = !!options.withCredentials
+    }
+    // Cannot set timeout with sync request
+    // not setting timeout on the xhr object, because of old webkits etc. not handling that correctly
+    // both npm's request and jquery 1.x use this kind of timeout, so this is being consistent
+    if (!sync && options.timeout > 0 ) {
+        timeoutTimer = setTimeout(function(){
+            if (aborted) return
+            aborted = true//IE9 may still call readystatechange
+            xhr.abort("timeout")
+            var e = new Error("XMLHttpRequest timeout")
+            e.code = "ETIMEDOUT"
+            errorFunc(e)
+        }, options.timeout )
+    }
+
+    if (xhr.setRequestHeader) {
+        for(key in headers){
+            if(headers.hasOwnProperty(key)){
+                xhr.setRequestHeader(key, headers[key])
+            }
+        }
+    } else if (options.headers && !isEmpty(options.headers)) {
+        throw new Error("Headers cannot be set on an XDomainRequest object")
+    }
+
+    if ("responseType" in options) {
+        xhr.responseType = options.responseType
+    }
+
+    if ("beforeSend" in options &&
+        typeof options.beforeSend === "function"
+    ) {
+        options.beforeSend(xhr)
+    }
+
+    xhr.send(body)
+
+    return xhr
+
+
+}
+
+function getXml(xhr) {
+    if (xhr.responseType === "document") {
+        return xhr.responseXML
+    }
+    var firefoxBugTakenEffect = xhr.status === 204 && xhr.responseXML && xhr.responseXML.documentElement.nodeName === "parsererror"
+    if (xhr.responseType === "" && !firefoxBugTakenEffect) {
+        return xhr.responseXML
+    }
+
+    return null
+}
+
+function noop() {}
+
+},{"global/window":40,"is-function":41,"parse-headers":43,"xtend":46}],46:[function(require,module,exports){
+module.exports = extend
+
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+function extend() {
+    var target = {}
+
+    for (var i = 0; i < arguments.length; i++) {
+        var source = arguments[i]
+
+        for (var key in source) {
+            if (hasOwnProperty.call(source, key)) {
+                target[key] = source[key]
+            }
+        }
+    }
+
+    return target
+}
 
 },{}]},{},[6])(6)
 });
