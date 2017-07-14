@@ -84,7 +84,7 @@ gulp.task('create-tag', function (cb) {
 });
 
 gulp.task('build-browser', function() {
-    return browserify('./lib/index.js', { standalone: 'Barchart.Streaming' }).bundle()
+    return browserify('./lib/index.js', { standalone: 'Barchart.RealtimeData' }).bundle()
         .pipe(source('barchart-marketdata-api-' + getVersionForComponent() + '.js'))
         .pipe(buffer())
         .pipe(gulp.dest('./dist'))
