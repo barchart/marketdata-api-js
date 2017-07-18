@@ -54,6 +54,7 @@
 
 			that.rows = ko.observableArray();
 			that.item = ko.observable(null);
+			that.profile = ko.observable(null);
 
 			var handleEvents = function(data) {
 				if (data.event) {
@@ -79,6 +80,16 @@
 					return null;
 				}
 			});
+
+			that.profileDisplay = ko.computed(function() {
+				var profile = that.profile();
+
+				if (profile) {
+					return JSON.stringify(profile, null, 2);
+				} else {
+					return 'Loading Profile...';
+				}
+            });
 
 			that.connect = function() {
                 that.disconnect();
@@ -150,6 +161,23 @@
                 that.showGrid();
             };
 
+			that.lookupProfile = function() {
+				var symbol = that.symbol();
+
+				if (!symbol) {
+					return;
+				}
+
+				that.showProfile(null);
+
+				connection.getMarketState().getProfile(symbol)
+                    .then((profile) => {
+					    if (that.activeTemplate() === 'profile-template') {
+					    	that.showProfile(profile);
+                        }
+                    });
+            };
+
 			that.removeSymbol = function(model) {
 				if (model.getMarketUpdateHandler()) {
 					connection.off('marketUpdate', model.getMarketUpdateHandler(), model.symbol);
@@ -174,19 +202,32 @@
 				that.activeTemplate('grid-template');
 
 				that.item(null);
+				that.profile(null);
+
 				that.symbolFocus(true);
             };
 
 			that.showItemDetail = function(model) {
 				that.symbol(model.symbol);
-			    that.item(model);
+
+				that.item(model);
+                that.profile(null);
 
 				that.activeTemplate('grid-item-details');
             };
 
+			that.showProfile = function(profile) {
+				that.item(null);
+				that.profile(profile);
+
+				that.activeTemplate('profile-template');
+            };
+
 			that.showCumulativeVolume = function(model) {
 				that.symbol(model.symbol);
+
 				that.item(model);
+				that.profile(null);
 
 				that.activeTemplate('grid-cumulative-volume-template');
 
@@ -368,6 +409,10 @@
         <pre data-bind="text: itemDisplay"></pre>
     </script>
 
+    <script type="text/html" id="profile-template">
+        <pre data-bind="text: profileDisplay"></pre>
+    </script>
+
     <script type="text/html" id="grid-cumulative-volume-template">
         <!-- ko with: item -->
         <table class="table table-striped small" data-bind="visible: cumulativeVolumeReady() === true">
@@ -427,6 +472,7 @@
             <div class="header-action-buttons pull-right form-inline" data-bind="visible: connected">
                 <input class="form-control" data-bind="textInput: symbol, hasFocus: symbolFocus, event: { keypress: handleSymbolKeypress }" type="text" placeholder="Add Symbol">
                 <span class="text-button glyphicon glyphicon-plus" data-bind="click: addSymbol"></span>
+                <span class="text-button glyphicon glyphicon-info-sign" data-bind="click: lookupProfile"></span>
                 <span class="text-button glyphicon glyphicon-remove" data-bind="click: disconnect, visible: canDisconnect"></span>
                 <span class="text-button glyphicon glyphicon-earphone" data-bind="click: connect, visible: canConnect"></span>
             </div>
