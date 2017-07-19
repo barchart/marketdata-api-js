@@ -170,11 +170,14 @@
 
 				that.showProfile(null);
 
-				connection.getMarketState().getProfile(symbol)
-                    .then((profile) => {
-					    if (that.activeTemplate() === 'profile-template') {
-					    	that.showProfile(profile);
-                        }
+				Barchart.RealtimeData.util.symbolResolver(symbol)
+                    .then((resolvedSymbol) => {
+					    return connection.getMarketState().getProfile(resolvedSymbol)
+							.then((profile) => {
+								if (that.activeTemplate() === 'profile-template') {
+									that.showProfile(profile);
+								}
+							});
                     });
             };
 
