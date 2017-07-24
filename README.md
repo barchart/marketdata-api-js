@@ -1,4 +1,4 @@
-#Barchart Market Data API for Javascript
+# Barchart Market Data API for Javascript
 
 Include streaming delayed or realtime stocks, futures, and forex data in your HTML5
 application. All you need is a username/password from Barchart, and your app can
@@ -7,4 +7,4 @@ time series data.
 
 Note: to obtain a free testing username/password, please contact solutions@barchart.com
 
-###[Read the Wiki for full documentation](https://github.com/barchart/marketdata-api-js/wiki)
+### [Read the Wiki for full documentation](https://github.com/barchart/marketdata-api-js/wiki)
