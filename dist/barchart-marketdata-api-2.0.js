@@ -1211,7 +1211,11 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
+<<<<<<< 0d02221944e342cdbc777ddffc38a4686b161456
 		version: '2.0.11'
+=======
+		version: '2.0.10'
+>>>>>>> Release. Bump version number
 	};
 }();
 
