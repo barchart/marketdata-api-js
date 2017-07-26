@@ -1211,7 +1211,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '2.0.8'
+		version: '2.0.9'
 	};
 }();
 
@@ -2211,7 +2211,7 @@ module.exports = function () {
 		_createClass(Profile, [{
 			key: 'formatPrice',
 			value: function formatPrice(price) {
-				return formatter(price);
+				return formatter(price, this.unitCode);
 			}
 
 			/**
