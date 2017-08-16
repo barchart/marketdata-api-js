@@ -937,8 +937,13 @@ module.exports = function () {
 
 										var session = premarket ? sessions.previous : sessions.combined;
 
+										if (sessions.combined.previousPrice) {
+											message.previousPrice = sessions.combined.previousPrice;
+										} else {
+											message.previousPrice = sessions.previous.previousPrice;
+										}
+
 										if (session.lastPrice) message.lastPrice = session.lastPrice;
-										if (session.previousPrice) message.previousPrice = session.previousPrice;
 										if (session.openPrice) message.openPrice = session.openPrice;
 										if (session.highPrice) message.highPrice = session.highPrice;
 										if (session.lowPrice) message.lowPrice = session.lowPrice;
@@ -1548,8 +1553,6 @@ module.exports = function () {
 
 		return instrumentType !== null && instrumentType.type === type;
 	}
-
-	console.log('here');
 
 	var symbolParser = {
 		parseInstrumentType: function parseInstrumentType(symbol) {
