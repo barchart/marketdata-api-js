@@ -1211,7 +1211,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '2.0.9'
+		version: '2.0.10'
 	};
 }();
 
@@ -3705,6 +3705,8 @@ module.exports = function () {
 
 		return instrumentType !== null && instrumentType.type === type;
 	}
+
+	console.log('here');
 
 	var symbolParser = {
 		parseInstrumentType: function parseInstrumentType(symbol) {
