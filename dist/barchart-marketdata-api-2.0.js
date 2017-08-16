@@ -1211,7 +1211,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '2.0.10'
+		version: '2.0.11'
 	};
 }();
 
