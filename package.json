@@ -41,7 +41,7 @@
     "HTML5"
   ],
   "dependencies": {
-    "barchart-marketdata-utilities": "2.0.4",
+    "@barchart/marketdata-utilities-js": "3.0.1",
     "xhr": "2.3.2"
   },
   "devDependencies": {
