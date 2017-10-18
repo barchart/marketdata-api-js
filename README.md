@@ -1,19 +1,17 @@
-# Barchart Market Data API for Javascript
+# @barchart/marketdata-api-js
+## JavaScript library for subscribing to streaming market data from [Barchart](https://www.barchart.com)
 
-Include streaming delayed or realtime stocks, futures, and forex data in your HTML5
-application. All you need is a username/password from Barchart, and your app can
-be live within a matter of minutes. Our simple API also has access to historical and
-time series data.
+Include streaming market data in your applications. Asset classes include equities, futures, and forex. Delayed and realtime data feeds are available.
 
-Note: to obtain a free testing username/password, please contact solutions@barchart.com
+All you need is a username/password from Barchart, and your app can be live within a matter of minutes. To obtain your credentials, please contact solutions@barchart.com
 
 ## Run The Example
 
-Open the following file in a browser:
+Open the following file in your browser:
 
     ./examples/example.html
     
-Or, the visit the hosted version of the example page here:
+Or, the visit the hosted version of the example page:
 
 - [https://examples.aws.barchart.com/marketdata-api-js/example.html](https://examples.aws.barchart.com/marketdata-api-js/example.html)
 
@@ -25,17 +23,6 @@ Or, the visit the hosted version of the example page here:
 
 ### Code Documentation
 
-1. Clone the repository
+[JSDoc](http://usejsdoc.org/) is used to document the source code. HTML documentation can be generated (into a "docs" folder), as follows:
 
-    > git clone git@github.com:barchart/marketdata-api-js.git
-
-2. Download the dependencies.
-
-    > cd marketdata-api-js
-    > npm install
-
-3. Generate [JSDoc](http://usejsdoc.org/) output.
-
-    > gulp document
-    
-4. The output will be written to a /docs directory. Load /docs/index.html in a browser.
+	> gulp document
