@@ -1,0 +1,37 @@
+{
+  "name": "barchart-history-proxy",
+  "version": "2.1.2",
+  "description": "Node.js server that proxies HTTP requests for historical data",
+  "author": {
+    "name": "Bryan Ingle",
+    "email": "bryan.ingle@barchart.com",
+    "url": "http://www.barchart.com"
+  },
+  "engines": {
+    "node": "=6.9.1"
+  },
+  "scripts": {
+    "test": "echo \"Tests can be executed using gulp\" && exit 1"
+  },
+  "dependencies": {
+    "express": "4.15.2",
+    "express-http-proxy": "1.0.2",
+    "log4js": "1.1.1"
+  },
+  "devDependencies": {
+    "gulp": "~3.9.0",
+    "gulp-bump": "~1.0.0",
+    "gulp-debug": "^2.1.2",
+    "git-get-status": "^1.0.5",
+    "gulp-git": "~1.6.0",
+    "gulp-jasmine": "^2.2.1",
+    "gulp-jshint": "~1.11.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-util": "^3.0.7",
+    "gulp-zip": "~3.0.2",
+    "merge-stream": "~1.0.0",
+    "run-sequence": "~1.1.4"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}

@@ -1,15 +1,18 @@
 var gulp = require('gulp');
 
+var babelify = require('babelify');
 var browserify = require('browserify');
 var buffer = require('vinyl-buffer');
 var bump = require('gulp-bump');
 var git = require('gulp-git');
 var gitStatus = require('git-get-status');
 var glob = require('glob');
+var helpers = require('babelify-external-helpers');
 var jasmine = require('gulp-jasmine');
 var jsdoc = require('gulp-jsdoc3');
 var jshint = require('gulp-jshint');
 var rename = require('gulp-rename');
+var replace = require('gulp-replace');
 var runSequence = require('run-sequence');
 var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
@@ -50,8 +53,16 @@ gulp.task('document', function (cb) {
 		.pipe(jsdoc(config, cb));
 });
 
+gulp.task('embed-version', function () {
+	var version = getVersionFromPackage();
+
+	return gulp.src(['./lib/index.js'])
+		.pipe(replace(/(version:\s*')([0-9]+\.[0-9]+\.[0-9]+)(')/g, '$1' + version + '$3'))
+		.pipe(gulp.dest('./lib/'));
+});
+
 gulp.task('commit-changes', function () {
-    return gulp.src([ './', './dist/', './test/', './package.json', './bower.json', './lib/alerts/index.js' ])
+    return gulp.src([ './', './dist/', './test/', './package.json', './bower.json', './lib/index.js' ])
         .pipe(git.add())
         .pipe(git.commit('Release. Bump version number'));
 });
@@ -82,41 +93,6 @@ gulp.task('build-browser', function() {
         .pipe(gulp.dest('dist/'));
 });
 
-gulp.task('build-connection', function() {
-    return browserify('./lib/connection/index.js', { standalone: 'Barchart.RealtimeData.Connection' }).bundle()
-        .pipe(source('barchart-marketdata-connection-' + getVersionForComponent() + '.js'))
-        .pipe(buffer())
-        .pipe(gulp.dest('./dist'));
-});
-
-gulp.task('build-util', function() {
-    return browserify('./lib/util/index.js', { standalone: 'Barchart.RealtimeData.Util' }).bundle()
-        .pipe(source('barchart-marketdata-util-' + getVersionForComponent() + '.js'))
-        .pipe(buffer())
-        .pipe(gulp.dest('./dist'));
-});
-
-gulp.task('build-historical-data', function() {
-    return browserify('./lib/historicalData/index.js', { standalone: 'Barchart.RealtimeData.HistoricalData' }).bundle()
-        .pipe(source('barchart-marketdata-historicaldata-' + getVersionForComponent() + '.js'))
-        .pipe(buffer())
-        .pipe(gulp.dest('./dist'));
-});
-
-gulp.task('build-market-state', function() {
-    return browserify('./lib/marketState/index.js', { standalone: 'Barchart.RealtimeData.MarketState' }).bundle()
-        .pipe(source('barchart-marketdata-marketstate-' + getVersionForComponent() + '.js'))
-        .pipe(buffer())
-        .pipe(gulp.dest('./dist'));
-});
-
-gulp.task('build-message-parser', function() {
-    return browserify('./lib/messageParser/index.js', { standalone: 'Barchart.RealtimeData.MessageParser' }).bundle()
-        .pipe(source('barchart-marketdata-messageparser-' + getVersionForComponent() + '.js'))
-        .pipe(buffer())
-        .pipe(gulp.dest('./dist'));
-});
-
 gulp.task('build-browser-tests', function () {
     return browserify({ entries: glob.sync('test/specs/**/*.js') }).bundle()
         .pipe(source('barchart-marketdata-api-tests-' + getVersionForComponent() + '.js'))
@@ -126,7 +102,7 @@ gulp.task('build-browser-tests', function () {
 
 gulp.task('build-browser-components', [ 'build-connection', 'build-util', 'build-historical-data', 'build-market-state', 'build-message-parser' ]);
 
-gulp.task('build', [ 'build-browser', 'build-browser-components' ]);
+gulp.task('build', [ 'build-browser' ]);
 
 gulp.task('execute-browser-tests', function () {
     return gulp.src('test/dist/barchart-marketdata-api-tests-' + getVersionForComponent() + '.js')
@@ -142,6 +118,7 @@ gulp.task('execute-tests', function (callback) {
     runSequence(
         'build-browser-tests',
         'execute-node-tests',
+		'execute-browser-tests',
 
         function (error) {
             if (error) {
@@ -157,11 +134,12 @@ gulp.task('test', [ 'execute-tests' ]);
 gulp.task('release', function (callback) {
     runSequence(
         'ensure-clean-working-directory',
+		'bump-version',
+		'embed-version',
         'build',
         'build-browser-tests',
         'execute-node-tests',
 		'document',
-        'bump-version',
         'commit-changes',
         'push-changes',
         'create-tag',
@@ -179,7 +157,7 @@ gulp.task('release', function (callback) {
 
 gulp.task('lint', function() {
     return gulp.src([ './lib/**/*.js', './test/specs/**/*.js' ])
-        .pipe(jshint())
+        .pipe(jshint({'esversion': 6}))
         .pipe(jshint.reporter('default'));
 });
 
