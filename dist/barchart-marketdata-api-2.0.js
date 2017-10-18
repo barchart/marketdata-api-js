@@ -322,7 +322,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 var object = require('./../../../common/lang/object');
 
@@ -1189,7 +1189,7 @@ module.exports = function () {
 	return Connection;
 }();
 
-},{"./../../../common/lang/object":1,"./../../../messageParser/parseMessage":13,"./../../ConnectionBase":3,"barchart-marketdata-utilities":31}],6:[function(require,module,exports){
+},{"./../../../common/lang/object":1,"./../../../messageParser/parseMessage":13,"./../../ConnectionBase":3,"@barchart/marketdata-utilities-js":31}],6:[function(require,module,exports){
 'use strict';
 
 var connection = require('./connection/index'),
@@ -1211,11 +1211,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-<<<<<<< 0d02221944e342cdbc777ddffc38a4686b161456
-		version: '2.0.11'
-=======
-		version: '2.0.10'
->>>>>>> Release. Bump version number
+		version: '2.0.12'
 	};
 }();
 
@@ -1529,7 +1525,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 var CumulativeVolume = require('./CumulativeVolume'),
     Profile = require('./Profile'),
@@ -2123,7 +2119,7 @@ module.exports = function () {
 	return MarketState;
 }();
 
-},{"./../util/convertDayCodeToNumber":19,"./CumulativeVolume":7,"./Profile":9,"./Quote":10,"barchart-marketdata-utilities":31}],9:[function(require,module,exports){
+},{"./../util/convertDayCodeToNumber":19,"./CumulativeVolume":7,"./Profile":9,"./Quote":10,"@barchart/marketdata-utilities-js":31}],9:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2424,7 +2420,7 @@ module.exports = function () {
 },{"./parseMessage":13,"./parseTimestamp":14,"./parseValue":15}],13:[function(require,module,exports){
 'use strict';
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
@@ -2432,10 +2428,10 @@ module.exports = function () {
 	return utilities.messageParser;
 }();
 
-},{"barchart-marketdata-utilities":31}],14:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],14:[function(require,module,exports){
 'use strict';
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
@@ -2443,10 +2439,10 @@ module.exports = function () {
 	return utilities.timestampParser;
 }();
 
-},{"barchart-marketdata-utilities":31}],15:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],15:[function(require,module,exports){
 'use strict';
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
@@ -2454,7 +2450,7 @@ module.exports = function () {
 	return utilities.priceParser;
 }();
 
-},{"barchart-marketdata-utilities":31}],16:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],16:[function(require,module,exports){
 'use strict';
 
 var xhr = require('xhr');
@@ -2515,7 +2511,7 @@ module.exports = function () {
 },{"xhr":46}],17:[function(require,module,exports){
 'use strict';
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
@@ -2523,10 +2519,10 @@ module.exports = function () {
 	return utilities.convert.baseCodeToUnitCode;
 }();
 
-},{"barchart-marketdata-utilities":31}],18:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],18:[function(require,module,exports){
 'use strict';
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
@@ -2534,10 +2530,10 @@ module.exports = function () {
 	return utilities.convert.dateToDayCode;
 }();
 
-},{"barchart-marketdata-utilities":31}],19:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],19:[function(require,module,exports){
 'use strict';
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
@@ -2545,10 +2541,10 @@ module.exports = function () {
 	return utilities.convert.dayCodeToNumber;
 }();
 
-},{"barchart-marketdata-utilities":31}],20:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],20:[function(require,module,exports){
 'use strict';
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
@@ -2556,10 +2552,10 @@ module.exports = function () {
 	return utilities.convert.unitCodeToBaseCode;
 }();
 
-},{"barchart-marketdata-utilities":31}],21:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],21:[function(require,module,exports){
 'use strict';
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
@@ -2567,7 +2563,7 @@ module.exports = function () {
 	return utilities.decimalFormatter;
 }();
 
-},{"barchart-marketdata-utilities":31}],22:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],22:[function(require,module,exports){
 'use strict';
 
 var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode'),
@@ -2608,7 +2604,7 @@ module.exports = function () {
 },{"./convertBaseCodeToUnitCode":17,"./convertDateToDayCode":18,"./convertDayCodeToNumber":19,"./convertUnitCodeToBaseCode":20,"./decimalFormatter":21,"./monthCodes":23,"./parseSymbolType":24,"./priceFormatter":25,"./symbolResolver":16,"./timeFormatter":26}],23:[function(require,module,exports){
 'use strict';
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
@@ -2616,10 +2612,10 @@ module.exports = function () {
 	return utilities.monthCodes.getCodeToNameMap();
 }();
 
-},{"barchart-marketdata-utilities":31}],24:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],24:[function(require,module,exports){
 'use strict';
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
@@ -2627,10 +2623,10 @@ module.exports = function () {
 	return utilities.symbolParser.parseInstrumentType;
 }();
 
-},{"barchart-marketdata-utilities":31}],25:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],25:[function(require,module,exports){
 'use strict';
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
@@ -2638,10 +2634,10 @@ module.exports = function () {
 	return utilities.priceFormatter;
 }();
 
-},{"barchart-marketdata-utilities":31}],26:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],26:[function(require,module,exports){
 'use strict';
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
@@ -2649,7 +2645,7 @@ module.exports = function () {
 	return utilities.timeFormatter;
 }();
 
-},{"barchart-marketdata-utilities":31}],27:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],27:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -3098,8 +3094,13 @@ module.exports = function () {
 
 										var session = premarket ? sessions.previous : sessions.combined;
 
+										if (sessions.combined.previousPrice) {
+											message.previousPrice = sessions.combined.previousPrice;
+										} else {
+											message.previousPrice = sessions.previous.previousPrice;
+										}
+
 										if (session.lastPrice) message.lastPrice = session.lastPrice;
-										if (session.previousPrice) message.previousPrice = session.previousPrice;
 										if (session.openPrice) message.openPrice = session.openPrice;
 										if (session.highPrice) message.highPrice = session.highPrice;
 										if (session.lowPrice) message.lowPrice = session.lowPrice;
@@ -3709,8 +3710,6 @@ module.exports = function () {
 
 		return instrumentType !== null && instrumentType.type === type;
 	}
-
-	console.log('here');
 
 	var symbolParser = {
 		parseInstrumentType: function parseInstrumentType(symbol) {

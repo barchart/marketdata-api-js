@@ -469,7 +469,7 @@ module.exports = function () {
 },{"./../util/parseSymbolType":4,"./../util/priceFormatter":5}],4:[function(require,module,exports){
 'use strict';
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
@@ -477,10 +477,10 @@ module.exports = function () {
 	return utilities.symbolParser.parseInstrumentType;
 }();
 
-},{"barchart-marketdata-utilities":10}],5:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":10}],5:[function(require,module,exports){
 'use strict';
 
-var utilities = require('barchart-marketdata-utilities');
+var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
@@ -488,7 +488,7 @@ module.exports = function () {
 	return utilities.priceFormatter;
 }();
 
-},{"barchart-marketdata-utilities":10}],6:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":10}],6:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -937,8 +937,13 @@ module.exports = function () {
 
 										var session = premarket ? sessions.previous : sessions.combined;
 
+										if (sessions.combined.previousPrice) {
+											message.previousPrice = sessions.combined.previousPrice;
+										} else {
+											message.previousPrice = sessions.previous.previousPrice;
+										}
+
 										if (session.lastPrice) message.lastPrice = session.lastPrice;
-										if (session.previousPrice) message.previousPrice = session.previousPrice;
 										if (session.openPrice) message.openPrice = session.openPrice;
 										if (session.highPrice) message.highPrice = session.highPrice;
 										if (session.lowPrice) message.lowPrice = session.lowPrice;
@@ -1548,8 +1553,6 @@ module.exports = function () {
 
 		return instrumentType !== null && instrumentType.type === type;
 	}
-
-	console.log('here');
 
 	var symbolParser = {
 		parseInstrumentType: function parseInstrumentType(symbol) {
