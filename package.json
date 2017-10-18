@@ -1,7 +1,7 @@
 {
-  "name": "marketdata-api-js",
+  "name": "@barchart/marketdata-api-js",
   "version": "2.0.14",
-  "description": "Barchart market data API for JavaScript",
+  "description": "Barchart API for streaming market data using JavaScript",
   "author": {
     "name": "Eero Pikat",
     "email": "eero.pikat@barchart.com",
