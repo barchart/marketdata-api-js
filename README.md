@@ -6,7 +6,7 @@ Include streaming market data in your applications. Asset classes include equiti
 All you need is a username/password from Barchart, and your app can be live within a matter of minutes. To obtain your credentials, please contact solutions@barchart.com
 
 
-## Environments
+## Supported Environments
 
 The library is intended for use in client (i.e. browser) environments. However, since the source code uses ES6, some assembly may be required for browser use (i.e. polyfills and transpilation).
 
