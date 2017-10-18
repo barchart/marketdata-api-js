@@ -546,7 +546,7 @@ module.exports = function () {
 
 		function off() {
 			if (arguments.length < 2) {
-				throw new Error("Bad number of arguments. Must pass in an eventId and handler.");
+				throw new Error("Wrong number of arguments. Must pass in an eventId and handler.");
 			}
 
 			var eventId = arguments[0];
@@ -981,7 +981,15 @@ module.exports = function () {
 								break;
 						}
 
-						__commands.push(command + ' ' + task.symbols.join(',') + '=' + suffix);
+						var unique = task.symbols.filter(function (item, index, array) {
+							return array.indexOf(item) === index;
+						});
+
+						while (unique.length > 0) {
+							var batch = unique.splice(0, 250);
+
+							__commands.push(command + ' ' + batch.join(',') + '=' + suffix);
+						}
 					}
 				}
 			}
@@ -1211,7 +1219,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.0.1'
+		version: '3.0.2'
 	};
 }();
 
