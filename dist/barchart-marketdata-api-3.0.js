@@ -985,8 +985,16 @@ module.exports = function () {
 							return array.indexOf(item) === index;
 						});
 
+						var batchSize = void 0;
+
+						if (command === 'MD_GO' || command === 'MD_STOP') {
+							batchSize = 1;
+						} else {
+							batchSize = 250;
+						}
+
 						while (unique.length > 0) {
-							var batch = unique.splice(0, 250);
+							var batch = unique.splice(0, batchSize);
 
 							__commands.push(command + ' ' + batch.join(',') + '=' + suffix);
 						}
@@ -1219,7 +1227,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.0.2'
+		version: '3.0.3'
 	};
 }();
 
