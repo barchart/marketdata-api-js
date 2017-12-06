@@ -987,7 +987,7 @@ module.exports = function () {
 
 						var batchSize = void 0;
 
-						if (command === 'MD_GO' || command === 'MD_STOP') {
+						if (task.id === 'MD_GO' || task.id === 'MD_STOP') {
 							batchSize = 1;
 						} else {
 							batchSize = 250;
@@ -1227,7 +1227,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.0.3'
+		version: '3.0.4'
 	};
 }();
 
