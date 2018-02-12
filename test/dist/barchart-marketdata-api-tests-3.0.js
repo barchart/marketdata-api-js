@@ -1542,16 +1542,45 @@ module.exports = function () {
 	    concreteFutureRegex = /^(.{1,3})([A-Z]{1})([0-9]{4}|[0-9]{1,2})$/i,
 	    referenceFutureRegex = /^(.{1,3})(\*{1})([0-9]{1})$/i,
 	    futureSpreadRegex = /^_S_/i,
+	    shortFutureOptionRegex = /^(.{1,2})([A-Z])([0-9]{1,4})([A-Z])$/i,
+	    longFutureOptionRegex = /^(.{1,3})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i,
 	    forexRegex = /^\^([A-Z]{3})([A-Z]{3})$/i,
 	    sectorRegex = /^\-(.*)$/i,
 	    indexRegex = /^\$(.*)$/i,
 	    batsRegex = /^(.*)\.BZ$/i,
 	    usePercentRegex = /(\.RT)$/;
 
+	var altMonthCodes = {
+		A: 'F', B: 'G', C: 'H', D: 'J', E: 'K', I: 'M', L: 'N', O: 'Q', P: 'U', R: 'V', S: 'X', T: 'Z'
+	};
+
 	function getIsType(symbol, type) {
 		var instrumentType = symbolParser.parseInstrumentType(symbol);
 
 		return instrumentType !== null && instrumentType.type === type;
+	}
+
+	function getFuturesYear(yearString) {
+		var currentDate = new Date();
+		var currentYear = currentDate.getFullYear();
+
+		var year = parseInt(yearString);
+
+		if (year < 10) {
+			year = Math.floor(currentYear / 10) * 10 + year;
+		} else if (year < 100) {
+			year = Math.floor(currentYear / 100) * 100 + year;
+
+			if (year < currentYear) {
+				var alternateYear = year + 100;
+
+				if (currentYear - year > alternateYear - currentYear) {
+					year = alternateYear;
+				}
+			}
+		}
+
+		return year;
 	}
 
 	var symbolParser = {
@@ -1576,33 +1605,13 @@ module.exports = function () {
 			var staticFutureMatch = symbol.match(concreteFutureRegex);
 
 			if (staticFutureMatch !== null) {
-				var currentDate = new Date();
-				var currentYear = currentDate.getFullYear();
-				var yearString = staticFutureMatch[3];
-
-				var year = parseInt(yearString);
-
-				if (year < 10) {
-					year = Math.floor(currentYear / 10) * 10 + year;
-				} else if (year < 100) {
-					year = Math.floor(currentYear / 100) * 100 + year;
-
-					if (year < currentYear) {
-						var alternateYear = year + 100;
-
-						if (currentYear - year > alternateYear - currentYear) {
-							year = alternateYear;
-						}
-					}
-				}
-
 				return {
 					symbol: symbol,
 					type: 'future',
 					root: staticFutureMatch[1],
 					dynamic: false,
 					month: staticFutureMatch[2],
-					year: year
+					year: getFuturesYear(staticFutureMatch[3])
 				};
 			}
 
@@ -1615,6 +1624,49 @@ module.exports = function () {
 					root: dynamicFutureMatch[1],
 					dynamic: true,
 					dynamicCode: dynamicFutureMatch[3]
+				};
+			}
+
+			var shortFutureOptionMatch = symbol.match(shortFutureOptionRegex);
+
+			if (shortFutureOptionMatch !== null) {
+				var currentDate = new Date();
+				var currentYear = currentDate.getFullYear();
+				var optionType = void 0,
+				    optionYear = void 0;
+
+				if (shortFutureOptionMatch[4] >= 'P') {
+					optionYear = currentYear + (shortFutureOptionMatch[4].charCodeAt(0) - 'P'.charCodeAt(0));
+					optionType = 'put';
+				} else {
+					optionYear = currentYear + (shortFutureOptionMatch[4].charCodeAt(0) - 'C'.charCodeAt(0));
+					optionType = 'call';
+				}
+
+				return {
+					symbol: symbol,
+					type: 'future_option',
+					root: shortFutureOptionMatch[1],
+					month: shortFutureOptionMatch[2],
+					year: optionYear,
+					strike: parseInt(shortFutureOptionMatch[3]),
+					option_type: optionType
+				};
+			}
+
+			var longFutureOptionMatch = symbol.match(longFutureOptionRegex);
+
+			if (longFutureOptionMatch !== null) {
+				var month = longFutureOptionMatch[2];
+
+				return {
+					symbol: symbol,
+					type: 'future_option',
+					root: longFutureOptionMatch[1],
+					month: altMonthCodes.hasOwnProperty(month) ? altMonthCodes[month] : month,
+					year: getFuturesYear(longFutureOptionMatch[3]),
+					strike: parseInt(longFutureOptionMatch[4]),
+					option_type: longFutureOptionMatch[5] === 'C' ? 'call' : 'put'
 				};
 			}
 
@@ -1662,6 +1714,10 @@ module.exports = function () {
 
 		getIsFutureSpread: function getIsFutureSpread(symbol) {
 			return getIsType(symbol, 'future_spread');
+		},
+
+		getIsFutureOption: function getIsFutureOption(symbol) {
+			return getIsType(symbol, 'future_option');
 		},
 
 		getIsForex: function getIsForex(symbol) {
