@@ -134,7 +134,7 @@ gulp.task('test', [ 'execute-tests' ]);
 gulp.task('release', function (callback) {
     runSequence(
         'ensure-clean-working-directory',
-//		'bump-version',
+		'bump-version',
 		'embed-version',
         'build',
         'build-browser-tests',
