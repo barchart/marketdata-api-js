@@ -461,6 +461,7 @@ module.exports = function () {
 				__state = state.disconnected;
 
 				__connection = new WebSocket('wss://' + __loginInfo.server + '/jerq');
+				__connection.binaryType = "arraybuffer";
 
 				__connection.onclose = function (evt) {
 					console.warn(new Date() + ' connection closed.');
@@ -485,7 +486,11 @@ module.exports = function () {
 				};
 
 				__connection.onmessage = function (evt) {
-					__networkMessages.push(evt.data);
+					if (evt.data instanceof ArrayBuffer) {
+						var decoder = new TextDecoder();
+						var msg = decoder.decode(evt.data);
+						__networkMessages.push(msg);
+					} else __networkMessages.push(evt.data);
 				};
 
 				__connection.onopen = function (evt) {
@@ -1227,7 +1232,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.0.6'
+		version: '3.0.7'
 	};
 }();
 
