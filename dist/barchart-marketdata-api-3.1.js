@@ -385,6 +385,15 @@ module.exports = function () {
 			server: null
 		};
 
+		var __decoder = undefined;
+		if (window.TextDecoder) __decoder = new TextDecoder();else {
+			__decoder = {
+				decode: function decode(arr) {
+					return String.fromCharCode.apply(null, new Uint8Array(arr));
+				}
+			};
+		}
+
 		function addTask(id, symbol) {
 			var lastIndex = __tasks.length - 1;
 
@@ -487,9 +496,8 @@ module.exports = function () {
 
 				__connection.onmessage = function (evt) {
 					if (evt.data instanceof ArrayBuffer) {
-						var decoder = new TextDecoder();
-						var msg = decoder.decode(evt.data);
-						__networkMessages.push(msg);
+						var msg = __decoder.decode(evt.data);
+						if (msg) __networkMessages.push(msg);
 					} else __networkMessages.push(evt.data);
 				};
 
@@ -1232,7 +1240,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.0'
+		version: '3.1.1'
 	};
 }();
 
