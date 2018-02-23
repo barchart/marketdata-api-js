@@ -1627,6 +1627,33 @@ module.exports = function () {
 				};
 			}
 
+			var forexMatch = symbol.match(forexRegex);
+
+			if (forexMatch !== null) {
+				return {
+					symbol: symbol,
+					type: 'forex'
+				};
+			}
+
+			var indexMatch = symbol.match(indexRegex);
+
+			if (indexMatch !== null) {
+				return {
+					symbol: symbol,
+					type: 'index'
+				};
+			}
+
+			var sectorMatch = symbol.match(sectorRegex);
+
+			if (sectorMatch !== null) {
+				return {
+					symbol: symbol,
+					type: 'sector'
+				};
+			}
+
 			var shortFutureOptionMatch = symbol.match(shortFutureOptionRegex);
 
 			if (shortFutureOptionMatch !== null) {
@@ -1667,33 +1694,6 @@ module.exports = function () {
 					year: getFuturesYear(longFutureOptionMatch[3]),
 					strike: parseInt(longFutureOptionMatch[4]),
 					option_type: longFutureOptionMatch[5] === 'C' ? 'call' : 'put'
-				};
-			}
-
-			var forexMatch = symbol.match(forexRegex);
-
-			if (forexMatch !== null) {
-				return {
-					symbol: symbol,
-					type: 'forex'
-				};
-			}
-
-			var indexMatch = symbol.match(indexRegex);
-
-			if (indexMatch !== null) {
-				return {
-					symbol: symbol,
-					type: 'index'
-				};
-			}
-
-			var sectorMatch = symbol.match(sectorRegex);
-
-			if (sectorMatch !== null) {
-				return {
-					symbol: symbol,
-					type: 'sector'
 				};
 			}
 
