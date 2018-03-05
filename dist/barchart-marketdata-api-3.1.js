@@ -498,7 +498,7 @@ module.exports = function () {
 				}
 
 				__connection.onclose = function (evt) {
-					console.warn(new Date() + ' connection closed.', __networkMessages);
+					console.warn(new Date() + ' connection closed. pending messages', __networkMessages);
 
 					__connection = null;
 					__lastHeartbeatTime = null;
@@ -1278,7 +1278,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.3'
+		version: '3.1.4'
 	};
 }();
 
