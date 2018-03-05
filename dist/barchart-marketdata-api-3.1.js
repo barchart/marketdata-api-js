@@ -888,7 +888,7 @@ module.exports = function () {
 		}
 
 		function processCommands() {
-			if (__state === state.authenticating || __state === state.authenticated) {
+			if ((__state === state.authenticating || __state === state.authenticated) && __connection) {
 				var command = __commands.shift();
 
 				while (command) {
@@ -1278,7 +1278,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.4'
+		version: '3.1.5'
 	};
 }();
 
