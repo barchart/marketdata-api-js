@@ -349,6 +349,7 @@ module.exports = function () {
 	};
 
 	var _RECONNECT_INTERVAL = 5000;
+	var _HEARTBEAT_INTERVAL = 8000;
 
 	function ConnectionInternal(marketState) {
 		var __marketState = marketState;
@@ -359,6 +360,8 @@ module.exports = function () {
 		var __pollingFrequency = null;
 
 		var __connection = null;
+		var __heartbeater = null;
+		var __lastHeartbeatTime = null;
 
 		var __producerSymbols = {};
 		var __marketDepthSymbols = {};
@@ -472,12 +475,40 @@ module.exports = function () {
 				__connection = new WebSocket('wss://' + __loginInfo.server + '/jerq');
 				__connection.binaryType = "arraybuffer";
 
+				if (!__heartbeater) {
+					__heartbeater = window.setInterval(function () {
+						if (!__lastHeartbeatTime && __connection) {
+							/* we should have seen a heartbeat in 8 seconds */
+							/* trigger close event to handle reconnect */
+							/* sending logout if we can to prevent CIP lockouts */
+							console.log(new Date() + ' bouncing, heartbeat timeout');
+
+							try {
+								if (__connection.readyState === WebSocket.OPEN) {
+									__connection.send('LOGOUT\r\n');
+								}
+								__connection.close();
+							} catch (e) {
+								console.warn('failed to send LOGOUT', e);
+							}
+						}
+
+						__lastHeartbeatTime = null;
+					}, _HEARTBEAT_INTERVAL);
+				}
+
 				__connection.onclose = function (evt) {
-					console.warn(new Date() + ' connection closed.');
+					console.warn(new Date() + ' connection closed.', __networkMessages);
 
 					__connection = null;
+					__lastHeartbeatTime = null;
 
-					if (__state !== state.authenticated) {
+					/* there is a race condition. it's possible that the setTimeout 
+      * that triggers pumpMessages will never fire, never triggering badLogin
+      * we do not reconnect if jerq explicitly says, - Login Failed.
+      */
+					if (__networkMessages.length === 1 && __networkMessages[0].indexOf('-') === 0) {
+						console.warn('not triggering reconnect, bad credentails');
 						return;
 					}
 
@@ -512,10 +543,16 @@ module.exports = function () {
 		function disconnect() {
 			__state = state.disconnected;
 
+			if (__heartbeater != null) {
+				window.clearInterval(__heartbeater);
+			}
+
 			if (__connection !== null) {
 				__connection.send('LOGOUT\r\n');
 				__connection.close();
 			}
+
+			__lastHeartbeatTime = null;
 
 			__tasks = [];
 			__commands = [];
@@ -799,6 +836,7 @@ module.exports = function () {
 					broadcastEvent('marketDepth', message);
 					break;
 				case 'TIMESTAMP':
+					__lastHeartbeatTime = Date.now();
 					broadcastEvent('timestamp', __marketState.getTimestamp());
 					break;
 				default:
@@ -2298,120 +2336,120 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 module.exports = function () {
-	'use strict';
-
-	/**
-  * Current market conditions for an instrument.
-  *
-  * @public
-  */
-
-	var Quote = function () {
-		function Quote(symbol) {
-			_classCallCheck(this, Quote);
+			'use strict';
 
 			/**
-    * @property {string} symbol - The instrument's symbol.
+    * Current market conditions for an instrument.
+    *
+    * @public
     */
-			this.symbol = symbol || null;
 
-			/**
-    * @property {string} message - last DDF message that caused a mutation to this instance
-    */
-			this.message = null;
+			var Quote = function () {
+						function Quote(symbol) {
+									_classCallCheck(this, Quote);
 
-			/**
-    * @property {string} flag - market status, will have one of three values: p, s, or undefined
-    */
-			this.flag = null;
+									/**
+          * @property {string} symbol - The instrument's symbol.
+          */
+									this.symbol = symbol || null;
 
-			this.mode = null;
+									/**
+          * @property {string} message - last DDF message that caused a mutation to this instance
+          */
+									this.message = null;
 
-			/**
-    * @property {string} day - one character code that indicates day of the month of the current trading session
-    */
-			this.day = null;
+									/**
+          * @property {string} flag - market status, will have one of three values: p, s, or undefined
+          */
+									this.flag = null;
 
-			/**
-    * @property {number} dayNum - day of the month of the current trading session
-    */
-			this.dayNum = 0;
+									this.mode = null;
 
-			this.session = null;
-			this.lastUpdate = null;
+									/**
+          * @property {string} day - one character code that indicates day of the month of the current trading session
+          */
+									this.day = null;
 
-			/**
-    * @property {number} bidPrice - top-of-book price on the buy side
-    */
-			this.bidPrice = null;
+									/**
+          * @property {number} dayNum - day of the month of the current trading session
+          */
+									this.dayNum = 0;
 
-			/**
-    * @property {number} bidSize - top-of-book quantity on the buy side
-    */
-			this.bidSize = null;
+									this.session = null;
+									this.lastUpdate = null;
 
-			/**
-    * @property {number} askPrice - top-of-book price on the sell side
-    */
-			this.askPrice = null;
+									/**
+          * @property {number} bidPrice - top-of-book price on the buy side
+          */
+									this.bidPrice = null;
 
-			/**
-    * @property {number} askSize - top-of-book quantity on the sell side
-    */
-			this.askSize = null;
+									/**
+          * @property {number} bidSize - top-of-book quantity on the buy side
+          */
+									this.bidSize = null;
 
-			/**
-    * @property {number} lastPrice - most recent price (not necessarily a trade)
-    */
-			this.lastPrice = null;
+									/**
+          * @property {number} askPrice - top-of-book price on the sell side
+          */
+									this.askPrice = null;
 
-			/**
-    * @property {number} tradePrice - most recent trade price
-    */
-			this.tradePrice = null;
+									/**
+          * @property {number} askSize - top-of-book quantity on the sell side
+          */
+									this.askSize = null;
 
-			/**
-    * @property {number} tradeSize - most recent trade quantity
-    */
-			this.tradeSize = null;
+									/**
+          * @property {number} lastPrice - most recent price (not necessarily a trade)
+          */
+									this.lastPrice = null;
 
-			this.numberOfTrades = null;
-			this.vwap1 = null; // Exchange Provided
-			this.vwap2 = null; // Calculated
+									/**
+          * @property {number} tradePrice - most recent trade price
+          */
+									this.tradePrice = null;
 
-			/**
-    * @property {number} settlementPrice
-    */
-			this.settlementPrice = null;
-			this.openPrice = null;
-			this.highPrice = null;
-			this.lowPrice = null;
-			this.volume = null;
-			this.openInterest = null;
+									/**
+          * @property {number} tradeSize - most recent trade quantity
+          */
+									this.tradeSize = null;
 
-			/**
-    * @property {number} previousPrice - price from the previous session
-    */
-			this.previousPrice = null;
+									this.numberOfTrades = null;
+									this.vwap1 = null; // Exchange Provided
+									this.vwap2 = null; // Calculated
 
-			this.time = null;
-			this.ticks = [];
-		}
+									/**
+          * @property {number} settlementPrice
+          */
+									this.settlementPrice = null;
+									this.openPrice = null;
+									this.highPrice = null;
+									this.lowPrice = null;
+									this.volume = null;
+									this.openInterest = null;
 
-		_createClass(Quote, null, [{
-			key: 'clone',
-			value: function clone(symbol, source) {
-				var clone = Object.assign({}, source);
-				clone.symbol = symbol;
+									/**
+          * @property {number} previousPrice - price from the previous session
+          */
+									this.previousPrice = null;
 
-				return clone;
-			}
-		}]);
+									this.time = null;
+									this.ticks = [];
+						}
 
-		return Quote;
-	}();
+						_createClass(Quote, null, [{
+									key: 'clone',
+									value: function clone(symbol, source) {
+												var clone = Object.assign({}, source);
+												clone.symbol = symbol;
 
-	return Quote;
+												return clone;
+									}
+						}]);
+
+						return Quote;
+			}();
+
+			return Quote;
 }();
 
 },{}],11:[function(require,module,exports){
@@ -2941,7 +2979,7 @@ module.exports = function () {
 	};
 }();
 
-},{"lodash.isnan":43}],31:[function(require,module,exports){
+},{"lodash.isnan":40}],31:[function(require,module,exports){
 'use strict';
 
 var convert = require('./convert'),
@@ -3624,7 +3662,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./decimalFormatter":30,"lodash.isnan":43}],35:[function(require,module,exports){
+},{"./decimalFormatter":30,"lodash.isnan":40}],35:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4095,88 +4133,6 @@ module.exports = function () {
 }();
 
 },{}],40:[function(require,module,exports){
-var isFunction = require('is-function')
-
-module.exports = forEach
-
-var toString = Object.prototype.toString
-var hasOwnProperty = Object.prototype.hasOwnProperty
-
-function forEach(list, iterator, context) {
-    if (!isFunction(iterator)) {
-        throw new TypeError('iterator must be a function')
-    }
-
-    if (arguments.length < 3) {
-        context = this
-    }
-    
-    if (toString.call(list) === '[object Array]')
-        forEachArray(list, iterator, context)
-    else if (typeof list === 'string')
-        forEachString(list, iterator, context)
-    else
-        forEachObject(list, iterator, context)
-}
-
-function forEachArray(array, iterator, context) {
-    for (var i = 0, len = array.length; i < len; i++) {
-        if (hasOwnProperty.call(array, i)) {
-            iterator.call(context, array[i], i, array)
-        }
-    }
-}
-
-function forEachString(string, iterator, context) {
-    for (var i = 0, len = string.length; i < len; i++) {
-        // no such thing as a sparse string.
-        iterator.call(context, string.charAt(i), i, string)
-    }
-}
-
-function forEachObject(object, iterator, context) {
-    for (var k in object) {
-        if (hasOwnProperty.call(object, k)) {
-            iterator.call(context, object[k], k, object)
-        }
-    }
-}
-
-},{"is-function":42}],41:[function(require,module,exports){
-(function (global){
-var win;
-
-if (typeof window !== "undefined") {
-    win = window;
-} else if (typeof global !== "undefined") {
-    win = global;
-} else if (typeof self !== "undefined"){
-    win = self;
-} else {
-    win = {};
-}
-
-module.exports = win;
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],42:[function(require,module,exports){
-module.exports = isFunction
-
-var toString = Object.prototype.toString
-
-function isFunction (fn) {
-  var string = toString.call(fn)
-  return string === '[object Function]' ||
-    (typeof fn === 'function' && string !== '[object RegExp]') ||
-    (typeof window !== 'undefined' &&
-     // IE8 and below
-     (fn === window.setTimeout ||
-      fn === window.alert ||
-      fn === window.confirm ||
-      fn === window.prompt))
-};
-
-},{}],43:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -4288,6 +4244,88 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
+},{}],41:[function(require,module,exports){
+var isFunction = require('is-function')
+
+module.exports = forEach
+
+var toString = Object.prototype.toString
+var hasOwnProperty = Object.prototype.hasOwnProperty
+
+function forEach(list, iterator, context) {
+    if (!isFunction(iterator)) {
+        throw new TypeError('iterator must be a function')
+    }
+
+    if (arguments.length < 3) {
+        context = this
+    }
+    
+    if (toString.call(list) === '[object Array]')
+        forEachArray(list, iterator, context)
+    else if (typeof list === 'string')
+        forEachString(list, iterator, context)
+    else
+        forEachObject(list, iterator, context)
+}
+
+function forEachArray(array, iterator, context) {
+    for (var i = 0, len = array.length; i < len; i++) {
+        if (hasOwnProperty.call(array, i)) {
+            iterator.call(context, array[i], i, array)
+        }
+    }
+}
+
+function forEachString(string, iterator, context) {
+    for (var i = 0, len = string.length; i < len; i++) {
+        // no such thing as a sparse string.
+        iterator.call(context, string.charAt(i), i, string)
+    }
+}
+
+function forEachObject(object, iterator, context) {
+    for (var k in object) {
+        if (hasOwnProperty.call(object, k)) {
+            iterator.call(context, object[k], k, object)
+        }
+    }
+}
+
+},{"is-function":43}],42:[function(require,module,exports){
+(function (global){
+var win;
+
+if (typeof window !== "undefined") {
+    win = window;
+} else if (typeof global !== "undefined") {
+    win = global;
+} else if (typeof self !== "undefined"){
+    win = self;
+} else {
+    win = {};
+}
+
+module.exports = win;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],43:[function(require,module,exports){
+module.exports = isFunction
+
+var toString = Object.prototype.toString
+
+function isFunction (fn) {
+  var string = toString.call(fn)
+  return string === '[object Function]' ||
+    (typeof fn === 'function' && string !== '[object RegExp]') ||
+    (typeof window !== 'undefined' &&
+     // IE8 and below
+     (fn === window.setTimeout ||
+      fn === window.alert ||
+      fn === window.confirm ||
+      fn === window.prompt))
+};
+
 },{}],44:[function(require,module,exports){
 var trim = require('trim')
   , forEach = require('for-each')
@@ -4320,7 +4358,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":40,"trim":45}],45:[function(require,module,exports){
+},{"for-each":41,"trim":45}],45:[function(require,module,exports){
 
 exports = module.exports = trim;
 
@@ -4576,7 +4614,7 @@ function getXml(xhr) {
 
 function noop() {}
 
-},{"global/window":41,"is-function":42,"parse-headers":44,"xtend":47}],47:[function(require,module,exports){
+},{"global/window":42,"is-function":43,"parse-headers":44,"xtend":47}],47:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
