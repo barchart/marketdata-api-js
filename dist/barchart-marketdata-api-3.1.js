@@ -349,7 +349,7 @@ module.exports = function () {
 	};
 
 	var _RECONNECT_INTERVAL = 5000;
-	var _HEARTBEAT_INTERVAL = 8000;
+	var _HEARTBEAT_INTERVAL = 10000;
 
 	function ConnectionInternal(marketState) {
 		var __marketState = marketState;
@@ -360,8 +360,8 @@ module.exports = function () {
 		var __pollingFrequency = null;
 
 		var __connection = null;
-		var __heartbeater = null;
-		var __lastHeartbeatTime = null;
+		var __watchdog = null;
+		var __lastMessageTime = null;
 
 		var __producerSymbols = {};
 		var __marketDepthSymbols = {};
@@ -479,10 +479,10 @@ module.exports = function () {
 				__connection = new WebSocket('wss://' + __loginInfo.server + '/jerq');
 				__connection.binaryType = "arraybuffer";
 
-				if (!__heartbeater) {
-					__heartbeater = window.setInterval(function () {
-						if (!__lastHeartbeatTime && __connection) {
-							/* we should have seen a heartbeat in 8 seconds */
+				if (!__watchdog) {
+					__watchdog = window.setInterval(function () {
+						if (!__lastMessageTime && __connection) {
+							/* we should have seen a message in 10 seconds */
 							/* trigger close event to handle reconnect */
 							/* sending logout if we can to prevent CIP lockouts */
 							console.log(new Date() + ' bouncing, heartbeat timeout');
@@ -497,7 +497,7 @@ module.exports = function () {
 							}
 						}
 
-						__lastHeartbeatTime = null;
+						__lastMessageTime = null;
 					}, _HEARTBEAT_INTERVAL);
 				}
 
@@ -505,14 +505,15 @@ module.exports = function () {
 					console.warn(new Date() + ' connection closed. pending messages', __networkMessages);
 
 					__connection = null;
-					__lastHeartbeatTime = null;
+					__lastMessageTime = null;
 
-					/* there is a race condition. it's possible that the setTimeout 
-      * that triggers pumpMessages will never fire, never triggering badLogin
-      * we do not reconnect if jerq explicitly says, - Login Failed.
-      */
+					// there is a race condition. it's possible that the setTimeout 
+					// that triggers pumpMessages will never fire, never triggering badLogin
+					// we do not reconnect if jerq explicitly says, - Login Failed.
+					//
 					if (__networkMessages.length === 1 && __networkMessages[0].indexOf('-') === 0) {
 						console.warn('not triggering reconnect, bad credentails');
+						disconnect();
 						return;
 					}
 
@@ -529,10 +530,13 @@ module.exports = function () {
 						clearTasks();
 
 						enqueueGoTasks();
-					}, _RECONNECT_INTERVAL);
+					}, _RECONNECT_INTERVAL + Math.floor(Math.random() * _HEARTBEAT_INTERVAL));
 				};
 
 				__connection.onmessage = function (evt) {
+
+					__lastMessageTime = 1;
+
 					if (evt.data instanceof ArrayBuffer) {
 						var msg = __decoder.decode(evt.data);
 						if (msg) __networkMessages.push(msg);
@@ -548,10 +552,12 @@ module.exports = function () {
 		}
 
 		function disconnect() {
+			console.warn('shutting down.');
+
 			__state = state.disconnected;
 
-			if (__heartbeater != null) {
-				window.clearInterval(__heartbeater);
+			if (__watchdog != null) {
+				window.clearInterval(__watchdog);
 			}
 
 			if (__connection !== null) {
@@ -559,7 +565,8 @@ module.exports = function () {
 				__connection.close();
 			}
 
-			__lastHeartbeatTime = null;
+			__watchdog = null;
+			__lastMessageTime = null;
 
 			__tasks = [];
 			__commands = [];
@@ -581,7 +588,7 @@ module.exports = function () {
 				lines.forEach(function (line) {
 					if (line == '+++') {
 						__state = state.authenticating;
-						__commands.push('LOGIN ' + __loginInfo.username + ':' + __loginInfo.password + " VERSION=" + _API_VERSION + "\r\n");
+						__commands.splice(0, 0, 'LOGIN ' + __loginInfo.username + ':' + __loginInfo.password + " VERSION=" + _API_VERSION + "\r\n");
 					}
 				});
 			} else if (__state === state.authenticating) {
@@ -838,9 +845,6 @@ module.exports = function () {
 		function processMessage(message) {
 			__marketState.processMessage(message);
 
-			/* any message is good enough */
-			__lastHeartbeatTime = Date.now();
-
 			switch (message.type) {
 				case 'BOOK':
 					broadcastEvent('marketDepth', message);
@@ -898,13 +902,22 @@ module.exports = function () {
 
 		function processCommands() {
 			if ((__state === state.authenticating || __state === state.authenticated) && __connection) {
+
 				var command = __commands.shift();
 
-				while (command) {
-					console.log(command);
+				// it's possible that on re-connect, the GO commands would be sent before the login
+				// commands causing logout.
 
-					__connection.send(command);
-					command = __commands.shift();
+				if (__state === state.authenticating && command && command.indexOf('GO') === 0) {
+					console.log('pushing back GO command until fully authenticated.');
+					__commands.push(command);
+				} else {
+					while (command) {
+						console.log(command);
+
+						__connection.send(command);
+						command = __commands.shift();
+					}
 				}
 			}
 
