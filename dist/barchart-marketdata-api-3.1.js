@@ -460,6 +460,10 @@ module.exports = function () {
 			});
 		}
 
+		function clearTasks() {
+			__tasks = [];
+		}
+
 		function connect(server, username, password) {
 			if (__connection || __suppressReconnect) {
 				return;
@@ -520,6 +524,9 @@ module.exports = function () {
 						__connection = null;
 
 						connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
+
+						/* let's not DDoS */
+						clearTasks();
 
 						enqueueGoTasks();
 					}, _RECONNECT_INTERVAL);
@@ -831,12 +838,14 @@ module.exports = function () {
 		function processMessage(message) {
 			__marketState.processMessage(message);
 
+			/* any message is good enough */
+			__lastHeartbeatTime = Date.now();
+
 			switch (message.type) {
 				case 'BOOK':
 					broadcastEvent('marketDepth', message);
 					break;
 				case 'TIMESTAMP':
-					__lastHeartbeatTime = Date.now();
 					broadcastEvent('timestamp', __marketState.getTimestamp());
 					break;
 				default:
