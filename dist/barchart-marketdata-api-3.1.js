@@ -1300,7 +1300,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.9'
+		version: '3.1.10'
 	};
 }();
 
@@ -3785,11 +3785,12 @@ module.exports = function () {
 
 	var exchangeRegex = /^(.*)\\.([A-Z]{1,4})$/i,
 	    jerqFutureConversionRegex = /(.{1,3})([A-Z]{1})([0-9]{3}|[0-9]{1})?([0-9]{1})$/i,
-	    concreteFutureRegex = /^(.{1,3})([A-Z]{1})([0-9]{4}|[0-9]{1,2})$/i,
-	    referenceFutureRegex = /^(.{1,3})(\*{1})([0-9]{1})$/i,
+	    concreteFutureRegex = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z]{1})([0-9]{4}|[0-9]{1,2})$/i,
+	    referenceFutureRegex = /^([A-Z][A-Z0-9\$\-!\.]{0,2})(\*{1})([0-9]{1})$/i,
 	    futureSpreadRegex = /^_S_/i,
-	    shortFutureOptionRegex = /^(.{1,2})([A-Z])([0-9]{1,4})([A-Z])$/i,
-	    longFutureOptionRegex = /^(.{1,3})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i,
+	    shortFutureOptionRegex = /^([A-Z][A-Z0-9\$\-!\.]?)([A-Z])([0-9]{1,4})([A-Z])$/i,
+	    longFutureOptionRegex = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i,
+	    historicalFutureOptionRegex = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{2})([0-9]{1,5})(C|P)$/i,
 	    forexRegex = /^\^([A-Z]{3})([A-Z]{3})$/i,
 	    sectorRegex = /^\-(.*)$/i,
 	    indexRegex = /^\$(.*)$/i,
@@ -3928,18 +3929,19 @@ module.exports = function () {
 			}
 
 			var longFutureOptionMatch = symbol.match(longFutureOptionRegex);
+			var futureOptionMatch = longFutureOptionMatch !== null ? longFutureOptionMatch : symbol.match(historicalFutureOptionRegex);
 
-			if (longFutureOptionMatch !== null) {
-				var month = longFutureOptionMatch[2];
+			if (futureOptionMatch !== null) {
+				var month = futureOptionMatch[2];
 
 				return {
 					symbol: symbol,
 					type: 'future_option',
-					root: longFutureOptionMatch[1],
+					root: futureOptionMatch[1],
 					month: altMonthCodes.hasOwnProperty(month) ? altMonthCodes[month] : month,
-					year: getFuturesYear(longFutureOptionMatch[3]),
-					strike: parseInt(longFutureOptionMatch[4]),
-					option_type: longFutureOptionMatch[5] === 'C' ? 'call' : 'put'
+					year: getFuturesYear(futureOptionMatch[3]),
+					strike: parseInt(futureOptionMatch[4]),
+					option_type: futureOptionMatch[5] === 'C' ? 'call' : 'put'
 				};
 			}
 
@@ -3984,6 +3986,18 @@ module.exports = function () {
 
 		getProducerSymbol: function getProducerSymbol(symbol) {
 			if (typeof symbol === 'string') {
+				var instrumentType = symbolParser.parseInstrumentType(symbol);
+
+				if (instrumentType !== null && instrumentType.type === 'future_option') {
+					var currentDate = new Date();
+					var currentYear = currentDate.getFullYear();
+					var optionType = instrumentType.option_type === 'call' ? 'C' : 'P';
+
+					optionType = String.fromCharCode(optionType.charCodeAt(0) + (instrumentType.year - currentYear));
+
+					return instrumentType.root + instrumentType.month + instrumentType.strike + optionType;
+				}
+
 				return symbol.replace(jerqFutureConversionRegex, '$1$2$4');
 			} else {
 				return null;
