@@ -1300,7 +1300,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.10'
+		version: '3.1.11'
 	};
 }();
 
@@ -3814,7 +3814,10 @@ module.exports = function () {
 		var year = parseInt(yearString);
 
 		if (year < 10) {
-			year = Math.floor(currentYear / 10) * 10 + year;
+			// if we're beyond the last digit of the year in a decade, assume
+			// this symbol is for the next decade.
+			var bump = year < currentYear % 10 ? 1 : 0;
+			year = Math.floor(currentYear / 10) * 10 + year + bump * 10;
 		} else if (year < 100) {
 			year = Math.floor(currentYear / 100) * 100 + year;
 
