@@ -1568,9 +1568,8 @@ module.exports = function () {
 		var year = parseInt(yearString);
 
 		if (year < 10) {
-			// if we're beyond the last digit of the year in a decade, assume
-			// this symbol is for the next decade.
 			var bump = year < currentYear % 10 ? 1 : 0;
+
 			year = Math.floor(currentYear / 10) * 10 + year + bump * 10;
 		} else if (year < 100) {
 			year = Math.floor(currentYear / 100) * 100 + year;
@@ -1749,10 +1748,15 @@ module.exports = function () {
 					var currentDate = new Date();
 					var currentYear = currentDate.getFullYear();
 					var optionType = instrumentType.option_type === 'call' ? 'C' : 'P';
+					var optionTypeTrans = String.fromCharCode(optionType.charCodeAt(0) + (instrumentType.year - currentYear));
 
-					optionType = String.fromCharCode(optionType.charCodeAt(0) + (instrumentType.year - currentYear));
+					if (instrumentType.root.length < 3) {
+						return instrumentType.root + instrumentType.month + instrumentType.strike + optionTypeTrans;
+					} else {
+						var year = instrumentType.year.toString().substr(-1);
 
-					return instrumentType.root + instrumentType.month + instrumentType.strike + optionType;
+						return instrumentType.root + instrumentType.month + year + '|' + instrumentType.strike + optionType;
+					}
 				}
 
 				return symbol.replace(jerqFutureConversionRegex, '$1$2$4');
