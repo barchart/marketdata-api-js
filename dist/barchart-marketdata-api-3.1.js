@@ -1302,7 +1302,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.12'
+		version: '3.1.13'
 	};
 }();
 

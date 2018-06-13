@@ -1544,7 +1544,6 @@ module.exports = function () {
 	    futureSpreadRegex = /^_S_/i,
 	    shortFutureOptionRegex = /^([A-Z][A-Z0-9\$\-!\.]?)([A-Z])([0-9]{1,4})([A-Z])$/i,
 	    longFutureOptionRegex = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i,
-	    historicalFutureOptionRegex = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{2})([0-9]{1,5})(C|P)$/i,
 	    forexRegex = /^\^([A-Z]{3})([A-Z]{3})$/i,
 	    sectorRegex = /^\-(.*)$/i,
 	    indexRegex = /^\$(.*)$/i,
@@ -1568,9 +1567,7 @@ module.exports = function () {
 		var year = parseInt(yearString);
 
 		if (year < 10) {
-			var bump = year < currentYear % 10 ? 1 : 0;
-
-			year = Math.floor(currentYear / 10) * 10 + year + bump * 10;
+			year = Math.floor(currentYear / 10) * 10 + year;
 		} else if (year < 100) {
 			year = Math.floor(currentYear / 100) * 100 + year;
 
@@ -1685,19 +1682,18 @@ module.exports = function () {
 			}
 
 			var longFutureOptionMatch = symbol.match(longFutureOptionRegex);
-			var futureOptionMatch = longFutureOptionMatch !== null ? longFutureOptionMatch : symbol.match(historicalFutureOptionRegex);
 
-			if (futureOptionMatch !== null) {
-				var month = futureOptionMatch[2];
+			if (longFutureOptionMatch !== null) {
+				var month = longFutureOptionMatch[2];
 
 				return {
 					symbol: symbol,
 					type: 'future_option',
-					root: futureOptionMatch[1],
+					root: longFutureOptionMatch[1],
 					month: altMonthCodes.hasOwnProperty(month) ? altMonthCodes[month] : month,
-					year: getFuturesYear(futureOptionMatch[3]),
-					strike: parseInt(futureOptionMatch[4]),
-					option_type: futureOptionMatch[5] === 'C' ? 'call' : 'put'
+					year: getFuturesYear(longFutureOptionMatch[3]),
+					strike: parseInt(longFutureOptionMatch[4]),
+					option_type: longFutureOptionMatch[5] === 'C' ? 'call' : 'put'
 				};
 			}
 
@@ -1742,23 +1738,6 @@ module.exports = function () {
 
 		getProducerSymbol: function getProducerSymbol(symbol) {
 			if (typeof symbol === 'string') {
-				var instrumentType = symbolParser.parseInstrumentType(symbol);
-
-				if (instrumentType !== null && instrumentType.type === 'future_option') {
-					var currentDate = new Date();
-					var currentYear = currentDate.getFullYear();
-					var optionType = instrumentType.option_type === 'call' ? 'C' : 'P';
-					var optionTypeTrans = String.fromCharCode(optionType.charCodeAt(0) + (instrumentType.year - currentYear));
-
-					if (instrumentType.root.length < 3) {
-						return instrumentType.root + instrumentType.month + instrumentType.strike + optionTypeTrans;
-					} else {
-						var year = instrumentType.year.toString().substr(-1);
-
-						return instrumentType.root + instrumentType.month + year + '|' + instrumentType.strike + optionType;
-					}
-				}
-
 				return symbol.replace(jerqFutureConversionRegex, '$1$2$4');
 			} else {
 				return null;
