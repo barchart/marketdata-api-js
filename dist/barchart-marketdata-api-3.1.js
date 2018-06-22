@@ -506,7 +506,11 @@ module.exports = function () {
 				__connection.onclose = function (evt) {
 					console.warn(new Date() + ' connection closed. pending messages', __networkMessages);
 
+					__connection.onclose = null;
+					__connection.onopen = null;
+					__connection.onmessage = null;
 					__connection = null;
+
 					__lastMessageTime = null;
 
 					// there is a race condition. it's possible that the setTimeout 
@@ -514,7 +518,7 @@ module.exports = function () {
 					// we do not reconnect if jerq explicitly says, - Login Failed.
 					//
 					if (__networkMessages.length === 1 && __networkMessages[0].indexOf('-') === 0) {
-						console.warn('not triggering reconnect, bad credentails');
+						console.warn('not triggering reconnect: bad credentails');
 						disconnect();
 						return;
 					}
@@ -523,8 +527,12 @@ module.exports = function () {
 
 					broadcastEvent('events', { event: 'disconnect' });
 
+					if (__suppressReconnect) {
+						console.warn('not triggering reconnect: user has logged out.');
+						return;
+					}
+
 					setTimeout(function () {
-						__connection = null;
 
 						connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
 
@@ -1302,7 +1310,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.14'
+		version: '3.1.15'
 	};
 }();
 
