@@ -673,7 +673,7 @@ module.exports = function () {
 						consumerSymbols = consumerSymbols.filter(function (candidate) {
 							var returnVal = candidate !== consumerSymbol;
 
-							if (!returnVal && getConsumerIsActive(candidate, [listenerMap])) {
+							if (returnVal && getConsumerIsActive(candidate, [listenerMap])) {
 								stopProducer = false;
 							}
 
@@ -1288,7 +1288,7 @@ module.exports = function () {
 	return Connection;
 }();
 
-},{"./../../../common/lang/object":1,"./../../../messageParser/parseMessage":13,"./../../ConnectionBase":3,"@barchart/marketdata-utilities-js":38}],6:[function(require,module,exports){
+},{"./../../../common/lang/object":1,"./../../../messageParser/parseMessage":13,"./../../ConnectionBase":3,"@barchart/marketdata-utilities-js":31}],6:[function(require,module,exports){
 'use strict';
 
 var connection = require('./connection/index'),
@@ -1907,6 +1907,12 @@ module.exports = function () {
 				case 'REFRESH_QUOTE':
 					p = new Profile(symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement);
 
+					var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
+
+					if (symbol !== producerSymbol) {
+						p = new Profile(producerSymbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement);
+					}
+
 					q.message = message;
 					q.flag = message.flag;
 					q.mode = message.mode;
@@ -2218,7 +2224,7 @@ module.exports = function () {
 	return MarketState;
 }();
 
-},{"./../util/convertDayCodeToNumber":19,"./CumulativeVolume":7,"./Profile":9,"./Quote":10,"@barchart/marketdata-utilities-js":38}],9:[function(require,module,exports){
+},{"./../util/convertDayCodeToNumber":19,"./CumulativeVolume":7,"./Profile":9,"./Quote":10,"@barchart/marketdata-utilities-js":31}],9:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2368,120 +2374,120 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 module.exports = function () {
-			'use strict';
+	'use strict';
+
+	/**
+  * Current market conditions for an instrument.
+  *
+  * @public
+  */
+
+	var Quote = function () {
+		function Quote(symbol) {
+			_classCallCheck(this, Quote);
 
 			/**
-    * Current market conditions for an instrument.
-    *
-    * @public
+    * @property {string} symbol - The instrument's symbol.
     */
+			this.symbol = symbol || null;
 
-			var Quote = function () {
-						function Quote(symbol) {
-									_classCallCheck(this, Quote);
+			/**
+    * @property {string} message - last DDF message that caused a mutation to this instance
+    */
+			this.message = null;
 
-									/**
-          * @property {string} symbol - The instrument's symbol.
-          */
-									this.symbol = symbol || null;
+			/**
+    * @property {string} flag - market status, will have one of three values: p, s, or undefined
+    */
+			this.flag = null;
 
-									/**
-          * @property {string} message - last DDF message that caused a mutation to this instance
-          */
-									this.message = null;
+			this.mode = null;
 
-									/**
-          * @property {string} flag - market status, will have one of three values: p, s, or undefined
-          */
-									this.flag = null;
+			/**
+    * @property {string} day - one character code that indicates day of the month of the current trading session
+    */
+			this.day = null;
 
-									this.mode = null;
+			/**
+    * @property {number} dayNum - day of the month of the current trading session
+    */
+			this.dayNum = 0;
 
-									/**
-          * @property {string} day - one character code that indicates day of the month of the current trading session
-          */
-									this.day = null;
+			this.session = null;
+			this.lastUpdate = null;
 
-									/**
-          * @property {number} dayNum - day of the month of the current trading session
-          */
-									this.dayNum = 0;
+			/**
+    * @property {number} bidPrice - top-of-book price on the buy side
+    */
+			this.bidPrice = null;
 
-									this.session = null;
-									this.lastUpdate = null;
+			/**
+    * @property {number} bidSize - top-of-book quantity on the buy side
+    */
+			this.bidSize = null;
 
-									/**
-          * @property {number} bidPrice - top-of-book price on the buy side
-          */
-									this.bidPrice = null;
+			/**
+    * @property {number} askPrice - top-of-book price on the sell side
+    */
+			this.askPrice = null;
 
-									/**
-          * @property {number} bidSize - top-of-book quantity on the buy side
-          */
-									this.bidSize = null;
+			/**
+    * @property {number} askSize - top-of-book quantity on the sell side
+    */
+			this.askSize = null;
 
-									/**
-          * @property {number} askPrice - top-of-book price on the sell side
-          */
-									this.askPrice = null;
+			/**
+    * @property {number} lastPrice - most recent price (not necessarily a trade)
+    */
+			this.lastPrice = null;
 
-									/**
-          * @property {number} askSize - top-of-book quantity on the sell side
-          */
-									this.askSize = null;
+			/**
+    * @property {number} tradePrice - most recent trade price
+    */
+			this.tradePrice = null;
 
-									/**
-          * @property {number} lastPrice - most recent price (not necessarily a trade)
-          */
-									this.lastPrice = null;
+			/**
+    * @property {number} tradeSize - most recent trade quantity
+    */
+			this.tradeSize = null;
 
-									/**
-          * @property {number} tradePrice - most recent trade price
-          */
-									this.tradePrice = null;
+			this.numberOfTrades = null;
+			this.vwap1 = null; // Exchange Provided
+			this.vwap2 = null; // Calculated
 
-									/**
-          * @property {number} tradeSize - most recent trade quantity
-          */
-									this.tradeSize = null;
+			/**
+    * @property {number} settlementPrice
+    */
+			this.settlementPrice = null;
+			this.openPrice = null;
+			this.highPrice = null;
+			this.lowPrice = null;
+			this.volume = null;
+			this.openInterest = null;
 
-									this.numberOfTrades = null;
-									this.vwap1 = null; // Exchange Provided
-									this.vwap2 = null; // Calculated
+			/**
+    * @property {number} previousPrice - price from the previous session
+    */
+			this.previousPrice = null;
 
-									/**
-          * @property {number} settlementPrice
-          */
-									this.settlementPrice = null;
-									this.openPrice = null;
-									this.highPrice = null;
-									this.lowPrice = null;
-									this.volume = null;
-									this.openInterest = null;
+			this.time = null;
+			this.ticks = [];
+		}
 
-									/**
-          * @property {number} previousPrice - price from the previous session
-          */
-									this.previousPrice = null;
+		_createClass(Quote, null, [{
+			key: 'clone',
+			value: function clone(symbol, source) {
+				var clone = Object.assign({}, source);
+				clone.symbol = symbol;
 
-									this.time = null;
-									this.ticks = [];
-						}
+				return clone;
+			}
+		}]);
 
-						_createClass(Quote, null, [{
-									key: 'clone',
-									value: function clone(symbol, source) {
-												var clone = Object.assign({}, source);
-												clone.symbol = symbol;
+		return Quote;
+	}();
 
-												return clone;
-									}
-						}]);
-
-						return Quote;
-			}();
-
-			return Quote;
+	return Quote;
 }();
 
 },{}],11:[function(require,module,exports){
@@ -2527,7 +2533,7 @@ module.exports = function () {
 	return utilities.messageParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],14:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],14:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2538,7 +2544,7 @@ module.exports = function () {
 	return utilities.timestampParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],15:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],15:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2549,7 +2555,7 @@ module.exports = function () {
 	return utilities.priceParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],16:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],16:[function(require,module,exports){
 'use strict';
 
 var xhr = require('xhr');
@@ -2607,7 +2613,7 @@ module.exports = function () {
 	};
 }();
 
-},{"xhr":32}],17:[function(require,module,exports){
+},{"xhr":46}],17:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2618,7 +2624,7 @@ module.exports = function () {
 	return utilities.convert.baseCodeToUnitCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],18:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],18:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2629,7 +2635,7 @@ module.exports = function () {
 	return utilities.convert.dateToDayCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],19:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],19:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2640,7 +2646,7 @@ module.exports = function () {
 	return utilities.convert.dayCodeToNumber;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],20:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],20:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2651,7 +2657,7 @@ module.exports = function () {
 	return utilities.convert.unitCodeToBaseCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],21:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],21:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2662,7 +2668,7 @@ module.exports = function () {
 	return utilities.decimalFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],22:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],22:[function(require,module,exports){
 'use strict';
 
 var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode'),
@@ -2711,7 +2717,7 @@ module.exports = function () {
 	return utilities.monthCodes.getCodeToNameMap();
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],24:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],24:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2722,7 +2728,7 @@ module.exports = function () {
 	return utilities.symbolParser.parseInstrumentType;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],25:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],25:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2733,7 +2739,7 @@ module.exports = function () {
 	return utilities.priceFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],26:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],26:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2744,398 +2750,7 @@ module.exports = function () {
 	return utilities.timeFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],27:[function(require,module,exports){
-var isFunction = require('is-function')
-
-module.exports = forEach
-
-var toString = Object.prototype.toString
-var hasOwnProperty = Object.prototype.hasOwnProperty
-
-function forEach(list, iterator, context) {
-    if (!isFunction(iterator)) {
-        throw new TypeError('iterator must be a function')
-    }
-
-    if (arguments.length < 3) {
-        context = this
-    }
-    
-    if (toString.call(list) === '[object Array]')
-        forEachArray(list, iterator, context)
-    else if (typeof list === 'string')
-        forEachString(list, iterator, context)
-    else
-        forEachObject(list, iterator, context)
-}
-
-function forEachArray(array, iterator, context) {
-    for (var i = 0, len = array.length; i < len; i++) {
-        if (hasOwnProperty.call(array, i)) {
-            iterator.call(context, array[i], i, array)
-        }
-    }
-}
-
-function forEachString(string, iterator, context) {
-    for (var i = 0, len = string.length; i < len; i++) {
-        // no such thing as a sparse string.
-        iterator.call(context, string.charAt(i), i, string)
-    }
-}
-
-function forEachObject(object, iterator, context) {
-    for (var k in object) {
-        if (hasOwnProperty.call(object, k)) {
-            iterator.call(context, object[k], k, object)
-        }
-    }
-}
-
-},{"is-function":29}],28:[function(require,module,exports){
-(function (global){
-var win;
-
-if (typeof window !== "undefined") {
-    win = window;
-} else if (typeof global !== "undefined") {
-    win = global;
-} else if (typeof self !== "undefined"){
-    win = self;
-} else {
-    win = {};
-}
-
-module.exports = win;
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],29:[function(require,module,exports){
-module.exports = isFunction
-
-var toString = Object.prototype.toString
-
-function isFunction (fn) {
-  var string = toString.call(fn)
-  return string === '[object Function]' ||
-    (typeof fn === 'function' && string !== '[object RegExp]') ||
-    (typeof window !== 'undefined' &&
-     // IE8 and below
-     (fn === window.setTimeout ||
-      fn === window.alert ||
-      fn === window.confirm ||
-      fn === window.prompt))
-};
-
-},{}],30:[function(require,module,exports){
-var trim = require('trim')
-  , forEach = require('for-each')
-  , isArray = function(arg) {
-      return Object.prototype.toString.call(arg) === '[object Array]';
-    }
-
-module.exports = function (headers) {
-  if (!headers)
-    return {}
-
-  var result = {}
-
-  forEach(
-      trim(headers).split('\n')
-    , function (row) {
-        var index = row.indexOf(':')
-          , key = trim(row.slice(0, index)).toLowerCase()
-          , value = trim(row.slice(index + 1))
-
-        if (typeof(result[key]) === 'undefined') {
-          result[key] = value
-        } else if (isArray(result[key])) {
-          result[key].push(value)
-        } else {
-          result[key] = [ result[key], value ]
-        }
-      }
-  )
-
-  return result
-}
-},{"for-each":27,"trim":31}],31:[function(require,module,exports){
-
-exports = module.exports = trim;
-
-function trim(str){
-  return str.replace(/^\s*|\s*$/g, '');
-}
-
-exports.left = function(str){
-  return str.replace(/^\s*/, '');
-};
-
-exports.right = function(str){
-  return str.replace(/\s*$/, '');
-};
-
-},{}],32:[function(require,module,exports){
-"use strict";
-var window = require("global/window")
-var isFunction = require("is-function")
-var parseHeaders = require("parse-headers")
-var xtend = require("xtend")
-
-module.exports = createXHR
-createXHR.XMLHttpRequest = window.XMLHttpRequest || noop
-createXHR.XDomainRequest = "withCredentials" in (new createXHR.XMLHttpRequest()) ? createXHR.XMLHttpRequest : window.XDomainRequest
-
-forEachArray(["get", "put", "post", "patch", "head", "delete"], function(method) {
-    createXHR[method === "delete" ? "del" : method] = function(uri, options, callback) {
-        options = initParams(uri, options, callback)
-        options.method = method.toUpperCase()
-        return _createXHR(options)
-    }
-})
-
-function forEachArray(array, iterator) {
-    for (var i = 0; i < array.length; i++) {
-        iterator(array[i])
-    }
-}
-
-function isEmpty(obj){
-    for(var i in obj){
-        if(obj.hasOwnProperty(i)) return false
-    }
-    return true
-}
-
-function initParams(uri, options, callback) {
-    var params = uri
-
-    if (isFunction(options)) {
-        callback = options
-        if (typeof uri === "string") {
-            params = {uri:uri}
-        }
-    } else {
-        params = xtend(options, {uri: uri})
-    }
-
-    params.callback = callback
-    return params
-}
-
-function createXHR(uri, options, callback) {
-    options = initParams(uri, options, callback)
-    return _createXHR(options)
-}
-
-function _createXHR(options) {
-    if(typeof options.callback === "undefined"){
-        throw new Error("callback argument missing")
-    }
-
-    var called = false
-    var callback = function cbOnce(err, response, body){
-        if(!called){
-            called = true
-            options.callback(err, response, body)
-        }
-    }
-
-    function readystatechange() {
-        if (xhr.readyState === 4) {
-            loadFunc()
-        }
-    }
-
-    function getBody() {
-        // Chrome with requestType=blob throws errors arround when even testing access to responseText
-        var body = undefined
-
-        if (xhr.response) {
-            body = xhr.response
-        } else {
-            body = xhr.responseText || getXml(xhr)
-        }
-
-        if (isJson) {
-            try {
-                body = JSON.parse(body)
-            } catch (e) {}
-        }
-
-        return body
-    }
-
-    function errorFunc(evt) {
-        clearTimeout(timeoutTimer)
-        if(!(evt instanceof Error)){
-            evt = new Error("" + (evt || "Unknown XMLHttpRequest Error") )
-        }
-        evt.statusCode = 0
-        return callback(evt, failureResponse)
-    }
-
-    // will load the data & process the response in a special response object
-    function loadFunc() {
-        if (aborted) return
-        var status
-        clearTimeout(timeoutTimer)
-        if(options.useXDR && xhr.status===undefined) {
-            //IE8 CORS GET successful response doesn't have a status field, but body is fine
-            status = 200
-        } else {
-            status = (xhr.status === 1223 ? 204 : xhr.status)
-        }
-        var response = failureResponse
-        var err = null
-
-        if (status !== 0){
-            response = {
-                body: getBody(),
-                statusCode: status,
-                method: method,
-                headers: {},
-                url: uri,
-                rawRequest: xhr
-            }
-            if(xhr.getAllResponseHeaders){ //remember xhr can in fact be XDR for CORS in IE
-                response.headers = parseHeaders(xhr.getAllResponseHeaders())
-            }
-        } else {
-            err = new Error("Internal XMLHttpRequest Error")
-        }
-        return callback(err, response, response.body)
-    }
-
-    var xhr = options.xhr || null
-
-    if (!xhr) {
-        if (options.cors || options.useXDR) {
-            xhr = new createXHR.XDomainRequest()
-        }else{
-            xhr = new createXHR.XMLHttpRequest()
-        }
-    }
-
-    var key
-    var aborted
-    var uri = xhr.url = options.uri || options.url
-    var method = xhr.method = options.method || "GET"
-    var body = options.body || options.data || null
-    var headers = xhr.headers = options.headers || {}
-    var sync = !!options.sync
-    var isJson = false
-    var timeoutTimer
-    var failureResponse = {
-        body: undefined,
-        headers: {},
-        statusCode: 0,
-        method: method,
-        url: uri,
-        rawRequest: xhr
-    }
-
-    if ("json" in options && options.json !== false) {
-        isJson = true
-        headers["accept"] || headers["Accept"] || (headers["Accept"] = "application/json") //Don't override existing accept header declared by user
-        if (method !== "GET" && method !== "HEAD") {
-            headers["content-type"] || headers["Content-Type"] || (headers["Content-Type"] = "application/json") //Don't override existing accept header declared by user
-            body = JSON.stringify(options.json === true ? body : options.json)
-        }
-    }
-
-    xhr.onreadystatechange = readystatechange
-    xhr.onload = loadFunc
-    xhr.onerror = errorFunc
-    // IE9 must have onprogress be set to a unique function.
-    xhr.onprogress = function () {
-        // IE must die
-    }
-    xhr.onabort = function(){
-        aborted = true;
-    }
-    xhr.ontimeout = errorFunc
-    xhr.open(method, uri, !sync, options.username, options.password)
-    //has to be after open
-    if(!sync) {
-        xhr.withCredentials = !!options.withCredentials
-    }
-    // Cannot set timeout with sync request
-    // not setting timeout on the xhr object, because of old webkits etc. not handling that correctly
-    // both npm's request and jquery 1.x use this kind of timeout, so this is being consistent
-    if (!sync && options.timeout > 0 ) {
-        timeoutTimer = setTimeout(function(){
-            if (aborted) return
-            aborted = true//IE9 may still call readystatechange
-            xhr.abort("timeout")
-            var e = new Error("XMLHttpRequest timeout")
-            e.code = "ETIMEDOUT"
-            errorFunc(e)
-        }, options.timeout )
-    }
-
-    if (xhr.setRequestHeader) {
-        for(key in headers){
-            if(headers.hasOwnProperty(key)){
-                xhr.setRequestHeader(key, headers[key])
-            }
-        }
-    } else if (options.headers && !isEmpty(options.headers)) {
-        throw new Error("Headers cannot be set on an XDomainRequest object")
-    }
-
-    if ("responseType" in options) {
-        xhr.responseType = options.responseType
-    }
-
-    if ("beforeSend" in options &&
-        typeof options.beforeSend === "function"
-    ) {
-        options.beforeSend(xhr)
-    }
-
-    xhr.send(body)
-
-    return xhr
-
-
-}
-
-function getXml(xhr) {
-    if (xhr.responseType === "document") {
-        return xhr.responseXML
-    }
-    var firefoxBugTakenEffect = xhr.status === 204 && xhr.responseXML && xhr.responseXML.documentElement.nodeName === "parsererror"
-    if (xhr.responseType === "" && !firefoxBugTakenEffect) {
-        return xhr.responseXML
-    }
-
-    return null
-}
-
-function noop() {}
-
-},{"global/window":28,"is-function":29,"parse-headers":30,"xtend":33}],33:[function(require,module,exports){
-module.exports = extend
-
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-
-function extend() {
-    var target = {}
-
-    for (var i = 0; i < arguments.length; i++) {
-        var source = arguments[i]
-
-        for (var key in source) {
-            if (hasOwnProperty.call(source, key)) {
-                target[key] = source[key]
-            }
-        }
-    }
-
-    return target
-}
-
-},{}],34:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":31}],27:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -3177,7 +2792,7 @@ module.exports = function () {
     return XmlDomParserBase;
 }();
 
-},{}],35:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -3237,7 +2852,7 @@ module.exports = function () {
     return XmlDomParser;
 }();
 
-},{"./../XmlDomParserBase":34}],36:[function(require,module,exports){
+},{"./../XmlDomParserBase":27}],29:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -3340,7 +2955,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],37:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 
 var lodashIsNaN = require('lodash.isnan');
@@ -3402,7 +3017,7 @@ module.exports = function () {
 	};
 }();
 
-},{"lodash.isnan":47}],38:[function(require,module,exports){
+},{"lodash.isnan":43}],31:[function(require,module,exports){
 'use strict';
 
 var convert = require('./convert'),
@@ -3433,7 +3048,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convert":36,"./decimalFormatter":37,"./messageParser":39,"./monthCodes":40,"./priceFormatter":41,"./priceParser":42,"./symbolFormatter":43,"./symbolParser":44,"./timeFormatter":45,"./timestampParser":46}],39:[function(require,module,exports){
+},{"./convert":29,"./decimalFormatter":30,"./messageParser":32,"./monthCodes":33,"./priceFormatter":34,"./priceParser":35,"./symbolFormatter":36,"./symbolParser":37,"./timeFormatter":38,"./timestampParser":39}],32:[function(require,module,exports){
 'use strict';
 
 var parseValue = require('./priceParser'),
@@ -3914,7 +3529,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./common/xml/XmlDomParser":35,"./priceParser":42,"./timestampParser":46}],40:[function(require,module,exports){
+},{"./common/xml/XmlDomParser":28,"./priceParser":35,"./timestampParser":39}],33:[function(require,module,exports){
 "use strict";
 
 module.exports = function () {
@@ -3953,7 +3568,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],41:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 'use strict';
 
 var lodashIsNaN = require('lodash.isnan');
@@ -4086,7 +3701,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./decimalFormatter":37,"lodash.isnan":47}],42:[function(require,module,exports){
+},{"./decimalFormatter":30,"lodash.isnan":43}],35:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4162,7 +3777,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],43:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4179,7 +3794,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],44:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4421,7 +4036,7 @@ module.exports = function () {
 	return symbolParser;
 }();
 
-},{}],45:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4540,7 +4155,7 @@ module.exports = function () {
 	}
 }();
 
-},{}],46:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4577,7 +4192,89 @@ module.exports = function () {
 	};
 }();
 
-},{}],47:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
+var isFunction = require('is-function')
+
+module.exports = forEach
+
+var toString = Object.prototype.toString
+var hasOwnProperty = Object.prototype.hasOwnProperty
+
+function forEach(list, iterator, context) {
+    if (!isFunction(iterator)) {
+        throw new TypeError('iterator must be a function')
+    }
+
+    if (arguments.length < 3) {
+        context = this
+    }
+    
+    if (toString.call(list) === '[object Array]')
+        forEachArray(list, iterator, context)
+    else if (typeof list === 'string')
+        forEachString(list, iterator, context)
+    else
+        forEachObject(list, iterator, context)
+}
+
+function forEachArray(array, iterator, context) {
+    for (var i = 0, len = array.length; i < len; i++) {
+        if (hasOwnProperty.call(array, i)) {
+            iterator.call(context, array[i], i, array)
+        }
+    }
+}
+
+function forEachString(string, iterator, context) {
+    for (var i = 0, len = string.length; i < len; i++) {
+        // no such thing as a sparse string.
+        iterator.call(context, string.charAt(i), i, string)
+    }
+}
+
+function forEachObject(object, iterator, context) {
+    for (var k in object) {
+        if (hasOwnProperty.call(object, k)) {
+            iterator.call(context, object[k], k, object)
+        }
+    }
+}
+
+},{"is-function":42}],41:[function(require,module,exports){
+(function (global){
+var win;
+
+if (typeof window !== "undefined") {
+    win = window;
+} else if (typeof global !== "undefined") {
+    win = global;
+} else if (typeof self !== "undefined"){
+    win = self;
+} else {
+    win = {};
+}
+
+module.exports = win;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],42:[function(require,module,exports){
+module.exports = isFunction
+
+var toString = Object.prototype.toString
+
+function isFunction (fn) {
+  var string = toString.call(fn)
+  return string === '[object Function]' ||
+    (typeof fn === 'function' && string !== '[object RegExp]') ||
+    (typeof window !== 'undefined' &&
+     // IE8 and below
+     (fn === window.setTimeout ||
+      fn === window.alert ||
+      fn === window.confirm ||
+      fn === window.prompt))
+};
+
+},{}],43:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -4688,6 +4385,315 @@ function isNumber(value) {
 }
 
 module.exports = isNaN;
+
+},{}],44:[function(require,module,exports){
+var trim = require('trim')
+  , forEach = require('for-each')
+  , isArray = function(arg) {
+      return Object.prototype.toString.call(arg) === '[object Array]';
+    }
+
+module.exports = function (headers) {
+  if (!headers)
+    return {}
+
+  var result = {}
+
+  forEach(
+      trim(headers).split('\n')
+    , function (row) {
+        var index = row.indexOf(':')
+          , key = trim(row.slice(0, index)).toLowerCase()
+          , value = trim(row.slice(index + 1))
+
+        if (typeof(result[key]) === 'undefined') {
+          result[key] = value
+        } else if (isArray(result[key])) {
+          result[key].push(value)
+        } else {
+          result[key] = [ result[key], value ]
+        }
+      }
+  )
+
+  return result
+}
+},{"for-each":40,"trim":45}],45:[function(require,module,exports){
+
+exports = module.exports = trim;
+
+function trim(str){
+  return str.replace(/^\s*|\s*$/g, '');
+}
+
+exports.left = function(str){
+  return str.replace(/^\s*/, '');
+};
+
+exports.right = function(str){
+  return str.replace(/\s*$/, '');
+};
+
+},{}],46:[function(require,module,exports){
+"use strict";
+var window = require("global/window")
+var isFunction = require("is-function")
+var parseHeaders = require("parse-headers")
+var xtend = require("xtend")
+
+module.exports = createXHR
+createXHR.XMLHttpRequest = window.XMLHttpRequest || noop
+createXHR.XDomainRequest = "withCredentials" in (new createXHR.XMLHttpRequest()) ? createXHR.XMLHttpRequest : window.XDomainRequest
+
+forEachArray(["get", "put", "post", "patch", "head", "delete"], function(method) {
+    createXHR[method === "delete" ? "del" : method] = function(uri, options, callback) {
+        options = initParams(uri, options, callback)
+        options.method = method.toUpperCase()
+        return _createXHR(options)
+    }
+})
+
+function forEachArray(array, iterator) {
+    for (var i = 0; i < array.length; i++) {
+        iterator(array[i])
+    }
+}
+
+function isEmpty(obj){
+    for(var i in obj){
+        if(obj.hasOwnProperty(i)) return false
+    }
+    return true
+}
+
+function initParams(uri, options, callback) {
+    var params = uri
+
+    if (isFunction(options)) {
+        callback = options
+        if (typeof uri === "string") {
+            params = {uri:uri}
+        }
+    } else {
+        params = xtend(options, {uri: uri})
+    }
+
+    params.callback = callback
+    return params
+}
+
+function createXHR(uri, options, callback) {
+    options = initParams(uri, options, callback)
+    return _createXHR(options)
+}
+
+function _createXHR(options) {
+    if(typeof options.callback === "undefined"){
+        throw new Error("callback argument missing")
+    }
+
+    var called = false
+    var callback = function cbOnce(err, response, body){
+        if(!called){
+            called = true
+            options.callback(err, response, body)
+        }
+    }
+
+    function readystatechange() {
+        if (xhr.readyState === 4) {
+            loadFunc()
+        }
+    }
+
+    function getBody() {
+        // Chrome with requestType=blob throws errors arround when even testing access to responseText
+        var body = undefined
+
+        if (xhr.response) {
+            body = xhr.response
+        } else {
+            body = xhr.responseText || getXml(xhr)
+        }
+
+        if (isJson) {
+            try {
+                body = JSON.parse(body)
+            } catch (e) {}
+        }
+
+        return body
+    }
+
+    function errorFunc(evt) {
+        clearTimeout(timeoutTimer)
+        if(!(evt instanceof Error)){
+            evt = new Error("" + (evt || "Unknown XMLHttpRequest Error") )
+        }
+        evt.statusCode = 0
+        return callback(evt, failureResponse)
+    }
+
+    // will load the data & process the response in a special response object
+    function loadFunc() {
+        if (aborted) return
+        var status
+        clearTimeout(timeoutTimer)
+        if(options.useXDR && xhr.status===undefined) {
+            //IE8 CORS GET successful response doesn't have a status field, but body is fine
+            status = 200
+        } else {
+            status = (xhr.status === 1223 ? 204 : xhr.status)
+        }
+        var response = failureResponse
+        var err = null
+
+        if (status !== 0){
+            response = {
+                body: getBody(),
+                statusCode: status,
+                method: method,
+                headers: {},
+                url: uri,
+                rawRequest: xhr
+            }
+            if(xhr.getAllResponseHeaders){ //remember xhr can in fact be XDR for CORS in IE
+                response.headers = parseHeaders(xhr.getAllResponseHeaders())
+            }
+        } else {
+            err = new Error("Internal XMLHttpRequest Error")
+        }
+        return callback(err, response, response.body)
+    }
+
+    var xhr = options.xhr || null
+
+    if (!xhr) {
+        if (options.cors || options.useXDR) {
+            xhr = new createXHR.XDomainRequest()
+        }else{
+            xhr = new createXHR.XMLHttpRequest()
+        }
+    }
+
+    var key
+    var aborted
+    var uri = xhr.url = options.uri || options.url
+    var method = xhr.method = options.method || "GET"
+    var body = options.body || options.data || null
+    var headers = xhr.headers = options.headers || {}
+    var sync = !!options.sync
+    var isJson = false
+    var timeoutTimer
+    var failureResponse = {
+        body: undefined,
+        headers: {},
+        statusCode: 0,
+        method: method,
+        url: uri,
+        rawRequest: xhr
+    }
+
+    if ("json" in options && options.json !== false) {
+        isJson = true
+        headers["accept"] || headers["Accept"] || (headers["Accept"] = "application/json") //Don't override existing accept header declared by user
+        if (method !== "GET" && method !== "HEAD") {
+            headers["content-type"] || headers["Content-Type"] || (headers["Content-Type"] = "application/json") //Don't override existing accept header declared by user
+            body = JSON.stringify(options.json === true ? body : options.json)
+        }
+    }
+
+    xhr.onreadystatechange = readystatechange
+    xhr.onload = loadFunc
+    xhr.onerror = errorFunc
+    // IE9 must have onprogress be set to a unique function.
+    xhr.onprogress = function () {
+        // IE must die
+    }
+    xhr.onabort = function(){
+        aborted = true;
+    }
+    xhr.ontimeout = errorFunc
+    xhr.open(method, uri, !sync, options.username, options.password)
+    //has to be after open
+    if(!sync) {
+        xhr.withCredentials = !!options.withCredentials
+    }
+    // Cannot set timeout with sync request
+    // not setting timeout on the xhr object, because of old webkits etc. not handling that correctly
+    // both npm's request and jquery 1.x use this kind of timeout, so this is being consistent
+    if (!sync && options.timeout > 0 ) {
+        timeoutTimer = setTimeout(function(){
+            if (aborted) return
+            aborted = true//IE9 may still call readystatechange
+            xhr.abort("timeout")
+            var e = new Error("XMLHttpRequest timeout")
+            e.code = "ETIMEDOUT"
+            errorFunc(e)
+        }, options.timeout )
+    }
+
+    if (xhr.setRequestHeader) {
+        for(key in headers){
+            if(headers.hasOwnProperty(key)){
+                xhr.setRequestHeader(key, headers[key])
+            }
+        }
+    } else if (options.headers && !isEmpty(options.headers)) {
+        throw new Error("Headers cannot be set on an XDomainRequest object")
+    }
+
+    if ("responseType" in options) {
+        xhr.responseType = options.responseType
+    }
+
+    if ("beforeSend" in options &&
+        typeof options.beforeSend === "function"
+    ) {
+        options.beforeSend(xhr)
+    }
+
+    xhr.send(body)
+
+    return xhr
+
+
+}
+
+function getXml(xhr) {
+    if (xhr.responseType === "document") {
+        return xhr.responseXML
+    }
+    var firefoxBugTakenEffect = xhr.status === 204 && xhr.responseXML && xhr.responseXML.documentElement.nodeName === "parsererror"
+    if (xhr.responseType === "" && !firefoxBugTakenEffect) {
+        return xhr.responseXML
+    }
+
+    return null
+}
+
+function noop() {}
+
+},{"global/window":41,"is-function":42,"parse-headers":44,"xtend":47}],47:[function(require,module,exports){
+module.exports = extend
+
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+function extend() {
+    var target = {}
+
+    for (var i = 0; i < arguments.length; i++) {
+        var source = arguments[i]
+
+        for (var key in source) {
+            if (hasOwnProperty.call(source, key)) {
+                target[key] = source[key]
+            }
+        }
+    }
+
+    return target
+}
 
 },{}]},{},[6])(6)
 });
