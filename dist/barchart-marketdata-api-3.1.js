@@ -4,6 +4,25 @@
 module.exports = function () {
 	'use strict';
 
+	var array = {
+		unique: function unique(array) {
+			var arrayToFilter = array || [];
+
+			return arrayToFilter.filter(function (item, index) {
+				return arrayToFilter.indexOf(item) === index;
+			});
+		}
+	};
+
+	return array;
+}();
+
+},{}],2:[function(require,module,exports){
+'use strict';
+
+module.exports = function () {
+	'use strict';
+
 	var object = {
 		keys: function keys(target) {
 			var keys = [];
@@ -21,7 +40,7 @@ module.exports = function () {
 	return object;
 }();
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 'use strict';
 
 var Connection = require('./websocket/Connection');
@@ -32,7 +51,7 @@ module.exports = function () {
     return Connection;
 }();
 
-},{"./websocket/Connection":5}],3:[function(require,module,exports){
+},{"./websocket/Connection":6}],4:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -300,7 +319,7 @@ module.exports = function () {
 	return ConnectionBase;
 }();
 
-},{"./../marketState/MarketState":8}],4:[function(require,module,exports){
+},{"./../marketState/MarketState":9}],5:[function(require,module,exports){
 'use strict';
 
 var Connection = require('./Connection');
@@ -311,7 +330,7 @@ module.exports = function () {
 	return Connection;
 }();
 
-},{"./Connection":2}],5:[function(require,module,exports){
+},{"./Connection":3}],6:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -324,7 +343,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var utilities = require('@barchart/marketdata-utilities-js');
 
-var object = require('./../../../common/lang/object');
+var array = require('./../../../common/lang/array'),
+    object = require('./../../../common/lang/object');
 
 var ConnectionBase = require('./../../ConnectionBase'),
     parseMessage = require('./../../../messageParser/parseMessage');
@@ -365,24 +385,23 @@ module.exports = function () {
 		var __watchdog = null;
 		var __lastMessageTime = null;
 
-		var __producerSymbols = {};
-		var __marketDepthSymbols = {};
-		var __marketUpdateSymbols = {};
-		var __cumulativeVolumeSymbols = {};
-		var __profileLookupSymbols = {};
+		var __activeConsumerSymbols = {};
+		var __knownConsumerSymbols = {};
+
+		var __pendingProfileLookups = {};
+
+		var __listeners = {
+			marketDepth: {},
+			marketUpdate: {},
+			cumulativeVolume: {},
+			events: [],
+			timestamp: []
+		};
 
 		var __tasks = [];
 		var __commands = [];
 		var __feedMessages = [];
 		var __networkMessages = [];
-
-		var __listeners = {
-			events: [],
-			marketDepth: {},
-			marketUpdate: {},
-			cumulativeVolume: {},
-			timestamp: []
-		};
 
 		var __loginInfo = {
 			username: null,
@@ -390,8 +409,11 @@ module.exports = function () {
 			server: null
 		};
 
-		var __decoder = undefined;
-		if (_window.TextDecoder) __decoder = new TextDecoder();else {
+		var __decoder = void 0;
+
+		if (_window.TextDecoder) {
+			__decoder = new TextDecoder();
+		} else {
 			__decoder = {
 				decode: function decode(arr) {
 					return String.fromCharCode.apply(null, new Uint8Array(arr));
@@ -435,29 +457,21 @@ module.exports = function () {
 		}
 
 		function enqueueGoTasks() {
-			object.keys(__marketUpdateSymbols).forEach(function (symbol) {
+			getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]).forEach(function (symbol) {
 				addTask('MU_GO', symbol);
 			});
 
-			object.keys(__cumulativeVolumeSymbols).forEach(function (symbol) {
-				addTask('MU_GO', symbol);
-			});
-
-			object.keys(__marketDepthSymbols).forEach(function (symbol) {
+			getProducerSymbols([__listeners.marketDepth]).forEach(function (symbol) {
 				addTask('MD_GO', symbol);
 			});
 		}
 
 		function enqueueStopTasks() {
-			object.keys(__marketUpdateSymbols).forEach(function (symbol) {
+			getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]).forEach(function (symbol) {
 				addTask('MU_STOP', symbol);
 			});
 
-			object.keys(__cumulativeVolumeSymbols).forEach(function (symbol) {
-				addTask('MU_STOP', symbol);
-			});
-
-			object.keys(__marketDepthSymbols).forEach(function (symbol) {
+			getProducerSymbols([__listeners.marketDepth]).forEach(function (symbol) {
 				addTask('MU_STOP', symbol);
 			});
 		}
@@ -533,7 +547,6 @@ module.exports = function () {
 					}
 
 					setTimeout(function () {
-
 						connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
 
 						/* let's not DDoS */
@@ -544,13 +557,17 @@ module.exports = function () {
 				};
 
 				__connection.onmessage = function (evt) {
-
 					__lastMessageTime = 1;
 
 					if (evt.data instanceof ArrayBuffer) {
 						var msg = __decoder.decode(evt.data);
-						if (msg) __networkMessages.push(msg);
-					} else __networkMessages.push(evt.data);
+
+						if (msg) {
+							__networkMessages.push(msg);
+						}
+					} else {
+						__networkMessages.push(evt.data);
+					}
 				};
 
 				__connection.onopen = function (evt) {
@@ -566,7 +583,7 @@ module.exports = function () {
 
 			__state = state.disconnected;
 
-			if (__watchdog != null) {
+			if (__watchdog !== null) {
 				_window.clearInterval(__watchdog);
 			}
 
@@ -581,10 +598,6 @@ module.exports = function () {
 			__tasks = [];
 			__commands = [];
 			__feedMessages = [];
-
-			__marketDepthSymbols = {};
-			__marketUpdateSymbols = {};
-			__cumulativeVolumeSymbols = {};
 		}
 
 		function handleNetworkMessage(message) {
@@ -618,6 +631,52 @@ module.exports = function () {
 			}
 		}
 
+		function getProducerSymbols(listenerMaps) {
+			var producerSymbols = listenerMaps.reduce(function (symbols, listenerMap) {
+				return symbols.concat(object.keys(listenerMap));
+			}, []);
+
+			return array.unique(producerSymbols);
+		}
+
+		function getProducerListenerExists(producerSymbol, listenerMaps) {
+			var consumerSymbols = __knownConsumerSymbols[producerSymbol] || [];
+
+			return consumerSymbols.some(function (consumerSymbol) {
+				return getConsumerListenerExists(consumerSymbol, listenerMaps);
+			});
+		}
+
+		function getConsumerListenerExists(consumerSymbol, listenerMaps) {
+			return listenerMaps.reduce(function (active, listenerMap) {
+				return active || listenerMap.hasOwnProperty(consumerSymbol) && listenerMap[consumerSymbol].length !== 0;
+			}, false);
+		}
+
+		function addKnownConsumerSymbol(consumerSymbol, producerSymbol) {
+			if (!__knownConsumerSymbols.hasOwnProperty(producerSymbol)) {
+				__knownConsumerSymbols[producerSymbol] = [];
+			}
+
+			var consumerSymbols = __knownConsumerSymbols[producerSymbol];
+
+			if (!consumerSymbols.some(function (candidate) {
+				return candidate === consumerSymbol;
+			})) {
+				consumerSymbols.push(consumerSymbol);
+			}
+		}
+
+		function getActiveConsumerSymbols(producerSymbol) {
+			var knownConsumerSymbols = __knownConsumerSymbols[producerSymbol] || [];
+
+			var activeConsumerSymbols = knownConsumerSymbols.filter(function (knownConsumerSymbol) {
+				return getConsumerListenerExists(knownConsumerSymbol, [__listeners.marketDepth, __listeners.marketUpdate, __listeners.cumulativeVolume]);
+			});
+
+			return activeConsumerSymbols;
+		}
+
 		function off() {
 			if (arguments.length < 2) {
 				throw new Error("Wrong number of arguments. Must pass in an eventId and handler.");
@@ -642,61 +701,24 @@ module.exports = function () {
 				});
 			};
 
-			var getConsumerIsActive = function getConsumerIsActive(consumerSymbol, listenerMaps) {
-				return listenerMaps.reduce(function (active, listenerMap) {
-					return active || listenerMap.hasOwnProperty(consumerSymbol);
-				}, false);
-			};
-
-			var unsubscribe = function unsubscribe(trackingMap, taskName, listenerMap, additionalTrackingMaps, additionalListenerMaps) {
+			var unsubscribe = function unsubscribe(stopTaskName, listenerMap, sharedListenerMaps) {
 				var consumerSymbol = symbol;
 				var producerSymbol = utilities.symbolParser.getProducerSymbol(consumerSymbol);
 
-				var previousListeners = listenerMap[consumerSymbol] || [];
-				var currentListeners = removeHandler(previousListeners);
+				var listenerMaps = sharedListenerMaps.concat(listenerMap);
 
-				listenerMap[consumerSymbol] = currentListeners;
+				var previousProducerListenerExists = getProducerListenerExists(producerSymbol, listenerMaps);
+				var currentProducerListenerExists = void 0;
 
-				if (previousListeners.length > 0 && currentListeners.length === 0) {
-					delete listenerMap[consumerSymbol];
+				listenerMap[consumerSymbol] = removeHandler(listenerMap[consumerSymbol] || []);
 
-					var stopConsumer = true;
-					var stopProducer = true;
+				currentProducerListenerExists = getProducerListenerExists(producerSymbol, listenerMaps);
 
-					var consumerSymbols = __producerSymbols[producerSymbol] || [];
-
-					if (!getConsumerIsActive(consumerSymbol, additionalListenerMaps)) {
-						stopConsumer = true;
-					}
-
-					if (stopConsumer) {
-						consumerSymbols = consumerSymbols.filter(function (candidate) {
-							var returnVal = candidate !== consumerSymbol;
-
-							if (returnVal && getConsumerIsActive(candidate, [listenerMap])) {
-								stopProducer = false;
-							}
-
-							return returnVal;
-						});
-
-						__producerSymbols[producerSymbol] = consumerSymbols;
-					}
-
-					if (stopProducer) {
-						delete trackingMap[producerSymbol];
-
-						additionalTrackingMaps.forEach(function (map) {
-							if (map.hasOwnProperty(producerSymbol)) {
-								stopProducer = false;
-							}
-						});
-
-						if (stopProducer) {
-							addTask(taskName, producerSymbol);
-						}
-					}
+				if (previousProducerListenerExists && !currentProducerListenerExists) {
+					addTask(stopTaskName, producerSymbol);
 				}
+
+				__activeConsumerSymbols[producerSymbol] = getActiveConsumerSymbols(producerSymbol);
 			};
 
 			switch (eventId) {
@@ -709,7 +731,7 @@ module.exports = function () {
 						throw new Error("Invalid arguments. Invoke as follows: off('marketDepth', handler, symbol)");
 					}
 
-					unsubscribe(__marketDepthSymbols, "MD_STOP", __listeners.marketDepth, [], []);
+					unsubscribe("MD_STOP", __listeners.marketDepth, []);
 
 					break;
 				case 'marketUpdate':
@@ -717,7 +739,7 @@ module.exports = function () {
 						throw new Error("Invalid arguments. Invoke as follows: off('marketUpdate', handler, symbol)");
 					}
 
-					unsubscribe(__marketUpdateSymbols, "MU_STOP", __listeners.marketUpdate, [__cumulativeVolumeSymbols], [__listeners.cumulativeVolume]);
+					unsubscribe("MU_STOP", __listeners.marketUpdate, [__listeners.cumulativeVolume]);
 
 					break;
 				case 'cumulativeVolume':
@@ -725,7 +747,7 @@ module.exports = function () {
 						throw new Error("Invalid arguments. Invoke as follows: off('cumulativeVolume', handler, symbol)");
 					}
 
-					unsubscribe(__cumulativeVolumeSymbols, "MU_STOP", __listeners.cumulativeVolume, [__marketUpdateSymbols], [__listeners.marketUpdate]);
+					unsubscribe("MU_STOP", __listeners.cumulativeVolume, [__listeners.marketUpdate]);
 
 					__marketState.getCumulativeVolume(symbol, function (container) {
 						container.off('events', handler);
@@ -755,7 +777,7 @@ module.exports = function () {
 				symbol = null;
 			}
 
-			var addHandler = function addHandler(listeners) {
+			var addListener = function addListener(listeners) {
 				listeners = listeners || [];
 
 				var add = !listeners.some(function (candidate) {
@@ -774,48 +796,35 @@ module.exports = function () {
 				return updatedListeners;
 			};
 
-			var subscribe = function subscribe(trackingMap, taskName, listenerMap, additionalTrackingMaps) {
+			var subscribe = function subscribe(streamingTaskName, snapshotTaskName, listenerMap, sharedListenerMaps) {
 				var consumerSymbol = symbol;
 				var producerSymbol = utilities.symbolParser.getProducerSymbol(consumerSymbol);
 
-				listenerMap[consumerSymbol] = addHandler(listenerMap[consumerSymbol]);
+				addKnownConsumerSymbol(consumerSymbol, producerSymbol);
 
-				var consumerSymbols = __producerSymbols[producerSymbol] || [];
+				var producerListenerExists = getProducerListenerExists(producerSymbol, sharedListenerMaps.concat(listenerMap));
 
-				var startConsumer = !consumerSymbols.some(function (candidate) {
-					return candidate === consumerSymbol;
-				});
+				listenerMap[consumerSymbol] = addListener(listenerMap[consumerSymbol]);
 
-				if (startConsumer) {
-					consumerSymbols = consumerSymbols.slice(0);
-					consumerSymbols.push(consumerSymbol);
-
-					__producerSymbols[producerSymbol] = consumerSymbols;
+				if (producerListenerExists) {
+					addTask(snapshotTaskName, producerSymbol);
+				} else {
+					addTask(streamingTaskName, producerSymbol);
 				}
 
-				if (!trackingMap[producerSymbol]) {
-					trackingMap[producerSymbol] = true;
-
-					var startProducer = !additionalTrackingMaps.some(function (additionalTrackingMap) {
-						return additionalTrackingMap[producerSymbol];
-					});
-
-					if (startProducer) {
-						addTask(taskName, producerSymbol);
-					}
-				}
+				__activeConsumerSymbols[producerSymbol] = getActiveConsumerSymbols(producerSymbol);
 			};
 
 			switch (eventId) {
 				case 'events':
-					__listeners.events = addHandler(__listeners.events);
+					__listeners.events = addListener(__listeners.events);
 					break;
 				case 'marketDepth':
 					if (arguments.length < 3) {
 						throw new Error("Invalid arguments. Invoke as follows: on('marketDepth', handler, symbol)");
 					}
 
-					subscribe(__marketDepthSymbols, "MD_GO", __listeners.marketDepth, []);
+					subscribe("MD_GO", "MD_REFRESH", __listeners.marketDepth);
 
 					if (__marketState.getBook(symbol)) {
 						handler({ type: 'INIT', symbol: symbol });
@@ -827,7 +836,7 @@ module.exports = function () {
 						throw new Error("Invalid arguments. Invoke as follows: on('marketUpdate', handler, symbol)");
 					}
 
-					subscribe(__marketUpdateSymbols, "MU_GO", __listeners.marketUpdate, [__cumulativeVolumeSymbols]);
+					subscribe("MU_GO", "MU_REFRESH", __listeners.marketUpdate, [__listeners.cumulativeVolume]);
 
 					if (__marketState.getQuote(symbol)) {
 						handler({ type: 'INIT', symbol: symbol });
@@ -839,7 +848,7 @@ module.exports = function () {
 						throw new Error("Invalid arguments. Invoke as follows: on('cumulativeVolume', handler, symbol)");
 					}
 
-					subscribe(__cumulativeVolumeSymbols, "MU_GO", __listeners.cumulativeVolume, [__marketUpdateSymbols]);
+					subscribe("MU_GO", "MU_REFRESH", __listeners.cumulativeVolume, [__listeners.marketUpdate]);
 
 					__marketState.getCumulativeVolume(symbol, function (container) {
 						container.on('events', handler);
@@ -847,7 +856,7 @@ module.exports = function () {
 
 					break;
 				case 'timestamp':
-					__listeners.timestamp = addHandler(__listeners.timestamp);
+					__listeners.timestamp = addListener(__listeners.timestamp);
 					break;
 			}
 		}
@@ -876,14 +885,12 @@ module.exports = function () {
 
 				if (message.type) {
 					if (message.symbol) {
-						var consumerSymbols = __producerSymbols[message.symbol] || [];
+						var consumerSymbols = __activeConsumerSymbols[message.symbol] || [];
 
-						if (__profileLookupSymbols.hasOwnProperty(message.symbol)) {
-							consumerSymbols = consumerSymbols.concat(__profileLookupSymbols[message.symbol]).filter(function (item, index, array) {
-								return array.indexOf(item) === index;
-							});
+						if (__pendingProfileLookups.hasOwnProperty(message.symbol)) {
+							consumerSymbols = array.unique(consumerSymbols.concat(__pendingProfileLookups[message.symbol]));
 
-							delete __profileLookupSymbols[message.symbol];
+							delete __pendingProfileLookups[message.symbol];
 						}
 
 						consumerSymbols.forEach(function (consumerSymbol) {
@@ -912,7 +919,6 @@ module.exports = function () {
 
 		function processCommands() {
 			if ((__state === state.authenticating || __state === state.authenticated) && __connection) {
-
 				var command = __commands.shift();
 
 				// it's possible that on re-connect, the GO commands would be sent before the login
@@ -1050,6 +1056,18 @@ module.exports = function () {
 								command = 'GO';
 								suffix = 'Ssc';
 								break;
+							case 'MD_REFRESH':
+								command = 'GO';
+								suffix = 'b';
+								break;
+							case 'MU_REFRESH':
+								command = 'GO';
+								suffix = 'sc';
+								break;
+							case 'P_SNAPSHOT':
+								command = 'GO';
+								suffix = 's';
+								break;
 							case 'MD_STOP':
 								command = 'STOP';
 								suffix = 'Bb';
@@ -1058,15 +1076,9 @@ module.exports = function () {
 								command = 'STOP';
 								suffix = 'Ssc';
 								break;
-							case 'P_SNAPSHOT':
-								command = 'GO';
-								suffix = 's';
-								break;
 						}
 
-						var unique = task.symbols.filter(function (item, index, array) {
-							return array.indexOf(item) === index;
-						});
+						var uniqueSymbols = array.unique(task.symbols);
 
 						var batchSize = void 0;
 
@@ -1076,8 +1088,8 @@ module.exports = function () {
 							batchSize = 250;
 						}
 
-						while (unique.length > 0) {
-							var batch = unique.splice(0, batchSize);
+						while (uniqueSymbols.length > 0) {
+							var batch = uniqueSymbols.splice(0, batchSize);
 
 							__commands.push(command + ' ' + batch.join(',') + '=' + suffix);
 						}
@@ -1106,26 +1118,26 @@ module.exports = function () {
 					return partitions;
 				};
 
-				var quoteBatches = getBatches(getUniqueSymbols([__marketUpdateSymbols, __cumulativeVolumeSymbols]));
+				var quoteBatches = getBatches(getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]));
 
 				quoteBatches.forEach(function (batch) {
-					__commands.push('GO' + ' ' + batch.join(',') + '=' + 'sc');
+					__commands.push('GO ' + batch.join(',') + '=sc');
 				});
 
-				var bookBatches = getBatches(object.keys(__marketDepthSymbols));
+				var bookBatches = getBatches(getProducerSymbols([__listeners.marketDepth]));
 
 				quoteBatches.forEach(function (batch) {
-					__commands.push('GO' + ' ' + batch.join(',') + '=' + 'b');
+					__commands.push('GO ' + batch.join(',') + '=b');
 				});
 
-				var profileBatches = getBatches(object.keys(__profileLookupSymbols)).filter(function (s) {
+				var profileBatches = getBatches(array.unique(object.keys(__pendingProfileLookups)).filter(function (s) {
 					return !quoteBatches.some(function (q) {
 						return q === s;
 					});
-				});
+				}));
 
 				profileBatches.forEach(function (batch) {
-					__commands.push('GO' + ' ' + batch.join(',') + '=' + 's');
+					__commands.push('GO ' + batch.join(',') + '=s');
 				});
 			}
 
@@ -1140,20 +1152,8 @@ module.exports = function () {
 			__pollingFrequency = pollingFrequency;
 		}
 
-		function getUniqueSymbols(maps) {
-			return object.keys(maps.reduce(function (aggregator, map) {
-				for (var k in map) {
-					if (map[k] === true) {
-						aggregator[k] = true;
-					}
-				}
-
-				return aggregator;
-			}, {}));
-		}
-
 		function getActiveSymbolCount() {
-			return getUniqueSymbols([__marketUpdateSymbols, __marketDepthSymbols, __cumulativeVolumeSymbols]).length;
+			return getProducerSymbols([__listeners.marketDepth, __listeners.marketUpdate, __listeners.cumulativeVolume]).length;
 		}
 
 		function resetTaskPump(polling) {
@@ -1201,10 +1201,24 @@ module.exports = function () {
 			disconnect();
 		}
 
-		function handleProfileRequest(symbol) {
-			var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
+		function handleProfileRequest(consumerSymbol) {
+			var producerSymbol = utilities.symbolParser.getProducerSymbol(consumerSymbol);
 
-			__profileLookupSymbols[producerSymbol] = [symbol, producerSymbol];
+			var pendingConsumerSymbols = __pendingProfileLookups[producerSymbol] || [];
+
+			if (!pendingConsumerSymbols.some(function (candidate) {
+				return candidate === consumerSymbol;
+			})) {
+				pendingConsumerSymbols.push(consumerSymbol);
+			}
+
+			if (!pendingConsumerSymbols.some(function (candidate) {
+				return candidate === producerSymbol;
+			})) {
+				pendingConsumerSymbols.push(producerSymbol);
+			}
+
+			__pendingProfileLookups[producerSymbol] = pendingConsumerSymbols;
 
 			addTask('P_SNAPSHOT', producerSymbol);
 		}
@@ -1288,7 +1302,7 @@ module.exports = function () {
 	return Connection;
 }();
 
-},{"./../../../common/lang/object":1,"./../../../messageParser/parseMessage":13,"./../../ConnectionBase":3,"@barchart/marketdata-utilities-js":31}],6:[function(require,module,exports){
+},{"./../../../common/lang/array":1,"./../../../common/lang/object":2,"./../../../messageParser/parseMessage":14,"./../../ConnectionBase":4,"@barchart/marketdata-utilities-js":32}],7:[function(require,module,exports){
 'use strict';
 
 var connection = require('./connection/index'),
@@ -1310,11 +1324,11 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.15'
+		version: '3.1.16'
 	};
 }();
 
-},{"./connection/index":4,"./marketState/index":11,"./messageParser/index":12,"./util/index":22}],7:[function(require,module,exports){
+},{"./connection/index":5,"./marketState/index":12,"./messageParser/index":13,"./util/index":23}],8:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1617,7 +1631,7 @@ module.exports = function () {
 	return CumulativeVolume;
 }();
 
-},{"./../common/lang/object":1}],8:[function(require,module,exports){
+},{"./../common/lang/object":2}],9:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1906,12 +1920,6 @@ module.exports = function () {
 					break;
 				case 'REFRESH_QUOTE':
 					p = new Profile(symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement);
-
-					var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
-
-					if (symbol !== producerSymbol) {
-						p = new Profile(producerSymbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement);
-					}
 
 					q.message = message;
 					q.flag = message.flag;
@@ -2224,7 +2232,7 @@ module.exports = function () {
 	return MarketState;
 }();
 
-},{"./../util/convertDayCodeToNumber":19,"./CumulativeVolume":7,"./Profile":9,"./Quote":10,"@barchart/marketdata-utilities-js":31}],9:[function(require,module,exports){
+},{"./../util/convertDayCodeToNumber":20,"./CumulativeVolume":8,"./Profile":10,"./Quote":11,"@barchart/marketdata-utilities-js":32}],10:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2366,7 +2374,7 @@ module.exports = function () {
 	return Profile;
 }();
 
-},{"./../util/parseSymbolType":24,"./../util/priceFormatter":25}],10:[function(require,module,exports){
+},{"./../util/parseSymbolType":25,"./../util/priceFormatter":26}],11:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2490,7 +2498,7 @@ module.exports = function () {
 	return Quote;
 }();
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 var MarketState = require('./MarketState');
@@ -2501,7 +2509,7 @@ module.exports = function () {
 	return MarketState;
 }();
 
-},{"./MarketState":8}],12:[function(require,module,exports){
+},{"./MarketState":9}],13:[function(require,module,exports){
 'use strict';
 
 var parseMessage = require('./parseMessage'),
@@ -2522,7 +2530,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./parseMessage":13,"./parseTimestamp":14,"./parseValue":15}],13:[function(require,module,exports){
+},{"./parseMessage":14,"./parseTimestamp":15,"./parseValue":16}],14:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2533,7 +2541,7 @@ module.exports = function () {
 	return utilities.messageParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],14:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],15:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2544,7 +2552,7 @@ module.exports = function () {
 	return utilities.timestampParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],15:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],16:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2555,7 +2563,7 @@ module.exports = function () {
 	return utilities.priceParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],16:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],17:[function(require,module,exports){
 'use strict';
 
 var xhr = require('xhr');
@@ -2613,7 +2621,7 @@ module.exports = function () {
 	};
 }();
 
-},{"xhr":46}],17:[function(require,module,exports){
+},{"xhr":47}],18:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2624,7 +2632,7 @@ module.exports = function () {
 	return utilities.convert.baseCodeToUnitCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],18:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],19:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2635,7 +2643,7 @@ module.exports = function () {
 	return utilities.convert.dateToDayCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],19:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],20:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2646,7 +2654,7 @@ module.exports = function () {
 	return utilities.convert.dayCodeToNumber;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],20:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],21:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2657,7 +2665,7 @@ module.exports = function () {
 	return utilities.convert.unitCodeToBaseCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],21:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],22:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2668,7 +2676,7 @@ module.exports = function () {
 	return utilities.decimalFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],22:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],23:[function(require,module,exports){
 'use strict';
 
 var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode'),
@@ -2706,7 +2714,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convertBaseCodeToUnitCode":17,"./convertDateToDayCode":18,"./convertDayCodeToNumber":19,"./convertUnitCodeToBaseCode":20,"./decimalFormatter":21,"./monthCodes":23,"./parseSymbolType":24,"./priceFormatter":25,"./symbolResolver":16,"./timeFormatter":26}],23:[function(require,module,exports){
+},{"./convertBaseCodeToUnitCode":18,"./convertDateToDayCode":19,"./convertDayCodeToNumber":20,"./convertUnitCodeToBaseCode":21,"./decimalFormatter":22,"./monthCodes":24,"./parseSymbolType":25,"./priceFormatter":26,"./symbolResolver":17,"./timeFormatter":27}],24:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2717,7 +2725,7 @@ module.exports = function () {
 	return utilities.monthCodes.getCodeToNameMap();
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],24:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],25:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2728,7 +2736,7 @@ module.exports = function () {
 	return utilities.symbolParser.parseInstrumentType;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],25:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],26:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2739,7 +2747,7 @@ module.exports = function () {
 	return utilities.priceFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],26:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],27:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2750,7 +2758,7 @@ module.exports = function () {
 	return utilities.timeFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],27:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],28:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2792,7 +2800,7 @@ module.exports = function () {
     return XmlDomParserBase;
 }();
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2852,7 +2860,7 @@ module.exports = function () {
     return XmlDomParser;
 }();
 
-},{"./../XmlDomParserBase":27}],29:[function(require,module,exports){
+},{"./../XmlDomParserBase":28}],30:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -2955,7 +2963,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 var lodashIsNaN = require('lodash.isnan');
@@ -3017,7 +3025,7 @@ module.exports = function () {
 	};
 }();
 
-},{"lodash.isnan":43}],31:[function(require,module,exports){
+},{"lodash.isnan":44}],32:[function(require,module,exports){
 'use strict';
 
 var convert = require('./convert'),
@@ -3048,7 +3056,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convert":29,"./decimalFormatter":30,"./messageParser":32,"./monthCodes":33,"./priceFormatter":34,"./priceParser":35,"./symbolFormatter":36,"./symbolParser":37,"./timeFormatter":38,"./timestampParser":39}],32:[function(require,module,exports){
+},{"./convert":30,"./decimalFormatter":31,"./messageParser":33,"./monthCodes":34,"./priceFormatter":35,"./priceParser":36,"./symbolFormatter":37,"./symbolParser":38,"./timeFormatter":39,"./timestampParser":40}],33:[function(require,module,exports){
 'use strict';
 
 var parseValue = require('./priceParser'),
@@ -3529,7 +3537,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./common/xml/XmlDomParser":28,"./priceParser":35,"./timestampParser":39}],33:[function(require,module,exports){
+},{"./common/xml/XmlDomParser":29,"./priceParser":36,"./timestampParser":40}],34:[function(require,module,exports){
 "use strict";
 
 module.exports = function () {
@@ -3568,7 +3576,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
 var lodashIsNaN = require('lodash.isnan');
@@ -3701,7 +3709,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./decimalFormatter":30,"lodash.isnan":43}],35:[function(require,module,exports){
+},{"./decimalFormatter":31,"lodash.isnan":44}],36:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -3777,7 +3785,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -3794,7 +3802,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4036,7 +4044,7 @@ module.exports = function () {
 	return symbolParser;
 }();
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4155,7 +4163,7 @@ module.exports = function () {
 	}
 }();
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4192,7 +4200,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 var isFunction = require('is-function')
 
 module.exports = forEach
@@ -4240,7 +4248,7 @@ function forEachObject(object, iterator, context) {
     }
 }
 
-},{"is-function":42}],41:[function(require,module,exports){
+},{"is-function":43}],42:[function(require,module,exports){
 (function (global){
 var win;
 
@@ -4257,7 +4265,7 @@ if (typeof window !== "undefined") {
 module.exports = win;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -4274,7 +4282,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -4386,7 +4394,7 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var trim = require('trim')
   , forEach = require('for-each')
   , isArray = function(arg) {
@@ -4418,7 +4426,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":40,"trim":45}],45:[function(require,module,exports){
+},{"for-each":41,"trim":46}],46:[function(require,module,exports){
 
 exports = module.exports = trim;
 
@@ -4434,7 +4442,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 "use strict";
 var window = require("global/window")
 var isFunction = require("is-function")
@@ -4674,7 +4682,7 @@ function getXml(xhr) {
 
 function noop() {}
 
-},{"global/window":41,"is-function":42,"parse-headers":44,"xtend":47}],47:[function(require,module,exports){
+},{"global/window":42,"is-function":43,"parse-headers":45,"xtend":48}],48:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -4695,5 +4703,5 @@ function extend() {
     return target
 }
 
-},{}]},{},[6])(6)
+},{}]},{},[7])(7)
 });
