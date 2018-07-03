@@ -648,9 +648,9 @@ module.exports = function () {
 		}
 
 		function getConsumerListenerExists(consumerSymbol, listenerMaps) {
-			return listenerMaps.reduce(function (active, listenerMap) {
-				return active || listenerMap.hasOwnProperty(consumerSymbol) && listenerMap[consumerSymbol].length !== 0;
-			}, false);
+			return listenerMaps.some(function (listenerMap) {
+				return listenerMap.hasOwnProperty(consumerSymbol) && listenerMap[consumerSymbol].length !== 0;
+			});
 		}
 
 		function addKnownConsumerSymbol(consumerSymbol, producerSymbol) {
