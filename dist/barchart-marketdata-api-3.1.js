@@ -824,7 +824,7 @@ module.exports = function () {
 						throw new Error("Invalid arguments. Invoke as follows: on('marketDepth', handler, symbol)");
 					}
 
-					subscribe("MD_GO", "MD_REFRESH", __listeners.marketDepth);
+					subscribe("MD_GO", "MD_REFRESH", __listeners.marketDepth, []);
 
 					if (__marketState.getBook(symbol)) {
 						handler({ type: 'INIT', symbol: symbol });
@@ -1324,7 +1324,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.16'
+		version: '3.1.17'
 	};
 }();
 
