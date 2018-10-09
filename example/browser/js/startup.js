@@ -1,6 +1,6 @@
 const version = require('./../../../lib/index').version;
 
-const Connection = require('./../../../lib/connection/websocket/browser/Connection'),
+const Connection = require('./../../../lib/connection/websocket/Connection'),
 	symbolResolver = require('./../../../lib/util/symbolResolver');
 
 module.exports = (() => {
