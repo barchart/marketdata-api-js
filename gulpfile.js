@@ -102,33 +102,6 @@ gulp.task('build-browser-components', [ 'build-connection', 'build-util', 'build
 
 gulp.task('build', [ 'build-example-bundle' ]);
 
-gulp.task('execute-browser-tests', function () {
-    return gulp.src('test/dist/barchart-marketdata-api-tests-' + getVersionForComponent() + '.js')
-        .pipe(jasmine());
-});
-
-gulp.task('execute-node-tests', function () {
-    return gulp.src(['lib/index.js', 'test/specs/**/*.js'])
-        .pipe(jasmine());
-});
-
-gulp.task('execute-tests', function (callback) {
-    runSequence(
-        'build-browser-tests',
-        'execute-node-tests',
-		'execute-browser-tests',
-
-        function (error) {
-            if (error) {
-                console.log(error.message);
-            }
-
-            callback(error);
-        });
-});
-
-gulp.task('test', [ 'execute-tests' ]);
-
 gulp.task('release', function (callback) {
     runSequence(
         'ensure-clean-working-directory',
@@ -136,7 +109,6 @@ gulp.task('release', function (callback) {
 		'embed-version',
         'build',
         'build-browser-tests',
-        'execute-node-tests',
 		'document',
         'commit-changes',
         'push-changes',
