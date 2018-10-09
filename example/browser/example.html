@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Barchart Streaming Market Data</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" type="text/css">
+    <link rel="stylesheet" href="example.css" type="text/css">
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+	<script src="example.js"></script>
+
+    <script type="text/html" id="grid-template">
+        <table class="table table-striped small">
+            <thead>
+            <th class="left col-md-1"></th>
+            <th class="left col-md-1">Symbol</th>
+            <th class="left col-md-2">Bid Price</th>
+            <th class="left col-md-2">Ask Price</th>
+            <th class="left col-md-2">Last Price</th>
+            <th class="left col-md-2">Volume</th>
+            <th class="left col-md-2">Trades</th>
+            </thead>
+            <tbody data-bind="template: { name: 'grid-item-template', foreach: rows }"></tbody>
+        </table>
+    </script>
+
+    <script type="text/html" id="grid-item-template">
+        <tr>
+            <td class="center col-md-1 alert-action-buttons">
+                <span class="text-button text-button-black glyphicon glyphicon-search" data-bind="click: function() { $parent.showItemDetail($data); }"></span>
+                <span class="text-button text-button-black glyphicon glyphicon-signal" data-bind="click: function() { $parent.showCumulativeVolume($data); }"></span>
+                <span class="text-button text-button-black glyphicon glyphicon-remove" data-bind="click: function() { $parent.removeSymbol($data); }"></span>
+            </td>
+            <td class="left col-md-1" data-bind="text: symbol"></td>
+
+            <!-- ko if: quote() !== null -->
+            <!-- ko with: quote -->
+            <td class="left col-md-2" data-bind="text: bidPrice"></td>
+            <td class="left col-md-2" data-bind="text: askPrice"></td>
+            <td class="left col-md-2" data-bind="text: lastPrice"></td>
+            <td class="left col-md-2" data-bind="text: volume"></td>
+            <td class="left col-md-2" data-bind="text: numberOfTrades"></td>
+            <!-- /ko -->
+            <!-- /ko -->
+            <!-- ko if: quote() === null -->
+            <td class="left col-md-2"></td>
+            <td class="left col-md-2"></td>
+            <td class="left col-md-2"></td>
+            <td class="left col-md-2"></td>
+            <td class="left col-md-2"></td>
+            <!-- /ko -->
+        </tr>
+    </script>
+
+    <script type="text/html" id="grid-item-details">
+        <pre data-bind="text: itemDisplay"></pre>
+    </script>
+
+    <script type="text/html" id="profile-template">
+        <pre data-bind="text: profileDisplay"></pre>
+    </script>
+
+    <script type="text/html" id="grid-cumulative-volume-template">
+        <!-- ko with: item -->
+        <table class="table table-striped small" data-bind="visible: cumulativeVolumeReady() === true">
+            <thead>
+            <th class="left col-md-2">Price Level</th>
+            <th class="left col-md-2">Cumulative Volume</th>
+            </thead>
+            <tbody data-bind="template: { name: 'grid-cumulative-volume-item-template', foreach: priceLevels }"></tbody>
+        </table>
+        <div class="container-center-outer" data-bind="visible: cumulativeVolumeReady() === false">
+            <div class="container-center-inner">
+                <h4>Loading Cumulative Volume...</h4>
+            </div>
+        </div>
+        <!-- /ko -->
+    </script>
+
+    <script type="text/html" id="grid-cumulative-volume-item-template">
+        <tr>
+            <td class="left col-md-2" data-bind="text: price, css: { updated: updated }"></td>
+            <td class="left col-md-2" data-bind="text: volume, css: { updated: updated }"></td>
+        </tr>
+    </script>
+
+    <script type="text/html" id="disconnected-template">
+        <div class="container-center-outer">
+            <div class="container-center-inner">
+                <form class="form-horizontal login">
+                    <div class="form-group" data-bind="css: { 'has-error': server().length === 0 }">
+                        <label class="pull-left">Server</label>
+                        <input class="form-control" data-bind="textInput: server" type="text" placeholder="Server">
+                    </div>
+                    <div class="form-group" data-bind="css: { 'has-error': username().length === 0 }, event: { keypress: handleLoginKeypress }">
+                        <label class="pull-left">Username</label>
+                        <input class="form-control" data-bind="textInput: username, hasFocus: true" type="text" placeholder="Username">
+                    </div>
+                    <div class="form-group" data-bind="css: { 'has-error': password().length === 0 }, event: { keypress: handleLoginKeypress }">
+                        <label class="pull-left">Password</label>
+                        <input class="form-control" data-bind="textInput: password" type="password" placeholder="Password">
+                    </div>
+                    <div class="form-group buttons">
+                        <button class="form-control btn btn-primary" type="button" data-bind="click: connect, enable: canConnect">Connect</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/html" id="header-template">
+        <div class="pull-left" data-bind="css: { 'can-reset': canReset}">
+            <div class="header-action-buttons form-inline pull-left back-button center">
+                <span class="text-button text-button glyphicon glyphicon-arrow-left" data-bind="click: showGrid"></span>
+            </div>
+
+            <h4 class="pull-left header-text">Barchart Streaming Market Data</h4>
+
+            <div class="header-action-buttons pull-right form-inline" data-bind="visible: connected">
+                <input class="form-control" data-bind="textInput: symbol, hasFocus: symbolFocus, event: { keypress: handleSymbolKeypress }" type="text" placeholder="Add Symbol">
+                <span class="text-button glyphicon glyphicon-plus" data-bind="click: addSymbol"></span>
+                <span class="text-button glyphicon glyphicon-info-sign" data-bind="click: lookupProfile"></span>
+                <span class="text-button glyphicon glyphicon-remove" data-bind="click: disconnect, visible: canDisconnect"></span>
+                <span class="text-button glyphicon glyphicon-earphone" data-bind="click: connect, visible: canConnect"></span>
+            </div>
+        </div>
+        <div class="pull-right">
+            <div class="header-action-buttons pull-right form-inline" data-bind="visible: connected">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary form-control" data-bind="text: mode"></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle form-control" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="caret"></span>
+                        <span class="sr-only"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a href="#" data-bind="click: setStreamingMode">Push (Streaming)</a></li>
+                        <li><a href="#" data-bind="click: setPollingMode">Pull (5 second Poll)</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/html" id="footer-template">
+        <h4 class="pull-left"><a href="https://github.com/barchart/marketdata-api-js" target="_blank">[marketdata-api-js]</a><span data-bind="visible: connected"> <span data-bind="text: username"></span>@<span data-bind="text: server"></span></span></h4>
+        <h4 class="pull-right">Client Version: <span data-bind="text: version()"></span></h4>
+    </script>
+</head>
+<body>
+<div class="header" data-bind="template: { name: 'header-template' }"></div>
+<div class="main" data-bind="template: { name: activeTemplate }"></div>
+<div class="footer" data-bind="template: { name: 'footer-template' }"></div>
+</body>
+</html>

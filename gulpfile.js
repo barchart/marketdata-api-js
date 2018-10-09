@@ -83,14 +83,12 @@ gulp.task('create-tag', function (cb) {
     });
 });
 
-gulp.task('build-browser', function() {
-    return browserify('./lib/index.js', { standalone: 'Barchart.RealtimeData' }).bundle()
-        .pipe(source('barchart-marketdata-api-' + getVersionForComponent() + '.js'))
-        .pipe(buffer())
-        .pipe(gulp.dest('./dist'))
-        .pipe(uglify())
-        .pipe(rename('barchart-marketdata-api-' + getVersionForComponent() + '-min.js'))
-        .pipe(gulp.dest('dist/'));
+gulp.task('build-example-bundle', function () {
+	return browserify(['./lib/index.js', './example/browser/js/startup.js'])
+		.bundle()
+		.pipe(source('example.js'))
+		.pipe(buffer())
+		.pipe(gulp.dest('./example/browser/'));
 });
 
 gulp.task('build-browser-tests', function () {
@@ -102,7 +100,7 @@ gulp.task('build-browser-tests', function () {
 
 gulp.task('build-browser-components', [ 'build-connection', 'build-util', 'build-historical-data', 'build-market-state', 'build-message-parser' ]);
 
-gulp.task('build', [ 'build-browser' ]);
+gulp.task('build', [ 'build-example-bundle' ]);
 
 gulp.task('execute-browser-tests', function () {
     return gulp.src('test/dist/barchart-marketdata-api-tests-' + getVersionForComponent() + '.js')

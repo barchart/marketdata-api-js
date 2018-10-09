@@ -514,8 +514,6 @@ module.exports = function () {
                     throw new Error('The "textDocument" argument must be a string.');
                 }
 
-                console.log(this._xmlDomParser.parseFromString(textDocument, 'text/xml'));
-
                 return this._xmlDomParser.parseFromString(textDocument, 'text/xml');
             }
         }, {
