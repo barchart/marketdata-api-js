@@ -11,16 +11,11 @@ All you need is a username/password from Barchart, and your app can be live with
 The library is intended for use in client (i.e. browser) environments. However, since the source code uses ES6, some assembly may be required for browser use (i.e. polyfills and transpilation).
 
 
-## Roadmap
-
-At some point, server environments (i.e. Node.js) will be supported.
-
-
 ## Run The Example
 
 Open the following file in your browser:
 
-    ./examples/example.html
+    ./example/browser/example.html
     
 Or, the visit the hosted version of the example page:
 
