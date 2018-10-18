@@ -1694,7 +1694,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.21'
+		version: '3.1.23'
 	};
 }();
 
@@ -2752,120 +2752,120 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 module.exports = function () {
-	'use strict';
-
-	/**
-  * Current market conditions for an instrument.
-  *
-  * @public
-  */
-
-	var Quote = function () {
-		function Quote(symbol) {
-			_classCallCheck(this, Quote);
+			'use strict';
 
 			/**
-    * @property {string} symbol - The instrument's symbol.
+    * Current market conditions for an instrument.
+    *
+    * @public
     */
-			this.symbol = symbol || null;
 
-			/**
-    * @property {string} message - last DDF message that caused a mutation to this instance
-    */
-			this.message = null;
+			var Quote = function () {
+						function Quote(symbol) {
+									_classCallCheck(this, Quote);
 
-			/**
-    * @property {string} flag - market status, will have one of three values: p, s, or undefined
-    */
-			this.flag = null;
+									/**
+          * @property {string} symbol - The instrument's symbol.
+          */
+									this.symbol = symbol || null;
 
-			this.mode = null;
+									/**
+          * @property {string} message - last DDF message that caused a mutation to this instance
+          */
+									this.message = null;
 
-			/**
-    * @property {string} day - one character code that indicates day of the month of the current trading session
-    */
-			this.day = null;
+									/**
+          * @property {string} flag - market status, will have one of three values: p, s, or undefined
+          */
+									this.flag = null;
 
-			/**
-    * @property {number} dayNum - day of the month of the current trading session
-    */
-			this.dayNum = 0;
+									this.mode = null;
 
-			this.session = null;
-			this.lastUpdate = null;
+									/**
+          * @property {string} day - one character code that indicates day of the month of the current trading session
+          */
+									this.day = null;
 
-			/**
-    * @property {number} bidPrice - top-of-book price on the buy side
-    */
-			this.bidPrice = null;
+									/**
+          * @property {number} dayNum - day of the month of the current trading session
+          */
+									this.dayNum = 0;
 
-			/**
-    * @property {number} bidSize - top-of-book quantity on the buy side
-    */
-			this.bidSize = null;
+									this.session = null;
+									this.lastUpdate = null;
 
-			/**
-    * @property {number} askPrice - top-of-book price on the sell side
-    */
-			this.askPrice = null;
+									/**
+          * @property {number} bidPrice - top-of-book price on the buy side
+          */
+									this.bidPrice = null;
 
-			/**
-    * @property {number} askSize - top-of-book quantity on the sell side
-    */
-			this.askSize = null;
+									/**
+          * @property {number} bidSize - top-of-book quantity on the buy side
+          */
+									this.bidSize = null;
 
-			/**
-    * @property {number} lastPrice - most recent price (not necessarily a trade)
-    */
-			this.lastPrice = null;
+									/**
+          * @property {number} askPrice - top-of-book price on the sell side
+          */
+									this.askPrice = null;
 
-			/**
-    * @property {number} tradePrice - most recent trade price
-    */
-			this.tradePrice = null;
+									/**
+          * @property {number} askSize - top-of-book quantity on the sell side
+          */
+									this.askSize = null;
 
-			/**
-    * @property {number} tradeSize - most recent trade quantity
-    */
-			this.tradeSize = null;
+									/**
+          * @property {number} lastPrice - most recent price (not necessarily a trade)
+          */
+									this.lastPrice = null;
 
-			this.numberOfTrades = null;
-			this.vwap1 = null; // Exchange Provided
-			this.vwap2 = null; // Calculated
+									/**
+          * @property {number} tradePrice - most recent trade price
+          */
+									this.tradePrice = null;
 
-			/**
-    * @property {number} settlementPrice
-    */
-			this.settlementPrice = null;
-			this.openPrice = null;
-			this.highPrice = null;
-			this.lowPrice = null;
-			this.volume = null;
-			this.openInterest = null;
+									/**
+          * @property {number} tradeSize - most recent trade quantity
+          */
+									this.tradeSize = null;
 
-			/**
-    * @property {number} previousPrice - price from the previous session
-    */
-			this.previousPrice = null;
+									this.numberOfTrades = null;
+									this.vwap1 = null; // Exchange Provided
+									this.vwap2 = null; // Calculated
 
-			this.time = null;
-			this.ticks = [];
-		}
+									/**
+          * @property {number} settlementPrice
+          */
+									this.settlementPrice = null;
+									this.openPrice = null;
+									this.highPrice = null;
+									this.lowPrice = null;
+									this.volume = null;
+									this.openInterest = null;
 
-		_createClass(Quote, null, [{
-			key: 'clone',
-			value: function clone(symbol, source) {
-				var clone = Object.assign({}, source);
-				clone.symbol = symbol;
+									/**
+          * @property {number} previousPrice - price from the previous session
+          */
+									this.previousPrice = null;
 
-				return clone;
-			}
-		}]);
+									this.time = null;
+									this.ticks = [];
+						}
 
-		return Quote;
-	}();
+						_createClass(Quote, null, [{
+									key: 'clone',
+									value: function clone(symbol, source) {
+												var clone = Object.assign({}, source);
+												clone.symbol = symbol;
 
-	return Quote;
+												return clone;
+									}
+						}]);
+
+						return Quote;
+			}();
+
+			return Quote;
 }();
 
 },{}],12:[function(require,module,exports){
@@ -3117,7 +3117,7 @@ module.exports = function () {
 	};
 }();
 
-},{"xhr":48}],27:[function(require,module,exports){
+},{"xhr":47}],27:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3169,7 +3169,7 @@ module.exports = function () {
     return XmlDomParser;
 }();
 
-},{"xmldom":49}],29:[function(require,module,exports){
+},{"xmldom":48}],29:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -3334,7 +3334,7 @@ module.exports = function () {
 	};
 }();
 
-},{"lodash.isnan":45}],31:[function(require,module,exports){
+},{"lodash.isnan":44}],31:[function(require,module,exports){
 'use strict';
 
 var convert = require('./convert'),
@@ -4020,7 +4020,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./decimalFormatter":30,"lodash.isnan":45}],35:[function(require,module,exports){
+},{"./decimalFormatter":30,"lodash.isnan":44}],35:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4566,70 +4566,54 @@ module.exports = function () {
 }();
 
 },{}],41:[function(require,module,exports){
-'use strict';
+var isFunction = require('is-function')
 
-var isCallable = require('is-callable');
+module.exports = forEach
 
-var toStr = Object.prototype.toString;
-var hasOwnProperty = Object.prototype.hasOwnProperty;
+var toString = Object.prototype.toString
+var hasOwnProperty = Object.prototype.hasOwnProperty
 
-var forEachArray = function forEachArray(array, iterator, receiver) {
+function forEach(list, iterator, context) {
+    if (!isFunction(iterator)) {
+        throw new TypeError('iterator must be a function')
+    }
+
+    if (arguments.length < 3) {
+        context = this
+    }
+    
+    if (toString.call(list) === '[object Array]')
+        forEachArray(list, iterator, context)
+    else if (typeof list === 'string')
+        forEachString(list, iterator, context)
+    else
+        forEachObject(list, iterator, context)
+}
+
+function forEachArray(array, iterator, context) {
     for (var i = 0, len = array.length; i < len; i++) {
         if (hasOwnProperty.call(array, i)) {
-            if (receiver == null) {
-                iterator(array[i], i, array);
-            } else {
-                iterator.call(receiver, array[i], i, array);
-            }
+            iterator.call(context, array[i], i, array)
         }
     }
-};
+}
 
-var forEachString = function forEachString(string, iterator, receiver) {
+function forEachString(string, iterator, context) {
     for (var i = 0, len = string.length; i < len; i++) {
         // no such thing as a sparse string.
-        if (receiver == null) {
-            iterator(string.charAt(i), i, string);
-        } else {
-            iterator.call(receiver, string.charAt(i), i, string);
-        }
+        iterator.call(context, string.charAt(i), i, string)
     }
-};
+}
 
-var forEachObject = function forEachObject(object, iterator, receiver) {
+function forEachObject(object, iterator, context) {
     for (var k in object) {
         if (hasOwnProperty.call(object, k)) {
-            if (receiver == null) {
-                iterator(object[k], k, object);
-            } else {
-                iterator.call(receiver, object[k], k, object);
-            }
+            iterator.call(context, object[k], k, object)
         }
     }
-};
+}
 
-var forEach = function forEach(list, iterator, thisArg) {
-    if (!isCallable(iterator)) {
-        throw new TypeError('iterator must be a function');
-    }
-
-    var receiver;
-    if (arguments.length >= 3) {
-        receiver = thisArg;
-    }
-
-    if (toStr.call(list) === '[object Array]') {
-        forEachArray(list, iterator, receiver);
-    } else if (typeof list === 'string') {
-        forEachString(list, iterator, receiver);
-    } else {
-        forEachObject(list, iterator, receiver);
-    }
-};
-
-module.exports = forEach;
-
-},{"is-callable":43}],42:[function(require,module,exports){
+},{"is-function":43}],42:[function(require,module,exports){
 (function (global){
 var win;
 
@@ -4647,45 +4631,6 @@ module.exports = win;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],43:[function(require,module,exports){
-'use strict';
-
-var fnToStr = Function.prototype.toString;
-
-var constructorRegex = /^\s*class\b/;
-var isES6ClassFn = function isES6ClassFunction(value) {
-	try {
-		var fnStr = fnToStr.call(value);
-		return constructorRegex.test(fnStr);
-	} catch (e) {
-		return false; // not a function
-	}
-};
-
-var tryFunctionObject = function tryFunctionToStr(value) {
-	try {
-		if (isES6ClassFn(value)) { return false; }
-		fnToStr.call(value);
-		return true;
-	} catch (e) {
-		return false;
-	}
-};
-var toStr = Object.prototype.toString;
-var fnClass = '[object Function]';
-var genClass = '[object GeneratorFunction]';
-var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
-
-module.exports = function isCallable(value) {
-	if (!value) { return false; }
-	if (typeof value !== 'function' && typeof value !== 'object') { return false; }
-	if (typeof value === 'function' && !value.prototype) { return true; }
-	if (hasToStringTag) { return tryFunctionObject(value); }
-	if (isES6ClassFn(value)) { return false; }
-	var strClass = toStr.call(value);
-	return strClass === fnClass || strClass === genClass;
-};
-
-},{}],44:[function(require,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -4702,7 +4647,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],45:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -4814,7 +4759,7 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-},{}],46:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var trim = require('trim')
   , forEach = require('for-each')
   , isArray = function(arg) {
@@ -4846,7 +4791,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":41,"trim":47}],47:[function(require,module,exports){
+},{"for-each":41,"trim":46}],46:[function(require,module,exports){
 
 exports = module.exports = trim;
 
@@ -4862,7 +4807,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],48:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 "use strict";
 var window = require("global/window")
 var isFunction = require("is-function")
@@ -5102,7 +5047,7 @@ function getXml(xhr) {
 
 function noop() {}
 
-},{"global/window":42,"is-function":44,"parse-headers":46,"xtend":52}],49:[function(require,module,exports){
+},{"global/window":42,"is-function":43,"parse-headers":45,"xtend":51}],48:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -5355,7 +5300,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":50,"./sax":51}],50:[function(require,module,exports){
+},{"./dom":49,"./sax":50}],49:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -6601,7 +6546,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],51:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -7236,7 +7181,7 @@ function split(source,start){
 exports.XMLReader = XMLReader;
 
 
-},{}],52:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
