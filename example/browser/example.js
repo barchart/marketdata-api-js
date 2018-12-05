@@ -15,8 +15,8 @@ module.exports = function () {
 
 		that.server = ko.observable('qsws-us-e-02.aws.barchart.com');
 
-		that.username = ko.observable('');
-		that.password = ko.observable('');
+		that.username = ko.observable('mikecv_p');
+		that.password = ko.observable('barchart');
 
 		that.symbol = ko.observable('');
 		that.symbolFocus = ko.observable(false);
@@ -140,7 +140,7 @@ module.exports = function () {
 			var symbols;
 
 			if (symbol === '#SP500') {
-				symbols = SP_500;
+				symbols = SP_500.slice(0, 3);
 			} else {
 				symbols = [symbol];
 			}
@@ -360,7 +360,7 @@ module.exports = function () {
 		that.updated = ko.observable(false);
 	};
 
-	var SP_500 = ['MMM', 'ABT', 'ABBV', 'ACN', 'ATVI', 'AYI', 'ADBE', 'AMD', 'AAP', 'AES', 'AET', 'AMG', 'AFL', 'A', 'APD', 'AKAM', 'ALK', 'ALB', 'ARE', 'ALXN', 'ALGN', 'ALLE', 'AGN', 'ADS', 'LNT', 'ALL', 'GOOGL', 'GOOG', 'MO', 'AMZN', 'AEE', 'AAL', 'AEP', 'AXP', 'AIG', 'AMT', 'AWK', 'AMP', 'ABC', 'AME', 'AMGN', 'APH', 'APC', 'ADI', 'ANDV', 'ANSS', 'ANTM', 'AON', 'AOS', 'APA', 'AIV', 'AAPL', 'AMAT', 'ADM', 'ARNC', 'AJG', 'AIZ', 'T', 'ADSK', 'ADP', 'AZO', 'AVB', 'AVY', 'BHGE', 'BLL', 'BAC', 'BK', 'BCR', 'BAX', 'BBT', 'BDX', 'BRK.B', 'BBY', 'BIIB', 'BLK', 'HRB', 'BA', 'BWA', 'BXP', 'BSX', 'BHF', 'BMY', 'AVGO', 'BF.B', 'CHRW', 'CA', 'COG', 'CDNS', 'CPB', 'COF', 'CAH', 'CBOE', 'KMX', 'CCL', 'CAT', 'CBG', 'CBS', 'CELG', 'CNC', 'CNP', 'CTL', 'CERN', 'CF', 'SCHW', 'CHTR', 'CHK', 'CVX', 'CMG', 'CB', 'CHD', 'CI', 'XEC', 'CINF', 'CTAS', 'CSCO', 'C', 'CFG', 'CTXS', 'CLX', 'CME', 'CMS', 'COH', 'KO', 'CTSH', 'CL', 'CMCSA', 'CMA', 'CAG', 'CXO', 'COP', 'ED', 'STZ', 'COO', 'GLW', 'COST', 'COTY', 'CCI', 'CSRA', 'CSX', 'CMI', 'CVS', 'DHI', 'DHR', 'DRI', 'DVA', 'DE', 'DLPH', 'DAL', 'XRAY', 'DVN', 'DLR', 'DFS', 'DISCA', 'DISCK', 'DISH', 'DG', 'DLTR', 'D', 'DOV', 'DWDP', 'DPS', 'DTE', 'DRE', 'DUK', 'DXC', 'ETFC', 'EMN', 'ETN', 'EBAY', 'ECL', 'EIX', 'EW', 'EA', 'EMR', 'ETR', 'EVHC', 'EOG', 'EQT', 'EFX', 'EQIX', 'EQR', 'ESS', 'EL', 'ES', 'RE', 'EXC', 'EXPE', 'EXPD', 'ESRX', 'EXR', 'XOM', 'FFIV', 'FB', 'FAST', 'FRT', 'FDX', 'FIS', 'FITB', 'FE', 'FISV', 'FLIR', 'FLS', 'FLR', 'FMC', 'FL', 'F', 'FTV', 'FBHS', 'BEN', 'FCX', 'GPS', 'GRMN', 'IT', 'GD', 'GE', 'GGP', 'GIS', 'GM', 'GPC', 'GILD', 'GPN', 'GS', 'GT', 'GWW', 'HAL', 'HBI', 'HOG', 'HRS', 'HIG', 'HAS', 'HCA', 'HCP', 'HP', 'HSIC', 'HSY', 'HES', 'HPE', 'HLT', 'HOLX', 'HD', 'HON', 'HRL', 'HST', 'HPQ', 'HUM', 'HBAN', 'IDXX', 'INFO', 'ITW', 'ILMN', 'IR', 'INTC', 'ICE', 'IBM', 'INCY', 'IP', 'IPG', 'IFF', 'INTU', 'ISRG', 'IVZ', 'IRM', 'JEC', 'JBHT', 'SJM', 'JNJ', 'JCI', 'JPM', 'JNPR', 'KSU', 'K', 'KEY', 'KMB', 'KIM', 'KMI', 'KLAC', 'KSS', 'KHC', 'KR', 'LB', 'LLL', 'LH', 'LRCX', 'LEG', 'LEN', 'LUK', 'LLY', 'LNC', 'LKQ', 'LMT', 'L', 'LOW', 'LYB', 'MTB', 'MAC', 'M', 'MRO', 'MPC', 'MAR', 'MMC', 'MLM', 'MAS', 'MA', 'MAT', 'MKC', 'MCD', 'MCK', 'MDT', 'MRK', 'MET', 'MTD', 'MGM', 'KORS', 'MCHP', 'MU', 'MSFT', 'MAA', 'MHK', 'TAP', 'MDLZ', 'MON', 'MNST', 'MCO', 'MS', 'MOS', 'MSI', 'MYL', 'NDAQ', 'NOV', 'NAVI', 'NTAP', 'NFLX', 'NWL', 'NFX', 'NEM', 'NWSA', 'NWS', 'NEE', 'NLSN', 'NKE', 'NI', 'NBL', 'JWN', 'NSC', 'NTRS', 'NOC', 'NCLH', 'NRG', 'NUE', 'NVDA', 'ORLY', 'OXY', 'OMC', 'OKE', 'ORCL', 'PCAR', 'PKG', 'PH', 'PDCO', 'PAYX', 'PYPL', 'PNR', 'PBCT', 'PEP', 'PKI', 'PRGO', 'PFE', 'PCG', 'PM', 'PSX', 'PNW', 'PXD', 'PNC', 'RL', 'PPG', 'PPL', 'PX', 'PCLN', 'PFG', 'PG', 'PGR', 'PLD', 'PRU', 'PEG', 'PSA', 'PHM', 'PVH', 'QRVO', 'PWR', 'QCOM', 'DGX', 'Q', 'RRC', 'RJF', 'RTN', 'O', 'RHT', 'REG', 'REGN', 'RF', 'RSG', 'RMD', 'RHI', 'ROK', 'COL', 'ROP', 'ROST', 'RCL', 'CRM', 'SBAC', 'SCG', 'SLB', 'SNI', 'STX', 'SEE', 'SRE', 'SHW', 'SIG', 'SPG', 'SWKS', 'SLG', 'SNA', 'SO', 'LUV', 'SPGI', 'SWK', 'SBUX', 'STT', 'SRCL', 'SYK', 'STI', 'SYMC', 'SYF', 'SNPS', 'SYY', 'TROW', 'TGT', 'TEL', 'FTI', 'TXN', 'TXT', 'TMO', 'TIF', 'TWX', 'TJX', 'TMK', 'TSS', 'TSCO', 'TDG', 'TRV', 'TRIP', 'FOXA', 'FOX', 'TSN', 'UDR', 'ULTA', 'USB', 'UA', 'UAA', 'UNP', 'UAL', 'UNH', 'UPS', 'URI', 'UTX', 'UHS', 'UNM', 'VFC', 'VLO', 'VAR', 'VTR', 'VRSN', 'VRSK', 'VZ', 'VRTX', 'VIAB', 'V', 'VNO', 'VMC', 'WMT', 'WBA', 'DIS', 'WM', 'WAT', 'WEC', 'WFC', 'HCN', 'WDC', 'WU', 'WRK', 'WY', 'WHR', 'WMB', 'WLTW', 'WYN', 'WYNN', 'XEL', 'XRX', 'XLNX', 'XL', 'XYL', 'YUM', 'ZBH', 'ZION', 'ZTS'];
+	var SP_500 = ['ABT', 'ABBV', 'ACN', 'ATVI', 'AYI', 'ADBE', 'AMD', 'AAP', 'AES', 'AET', 'AMG', 'AFL', 'A', 'APD', 'AKAM', 'ALK', 'ALB', 'ARE', 'ALXN', 'ALGN', 'ALLE', 'AGN', 'ADS', 'LNT', 'ALL', 'GOOGL', 'GOOG', 'MO', 'AMZN', 'AEE', 'AAL', 'AEP', 'AXP', 'AIG', 'AMT', 'AWK', 'AMP', 'ABC', 'AME', 'AMGN', 'APH', 'APC', 'ADI', 'ANDV', 'ANSS', 'ANTM', 'AON', 'AOS', 'APA', 'AIV', 'AAPL', 'AMAT', 'ADM', 'ARNC', 'AJG', 'AIZ', 'T', 'ADSK', 'ADP', 'AZO', 'AVB', 'AVY', 'BHGE', 'BLL', 'BAC', 'BK', 'BCR', 'BAX', 'BBT', 'BDX', 'BRK.B', 'BBY', 'BIIB', 'BLK', 'HRB', 'BA', 'BWA', 'BXP', 'BSX', 'BHF', 'BMY', 'AVGO', 'BF.B', 'CHRW', 'CA', 'COG', 'CDNS', 'CPB', 'COF', 'CAH', 'CBOE', 'KMX', 'CCL', 'CAT', 'CBG', 'CBS', 'CELG', 'CNC', 'CNP', 'CTL', 'CERN', 'CF', 'SCHW', 'CHTR', 'CHK', 'CVX', 'CMG', 'CB', 'CHD', 'CI', 'XEC', 'CINF', 'CTAS', 'CSCO', 'C', 'CFG', 'CTXS', 'CLX', 'CME', 'CMS', 'COH', 'KO', 'CTSH', 'CL', 'CMCSA', 'CMA', 'CAG', 'CXO', 'COP', 'ED', 'STZ', 'COO', 'GLW', 'COST', 'COTY', 'CCI', 'CSRA', 'CSX', 'CMI', 'CVS', 'DHI', 'DHR', 'DRI', 'DVA', 'DE', 'DLPH', 'DAL', 'XRAY', 'DVN', 'DLR', 'DFS', 'DISCA', 'DISCK', 'DISH', 'DG', 'DLTR', 'D', 'DOV', 'DWDP', 'DPS', 'DTE', 'DRE', 'DUK', 'DXC', 'ETFC', 'EMN', 'ETN', 'EBAY', 'ECL', 'EIX', 'EW', 'EA', 'EMR', 'ETR', 'EVHC', 'EOG', 'EQT', 'EFX', 'EQIX', 'EQR', 'ESS', 'EL', 'ES', 'RE', 'EXC', 'EXPE', 'EXPD', 'ESRX', 'EXR', 'XOM', 'FFIV', 'FB', 'FAST', 'FRT', 'FDX', 'FIS', 'FITB', 'FE', 'FISV', 'FLIR', 'FLS', 'FLR', 'FMC', 'FL', 'F', 'FTV', 'FBHS', 'BEN', 'FCX', 'GPS', 'GRMN', 'IT', 'GD', 'GE', 'GGP', 'GIS', 'GM', 'GPC', 'GILD', 'GPN', 'GS', 'GT', 'GWW', 'HAL', 'HBI', 'HOG', 'HRS', 'HIG', 'HAS', 'HCA', 'HCP', 'HP', 'HSIC', 'HSY', 'HES', 'HPE', 'HLT', 'HOLX', 'HD', 'HON', 'HRL', 'HST', 'HPQ', 'HUM', 'HBAN', 'IDXX', 'INFO', 'ITW', 'ILMN', 'IR', 'INTC', 'ICE', 'IBM', 'INCY', 'IP', 'IPG', 'IFF', 'INTU', 'ISRG', 'IVZ', 'IRM', 'JEC', 'JBHT', 'SJM', 'JNJ', 'JCI', 'JPM', 'JNPR', 'KSU', 'K', 'KEY', 'KMB', 'KIM', 'KMI', 'KLAC', 'KSS', 'KHC', 'KR', 'LB', 'LLL', 'LH', 'LRCX', 'LEG', 'LEN', 'LUK', 'LLY', 'LNC', 'LKQ', 'LMT', 'L', 'LOW', 'LYB', 'MTB', 'MAC', 'M', 'MRO', 'MPC', 'MAR', 'MMC', 'MLM', 'MAS', 'MA', 'MAT', 'MKC', 'MCD', 'MCK', 'MDT', 'MRK', 'MET', 'MTD', 'MGM', 'KORS', 'MCHP', 'MU', 'MSFT', 'MAA', 'MHK', 'TAP', 'MDLZ', 'MON', 'MNST', 'MCO', 'MS', 'MOS', 'MSI', 'MYL', 'NDAQ', 'NOV', 'NAVI', 'NTAP', 'NFLX', 'NWL', 'NFX', 'NEM', 'NWSA', 'NWS', 'NEE', 'NLSN', 'NKE', 'NI', 'NBL', 'JWN', 'NSC', 'NTRS', 'NOC', 'NCLH', 'NRG', 'NUE', 'NVDA', 'ORLY', 'OXY', 'OMC', 'OKE', 'ORCL', 'PCAR', 'PKG', 'PH', 'PDCO', 'PAYX', 'PYPL', 'PNR', 'PBCT', 'PEP', 'PKI', 'PRGO', 'PFE', 'PCG', 'PM', 'PSX', 'PNW', 'PXD', 'PNC', 'RL', 'PPG', 'PPL', 'PX', 'PCLN', 'PFG', 'PG', 'PGR', 'PLD', 'PRU', 'PEG', 'PSA', 'PHM', 'PVH', 'QRVO', 'PWR', 'QCOM', 'DGX', 'Q', 'RRC', 'RJF', 'RTN', 'O', 'RHT', 'REG', 'REGN', 'RF', 'RSG', 'RMD', 'RHI', 'ROK', 'COL', 'ROP', 'ROST', 'RCL', 'CRM', 'SBAC', 'SCG', 'SLB', 'SNI', 'STX', 'SEE', 'SRE', 'SHW', 'SIG', 'SPG', 'SWKS', 'SLG', 'SNA', 'SO', 'LUV', 'SPGI', 'SWK', 'SBUX', 'STT', 'SRCL', 'SYK', 'STI', 'SYMC', 'SYF', 'SNPS', 'SYY', 'TROW', 'TGT', 'TEL', 'FTI', 'TXN', 'TXT', 'TMO', 'TIF', 'TWX', 'TJX', 'TMK', 'TSS', 'TSCO', 'TDG', 'TRV', 'TRIP', 'FOXA', 'FOX', 'TSN', 'UDR', 'ULTA', 'USB', 'UA', 'UAA', 'UNP', 'UAL', 'UNH', 'UPS', 'URI', 'UTX', 'UHS', 'UNM', 'VFC', 'VLO', 'VAR', 'VTR', 'VRSN', 'VRSK', 'VZ', 'VRTX', 'VIAB', 'V', 'VNO', 'VMC', 'WMT', 'WBA', 'DIS', 'WM', 'WAT', 'WEC', 'WFC', 'HCN', 'WDC', 'WU', 'WRK', 'WY', 'WHR', 'WMB', 'WLTW', 'WYN', 'WYNN', 'XEL', 'XRX', 'XLNX', 'XL', 'XYL', 'YUM', 'ZBH', 'ZION', 'ZTS'];
 
 	$(document).ready(function () {
 		var pageModel = new PageModel();
@@ -794,7 +794,7 @@ module.exports = function () {
 		function addTask(id, symbol) {
 			var lastIndex = __tasks.length - 1;
 
-			if (lastIndex > 0 && __tasks[lastIndex].id === id) {
+			if (!(lastIndex < 0) && __tasks[lastIndex].id === id) {
 				__tasks[lastIndex].symbols.push(symbol);
 			} else {
 				__tasks.push({ id: id, symbols: [symbol] });
@@ -842,7 +842,7 @@ module.exports = function () {
 			});
 
 			getProducerSymbols([__listeners.marketDepth]).forEach(function (symbol) {
-				addTask('MU_STOP', symbol);
+				addTask('MD_STOP', symbol);
 			});
 		}
 
@@ -902,7 +902,7 @@ module.exports = function () {
 					// we do not reconnect if jerq explicitly says, - Login Failed.
 					//
 					if (__networkMessages.length === 1 && __networkMessages[0].indexOf('-') === 0) {
-						console.warn('not triggering reconnect: bad credentails');
+						console.warn('not triggering reconnect: bad credentials');
 						disconnect();
 						return;
 					}
@@ -1491,13 +1491,17 @@ module.exports = function () {
 				var quoteBatches = getBatches(getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]));
 
 				quoteBatches.forEach(function (batch) {
-					__commands.push('GO ' + batch.join(',') + '=sc');
+					__commands.push('GO ' + batch.map(function (s) {
+						return s + '=sc';
+					}).join(','));
 				});
 
 				var bookBatches = getBatches(getProducerSymbols([__listeners.marketDepth]));
 
-				quoteBatches.forEach(function (batch) {
-					__commands.push('GO ' + batch.join(',') + '=b');
+				bookBatches.forEach(function (batch) {
+					__commands.push('GO ' + batch.map(function (s) {
+						return s + '=b';
+					}).join(','));
 				});
 
 				var profileBatches = getBatches(array.unique(object.keys(__pendingProfileLookups)).filter(function (s) {
@@ -1507,7 +1511,9 @@ module.exports = function () {
 				}));
 
 				profileBatches.forEach(function (batch) {
-					__commands.push('GO ' + batch.join(',') + '=s');
+					__commands.push('GO ' + batch.map(function (s) {
+						return s + '=s';
+					}).join(','));
 				});
 			}
 
@@ -2752,120 +2758,120 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 module.exports = function () {
-			'use strict';
+	'use strict';
+
+	/**
+  * Current market conditions for an instrument.
+  *
+  * @public
+  */
+
+	var Quote = function () {
+		function Quote(symbol) {
+			_classCallCheck(this, Quote);
 
 			/**
-    * Current market conditions for an instrument.
-    *
-    * @public
+    * @property {string} symbol - The instrument's symbol.
     */
+			this.symbol = symbol || null;
 
-			var Quote = function () {
-						function Quote(symbol) {
-									_classCallCheck(this, Quote);
+			/**
+    * @property {string} message - last DDF message that caused a mutation to this instance
+    */
+			this.message = null;
 
-									/**
-          * @property {string} symbol - The instrument's symbol.
-          */
-									this.symbol = symbol || null;
+			/**
+    * @property {string} flag - market status, will have one of three values: p, s, or undefined
+    */
+			this.flag = null;
 
-									/**
-          * @property {string} message - last DDF message that caused a mutation to this instance
-          */
-									this.message = null;
+			this.mode = null;
 
-									/**
-          * @property {string} flag - market status, will have one of three values: p, s, or undefined
-          */
-									this.flag = null;
+			/**
+    * @property {string} day - one character code that indicates day of the month of the current trading session
+    */
+			this.day = null;
 
-									this.mode = null;
+			/**
+    * @property {number} dayNum - day of the month of the current trading session
+    */
+			this.dayNum = 0;
 
-									/**
-          * @property {string} day - one character code that indicates day of the month of the current trading session
-          */
-									this.day = null;
+			this.session = null;
+			this.lastUpdate = null;
 
-									/**
-          * @property {number} dayNum - day of the month of the current trading session
-          */
-									this.dayNum = 0;
+			/**
+    * @property {number} bidPrice - top-of-book price on the buy side
+    */
+			this.bidPrice = null;
 
-									this.session = null;
-									this.lastUpdate = null;
+			/**
+    * @property {number} bidSize - top-of-book quantity on the buy side
+    */
+			this.bidSize = null;
 
-									/**
-          * @property {number} bidPrice - top-of-book price on the buy side
-          */
-									this.bidPrice = null;
+			/**
+    * @property {number} askPrice - top-of-book price on the sell side
+    */
+			this.askPrice = null;
 
-									/**
-          * @property {number} bidSize - top-of-book quantity on the buy side
-          */
-									this.bidSize = null;
+			/**
+    * @property {number} askSize - top-of-book quantity on the sell side
+    */
+			this.askSize = null;
 
-									/**
-          * @property {number} askPrice - top-of-book price on the sell side
-          */
-									this.askPrice = null;
+			/**
+    * @property {number} lastPrice - most recent price (not necessarily a trade)
+    */
+			this.lastPrice = null;
 
-									/**
-          * @property {number} askSize - top-of-book quantity on the sell side
-          */
-									this.askSize = null;
+			/**
+    * @property {number} tradePrice - most recent trade price
+    */
+			this.tradePrice = null;
 
-									/**
-          * @property {number} lastPrice - most recent price (not necessarily a trade)
-          */
-									this.lastPrice = null;
+			/**
+    * @property {number} tradeSize - most recent trade quantity
+    */
+			this.tradeSize = null;
 
-									/**
-          * @property {number} tradePrice - most recent trade price
-          */
-									this.tradePrice = null;
+			this.numberOfTrades = null;
+			this.vwap1 = null; // Exchange Provided
+			this.vwap2 = null; // Calculated
 
-									/**
-          * @property {number} tradeSize - most recent trade quantity
-          */
-									this.tradeSize = null;
+			/**
+    * @property {number} settlementPrice
+    */
+			this.settlementPrice = null;
+			this.openPrice = null;
+			this.highPrice = null;
+			this.lowPrice = null;
+			this.volume = null;
+			this.openInterest = null;
 
-									this.numberOfTrades = null;
-									this.vwap1 = null; // Exchange Provided
-									this.vwap2 = null; // Calculated
+			/**
+    * @property {number} previousPrice - price from the previous session
+    */
+			this.previousPrice = null;
 
-									/**
-          * @property {number} settlementPrice
-          */
-									this.settlementPrice = null;
-									this.openPrice = null;
-									this.highPrice = null;
-									this.lowPrice = null;
-									this.volume = null;
-									this.openInterest = null;
+			this.time = null;
+			this.ticks = [];
+		}
 
-									/**
-          * @property {number} previousPrice - price from the previous session
-          */
-									this.previousPrice = null;
+		_createClass(Quote, null, [{
+			key: 'clone',
+			value: function clone(symbol, source) {
+				var clone = Object.assign({}, source);
+				clone.symbol = symbol;
 
-									this.time = null;
-									this.ticks = [];
-						}
+				return clone;
+			}
+		}]);
 
-						_createClass(Quote, null, [{
-									key: 'clone',
-									value: function clone(symbol, source) {
-												var clone = Object.assign({}, source);
-												clone.symbol = symbol;
+		return Quote;
+	}();
 
-												return clone;
-									}
-						}]);
-
-						return Quote;
-			}();
-
-			return Quote;
+	return Quote;
 }();
 
 },{}],12:[function(require,module,exports){
@@ -3117,7 +3123,7 @@ module.exports = function () {
 	};
 }();
 
-},{"xhr":47}],27:[function(require,module,exports){
+},{"xhr":48}],27:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3169,7 +3175,7 @@ module.exports = function () {
     return XmlDomParser;
 }();
 
-},{"xmldom":48}],29:[function(require,module,exports){
+},{"xmldom":49}],29:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -3334,7 +3340,7 @@ module.exports = function () {
 	};
 }();
 
-},{"lodash.isnan":44}],31:[function(require,module,exports){
+},{"lodash.isnan":45}],31:[function(require,module,exports){
 'use strict';
 
 var convert = require('./convert'),
@@ -4020,7 +4026,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./decimalFormatter":30,"lodash.isnan":44}],35:[function(require,module,exports){
+},{"./decimalFormatter":30,"lodash.isnan":45}],35:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4566,54 +4572,70 @@ module.exports = function () {
 }();
 
 },{}],41:[function(require,module,exports){
-var isFunction = require('is-function')
+'use strict';
 
-module.exports = forEach
+var isCallable = require('is-callable');
 
-var toString = Object.prototype.toString
-var hasOwnProperty = Object.prototype.hasOwnProperty
+var toStr = Object.prototype.toString;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
 
-function forEach(list, iterator, context) {
-    if (!isFunction(iterator)) {
-        throw new TypeError('iterator must be a function')
-    }
-
-    if (arguments.length < 3) {
-        context = this
-    }
-    
-    if (toString.call(list) === '[object Array]')
-        forEachArray(list, iterator, context)
-    else if (typeof list === 'string')
-        forEachString(list, iterator, context)
-    else
-        forEachObject(list, iterator, context)
-}
-
-function forEachArray(array, iterator, context) {
+var forEachArray = function forEachArray(array, iterator, receiver) {
     for (var i = 0, len = array.length; i < len; i++) {
         if (hasOwnProperty.call(array, i)) {
-            iterator.call(context, array[i], i, array)
+            if (receiver == null) {
+                iterator(array[i], i, array);
+            } else {
+                iterator.call(receiver, array[i], i, array);
+            }
         }
     }
-}
+};
 
-function forEachString(string, iterator, context) {
+var forEachString = function forEachString(string, iterator, receiver) {
     for (var i = 0, len = string.length; i < len; i++) {
         // no such thing as a sparse string.
-        iterator.call(context, string.charAt(i), i, string)
-    }
-}
-
-function forEachObject(object, iterator, context) {
-    for (var k in object) {
-        if (hasOwnProperty.call(object, k)) {
-            iterator.call(context, object[k], k, object)
+        if (receiver == null) {
+            iterator(string.charAt(i), i, string);
+        } else {
+            iterator.call(receiver, string.charAt(i), i, string);
         }
     }
-}
+};
 
-},{"is-function":43}],42:[function(require,module,exports){
+var forEachObject = function forEachObject(object, iterator, receiver) {
+    for (var k in object) {
+        if (hasOwnProperty.call(object, k)) {
+            if (receiver == null) {
+                iterator(object[k], k, object);
+            } else {
+                iterator.call(receiver, object[k], k, object);
+            }
+        }
+    }
+};
+
+var forEach = function forEach(list, iterator, thisArg) {
+    if (!isCallable(iterator)) {
+        throw new TypeError('iterator must be a function');
+    }
+
+    var receiver;
+    if (arguments.length >= 3) {
+        receiver = thisArg;
+    }
+
+    if (toStr.call(list) === '[object Array]') {
+        forEachArray(list, iterator, receiver);
+    } else if (typeof list === 'string') {
+        forEachString(list, iterator, receiver);
+    } else {
+        forEachObject(list, iterator, receiver);
+    }
+};
+
+module.exports = forEach;
+
+},{"is-callable":43}],42:[function(require,module,exports){
 (function (global){
 var win;
 
@@ -4631,6 +4653,45 @@ module.exports = win;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],43:[function(require,module,exports){
+'use strict';
+
+var fnToStr = Function.prototype.toString;
+
+var constructorRegex = /^\s*class\b/;
+var isES6ClassFn = function isES6ClassFunction(value) {
+	try {
+		var fnStr = fnToStr.call(value);
+		return constructorRegex.test(fnStr);
+	} catch (e) {
+		return false; // not a function
+	}
+};
+
+var tryFunctionObject = function tryFunctionToStr(value) {
+	try {
+		if (isES6ClassFn(value)) { return false; }
+		fnToStr.call(value);
+		return true;
+	} catch (e) {
+		return false;
+	}
+};
+var toStr = Object.prototype.toString;
+var fnClass = '[object Function]';
+var genClass = '[object GeneratorFunction]';
+var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
+
+module.exports = function isCallable(value) {
+	if (!value) { return false; }
+	if (typeof value !== 'function' && typeof value !== 'object') { return false; }
+	if (typeof value === 'function' && !value.prototype) { return true; }
+	if (hasToStringTag) { return tryFunctionObject(value); }
+	if (isES6ClassFn(value)) { return false; }
+	var strClass = toStr.call(value);
+	return strClass === fnClass || strClass === genClass;
+};
+
+},{}],44:[function(require,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -4647,7 +4708,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -4759,7 +4820,7 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 var trim = require('trim')
   , forEach = require('for-each')
   , isArray = function(arg) {
@@ -4791,7 +4852,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":41,"trim":46}],46:[function(require,module,exports){
+},{"for-each":41,"trim":47}],47:[function(require,module,exports){
 
 exports = module.exports = trim;
 
@@ -4807,7 +4868,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 "use strict";
 var window = require("global/window")
 var isFunction = require("is-function")
@@ -5047,7 +5108,7 @@ function getXml(xhr) {
 
 function noop() {}
 
-},{"global/window":42,"is-function":43,"parse-headers":45,"xtend":51}],48:[function(require,module,exports){
+},{"global/window":42,"is-function":44,"parse-headers":46,"xtend":52}],49:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -5300,7 +5361,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":49,"./sax":50}],49:[function(require,module,exports){
+},{"./dom":50,"./sax":51}],50:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -6546,7 +6607,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -7181,7 +7242,7 @@ function split(source,start){
 exports.XMLReader = XMLReader;
 
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
