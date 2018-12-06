@@ -1,7 +1,8 @@
 const version = require('./../../../lib/index').version;
 
 const Connection = require('./../../../lib/connection/websocket/Connection'),
-	symbolResolver = require('./../../../lib/util/symbolResolver');
+	symbolResolver = require('./../../../lib/util/symbolResolver'),
+	snapshotProvider = require('./../../../lib/util/snapshotProvider');
 
 module.exports = (() => {
 	'use strict';
@@ -152,6 +153,11 @@ module.exports = (() => {
 				model.setMarketUpdateHandler(handleMarketUpdate);
 
 				connection.on('marketUpdate', handleMarketUpdate, s);
+
+				snapshotProvider(s)
+					.then((response) => {
+						console.log(response);
+					});
 
 				that.rows.push(model);
 			}

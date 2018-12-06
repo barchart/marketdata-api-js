@@ -4,7 +4,8 @@
 var version = require('./../../../lib/index').version;
 
 var Connection = require('./../../../lib/connection/websocket/Connection'),
-    symbolResolver = require('./../../../lib/util/symbolResolver');
+    symbolResolver = require('./../../../lib/util/symbolResolver'),
+    snapshotProvider = require('./../../../lib/util/snapshotProvider');
 
 module.exports = function () {
 	'use strict';
@@ -155,6 +156,10 @@ module.exports = function () {
 				model.setMarketUpdateHandler(handleMarketUpdate);
 
 				connection.on('marketUpdate', handleMarketUpdate, s);
+
+				snapshotProvider(s).then(function (response) {
+					console.log(response);
+				});
 
 				that.rows.push(model);
 			}
@@ -369,7 +374,7 @@ module.exports = function () {
 	});
 }();
 
-},{"./../../../lib/connection/websocket/Connection":6,"./../../../lib/index":7,"./../../../lib/util/symbolResolver":26}],2:[function(require,module,exports){
+},{"./../../../lib/connection/websocket/Connection":6,"./../../../lib/index":7,"./../../../lib/util/snapshotProvider":26,"./../../../lib/util/symbolResolver":27}],2:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -1414,55 +1419,59 @@ module.exports = function () {
 					if (task.callback) {
 						task.callback();
 					} else if (task.id) {
-						var command = '';
-						var suffix = '';
+						(function () {
+							var command = '';
+							var suffix = '';
 
-						switch (task.id) {
-							case 'MD_GO':
-								command = 'GO';
-								suffix = 'Bb';
-								break;
-							case 'MU_GO':
-								command = 'GO';
-								suffix = 'Ssc';
-								break;
-							case 'MD_REFRESH':
-								command = 'GO';
-								suffix = 'b';
-								break;
-							case 'MU_REFRESH':
-								command = 'GO';
-								suffix = 'sc';
-								break;
-							case 'P_SNAPSHOT':
-								command = 'GO';
-								suffix = 's';
-								break;
-							case 'MD_STOP':
-								command = 'STOP';
-								suffix = 'Bb';
-								break;
-							case 'MU_STOP':
-								command = 'STOP';
-								suffix = 'Ssc';
-								break;
-						}
+							switch (task.id) {
+								case 'MD_GO':
+									command = 'GO';
+									suffix = 'Bb';
+									break;
+								case 'MU_GO':
+									command = 'GO';
+									suffix = 'Ssc';
+									break;
+								case 'MD_REFRESH':
+									command = 'GO';
+									suffix = 'b';
+									break;
+								case 'MU_REFRESH':
+									command = 'GO';
+									suffix = 'sc';
+									break;
+								case 'P_SNAPSHOT':
+									command = 'GO';
+									suffix = 's';
+									break;
+								case 'MD_STOP':
+									command = 'STOP';
+									suffix = 'Bb';
+									break;
+								case 'MU_STOP':
+									command = 'STOP';
+									suffix = 'Ssc';
+									break;
+							}
 
-						var uniqueSymbols = array.unique(task.symbols);
+							var uniqueSymbols = array.unique(task.symbols);
 
-						var batchSize = void 0;
+							var batchSize = void 0;
 
-						if (task.id === 'MD_GO' || task.id === 'MD_STOP') {
-							batchSize = 1;
-						} else {
-							batchSize = 250;
-						}
+							if (task.id === 'MD_GO' || task.id === 'MD_STOP') {
+								batchSize = 1;
+							} else {
+								batchSize = 250;
+							}
 
-						while (uniqueSymbols.length > 0) {
-							var batch = uniqueSymbols.splice(0, batchSize);
+							while (uniqueSymbols.length > 0) {
+								var batch = uniqueSymbols.splice(0, batchSize);
 
-							__commands.push(command + ' ' + batch.join(',') + '=' + suffix);
-						}
+								__commands.push(command + ' ' + batch.map(function (s) {
+									return s + '=' + suffix;
+								}).join(','));
+							}
+						})();
 					}
 				}
 			}
@@ -1678,7 +1687,7 @@ module.exports = function () {
 	return Connection;
 }();
 
-},{"./../../common/lang/array":2,"./../../common/lang/object":3,"./../../messageParser/parseMessage":14,"./../ConnectionBase":4,"@barchart/marketdata-utilities-js":31}],7:[function(require,module,exports){
+},{"./../../common/lang/array":2,"./../../common/lang/object":3,"./../../messageParser/parseMessage":14,"./../ConnectionBase":4,"@barchart/marketdata-utilities-js":32}],7:[function(require,module,exports){
 'use strict';
 
 var connection = require('./connection/index'),
@@ -2608,7 +2617,7 @@ module.exports = function () {
 	return MarketState;
 }();
 
-},{"./../util/convertDayCodeToNumber":19,"./CumulativeVolume":8,"./Profile":10,"./Quote":11,"@barchart/marketdata-utilities-js":31}],10:[function(require,module,exports){
+},{"./../util/convertDayCodeToNumber":19,"./CumulativeVolume":8,"./Profile":10,"./Quote":11,"@barchart/marketdata-utilities-js":32}],10:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2917,7 +2926,7 @@ module.exports = function () {
 	return utilities.messageParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],15:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],15:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2928,7 +2937,7 @@ module.exports = function () {
 	return utilities.timestampParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],16:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],16:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2939,7 +2948,7 @@ module.exports = function () {
 	return utilities.priceParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],17:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],17:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2950,7 +2959,7 @@ module.exports = function () {
 	return utilities.convert.baseCodeToUnitCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],18:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],18:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2961,7 +2970,7 @@ module.exports = function () {
 	return utilities.convert.dateToDayCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],19:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],19:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2972,7 +2981,7 @@ module.exports = function () {
 	return utilities.convert.dayCodeToNumber;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],20:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],20:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2983,7 +2992,7 @@ module.exports = function () {
 	return utilities.convert.unitCodeToBaseCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],21:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],21:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -2994,7 +3003,7 @@ module.exports = function () {
 	return utilities.decimalFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],22:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],22:[function(require,module,exports){
 'use strict';
 
 var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode'),
@@ -3032,7 +3041,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convertBaseCodeToUnitCode":17,"./convertDateToDayCode":18,"./convertDayCodeToNumber":19,"./convertUnitCodeToBaseCode":20,"./decimalFormatter":21,"./monthCodes":23,"./parseSymbolType":24,"./priceFormatter":25,"./symbolResolver":26,"./timeFormatter":27}],23:[function(require,module,exports){
+},{"./convertBaseCodeToUnitCode":17,"./convertDateToDayCode":18,"./convertDayCodeToNumber":19,"./convertUnitCodeToBaseCode":20,"./decimalFormatter":21,"./monthCodes":23,"./parseSymbolType":24,"./priceFormatter":25,"./symbolResolver":27,"./timeFormatter":28}],23:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3043,7 +3052,7 @@ module.exports = function () {
 	return utilities.monthCodes.getCodeToNameMap();
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],24:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],24:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3054,7 +3063,7 @@ module.exports = function () {
 	return utilities.symbolParser.parseInstrumentType;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],25:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],25:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3065,7 +3074,61 @@ module.exports = function () {
 	return utilities.priceFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],26:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],26:[function(require,module,exports){
+'use strict';
+
+var xhr = require('xhr');
+
+module.exports = function () {
+	'use strict';
+
+	return function (symbols) {
+		return Promise.resolve().then(function () {
+			var symbolsToUse = void 0;
+
+			if (typeof symbols === 'string') {
+				symbolsToUse = [symbols];
+			} else if (Array.isArray(symbols)) {
+				symbolsToUse = symbols;
+			} else {
+				throw new Error('The "symbols" argument must be a string or an array of strings.');
+			}
+
+			if (symbolsToUse.some(function (s) {
+				return typeof s !== 'string';
+			})) {
+				throw new Error('The "symbols" can only contain strings.');
+			}
+
+			return new Promise(function (resolveCallback, rejectCallback) {
+				try {
+					var options = {
+						url: 'https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getQuote.json?symbols=' + encodeURIComponent(symbolsToUse.join()),
+						method: 'GET'
+					};
+
+					xhr(options, function (error, response, body) {
+						try {
+							if (error) {
+								rejectCallback(error);
+							} else if (response.statusCode !== 200) {
+								rejectCallback('The server returned an HTTP ' + response.statusCode + ' response code.');
+							} else {
+								resolveCallback(JSON.parse(body).results);
+							}
+						} catch (processError) {
+							rejectCallback(processError);
+						}
+					});
+				} catch (executeError) {
+					rejectCallback(executeError);
+				}
+			});
+		});
+	};
+}();
+
+},{"xhr":49}],27:[function(require,module,exports){
 'use strict';
 
 var xhr = require('xhr');
@@ -3123,7 +3186,7 @@ module.exports = function () {
 	};
 }();
 
-},{"xhr":48}],27:[function(require,module,exports){
+},{"xhr":49}],28:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3134,7 +3197,7 @@ module.exports = function () {
 	return utilities.timeFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":31}],28:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":32}],29:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -3175,7 +3238,7 @@ module.exports = function () {
     return XmlDomParser;
 }();
 
-},{"xmldom":49}],29:[function(require,module,exports){
+},{"xmldom":50}],30:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -3278,7 +3341,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 var lodashIsNaN = require('lodash.isnan');
@@ -3340,7 +3403,7 @@ module.exports = function () {
 	};
 }();
 
-},{"lodash.isnan":45}],31:[function(require,module,exports){
+},{"lodash.isnan":46}],32:[function(require,module,exports){
 'use strict';
 
 var convert = require('./convert'),
@@ -3373,7 +3436,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convert":29,"./decimalFormatter":30,"./messageParser":32,"./monthCodes":33,"./priceFormatter":34,"./priceParser":35,"./stringToDecimalFormatter":36,"./symbolFormatter":37,"./symbolParser":38,"./timeFormatter":39,"./timestampParser":40}],32:[function(require,module,exports){
+},{"./convert":30,"./decimalFormatter":31,"./messageParser":33,"./monthCodes":34,"./priceFormatter":35,"./priceParser":36,"./stringToDecimalFormatter":37,"./symbolFormatter":38,"./symbolParser":39,"./timeFormatter":40,"./timestampParser":41}],33:[function(require,module,exports){
 'use strict';
 
 var parseValue = require('./priceParser'),
@@ -3854,7 +3917,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./common/xml/XmlDomParser":28,"./priceParser":35,"./timestampParser":40}],33:[function(require,module,exports){
+},{"./common/xml/XmlDomParser":29,"./priceParser":36,"./timestampParser":41}],34:[function(require,module,exports){
 "use strict";
 
 module.exports = function () {
@@ -3893,7 +3956,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
 var lodashIsNaN = require('lodash.isnan');
@@ -4026,7 +4089,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./decimalFormatter":30,"lodash.isnan":45}],35:[function(require,module,exports){
+},{"./decimalFormatter":31,"lodash.isnan":46}],36:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4102,7 +4165,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 var Converter = require('./convert');
@@ -4142,7 +4205,7 @@ module.exports = function () {
     };
 }();
 
-},{"./convert":29}],37:[function(require,module,exports){
+},{"./convert":30}],38:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4159,7 +4222,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4415,7 +4478,7 @@ module.exports = function () {
 	return symbolParser;
 }();
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4534,7 +4597,7 @@ module.exports = function () {
 	}
 }();
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4571,7 +4634,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 'use strict';
 
 var isCallable = require('is-callable');
@@ -4635,7 +4698,7 @@ var forEach = function forEach(list, iterator, thisArg) {
 
 module.exports = forEach;
 
-},{"is-callable":43}],42:[function(require,module,exports){
+},{"is-callable":44}],43:[function(require,module,exports){
 (function (global){
 var win;
 
@@ -4652,7 +4715,7 @@ if (typeof window !== "undefined") {
 module.exports = win;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 'use strict';
 
 var fnToStr = Function.prototype.toString;
@@ -4691,7 +4754,7 @@ module.exports = function isCallable(value) {
 	return strClass === fnClass || strClass === genClass;
 };
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -4708,7 +4771,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -4820,7 +4883,7 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 var trim = require('trim')
   , forEach = require('for-each')
   , isArray = function(arg) {
@@ -4852,7 +4915,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":41,"trim":47}],47:[function(require,module,exports){
+},{"for-each":42,"trim":48}],48:[function(require,module,exports){
 
 exports = module.exports = trim;
 
@@ -4868,7 +4931,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 "use strict";
 var window = require("global/window")
 var isFunction = require("is-function")
@@ -5108,7 +5171,7 @@ function getXml(xhr) {
 
 function noop() {}
 
-},{"global/window":42,"is-function":44,"parse-headers":46,"xtend":52}],49:[function(require,module,exports){
+},{"global/window":43,"is-function":45,"parse-headers":47,"xtend":53}],50:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -5361,7 +5424,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":50,"./sax":51}],50:[function(require,module,exports){
+},{"./dom":51,"./sax":52}],51:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -6607,7 +6670,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -7242,7 +7305,7 @@ function split(source,start){
 exports.XMLReader = XMLReader;
 
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
