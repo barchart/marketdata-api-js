@@ -4,8 +4,7 @@
 var version = require('./../../../lib/index').version;
 
 var Connection = require('./../../../lib/connection/websocket/Connection'),
-    symbolResolver = require('./../../../lib/util/symbolResolver'),
-    snapshotProvider = require('./../../../lib/util/snapshotProvider');
+    symbolResolver = require('./../../../lib/util/symbolResolver');
 
 module.exports = function () {
 	'use strict';
@@ -16,8 +15,8 @@ module.exports = function () {
 
 		that.server = ko.observable('qsws-us-e-02.aws.barchart.com');
 
-		that.username = ko.observable('mikecv_p');
-		that.password = ko.observable('barchart');
+		that.username = ko.observable('');
+		that.password = ko.observable('');
 
 		that.symbol = ko.observable('');
 		that.symbolFocus = ko.observable(false);
@@ -156,13 +155,6 @@ module.exports = function () {
 				model.setMarketUpdateHandler(handleMarketUpdate);
 
 				connection.on('marketUpdate', handleMarketUpdate, s);
-
-				/*
-    snapshotProvider('PLATTS:AAVSV00C', 'mikecv_p', 'barchart')
-    	.then((response) => {
-    		console.log(response);
-    	});
-    */
 
 				that.rows.push(model);
 			}
@@ -377,7 +369,7 @@ module.exports = function () {
 	});
 }();
 
-},{"./../../../lib/connection/websocket/Connection":6,"./../../../lib/index":7,"./../../../lib/util/snapshotProvider":26,"./../../../lib/util/symbolResolver":27}],2:[function(require,module,exports){
+},{"./../../../lib/connection/websocket/Connection":6,"./../../../lib/index":7,"./../../../lib/util/symbolResolver":27}],2:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -1062,8 +1054,6 @@ module.exports = function () {
 				throw new Error("Wrong number of arguments. Must pass in an eventId and handler.");
 			}
 
-			debugger;
-
 			var eventId = arguments[0];
 			var handler = arguments[1];
 
@@ -1547,8 +1537,6 @@ module.exports = function () {
 			if (__state === state.authenticated) {
 				var snapshotBatches = getSymbolBatch(getProducerSymbols([__listeners.marketUpdate]), getIsSnapshotSymbol);
 
-				debugger;
-
 				snapshotBatches.forEach(function (batch) {
 					processSnapshots(batch);
 				});
@@ -1771,7 +1759,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.23'
+		version: '3.1.24'
 	};
 }();
 
