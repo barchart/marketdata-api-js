@@ -1084,6 +1084,10 @@ module.exports = function () {
 
 				listenerMap[consumerSymbol] = removeHandler(listenerMap[consumerSymbol] || []);
 
+				if (listenerMap[consumerSymbol].length === 0) {
+					delete listenerMap[consumerSymbol];
+				}
+
 				currentProducerListenerExists = getProducerListenerExists(producerSymbol, listenerMaps);
 
 				if (previousProducerListenerExists && !currentProducerListenerExists) {
@@ -1523,7 +1527,7 @@ module.exports = function () {
 					}).join(','));
 				});
 
-				var snapshotBatches = getSymbolBatch(getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]), getIsSnapshotSymbol);
+				var snapshotBatches = getSymbolBatch(getProducerSymbols([__listeners.marketUpdate]), getIsSnapshotSymbol);
 
 				snapshotBatches.forEach(function (batch) {
 					processSnapshots(batch);
@@ -1759,7 +1763,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.25'
+		version: '3.1.26'
 	};
 }();
 
