@@ -157,9 +157,12 @@ module.exports = function () {
 
 				connection.on('marketUpdate', handleMarketUpdate, s);
 
-				snapshotProvider(s).then(function (response) {
-					console.log(response);
-				});
+				/*
+    snapshotProvider('PLATTS:AAVSV00C', 'mikecv_p', 'barchart')
+    	.then((response) => {
+    		console.log(response);
+    	});
+    */
 
 				that.rows.push(model);
 			}
@@ -714,6 +717,8 @@ var array = require('./../../common/lang/array'),
 var ConnectionBase = require('./../ConnectionBase'),
     parseMessage = require('./../../messageParser/parseMessage');
 
+var snapshotProvider = require('./../../util/snapshotProvider');
+
 module.exports = function () {
 	'use strict';
 
@@ -1057,13 +1062,15 @@ module.exports = function () {
 				throw new Error("Wrong number of arguments. Must pass in an eventId and handler.");
 			}
 
+			debugger;
+
 			var eventId = arguments[0];
 			var handler = arguments[1];
 
 			var symbol = void 0;
 
 			if (arguments.length > 2) {
-				symbol = arguments[2];
+				symbol = arguments[2].toUpperCase();
 			} else {
 				symbol = null;
 			}
@@ -1147,7 +1154,7 @@ module.exports = function () {
 			var symbol = void 0;
 
 			if (arguments.length > 2) {
-				symbol = arguments[2];
+				symbol = arguments[2].toUpperCase();
 			} else {
 				symbol = null;
 			}
@@ -1454,8 +1461,6 @@ module.exports = function () {
 									break;
 							}
 
-							var uniqueSymbols = array.unique(task.symbols);
-
 							var batchSize = void 0;
 
 							if (task.id === 'MD_GO' || task.id === 'MD_STOP') {
@@ -1464,12 +1469,25 @@ module.exports = function () {
 								batchSize = 250;
 							}
 
-							while (uniqueSymbols.length > 0) {
-								var batch = uniqueSymbols.splice(0, batchSize);
+							var uniqueSymbols = array.unique(task.symbols);
+
+							var streamingSymbols = uniqueSymbols.filter(getIsStreamingSymbol);
+							var snapshotSymbols = uniqueSymbols.filter(getIsSnapshotSymbol);
+
+							while (streamingSymbols.length > 0) {
+								var batch = streamingSymbols.splice(0, batchSize);
 
 								__commands.push(command + ' ' + batch.map(function (s) {
 									return s + '=' + suffix;
 								}).join(','));
+							}
+
+							if (task.id === 'MU_GO' || task.id === 'MU_REFRESH') {
+								while (snapshotSymbols.length > 0) {
+									var _batch = snapshotSymbols.splice(0, batchSize);
+
+									processSnapshots(_batch);
+								}
 							}
 						})();
 					}
@@ -1487,17 +1505,7 @@ module.exports = function () {
 			if (__state === state.authenticated && __commands.length === 0) {
 				__tasks = [];
 
-				var getBatches = function getBatches(symbols) {
-					var partitions = [];
-
-					while (symbols.length !== 0) {
-						partitions.push(symbols.splice(0, 250));
-					}
-
-					return partitions;
-				};
-
-				var quoteBatches = getBatches(getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]));
+				var quoteBatches = getSymbolBatch(getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]), getIsStreamingSymbol);
 
 				quoteBatches.forEach(function (batch) {
 					__commands.push('GO ' + batch.map(function (s) {
@@ -1505,7 +1513,7 @@ module.exports = function () {
 					}).join(','));
 				});
 
-				var bookBatches = getBatches(getProducerSymbols([__listeners.marketDepth]));
+				var bookBatches = getSymbolBatch(getProducerSymbols([__listeners.marketDepth]), getIsStreamingSymbol);
 
 				bookBatches.forEach(function (batch) {
 					__commands.push('GO ' + batch.map(function (s) {
@@ -1513,20 +1521,54 @@ module.exports = function () {
 					}).join(','));
 				});
 
-				var profileBatches = getBatches(array.unique(object.keys(__pendingProfileLookups)).filter(function (s) {
+				var profileBatches = getSymbolBatch(array.unique(object.keys(__pendingProfileLookups)).filter(function (s) {
 					return !quoteBatches.some(function (q) {
 						return q === s;
 					});
-				}));
+				}), getIsStreamingSymbol);
 
 				profileBatches.forEach(function (batch) {
 					__commands.push('GO ' + batch.map(function (s) {
 						return s + '=s';
 					}).join(','));
 				});
+
+				var snapshotBatches = getSymbolBatch(getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]), getIsSnapshotSymbol);
+
+				snapshotBatches.forEach(function (batch) {
+					processSnapshots(batch);
+				});
 			}
 
 			resetTaskPump(true);
+		}
+
+		function pumpSnapshotTasks() {
+			if (__state === state.authenticated) {
+				var snapshotBatches = getSymbolBatch(getProducerSymbols([__listeners.marketUpdate]), getIsSnapshotSymbol);
+
+				debugger;
+
+				snapshotBatches.forEach(function (batch) {
+					processSnapshots(batch);
+				});
+			}
+
+			setTimeout(pumpSnapshotTasks, 10000);
+		}
+
+		function processSnapshots(symbols) {
+			if (symbols.length === 0) {
+				return;
+			}
+
+			return snapshotProvider(symbols, __loginInfo.username, __loginInfo.password).then(function (quotes) {
+				quotes.forEach(function (message) {
+					return processMessage(message);
+				});
+			}).catch(function (e) {
+				console.log('Failed to get quote snapshots', e);
+			});
 		}
 
 		function setPollingFrequency(pollingFrequency) {
@@ -1569,6 +1611,7 @@ module.exports = function () {
 		setTimeout(pumpMessages, 125);
 		setTimeout(processFeedMessages, 125);
 		setTimeout(resetTaskPump, 250);
+		setTimeout(pumpSnapshotTasks, 10000);
 
 		function initializeConnection(server, username, password) {
 			__suppressReconnect = false;
@@ -1606,6 +1649,25 @@ module.exports = function () {
 			__pendingProfileLookups[producerSymbol] = pendingConsumerSymbols;
 
 			addTask('P_SNAPSHOT', producerSymbol);
+		}
+
+		function getIsStreamingSymbol(symbol) {
+			return symbol.indexOf(':') < 0;
+		}
+
+		function getIsSnapshotSymbol(symbol) {
+			return !(symbol.indexOf(':') < 0);
+		}
+
+		function getSymbolBatch(symbols, predicate) {
+			var candidates = symbols.filter(predicate);
+			var partitions = [];
+
+			while (candidates.length !== 0) {
+				partitions.push(candidates.splice(0, 250));
+			}
+
+			return partitions;
 		}
 
 		return {
@@ -1687,7 +1749,7 @@ module.exports = function () {
 	return Connection;
 }();
 
-},{"./../../common/lang/array":2,"./../../common/lang/object":3,"./../../messageParser/parseMessage":14,"./../ConnectionBase":4,"@barchart/marketdata-utilities-js":32}],7:[function(require,module,exports){
+},{"./../../common/lang/array":2,"./../../common/lang/object":3,"./../../messageParser/parseMessage":14,"./../../util/snapshotProvider":26,"./../ConnectionBase":4,"@barchart/marketdata-utilities-js":32}],7:[function(require,module,exports){
 'use strict';
 
 var connection = require('./connection/index'),
@@ -3014,6 +3076,7 @@ var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode'),
     monthCodes = require('./monthCodes'),
     parseSymbolType = require('./parseSymbolType'),
     priceFormatter = require('./priceFormatter'),
+    snapshotProvider = require('./snapshotProvider'),
     symbolResolver = require('./symbolResolver'),
     timeFormatter = require('./timeFormatter');
 
@@ -3028,6 +3091,7 @@ module.exports = function () {
 		decimalFormatter: decimalFormatter,
 		monthCodes: monthCodes,
 		parseSymbolType: parseSymbolType,
+		snapshotProvider: snapshotProvider,
 		symbolResolver: symbolResolver,
 
 		BaseCode2UnitCode: convertBaseCodeToUnitCode,
@@ -3041,7 +3105,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convertBaseCodeToUnitCode":17,"./convertDateToDayCode":18,"./convertDayCodeToNumber":19,"./convertUnitCodeToBaseCode":20,"./decimalFormatter":21,"./monthCodes":23,"./parseSymbolType":24,"./priceFormatter":25,"./symbolResolver":27,"./timeFormatter":28}],23:[function(require,module,exports){
+},{"./convertBaseCodeToUnitCode":17,"./convertDateToDayCode":18,"./convertDayCodeToNumber":19,"./convertUnitCodeToBaseCode":20,"./decimalFormatter":21,"./monthCodes":23,"./parseSymbolType":24,"./priceFormatter":25,"./snapshotProvider":26,"./symbolResolver":27,"./timeFormatter":28}],23:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3079,10 +3143,25 @@ module.exports = function () {
 
 var xhr = require('xhr');
 
+var convertDayCodeToNumber = require('./convertDayCodeToNumber');
+
 module.exports = function () {
 	'use strict';
 
-	return function (symbols) {
+	var ADDITIONAL_FIELDS = ['exchange', 'bid', 'bidSize', 'ask', 'askSize', 'tradeSize', 'numTrades', 'settlement'];
+
+	/**
+  * Executes an HTTP request for a quote snapshot(s) and returns a
+  * promise of quote refresh message(s) (suitable for processing by
+  * the {@link MarketState#processMessage} function).
+  *
+  * @function
+  * @param {String|Array.<String>} symbols
+  * @param {String} username
+  * @param {String} password
+  * @returns {Promise.<Array>}
+  */
+	return function (symbols, username, password) {
 		return Promise.resolve().then(function () {
 			var symbolsToUse = void 0;
 
@@ -3100,10 +3179,18 @@ module.exports = function () {
 				throw new Error('The "symbols" can only contain strings.');
 			}
 
+			if (typeof username !== 'string') {
+				throw new Error('The "username" argument must be a string.');
+			}
+
+			if (typeof password !== 'string') {
+				throw new Error('The "password" argument must be a string.');
+			}
+
 			return new Promise(function (resolveCallback, rejectCallback) {
 				try {
 					var options = {
-						url: 'https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getQuote.json?symbols=' + encodeURIComponent(symbolsToUse.join()),
+						url: 'https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getQuote.json?username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password) + '&symbols=' + encodeURIComponent(symbolsToUse.join()) + '&fields=' + encodeURIComponent(ADDITIONAL_FIELDS.join()),
 						method: 'GET'
 					};
 
@@ -3114,7 +3201,44 @@ module.exports = function () {
 							} else if (response.statusCode !== 200) {
 								rejectCallback('The server returned an HTTP ' + response.statusCode + ' response code.');
 							} else {
-								resolveCallback(JSON.parse(body).results);
+								var messages = JSON.parse(body).results.map(function (result) {
+									var message = {};
+
+									message.type = 'REFRESH_QUOTE';
+
+									message.symbol = result.symbol.toUpperCase();
+									message.name = result.name;
+									message.exchange = result.exchange;
+									message.unitcode = result.unitCode;
+
+									message.day = result.dayCode;
+									message.dayNum = convertDayCodeToNumber(result.dayCode);
+									message.flag = result.flag;
+									message.mode = result.mode;
+
+									message.lastPrice = result.lastPrice;
+									message.tradeSize = result.tradeSize;
+									message.numberOfTrades = result.numTrades;
+
+									message.bidPrice = result.bid;
+									message.bidSize = result.bidSize;
+									message.askPrice = result.ask;
+									message.askSize = result.askSize;
+
+									message.settlementPrice = result.settlement;
+
+									message.openPrice = result.open;
+									message.highPrice = result.high;
+									message.lowPrice = result.low;
+
+									message.volume = result.volume;
+
+									message.tradeTime = result.tradeTimestamp;
+
+									return message;
+								});
+
+								resolveCallback(messages);
 							}
 						} catch (processError) {
 							rejectCallback(processError);
@@ -3128,7 +3252,7 @@ module.exports = function () {
 	};
 }();
 
-},{"xhr":49}],27:[function(require,module,exports){
+},{"./convertDayCodeToNumber":19,"xhr":49}],27:[function(require,module,exports){
 'use strict';
 
 var xhr = require('xhr');
@@ -3164,22 +3288,26 @@ module.exports = function () {
 					};
 
 					xhr(options, function (error, response, body) {
-						if (error) {
-							rejectCallback(error);
-						} else if (response.statusCode !== 200) {
-							rejectCallback('The server returned an HTTP ' + response.statusCode + ' response code.');
-						} else {
-							var _response = JSON.parse(body);
-
-							if (!_response || !_response.instrument || !_response.instrument.symbol) {
-								rejectCallback('The server was unable to resolve symbol ' + symbol + '.');
+						try {
+							if (error) {
+								rejectCallback(error);
+							} else if (response.statusCode !== 200) {
+								rejectCallback('The server returned an HTTP ' + response.statusCode + ' response code.');
 							} else {
-								resolveCallback(_response.instrument.symbol);
+								var _response = JSON.parse(body);
+
+								if (!_response || !_response.instrument || !_response.instrument.symbol) {
+									rejectCallback('The server was unable to resolve symbol ' + symbol + '.');
+								} else {
+									resolveCallback(_response.instrument.symbol);
+								}
 							}
+						} catch (processError) {
+							rejectCallback(processError);
 						}
 					});
-				} catch (e) {
-					rejectCallback(e);
+				} catch (executeError) {
+					rejectCallback(executeError);
 				}
 			});
 		});

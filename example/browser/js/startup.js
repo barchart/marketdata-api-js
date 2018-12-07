@@ -1,8 +1,7 @@
 const version = require('./../../../lib/index').version;
 
 const Connection = require('./../../../lib/connection/websocket/Connection'),
-	symbolResolver = require('./../../../lib/util/symbolResolver'),
-	snapshotProvider = require('./../../../lib/util/snapshotProvider');
+	symbolResolver = require('./../../../lib/util/symbolResolver');
 
 module.exports = (() => {
 	'use strict';
@@ -13,8 +12,8 @@ module.exports = (() => {
 
 		that.server = ko.observable('qsws-us-e-02.aws.barchart.com');
 
-		that.username = ko.observable('mikecv_p');
-		that.password = ko.observable('barchart');
+		that.username = ko.observable('');
+		that.password = ko.observable('');
 
 		that.symbol = ko.observable('');
 		that.symbolFocus = ko.observable(false);
@@ -153,11 +152,6 @@ module.exports = (() => {
 				model.setMarketUpdateHandler(handleMarketUpdate);
 
 				connection.on('marketUpdate', handleMarketUpdate, s);
-
-				snapshotProvider(s)
-					.then((response) => {
-						console.log(response);
-					});
 
 				that.rows.push(model);
 			}
