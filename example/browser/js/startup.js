@@ -175,11 +175,11 @@ module.exports = (() => {
 			symbolResolver(symbol)
 				.then(function(resolvedSymbol) {
 					return connection.getMarketState().getProfile(resolvedSymbol)
-					.then(function(profile) {
-						if (that.activeTemplate() === 'profile-template') {
-							that.showProfile(profile);
-						}
-					});
+						.then(function(profile) {
+							if (that.activeTemplate() === 'profile-template') {
+								that.showProfile(profile);
+							}
+						});
 				});
 		};
 
@@ -241,17 +241,17 @@ module.exports = (() => {
 
 			if (!model.getCumulativeVolumeHandler()) {
 				connection.getMarketState().getCumulativeVolume(symbol)
-				.then(function(cumulativeVolume) {
-					var items = cumulativeVolume.toArray();
+					.then(function(cumulativeVolume) {
+						var items = cumulativeVolume.toArray();
 
-					for (var i = 0; i < items.length; i++) {
-						var item = items[i];
+						for (var i = 0; i < items.length; i++) {
+							var item = items[i];
 
-						priceLevels.push(new PriceLevelModel(item.price, item.volume));
-					}
+							priceLevels.push(new PriceLevelModel(item.price, item.volume));
+						}
 
-					model.cumulativeVolumeReady(true);
-				});
+						model.cumulativeVolumeReady(true);
+					});
 
 				var handleCumulativeVolume = function(message) {
 					if (!model.cumulativeVolumeReady()) {
