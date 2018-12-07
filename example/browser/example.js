@@ -1542,7 +1542,7 @@ module.exports = function () {
 				});
 			}
 
-			setTimeout(pumpSnapshotTasks, 10000);
+			setTimeout(pumpSnapshotTasks, 3600000);
 		}
 
 		function processSnapshots(symbols) {
@@ -1599,7 +1599,7 @@ module.exports = function () {
 		setTimeout(pumpMessages, 125);
 		setTimeout(processFeedMessages, 125);
 		setTimeout(resetTaskPump, 250);
-		setTimeout(pumpSnapshotTasks, 10000);
+		setTimeout(pumpSnapshotTasks, 3600000);
 
 		function initializeConnection(server, username, password) {
 			__suppressReconnect = false;
@@ -1759,7 +1759,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.24'
+		version: '3.1.25'
 	};
 }();
 
