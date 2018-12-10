@@ -1763,7 +1763,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.26'
+		version: '3.1.27'
 	};
 }();
 
@@ -3225,7 +3225,9 @@ module.exports = function () {
 
 									message.volume = result.volume;
 
-									message.tradeTime = result.tradeTimestamp;
+									message.tradeTime = new Date(result.tradeTimestamp);
+
+									message.lastUpdate = message.tradeTime;
 
 									return message;
 								});
