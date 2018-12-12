@@ -1763,7 +1763,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.28'
+		version: '3.1.29'
 	};
 }();
 
@@ -2361,7 +2361,7 @@ module.exports = function () {
 					p = new Profile(symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement);
 
 					if (!q.profile) {
-						q.profile = profile;
+						q.profile = p;
 					}
 
 					q.message = message;
