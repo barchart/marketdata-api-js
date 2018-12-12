@@ -1763,7 +1763,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.27'
+		version: '3.1.28'
 	};
 }();
 
@@ -2169,7 +2169,7 @@ module.exports = function () {
 				var producerProfile = Profile.Profiles[producerSymbol];
 
 				if (producerProfile) {
-					p = new Profile(symbol, producerProfile.name, producerProfile.exchange, producerProfile.unitcode, producerProfile.pointValue, producerProfile.tickIncrement);
+					p = new Profile(symbol, producerProfile.name, producerProfile.exchange, producerProfile.unitCode, producerProfile.pointValue, producerProfile.tickIncrement);
 				}
 			}
 
@@ -2359,6 +2359,10 @@ module.exports = function () {
 					break;
 				case 'REFRESH_QUOTE':
 					p = new Profile(symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement);
+
+					if (!q.profile) {
+						q.profile = profile;
+					}
 
 					q.message = message;
 					q.flag = message.flag;
@@ -2916,6 +2920,8 @@ module.exports = function () {
     * @property {number} previousPrice - price from the previous session
     */
 			this.previousPrice = null;
+
+			this.profile = null;
 
 			this.time = null;
 			this.ticks = [];
