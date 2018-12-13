@@ -146,6 +146,8 @@ module.exports = (() => {
 				var model = new RowModel(s);
 
 				var handleMarketUpdate = function(message) {
+					console.log(connection.getMarketState().getQuote(s).profile);
+
 					model.quote(connection.getMarketState().getQuote(s));
 				};
 
