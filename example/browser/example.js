@@ -149,8 +149,6 @@ module.exports = function () {
 				var model = new RowModel(s);
 
 				var handleMarketUpdate = function handleMarketUpdate(message) {
-					console.log(connection.getMarketState().getQuote(s).profile);
-
 					model.quote(connection.getMarketState().getQuote(s));
 				};
 
@@ -831,6 +829,8 @@ module.exports = function () {
 		}
 
 		function enqueueGoTasks() {
+			debugger;
+
 			getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]).forEach(function (symbol) {
 				addTask('MU_GO', symbol);
 			});
@@ -867,23 +867,25 @@ module.exports = function () {
 				__state = state.disconnected;
 
 				__connection = new WebSocket('wss://' + __loginInfo.server + '/jerq');
-				__connection.binaryType = "arraybuffer";
+				__connection.binaryType = 'arraybuffer';
 
 				if (!__watchdog) {
 					__watchdog = _window.setInterval(function () {
 						if (!__lastMessageTime && __connection) {
-							/* we should have seen a message in 10 seconds */
-							/* trigger close event to handle reconnect */
-							/* sending logout if we can to prevent CIP lockouts */
-							console.log(new Date() + ' bouncing, heartbeat timeout');
+							// we should have seen a message in 10 seconds
+							// trigger close event to handle reconnect
+							// sending LOGOUT if we can to prevent CIP lockouts
+
+							console.log('Bouncing: heartbeat timeout');
 
 							try {
 								if (__connection.readyState === WebSocket.OPEN) {
 									__connection.send('LOGOUT\r\n');
 								}
+
 								__connection.close();
 							} catch (e) {
-								console.warn('failed to send LOGOUT', e);
+								console.warn('Send LOGOUT failed', e);
 							}
 						}
 
@@ -892,7 +894,7 @@ module.exports = function () {
 				}
 
 				__connection.onclose = function (evt) {
-					console.warn(new Date() + ' connection closed. pending messages', __networkMessages);
+					console.warn('Connection closed with pending messages', __networkMessages);
 
 					__connection.onclose = null;
 					__connection.onopen = null;
@@ -904,9 +906,9 @@ module.exports = function () {
 					// there is a race condition. it's possible that the setTimeout 
 					// that triggers pumpMessages will never fire, never triggering badLogin
 					// we do not reconnect if jerq explicitly says, - Login Failed.
-					//
+
 					if (__networkMessages.length === 1 && __networkMessages[0].indexOf('-') === 0) {
-						console.warn('not triggering reconnect: bad credentials');
+						console.warn('Reconnect aborted : Bad credentials');
 						disconnect();
 						return;
 					}
@@ -916,7 +918,7 @@ module.exports = function () {
 					broadcastEvent('events', { event: 'disconnect' });
 
 					if (__suppressReconnect) {
-						console.warn('not triggering reconnect: user has logged out.');
+						console.warn('Reconnect skipped: User has logged out.');
 						return;
 					}
 
@@ -945,10 +947,10 @@ module.exports = function () {
 				};
 
 				__connection.onopen = function (evt) {
-					console.log(new Date() + ' connection open.');
+					console.log('Connection open');
 				};
 			} else {
-				console.warn('Websockets are not supported by this browser.');
+				console.warn('Connection failed : websockets are not supported by this browser.');
 			}
 		}
 
@@ -985,7 +987,7 @@ module.exports = function () {
 				lines.forEach(function (line) {
 					if (line == '+++') {
 						__state = state.authenticating;
-						__commands.splice(0, 0, 'LOGIN ' + __loginInfo.username + ':' + __loginInfo.password + " VERSION=" + _API_VERSION + "\r\n");
+						__commands.unshift('LOGIN ' + __loginInfo.username + ':' + __loginInfo.password + ' VERSION=' + _API_VERSION + '\r\n');
 					}
 				});
 			} else if (__state === state.authenticating) {
@@ -1007,7 +1009,9 @@ module.exports = function () {
 
 		function getProducerSymbols(listenerMaps) {
 			var producerSymbols = listenerMaps.reduce(function (symbols, listenerMap) {
-				return symbols.concat(object.keys(listenerMap));
+				return symbols.concat(object.keys(listenerMap).map(function (consumerSymbol) {
+					return utilities.symbolParser.getProducerSymbol(consumerSymbol);
+				}));
 			}, []);
 
 			return array.unique(producerSymbols);
@@ -1053,7 +1057,7 @@ module.exports = function () {
 
 		function off() {
 			if (arguments.length < 2) {
-				throw new Error("Wrong number of arguments. Must pass in an eventId and handler.");
+				throw new Error('Wrong number of arguments. Must pass in an eventId and handler.');
 			}
 
 			var eventId = arguments[0];
@@ -1109,7 +1113,7 @@ module.exports = function () {
 						throw new Error("Invalid arguments. Invoke as follows: off('marketDepth', handler, symbol)");
 					}
 
-					unsubscribe("MD_STOP", __listeners.marketDepth, []);
+					unsubscribe('MD_STOP', __listeners.marketDepth, []);
 
 					break;
 				case 'marketUpdate':
@@ -1117,7 +1121,7 @@ module.exports = function () {
 						throw new Error("Invalid arguments. Invoke as follows: off('marketUpdate', handler, symbol)");
 					}
 
-					unsubscribe("MU_STOP", __listeners.marketUpdate, [__listeners.cumulativeVolume]);
+					unsubscribe('MU_STOP', __listeners.marketUpdate, [__listeners.cumulativeVolume]);
 
 					break;
 				case 'cumulativeVolume':
@@ -1125,7 +1129,7 @@ module.exports = function () {
 						throw new Error("Invalid arguments. Invoke as follows: off('cumulativeVolume', handler, symbol)");
 					}
 
-					unsubscribe("MU_STOP", __listeners.cumulativeVolume, [__listeners.marketUpdate]);
+					unsubscribe('MU_STOP', __listeners.cumulativeVolume, [__listeners.marketUpdate]);
 
 					__marketState.getCumulativeVolume(symbol, function (container) {
 						container.off('events', handler);
@@ -1141,7 +1145,7 @@ module.exports = function () {
 
 		function on() {
 			if (arguments.length < 2) {
-				throw new Error("Bad number of arguments. Must pass in an eventId and handler.");
+				throw new Error('Bad number of arguments. Must pass in an eventId and handler.');
 			}
 
 			var eventId = arguments[0];
@@ -1182,6 +1186,8 @@ module.exports = function () {
 
 				var producerListenerExists = getProducerListenerExists(producerSymbol, sharedListenerMaps.concat(listenerMap));
 
+				debugger;
+
 				listenerMap[consumerSymbol] = addListener(listenerMap[consumerSymbol]);
 
 				if (producerListenerExists) {
@@ -1202,7 +1208,7 @@ module.exports = function () {
 						throw new Error("Invalid arguments. Invoke as follows: on('marketDepth', handler, symbol)");
 					}
 
-					subscribe("MD_GO", "MD_REFRESH", __listeners.marketDepth, []);
+					subscribe('MD_GO', 'MD_REFRESH', __listeners.marketDepth, []);
 
 					if (__marketState.getBook(symbol)) {
 						handler({ type: 'INIT', symbol: symbol });
@@ -1214,7 +1220,7 @@ module.exports = function () {
 						throw new Error("Invalid arguments. Invoke as follows: on('marketUpdate', handler, symbol)");
 					}
 
-					subscribe("MU_GO", "MU_REFRESH", __listeners.marketUpdate, [__listeners.cumulativeVolume]);
+					subscribe('MU_GO', 'MU_REFRESH', __listeners.marketUpdate, [__listeners.cumulativeVolume]);
 
 					if (__marketState.getQuote(symbol)) {
 						handler({ type: 'INIT', symbol: symbol });
@@ -1226,7 +1232,7 @@ module.exports = function () {
 						throw new Error("Invalid arguments. Invoke as follows: on('cumulativeVolume', handler, symbol)");
 					}
 
-					subscribe("MU_GO", "MU_REFRESH", __listeners.cumulativeVolume, [__listeners.marketUpdate]);
+					subscribe('MU_GO', 'MU_REFRESH', __listeners.cumulativeVolume, [__listeners.marketUpdate]);
 
 					__marketState.getCumulativeVolume(symbol, function (container) {
 						container.on('events', handler);
@@ -1765,7 +1771,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.29'
+		version: '3.1.30'
 	};
 }();
 
