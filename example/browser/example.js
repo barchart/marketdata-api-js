@@ -829,8 +829,6 @@ module.exports = function () {
 		}
 
 		function enqueueGoTasks() {
-			debugger;
-
 			getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]).forEach(function (symbol) {
 				addTask('MU_GO', symbol);
 			});
@@ -1185,8 +1183,6 @@ module.exports = function () {
 				addKnownConsumerSymbol(consumerSymbol, producerSymbol);
 
 				var producerListenerExists = getProducerListenerExists(producerSymbol, sharedListenerMaps.concat(listenerMap));
-
-				debugger;
 
 				listenerMap[consumerSymbol] = addListener(listenerMap[consumerSymbol]);
 
@@ -1771,7 +1767,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.30'
+		version: '3.1.31'
 	};
 }();
 
