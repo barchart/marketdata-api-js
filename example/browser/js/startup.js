@@ -12,8 +12,8 @@ module.exports = (() => {
 
 		that.server = ko.observable('qsws-us-e-02.aws.barchart.com');
 
-		that.username = ko.observable('JERQ1');
-		that.password = ko.observable('barchart');
+		that.username = ko.observable('');
+		that.password = ko.observable('');
 
 		that.symbol = ko.observable('');
 		that.symbolFocus = ko.observable(false);
