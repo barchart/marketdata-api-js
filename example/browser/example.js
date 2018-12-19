@@ -512,7 +512,7 @@ module.exports = function () {
     * @public
     * @param {Subscription.EventType} eventType
     * @param {function} callback - notified each time the event occurs
-    * @param {...string=} symbols - one or more symbols, if applicable to the given {@link Subscription.EventType}
+    * @param {String=} symbol - A symbol, if applicable, to the given {@link Subscription.EventType}
     */
 
 		}, {
@@ -539,7 +539,7 @@ module.exports = function () {
     * @public
     * @param {Subscription.EventType} eventType - the {@link Subscription.EventType} which was passed to {@link ConnectionBase#on}
     * @param {function} callback - the callback which was passed to {@link ConnectionBase#on}
-    * @param {...string=} symbols - one or more symbols, if applicable to the given {@link Subscription.EventType}
+    * @param {String=} symbol - A symbol, if applicable, to the given {@link Subscription.EventType}
     */
 
 		}, {
@@ -743,24 +743,27 @@ module.exports = function () {
 	};
 
 	var _RECONNECT_INTERVAL = 5000;
-	var _HEARTBEAT_INTERVAL = 10000;
+	var _WATCHDOG_INTERVAL = 10000;
 
 	function ConnectionInternal(marketState) {
 		var __marketState = marketState;
 
-		var __state = state.disconnected;
-		var __suppressReconnect = false;
+		var __connection = null;
+		var __connectionState = state.disconnected;
 
+		var __reconnectAllowed = false;
 		var __pollingFrequency = null;
 
-		var __connection = null;
-		var __watchdog = null;
-		var __lastMessageTime = null;
+		var __watchdogToken = null;
+		var __watchdogAwake = false;
 
-		var __activeConsumerSymbols = {};
+		var __inboundMessages = [];
+		var __marketMessages = [];
+		var __pendingTasks = [];
+		var __outboundMessages = [];
+
 		var __knownConsumerSymbols = {};
-
-		var __pendingProfileLookups = {};
+		var __pendingProfileSymbols = {};
 
 		var __listeners = {
 			marketDepth: {},
@@ -769,11 +772,6 @@ module.exports = function () {
 			events: [],
 			timestamp: []
 		};
-
-		var __tasks = [];
-		var __commands = [];
-		var __feedMessages = [];
-		var __networkMessages = [];
 
 		var __loginInfo = {
 			username: null,
@@ -787,374 +785,295 @@ module.exports = function () {
 			__decoder = new TextDecoder();
 		} else {
 			__decoder = {
-				decode: function decode(arr) {
-					return String.fromCharCode.apply(null, new Uint8Array(arr));
+				decode: function decode(data) {
+					return String.fromCharCode.apply(null, new Uint8Array(data));
 				}
 			};
 		}
 
-		function addTask(id, symbol) {
-			var lastIndex = __tasks.length - 1;
+		//
+		// Functions used to configure the connection.
+		//
 
-			if (!(lastIndex < 0) && __tasks[lastIndex].id === id) {
-				__tasks[lastIndex].symbols.push(symbol);
-			} else {
-				__tasks.push({ id: id, symbols: [symbol] });
+		/**
+   * Changes the subscription mode to use either "polling" or "streaming" mode. To
+   * use "polling" mode, pass the number of milliseconds -- any number less than 1,000
+   * will be ignored. To use "streaming" mode, pass a null value or an undefined value.
+   *
+   * @private
+   * @param {Number|undefined|null} pollingFrequency
+   */
+		function setPollingFrequency(pollingFrequency) {
+			if (pollingFrequency === null || pollingFrequency === undefined) {
+				__pollingFrequency = null;
+			} else if (typeof pollingFrequency === 'number' && !isNaN(pollingFrequency) && !(pollingFrequency < 1000)) {
+				__pollingFrequency = pollingFrequency;
 			}
 		}
 
-		function broadcastEvent(eventId, message) {
-			var listeners = void 0;
+		//
+		// Functions for connecting to and disconnecting from JERQ, monitoring
+		// established connections, and handling involuntary disconnects.
+		//
 
-			switch (eventId) {
-				case 'events':
-					listeners = __listeners.events;
-					break;
-				case 'marketDepth':
-					listeners = __listeners.marketDepth[message.symbol];
-					break;
-				case 'marketUpdate':
-					listeners = __listeners.marketUpdate[message.symbol];
-					break;
-				case 'timestamp':
-					listeners = __listeners.timestamp;
-					break;
-			}
+		/**
+   * Attempts to establish a connection to JERQ, setting the flag to allow
+   * reconnection if an involuntary disconnect occurs.
+   *
+   * @private
+   * @param {String} server
+   * @param {String} username
+   * @param {String} password
+   */
+		function initializeConnection(server, username, password) {
+			__reconnectAllowed = true;
 
-			if (listeners) {
-				listeners.forEach(function (listener) {
-					return listener(message);
-				});
-			}
+			connect(server, username, password);
 		}
 
-		function enqueueGoTasks() {
-			getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]).forEach(function (symbol) {
-				addTask('MU_GO', symbol);
-			});
+		/**
+   * Disconnects from JERQ, setting the flag to prevent further reconnect attempts and
+   * clearing internal subscription state.
+   *
+   * @private
+   */
+		function terminateConnection() {
+			__reconnectAllowed = false;
 
-			getProducerSymbols([__listeners.marketDepth]).forEach(function (symbol) {
-				addTask('MD_GO', symbol);
-			});
+			__loginInfo.username = null;
+			__loginInfo.password = null;
+			__loginInfo.server = null;
+
+			__knownConsumerSymbols = {};
+			__pendingProfileSymbols = {};
+
+			__listeners.marketDepth = {};
+			__listeners.marketUpdate = {};
+			__listeners.cumulativeVolume = {};
+			__listeners.events = [];
+			__listeners.timestamp = [];
+
+			disconnect();
 		}
 
-		function enqueueStopTasks() {
-			getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]).forEach(function (symbol) {
-				addTask('MU_STOP', symbol);
-			});
-
-			getProducerSymbols([__listeners.marketDepth]).forEach(function (symbol) {
-				addTask('MD_STOP', symbol);
-			});
-		}
-
-		function clearTasks() {
-			__tasks = [];
-		}
-
+		/**
+   * Attempts to establish a connection to JERQ.
+   *
+   * @private
+   * @param {String} server
+   * @param {String} username
+   * @param {String} password
+   */
 		function connect(server, username, password) {
-			if (__connection || __suppressReconnect) {
+			if (!server) {
+				throw new Error('Unable to connect, the "server" argument is required.');
+			}
+
+			if (!username) {
+				throw new Error('Unable to connect, the "username" argument is required.');
+			}
+
+			if (!password) {
+				throw new Error('Unable to connect, the "password" argument is required.');
+			}
+
+			if (!_window.WebSocket) {
+				console.warn('Connection: Unable to connect, Websockets are not supported.');
+
 				return;
 			}
+
+			if (__connection !== null) {
+				console.warn('Connection: Unable to connect, a connection already exists');
+
+				return;
+			}
+
+			console.log('Connection: Initializing');
 
 			__loginInfo.username = username;
 			__loginInfo.password = password;
 			__loginInfo.server = server;
 
-			if (_window.WebSocket) {
-				__state = state.disconnected;
+			__connectionState = state.disconnected;
 
-				__connection = new WebSocket('wss://' + __loginInfo.server + '/jerq');
-				__connection.binaryType = 'arraybuffer';
+			__connection = new WebSocket('wss://' + __loginInfo.server + '/jerq');
+			__connection.binaryType = 'arraybuffer';
 
-				if (!__watchdog) {
-					__watchdog = _window.setInterval(function () {
-						if (!__lastMessageTime && __connection) {
-							// we should have seen a message in 10 seconds
-							// trigger close event to handle reconnect
-							// sending LOGOUT if we can to prevent CIP lockouts
+			__connection.onopen = function () {
+				console.log('Connection: Open event received');
+			};
 
-							console.log('Bouncing: heartbeat timeout');
+			__connection.onclose = function () {
+				console.log('Connection: Close event received');
 
-							try {
-								if (__connection.readyState === WebSocket.OPEN) {
-									__connection.send('LOGOUT\r\n');
-								}
+				__connectionState = state.disconnected;
 
-								__connection.close();
-							} catch (e) {
-								console.warn('Send LOGOUT failed', e);
-							}
-						}
+				stopWatchdog();
 
-						__lastMessageTime = null;
-					}, _HEARTBEAT_INTERVAL);
-				}
+				__connection.onopen = null;
+				__connection.onclose = null;
+				__connection.onmessage = null;
+				__connection = null;
 
-				__connection.onclose = function (evt) {
-					console.warn('Connection closed with pending messages', __networkMessages);
+				// There is a race condition. We enqueue network messages and processes
+				// them asynchronously in batches. The asynchronous message processing is
+				// done by a function called pumpInboundProcessing. So, it's possible we received
+				// a login failure message and enqueued it. But, the websocket was closed
+				// before the first invocation of pumpInboundProcessing could process the login
+				// failure.
 
-					__connection.onclose = null;
-					__connection.onopen = null;
-					__connection.onmessage = null;
-					__connection = null;
+				var loginFailed = __inboundMessages.length > 0 && __inboundMessages[0].indexOf('-') === 0;
 
-					__lastMessageTime = null;
+				__inboundMessages = [];
+				__marketMessages = [];
+				__pendingTasks = [];
+				__outboundMessages = [];
 
-					// there is a race condition. it's possible that the setTimeout 
-					// that triggers pumpMessages will never fire, never triggering badLogin
-					// we do not reconnect if jerq explicitly says, - Login Failed.
+				if (loginFailed) {
+					console.warn('Connection: Connection closed before login was processed.');
 
-					if (__networkMessages.length === 1 && __networkMessages[0].indexOf('-') === 0) {
-						console.warn('Reconnect aborted : Bad credentials');
-						disconnect();
-						return;
-					}
-
-					__state = state.disconnected;
+					broadcastEvent('events', { event: 'login fail' });
+				} else {
+					console.warn('Connection: Connection dropped');
 
 					broadcastEvent('events', { event: 'disconnect' });
 
-					if (__suppressReconnect) {
-						console.warn('Reconnect skipped: User has logged out.');
-						return;
+					if (__reconnectAllowed) {
+						console.log('Connection: Scheduling reconnect attempt');
+
+						var reconnectAction = function reconnectAction() {
+							return connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
+						};
+						var reconnectDelay = _RECONNECT_INTERVAL + Math.floor(Math.random() * _WATCHDOG_INTERVAL);
+
+						setTimeout(reconnectAction, reconnectDelay);
 					}
+				}
+			};
 
-					setTimeout(function () {
-						connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
+			__connection.onmessage = function (event) {
+				__watchdogAwake = false;
 
-						/* let's not DDoS */
-						clearTasks();
+				var message = null;
 
-						enqueueGoTasks();
-					}, _RECONNECT_INTERVAL + Math.floor(Math.random() * _HEARTBEAT_INTERVAL));
-				};
+				if (event.data instanceof ArrayBuffer) {
+					message = __decoder.decode(event.data);
+				} else {
+					message = event.data;
+				}
 
-				__connection.onmessage = function (evt) {
-					__lastMessageTime = 1;
+				if (message) {
+					__inboundMessages.push(message);
+				}
+			};
 
-					if (evt.data instanceof ArrayBuffer) {
-						var msg = __decoder.decode(evt.data);
-
-						if (msg) {
-							__networkMessages.push(msg);
-						}
-					} else {
-						__networkMessages.push(evt.data);
-					}
-				};
-
-				__connection.onopen = function (evt) {
-					console.log('Connection open');
-				};
-			} else {
-				console.warn('Connection failed : websockets are not supported by this browser.');
-			}
+			startWatchdog();
 		}
 
+		/**
+   * Changes state to disconnected and attempts to drop the websocket
+   * connection to JERQ.
+   *
+   * @private
+   */
 		function disconnect() {
-			console.warn('shutting down.');
+			console.warn('Disconnect: Executing');
 
-			__state = state.disconnected;
+			__connectionState = state.disconnected;
 
-			if (__watchdog !== null) {
-				_window.clearInterval(__watchdog);
-			}
+			stopWatchdog();
 
 			if (__connection !== null) {
-				__connection.send('LOGOUT\r\n');
-				__connection.close();
+				try {
+					if (__connection.readyState === WebSocket.OPEN) {
+						__connection.send('LOGOUT\r\n');
+					}
+
+					console.warn('Disconnect: Closing connection');
+
+					__connection.close();
+				} catch (e) {
+					console.warn('Disconnect: Unable to close connection');
+				}
 			}
 
-			__watchdog = null;
-			__lastMessageTime = null;
-
-			__tasks = [];
-			__commands = [];
-			__feedMessages = [];
+			__inboundMessages = [];
+			__marketMessages = [];
+			__pendingTasks = [];
+			__outboundMessages = [];
 		}
 
-		function handleNetworkMessage(message) {
-			if (__state === state.disconnected) {
-				__state = state.connecting;
-			}
+		/**
+   * Starts heartbeat connection monitoring.
+   *
+   * @private
+   */
+		function startWatchdog() {
+			stopWatchdog();
 
-			if (__state === state.connecting) {
-				var lines = message.split('\n');
+			console.log('Connection: Watchdog started');
 
-				lines.forEach(function (line) {
-					if (line == '+++') {
-						__state = state.authenticating;
-						__commands.unshift('LOGIN ' + __loginInfo.username + ':' + __loginInfo.password + ' VERSION=' + _API_VERSION + '\r\n');
-					}
-				});
-			} else if (__state === state.authenticating) {
-				var firstCharacter = message.charAt(0);
+			var watchdogAction = function watchdogAction() {
+				if (__watchdogAwake) {
+					console.log('Connection: Watchdog triggered, connection silent for too long. Triggering disconnect.');
 
-				if (firstCharacter === '+') {
-					__state = state.authenticated;
-					broadcastEvent('events', { event: 'login success' });
-				} else if (firstCharacter === '-') {
+					stopWatchdog();
+
 					disconnect();
-					broadcastEvent('events', { event: 'login fail' });
+				} else {
+					__watchdogAwake = true;
 				}
-			}
-
-			if (__state === state.authenticated) {
-				__feedMessages.push(message);
-			}
-		}
-
-		function getProducerSymbols(listenerMaps) {
-			var producerSymbols = listenerMaps.reduce(function (symbols, listenerMap) {
-				return symbols.concat(object.keys(listenerMap).map(function (consumerSymbol) {
-					return utilities.symbolParser.getProducerSymbol(consumerSymbol);
-				}));
-			}, []);
-
-			return array.unique(producerSymbols);
-		}
-
-		function getProducerListenerExists(producerSymbol, listenerMaps) {
-			var consumerSymbols = __knownConsumerSymbols[producerSymbol] || [];
-
-			return consumerSymbols.some(function (consumerSymbol) {
-				return getConsumerListenerExists(consumerSymbol, listenerMaps);
-			});
-		}
-
-		function getConsumerListenerExists(consumerSymbol, listenerMaps) {
-			return listenerMaps.some(function (listenerMap) {
-				return listenerMap.hasOwnProperty(consumerSymbol) && listenerMap[consumerSymbol].length !== 0;
-			});
-		}
-
-		function addKnownConsumerSymbol(consumerSymbol, producerSymbol) {
-			if (!__knownConsumerSymbols.hasOwnProperty(producerSymbol)) {
-				__knownConsumerSymbols[producerSymbol] = [];
-			}
-
-			var consumerSymbols = __knownConsumerSymbols[producerSymbol];
-
-			if (!consumerSymbols.some(function (candidate) {
-				return candidate === consumerSymbol;
-			})) {
-				consumerSymbols.push(consumerSymbol);
-			}
-		}
-
-		function getActiveConsumerSymbols(producerSymbol) {
-			var knownConsumerSymbols = __knownConsumerSymbols[producerSymbol] || [];
-
-			var activeConsumerSymbols = knownConsumerSymbols.filter(function (knownConsumerSymbol) {
-				return getConsumerListenerExists(knownConsumerSymbol, [__listeners.marketDepth, __listeners.marketUpdate, __listeners.cumulativeVolume]);
-			});
-
-			return activeConsumerSymbols;
-		}
-
-		function off() {
-			if (arguments.length < 2) {
-				throw new Error('Wrong number of arguments. Must pass in an eventId and handler.');
-			}
-
-			var eventId = arguments[0];
-			var handler = arguments[1];
-
-			var symbol = void 0;
-
-			if (arguments.length > 2) {
-				symbol = arguments[2].toUpperCase();
-			} else {
-				symbol = null;
-			}
-
-			var removeHandler = function removeHandler(listeners) {
-				var listenersToFilter = listeners || [];
-
-				return listenersToFilter.filter(function (candidate) {
-					return candidate !== handler;
-				});
 			};
 
-			var unsubscribe = function unsubscribe(stopTaskName, listenerMap, sharedListenerMaps) {
-				var consumerSymbol = symbol;
-				var producerSymbol = utilities.symbolParser.getProducerSymbol(consumerSymbol);
-
-				var listenerMaps = sharedListenerMaps.concat(listenerMap);
-
-				var previousProducerListenerExists = getProducerListenerExists(producerSymbol, listenerMaps);
-				var currentProducerListenerExists = void 0;
-
-				listenerMap[consumerSymbol] = removeHandler(listenerMap[consumerSymbol] || []);
-
-				if (listenerMap[consumerSymbol].length === 0) {
-					delete listenerMap[consumerSymbol];
-				}
-
-				currentProducerListenerExists = getProducerListenerExists(producerSymbol, listenerMaps);
-
-				if (previousProducerListenerExists && !currentProducerListenerExists) {
-					addTask(stopTaskName, producerSymbol);
-				}
-
-				__activeConsumerSymbols[producerSymbol] = getActiveConsumerSymbols(producerSymbol);
-			};
-
-			switch (eventId) {
-				case 'events':
-					__listeners.events = removeHandler(__listeners.events);
-
-					break;
-				case 'marketDepth':
-					if (arguments.length < 3) {
-						throw new Error("Invalid arguments. Invoke as follows: off('marketDepth', handler, symbol)");
-					}
-
-					unsubscribe('MD_STOP', __listeners.marketDepth, []);
-
-					break;
-				case 'marketUpdate':
-					if (arguments.length < 3) {
-						throw new Error("Invalid arguments. Invoke as follows: off('marketUpdate', handler, symbol)");
-					}
-
-					unsubscribe('MU_STOP', __listeners.marketUpdate, [__listeners.cumulativeVolume]);
-
-					break;
-				case 'cumulativeVolume':
-					if (arguments.length < 3) {
-						throw new Error("Invalid arguments. Invoke as follows: off('cumulativeVolume', handler, symbol)");
-					}
-
-					unsubscribe('MU_STOP', __listeners.cumulativeVolume, [__listeners.marketUpdate]);
-
-					__marketState.getCumulativeVolume(symbol, function (container) {
-						container.off('events', handler);
-					});
-
-					break;
-				case 'timestamp':
-					__listeners.timestamp = removeHandler(__listeners.timestamp);
-
-					break;
-			}
+			__watchdogToken = setInterval(watchdogAction, _WATCHDOG_INTERVAL);
+			__watchdogAwake = true;
 		}
 
-		function on() {
-			if (arguments.length < 2) {
-				throw new Error('Bad number of arguments. Must pass in an eventId and handler.');
+		/**
+   * Stops heartbeat connection monitoring.
+   *
+   * @private
+   */
+		function stopWatchdog() {
+			if (__watchdogToken !== null) {
+				console.log('Connection: Watchdog stopped');
+
+				clearInterval(__watchdogToken);
 			}
 
-			var eventId = arguments[0];
-			var handler = arguments[1];
+			__watchdogAwake = false;
+		}
 
-			var symbol = void 0;
+		//
+		// Functions for handling user-initiated requests to start subscriptions, stop subscriptions,
+		// and request profiles.
+		//
 
-			if (arguments.length > 2) {
-				symbol = arguments[2].toUpperCase();
-			} else {
-				symbol = null;
+		/**
+   * Subscribes to an event (e.g. quotes, heartbeats, connection status, etc), given
+   * the event type, a callback, and a symbol (if necessary).
+   *
+   * @private
+   * @param {Subscription.EventType} eventType
+   * @param {Function} handler
+   * @param {String=} symbol
+   */
+		function on(eventType, handler, symbol) {
+			if (typeof eventType !== 'string') {
+				throw new Error('The "eventType" argument must be a string.');
+			}
+
+			if (typeof handler !== 'function') {
+				throw new Error('The "handler" argument must be a function.');
+			}
+
+			if (symbol) {
+				if (typeof symbol !== 'string') {
+					throw new Error('If provided, the "symbol" argument must be a string.');
+				}
+
+				symbol = symbol.toUpperCase();
 			}
 
 			var addListener = function addListener(listeners) {
@@ -1191,17 +1110,15 @@ module.exports = function () {
 				} else {
 					addTask(streamingTaskName, producerSymbol);
 				}
-
-				__activeConsumerSymbols[producerSymbol] = getActiveConsumerSymbols(producerSymbol);
 			};
 
-			switch (eventId) {
+			switch (eventType) {
 				case 'events':
 					__listeners.events = addListener(__listeners.events);
 					break;
 				case 'marketDepth':
-					if (arguments.length < 3) {
-						throw new Error("Invalid arguments. Invoke as follows: on('marketDepth', handler, symbol)");
+					if (!symbol) {
+						throw new Error('The "symbol" argument is required when using the "marketDepth" event');
 					}
 
 					subscribe('MD_GO', 'MD_REFRESH', __listeners.marketDepth, []);
@@ -1212,8 +1129,8 @@ module.exports = function () {
 
 					break;
 				case 'marketUpdate':
-					if (arguments.length < 3) {
-						throw new Error("Invalid arguments. Invoke as follows: on('marketUpdate', handler, symbol)");
+					if (!symbol) {
+						throw new Error('The "symbol" argument is required when using the "marketUpdate" event');
 					}
 
 					subscribe('MU_GO', 'MU_REFRESH', __listeners.marketUpdate, [__listeners.cumulativeVolume]);
@@ -1224,8 +1141,8 @@ module.exports = function () {
 
 					break;
 				case 'cumulativeVolume':
-					if (arguments.length < 3) {
-						throw new Error("Invalid arguments. Invoke as follows: on('cumulativeVolume', handler, symbol)");
+					if (!symbol) {
+						throw new Error('The "symbol" argument is required when using the "cumulativeVolume" event');
 					}
 
 					subscribe('MU_GO', 'MU_REFRESH', __listeners.cumulativeVolume, [__listeners.marketUpdate]);
@@ -1241,92 +1158,409 @@ module.exports = function () {
 			}
 		}
 
-		function processMessage(message) {
-			__marketState.processMessage(message);
+		/**
+   * Drops a subscription to an event for a specific handler callback. If other
+   * subscriptions to the same event (as determined by strict equality of the
+   * handler) the subscription will continue to operate for other handlers.
+   *
+   * @private
+   * @param {Subscription.EventType} eventType
+   * @param {Function} handler
+   * @param {String=} symbol
+   */
+		function off(eventType, handler, symbol) {
+			if (typeof eventType !== 'string') {
+				throw new Error('The "eventType" argument must be a string.');
+			}
 
-			switch (message.type) {
-				case 'BOOK':
-					broadcastEvent('marketDepth', message);
+			if (typeof handler !== 'function') {
+				throw new Error('The "handler" argument must be a function.');
+			}
+
+			if (symbol) {
+				if (typeof symbol !== 'string') {
+					throw new Error('If provided, the "symbol" argument must be a string.');
+				}
+
+				symbol = symbol.toUpperCase();
+			}
+
+			var removeHandler = function removeHandler(listeners) {
+				var listenersToFilter = listeners || [];
+
+				return listenersToFilter.filter(function (candidate) {
+					return candidate !== handler;
+				});
+			};
+
+			var unsubscribe = function unsubscribe(stopTaskName, listenerMap, sharedListenerMaps) {
+				var consumerSymbol = symbol;
+				var producerSymbol = utilities.symbolParser.getProducerSymbol(consumerSymbol);
+
+				var listenerMaps = sharedListenerMaps.concat(listenerMap);
+
+				var previousProducerListenerExists = getProducerListenerExists(producerSymbol, listenerMaps);
+				var currentProducerListenerExists = void 0;
+
+				listenerMap[consumerSymbol] = removeHandler(listenerMap[consumerSymbol] || []);
+
+				if (listenerMap[consumerSymbol].length === 0) {
+					delete listenerMap[consumerSymbol];
+				}
+
+				currentProducerListenerExists = getProducerListenerExists(producerSymbol, listenerMaps);
+
+				if (previousProducerListenerExists && !currentProducerListenerExists) {
+					addTask(stopTaskName, producerSymbol);
+				}
+			};
+
+			switch (eventType) {
+				case 'events':
+					__listeners.events = removeHandler(__listeners.events);
+
 					break;
-				case 'TIMESTAMP':
-					broadcastEvent('timestamp', __marketState.getTimestamp());
+				case 'marketDepth':
+					if (!symbol) {
+						throw new Error('The "symbol" argument is required when using the "marketDepth" event');
+					}
+
+					unsubscribe('MD_STOP', __listeners.marketDepth, []);
+
 					break;
-				default:
-					broadcastEvent('marketUpdate', message);
+				case 'marketUpdate':
+					if (!symbol) {
+						throw new Error('The "symbol" argument is required when using the "marketUpdate" event');
+					}
+
+					unsubscribe('MU_STOP', __listeners.marketUpdate, [__listeners.cumulativeVolume]);
+
+					break;
+				case 'cumulativeVolume':
+					if (!symbol) {
+						throw new Error('The "symbol" argument is required when using the "marketUpdate" event');
+					}
+
+					unsubscribe('MU_STOP', __listeners.cumulativeVolume, [__listeners.marketUpdate]);
+
+					__marketState.getCumulativeVolume(symbol, function (container) {
+						container.off('events', handler);
+					});
+
+					break;
+				case 'timestamp':
+					__listeners.timestamp = removeHandler(__listeners.timestamp);
+
 					break;
 			}
 		}
 
-		function onNewMessage(raw) {
-			var message = void 0;
+		/**
+   * Enqueues a request to retrieve a profile.
+   * 
+   * @private
+   * @param {String} symbol
+   */
+		function handleProfileRequest(symbol) {
+			if (typeof symbol !== 'string') {
+				throw new Error('The "symbol" argument must be a string.');
+			}
 
+			var consumerSymbol = symbol;
+			var producerSymbol = utilities.symbolParser.getProducerSymbol(consumerSymbol);
+
+			var pendingConsumerSymbols = __pendingProfileSymbols[producerSymbol] || [];
+
+			if (!pendingConsumerSymbols.some(function (candidate) {
+				return candidate === consumerSymbol;
+			})) {
+				pendingConsumerSymbols.push(consumerSymbol);
+			}
+
+			if (!pendingConsumerSymbols.some(function (candidate) {
+				return candidate === producerSymbol;
+			})) {
+				pendingConsumerSymbols.push(producerSymbol);
+			}
+
+			__pendingProfileSymbols[producerSymbol] = pendingConsumerSymbols;
+
+			addTask('P_SNAPSHOT', producerSymbol);
+		}
+
+		//
+		// Utility functions for managing the "task" queue (e.g. work items that likely
+		// trigger outbound messages to JERQ.
+		//
+
+		/**
+   * Adds a symbol-related task to a queue for asynchronous processing.
+   *
+   * @private
+   * @param {String} id
+   * @param {String} symbol
+   */
+		function addTask(id, symbol) {
+			if (__connectionState !== state.authenticated) {
+				return;
+			}
+
+			var lastIndex = __pendingTasks.length - 1;
+
+			if (!(lastIndex < 0) && __pendingTasks[lastIndex].id === id) {
+				__pendingTasks[lastIndex].symbols.push(symbol);
+			} else {
+				__pendingTasks.push({ id: id, symbols: [symbol] });
+			}
+		}
+
+		/**
+   * Schedules symbol subscribe tasks for all symbols with listeners, typically
+   * used after a reconnect (or in polling mode).
+   *
+   * @private
+   */
+		function enqueueGoTasks() {
+			var marketUpdateSymbols = getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]);
+			var marketDepthSymbols = getProducerSymbols([__listeners.marketDepth]);
+
+			marketUpdateSymbols.forEach(function (symbol) {
+				addTask('MU_GO', symbol);
+			});
+
+			marketDepthSymbols.forEach(function (symbol) {
+				addTask('MD_GO', symbol);
+			});
+
+			var pendingProfileSymbols = array.unique(object.keys(__pendingProfileSymbols).filter(function (s) {
+				return !marketUpdateSymbols.some(function (already) {
+					return already === s;
+				});
+			}));
+
+			pendingProfileSymbols.forEach(function (symbol) {
+				addTask('P_SNAPHSOT', symbol);
+			});
+		}
+
+		/**
+   * Schedules symbol unsubscribe tasks for all symbols with listeners.
+   *
+   * @private
+   */
+		function enqueueStopTasks() {
+			getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]).forEach(function (symbol) {
+				addTask('MU_STOP', symbol);
+			});
+
+			getProducerSymbols([__listeners.marketDepth]).forEach(function (symbol) {
+				addTask('MD_STOP', symbol);
+			});
+		}
+
+		//
+		// Functions to process the queue of inbound network messages, authentication handshake
+		// messages are handled synchronously. Market-related messages are placed onto a queue
+		// for asynchronous processing.
+		//
+
+		/**
+   * Processes a single inbound message from the network. Any message pertaining
+   * to the authentication handshake is intercepted and handled synchronously. 
+   * Any message pertaining to market state is placed onto another queue for 
+   * asynchronous processing.
+   *
+   * @private
+   * @param {String} message - The message, as received from the network.
+   */
+		function processInboundMessage(message) {
+			if (__connectionState === state.disconnected) {
+				__connectionState = state.connecting;
+			}
+
+			if (__connectionState === state.connecting) {
+				var lines = message.split('\n');
+
+				if (lines.some(function (line) {
+					return line == '+++';
+				})) {
+					__connectionState = state.authenticating;
+
+					console.log('Connection: Sending credentials');
+
+					__connection.send('LOGIN ' + __loginInfo.username + ':' + __loginInfo.password + ' VERSION=' + _API_VERSION + '\r\n');
+				}
+			} else if (__connectionState === state.authenticating) {
+				var firstCharacter = message.charAt(0);
+
+				if (firstCharacter === '+') {
+					__connectionState = state.authenticated;
+
+					console.log('Connection: Login accepted');
+
+					broadcastEvent('events', { event: 'login success' });
+
+					console.log('Connection: Establishing subscriptions to feed for existing symbols');
+
+					enqueueGoTasks();
+				} else if (firstCharacter === '-') {
+					console.log('Connection: Login failed');
+
+					broadcastEvent('events', { event: 'login fail' });
+
+					disconnect();
+				}
+			}
+
+			if (__connectionState === state.authenticated) {
+				__marketMessages.push(message);
+			}
+		}
+
+		/**
+   * Drains the queue of inbound network messages and schedules another
+   * run. Any error that is encountered triggers a disconnect.
+   *
+   * @private
+   */
+		function pumpInboundProcessing() {
 			try {
-				message = parseMessage(raw);
+				while (__inboundMessages.length > 0) {
+					processInboundMessage(__inboundMessages.shift());
+				}
+			} catch (e) {
+				console.warn('Pump Inbound: An error occurred during inbound message queue processing. Disconnecting.', e);
 
-				if (message.type) {
-					if (message.symbol) {
-						var consumerSymbols = __activeConsumerSymbols[message.symbol] || [];
+				disconnect();
+			}
 
-						if (__pendingProfileLookups.hasOwnProperty(message.symbol)) {
-							consumerSymbols = array.unique(consumerSymbols.concat(__pendingProfileLookups[message.symbol]));
+			setTimeout(pumpInboundProcessing, 125);
+		}
 
-							delete __pendingProfileLookups[message.symbol];
+		//
+		// Functions to process the queue of market-related messages, updating market
+		// state and notifying interested subscribers.
+		//
+
+		/**
+   * Invokes consumer-supplied callbacks in response to new events (e.g. market
+   * state updates, heartbeats, connection status changes, etc).
+   *
+   * @private
+   * @param {String} eventType
+   * @param {Object} message
+   */
+		function broadcastEvent(eventType, message) {
+			var listeners = void 0;
+
+			if (eventType === 'events') {
+				listeners = __listeners.events;
+			} else if (eventType === 'marketDepth') {
+				listeners = __listeners.marketDepth[message.symbol];
+			} else if (eventType === 'marketUpdate') {
+				listeners = __listeners.marketUpdate[message.symbol];
+			} else if (eventType === 'timestamp') {
+				listeners = __listeners.timestamp;
+			} else {
+				console.warn('Broadcast: Unable to notify subscribers of [ ' + eventType + ' ] event');
+
+				listeners = null;
+			}
+
+			if (listeners) {
+				listeners.forEach(function (listener) {
+					try {
+						listener(message);
+					} catch (e) {
+						console.warn('Broadcast: A consumer-supplied listener for [ ' + eventType + ' ] events threw an error. Continuing.,', e);
+					}
+				});
+			}
+		}
+
+		/**
+   * Processes a parsed market message. Updates internal market state and invokes
+   * callbacks for interested subscribers.
+   * 
+   * @private
+   * @param {Object} message
+   */
+		function processMarketMessage(message) {
+			__marketState.processMessage(message);
+
+			if (message.type === 'BOOK') {
+				broadcastEvent('marketDepth', message);
+			} else if (message.type === 'TIMESTAMP') {
+				broadcastEvent('timestamp', __marketState.getTimestamp());
+			} else {
+				broadcastEvent('marketUpdate', message);
+			}
+		}
+
+		/**
+   * Converts a JERQ message into an object suitable for passing to
+   * the {@link MarketState#processMessage} function. Then processes and
+   * broadcasts the parsed message. Also, if other "consumer" symbols are 
+   * aliases of the "producer" symbol in the message, the message is cloned 
+   * and processed for the "consumer" symbols alias(es) too.
+   * 
+   * @private
+   * @param {String} message
+   */
+		function parseMarketMessage(message) {
+			try {
+				var parsed = parseMessage(message);
+
+				var producerSymbol = parsed.symbol;
+
+				if (parsed.type) {
+					if (producerSymbol) {
+						var consumerSymbols = __knownConsumerSymbols[producerSymbol] || [];
+
+						if (__pendingProfileSymbols.hasOwnProperty(producerSymbol)) {
+							var profileSymbols = __pendingProfileSymbols[producerSymbol] || [];
+
+							consumerSymbols = array.unique(consumerSymbols.concat(profileSymbols));
+
+							delete __pendingProfileSymbols[producerSymbol];
 						}
 
 						consumerSymbols.forEach(function (consumerSymbol) {
 							var messageToProcess = void 0;
 
-							if (consumerSymbol === message.symbol) {
-								messageToProcess = message;
+							if (consumerSymbol === producerSymbol) {
+								messageToProcess = parsed;
 							} else {
-								messageToProcess = Object.assign({}, message);
+								messageToProcess = Object.assign({}, parsed);
 								messageToProcess.symbol = consumerSymbol;
 							}
 
-							processMessage(messageToProcess);
+							processMarketMessage(messageToProcess);
 						});
 					} else {
-						processMessage(message);
+						processMarketMessage(parsed);
 					}
 				} else {
-					console.log(raw);
+					console.log(message);
 				}
 			} catch (e) {
-				console.error(e);
-				console.log(message);
+				console.error('An error occurred while parsing a market message [ ' + message + ' ]. Continuing.', e);
 			}
 		}
 
-		function processCommands() {
-			if ((__state === state.authenticating || __state === state.authenticated) && __connection) {
-				var command = __commands.shift();
-
-				// it's possible that on re-connect, the GO commands would be sent before the login
-				// commands causing logout.
-
-				if (__state === state.authenticating && command && command.indexOf('GO') === 0) {
-					console.log('pushing back GO command until fully authenticated.');
-					__commands.push(command);
-				} else {
-					while (command) {
-						console.log(command);
-
-						__connection.send(command);
-						command = __commands.shift();
-					}
-				}
-			}
-
-			setTimeout(processCommands, 200);
-		}
-
-		function processFeedMessages() {
+		/**
+   * Drains the queue of market network messages and schedules another
+   * run. Any error encountered triggers a disconnect.
+   *
+   * @private
+   */
+		function pumpMarketProcessing() {
 			var suffixLength = 9;
 
 			var done = false;
 
 			while (!done) {
-				var s = __feedMessages.shift();
+				var s = __marketMessages.shift();
 
 				if (!s) {
 					done = true;
@@ -1348,10 +1582,11 @@ module.exports = function () {
 
 					if (idx > -1) {
 						var epos = idx + 1;
+
 						if (msgType == 1) {
 							if (s.length < idx + suffixLength + 1) {
-								if (__feedMessages.length > 0) __feedMessages[0] = s + __feedMessages[0];else {
-									__feedMessages.unshift(s);
+								if (__marketMessages.length > 0) __marketMessages[0] = s + __marketMessages[0];else {
+									__marketMessages.unshift(s);
 									done = true;
 								}
 
@@ -1373,289 +1608,463 @@ module.exports = function () {
 							}
 
 							if (s2.length > 0) {
-								onNewMessage(s2);
+								parseMarketMessage(s2);
 							}
 
 							s = s.substring(epos);
+
 							if (s.length > 0) {
-								if (__feedMessages.length > 0) {
-									__feedMessages[0] = s + __feedMessages[0];
+								if (__marketMessages.length > 0) {
+									__marketMessages[0] = s + __marketMessages[0];
 								} else {
-									__feedMessages.unshift(s);
+									__marketMessages.unshift(s);
 								}
 							}
 						}
 					} else {
 						if (s.length > 0) {
-							if (__feedMessages.length > 0) {
-								__feedMessages[0] = s + __feedMessages[0];
+							if (__marketMessages.length > 0) {
+								__marketMessages[0] = s + __marketMessages[0];
 							} else {
-								__feedMessages.unshift(s);
+								__marketMessages.unshift(s);
 								done = true;
 							}
 						}
 					}
 				}
 
-				if (__feedMessages.length === 0) {
+				if (__marketMessages.length === 0) {
 					done = true;
 				}
 			}
 
-			setTimeout(processFeedMessages, 125);
+			setTimeout(pumpMarketProcessing, 125);
 		}
 
-		function pumpMessages() {
-			var message = __networkMessages.shift();
+		//
+		// Functions to process the queue of tasks. Tasks define a request to start or
+		// stop a symbol subscription (or a profile lookup). Tasks are formatted as 
+		// JERQ command strings and placed onto another queue for asynchronous processing.
+		//
 
-			while (message) {
-				handleNetworkMessage(message);
-				message = __networkMessages.shift();
+		/**
+   * Used in "polling" mode. The task queue is ignored. However, JERQ formatted command
+   * strings, requesting snapshot updates from JERQ, are generated for all existing
+   * symbol subscriptions and placed onto a queue for asynchronous processing. Also, 
+   * for any symbol not supported by JERQ, out-of-band snapshot requests are made.
+   *
+   * @private
+   */
+		function processTasksInPollingMode() {
+			if (__connectionState !== state.authenticated || __outboundMessages.length !== 0) {
+				return;
 			}
 
-			setTimeout(pumpMessages, 125);
+			__pendingTasks = [];
+
+			var quoteBatches = getSymbolBatches(getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]), getIsStreamingSymbol);
+
+			quoteBatches.forEach(function (batch) {
+				__outboundMessages.push('GO ' + batch.map(function (s) {
+					return s + '=sc';
+				}).join(','));
+			});
+
+			var profileBatches = getSymbolBatches(array.unique(object.keys(__pendingProfileSymbols)).filter(function (s) {
+				return !quoteBatches.some(function (q) {
+					return q === s;
+				});
+			}), getIsStreamingSymbol);
+
+			profileBatches.forEach(function (batch) {
+				__outboundMessages.push('GO ' + batch.map(function (s) {
+					return s + '=s';
+				}).join(','));
+			});
+
+			var bookBatches = getSymbolBatches(getProducerSymbols([__listeners.marketDepth]), getIsStreamingSymbol);
+
+			bookBatches.forEach(function (batch) {
+				__outboundMessages.push('GO ' + batch.map(function (s) {
+					return s + '=b';
+				}).join(','));
+			});
+
+			var snapshotBatches = getSymbolBatches(getProducerSymbols([__listeners.marketUpdate]), getIsSnapshotSymbol);
+
+			snapshotBatches.forEach(function (batch) {
+				processSnapshots(batch);
+			});
 		}
 
-		function pumpStreamingTasks(forced) {
-			if (__state === state.authenticated) {
-				while (__tasks.length > 0) {
-					var task = __tasks.shift();
+		/**
+   * Used in "streaming" mode. The task queue is drained and JERQ formatted command
+   * strings are generated for each task. These commands placed onto a queue for
+   * asynchronous transmission to JERQ. Also, for any symbol not supported by JERQ, 
+   * out-of-band snapshot requests are made.
+   *
+   * @private
+   */
+		function processTasksInStreamingMode() {
+			if (__connectionState !== state.authenticated) {
+				return;
+			}
 
-					if (task.callback) {
-						task.callback();
-					} else if (task.id) {
-						(function () {
-							var command = '';
-							var suffix = '';
+			while (__pendingTasks.length > 0) {
+				var task = __pendingTasks.shift();
 
-							switch (task.id) {
-								case 'MD_GO':
-									command = 'GO';
-									suffix = 'Bb';
-									break;
-								case 'MU_GO':
-									command = 'GO';
-									suffix = 'Ssc';
-									break;
-								case 'MD_REFRESH':
-									command = 'GO';
-									suffix = 'b';
-									break;
-								case 'MU_REFRESH':
-									command = 'GO';
-									suffix = 'sc';
-									break;
-								case 'P_SNAPSHOT':
-									command = 'GO';
-									suffix = 's';
-									break;
-								case 'MD_STOP':
-									command = 'STOP';
-									suffix = 'Bb';
-									break;
-								case 'MU_STOP':
-									command = 'STOP';
-									suffix = 'Ssc';
-									break;
+				if (task.callback) {
+					task.callback();
+				} else if (task.id) {
+					var _ret = function () {
+						var command = null;
+						var suffix = null;
+
+						switch (task.id) {
+							case 'MD_GO':
+								command = 'GO';
+								suffix = 'Bb';
+								break;
+							case 'MU_GO':
+								command = 'GO';
+								suffix = 'Ssc';
+								break;
+							case 'MD_REFRESH':
+								command = 'GO';
+								suffix = 'b';
+								break;
+							case 'MU_REFRESH':
+								command = 'GO';
+								suffix = 'sc';
+								break;
+							case 'P_SNAPSHOT':
+								command = 'GO';
+								suffix = 's';
+								break;
+							case 'MD_STOP':
+								command = 'STOP';
+								suffix = 'Bb';
+								break;
+							case 'MU_STOP':
+								command = 'STOP';
+								suffix = 'Ssc';
+								break;
+						}
+
+						if (command === null || suffix === null) {
+							console.warn('An unsupported task was found in the tasks queue.');
+
+							return 'continue';
+						}
+
+						var batchSize = void 0;
+
+						if (task.id === 'MD_GO' || task.id === 'MD_STOP') {
+							batchSize = 1;
+						} else {
+							batchSize = 250;
+						}
+
+						var symbolsUnique = array.unique(task.symbols);
+
+						var symbolsStreaming = symbolsUnique.filter(getIsStreamingSymbol);
+						var symbolsSnapshot = symbolsUnique.filter(getIsSnapshotSymbol);
+
+						while (symbolsStreaming.length > 0) {
+							var batch = symbolsStreaming.splice(0, batchSize);
+
+							__outboundMessages.push(command + ' ' + batch.map(function (s) {
+								return s + '=' + suffix;
+							}).join(','));
+						}
+
+						if (task.id === 'MU_GO' || task.id === 'MU_REFRESH') {
+							while (symbolsSnapshot.length > 0) {
+								var _batch = symbolsSnapshot.splice(0, batchSize);
+
+								processSnapshots(_batch);
 							}
+						}
+					}();
 
-							var batchSize = void 0;
+					if (_ret === 'continue') continue;
+				}
+			}
+		}
 
-							if (task.id === 'MD_GO' || task.id === 'MD_STOP') {
-								batchSize = 1;
-							} else {
-								batchSize = 250;
-							}
+		/**
+   * Drains the queue of "tasks" and schedules another run. Any error
+   * encountered triggers a disconnect.
+   *
+   * @private
+   * @param {Boolean=} polling - Indicates if the previous run used polling mode.
+   */
+		function pumpTaskProcessing(polling) {
+			var pumpDelegate = void 0;
+			var pumpDelay = void 0;
 
-							var uniqueSymbols = array.unique(task.symbols);
+			if (__pollingFrequency === null) {
+				pumpDelay = 250;
+				pumpDelegate = processTasksInStreamingMode;
 
-							var streamingSymbols = uniqueSymbols.filter(getIsStreamingSymbol);
-							var snapshotSymbols = uniqueSymbols.filter(getIsSnapshotSymbol);
+				if (polling) {
+					enqueueGoTasks();
+				}
+			} else {
+				pumpDelay = __pollingFrequency;
+				pumpDelegate = processTasksInPollingMode;
 
-							while (streamingSymbols.length > 0) {
-								var batch = streamingSymbols.splice(0, batchSize);
+				if (!polling) {
+					enqueueStopTasks();
 
-								__commands.push(command + ' ' + batch.map(function (s) {
-									return s + '=' + suffix;
-								}).join(','));
-							}
+					processTasksInStreamingMode();
+				}
+			}
 
-							if (task.id === 'MU_GO' || task.id === 'MU_REFRESH') {
-								while (snapshotSymbols.length > 0) {
-									var _batch = snapshotSymbols.splice(0, batchSize);
+			var pumpWrapper = function pumpWrapper() {
+				try {
+					pumpDelegate();
+				} catch (e) {
+					console.warn('Pump Tasks: An error occurred during task queue processing. Disconnecting.', e);
 
-									processSnapshots(_batch);
-								}
-							}
-						})();
+					disconnect();
+				}
+
+				pumpTaskProcessing(pumpDelegate === processTasksInPollingMode);
+			};
+
+			setTimeout(pumpWrapper, pumpDelay);
+		}
+
+		//
+		// Functions to process the queue of outbound messages (to JERQ).
+		//
+
+		/**
+   * Sends outbound messages to JERQ and reschedules another run.
+   *
+   * @private
+   */
+		function pumpOutboundProcessing() {
+			if (__connectionState === state.authenticated) {
+				while (__outboundMessages.length > 0) {
+					try {
+						var message = __outboundMessages.shift();
+
+						console.log(message);
+
+						__connection.send(message);
+					} catch (e) {
+						console.warn('Pump Outbound: An error occurred during outbound message queue processing. Disconnecting.', e);
+
+						disconnect();
+
+						break;
 					}
 				}
 			}
 
-			if (forced) {
-				return;
-			}
-
-			resetTaskPump(false);
+			setTimeout(pumpOutboundProcessing, 200);
 		}
 
-		function pumpPollingTasks() {
-			if (__state === state.authenticated && __commands.length === 0) {
-				__tasks = [];
+		//
+		// Functions used to maintain market state for symbols which are not supported
+		// by JERQ.
+		//
 
-				var quoteBatches = getSymbolBatch(getProducerSymbols([__listeners.marketUpdate, __listeners.cumulativeVolume]), getIsStreamingSymbol);
-
-				quoteBatches.forEach(function (batch) {
-					__commands.push('GO ' + batch.map(function (s) {
-						return s + '=sc';
-					}).join(','));
-				});
-
-				var bookBatches = getSymbolBatch(getProducerSymbols([__listeners.marketDepth]), getIsStreamingSymbol);
-
-				bookBatches.forEach(function (batch) {
-					__commands.push('GO ' + batch.map(function (s) {
-						return s + '=b';
-					}).join(','));
-				});
-
-				var profileBatches = getSymbolBatch(array.unique(object.keys(__pendingProfileLookups)).filter(function (s) {
-					return !quoteBatches.some(function (q) {
-						return q === s;
-					});
-				}), getIsStreamingSymbol);
-
-				profileBatches.forEach(function (batch) {
-					__commands.push('GO ' + batch.map(function (s) {
-						return s + '=s';
-					}).join(','));
-				});
-
-				var snapshotBatches = getSymbolBatch(getProducerSymbols([__listeners.marketUpdate]), getIsSnapshotSymbol);
-
-				snapshotBatches.forEach(function (batch) {
-					processSnapshots(batch);
-				});
-			}
-
-			resetTaskPump(true);
-		}
-
-		function pumpSnapshotTasks() {
-			if (__state === state.authenticated) {
-				var snapshotBatches = getSymbolBatch(getProducerSymbols([__listeners.marketUpdate]), getIsSnapshotSymbol);
-
-				snapshotBatches.forEach(function (batch) {
-					processSnapshots(batch);
-				});
-			}
-
-			setTimeout(pumpSnapshotTasks, 3600000);
-		}
-
+		/**
+   * Makes requests for snapshot updates for a batch of symbols to an out-of-band
+   * service (i.e. OnDemand). This function is typically used for symbols that are
+   * not supported by JERQ.
+   *
+   * @private
+   * @param {Array<String>} symbols
+   */
 		function processSnapshots(symbols) {
-			if (symbols.length === 0) {
+			if (__connectionState !== state.authenticated || symbols.length === 0) {
 				return;
 			}
 
-			return snapshotProvider(symbols, __loginInfo.username, __loginInfo.password).then(function (quotes) {
+			snapshotProvider(symbols, __loginInfo.username, __loginInfo.password).then(function (quotes) {
 				quotes.forEach(function (message) {
-					return processMessage(message);
+					return processMarketMessage(message);
 				});
 			}).catch(function (e) {
-				console.log('Failed to get quote snapshots', e);
+				console.log('Snapshots: Out-of-band snapshot request failed', e);
 			});
 		}
 
-		function setPollingFrequency(pollingFrequency) {
-			if (__pollingFrequency === pollingFrequency) {
-				return;
+		/**
+   * Periodically requests snapshots for existing symbols subscriptions which do not
+   * stream through JERQ.
+   *
+   * @private
+   */
+		function pumpSnapshotRefresh() {
+			if (__connectionState === state.authenticated) {
+				try {
+					var snapshotBatches = getSymbolBatches(getProducerSymbols([__listeners.marketUpdate]), getIsSnapshotSymbol);
+
+					snapshotBatches.forEach(function (batch) {
+						processSnapshots(batch);
+					});
+				} catch (e) {
+					console.warn('Snapshot Refresh: An error occurred during refresh processing. Ignoring.', e);
+				}
 			}
 
-			__pollingFrequency = pollingFrequency;
+			setTimeout(pumpSnapshotRefresh, 3600000);
 		}
 
-		function getActiveSymbolCount() {
+		//
+		// Internal utility functions for querying symbol subscriptions.
+		//
+
+		/**
+   * Returns the number of unique "producer" symbols which have user interest.
+   *
+   * @private
+   * @returns {Number}
+   */
+		function getProducerSymbolCount() {
 			return getProducerSymbols([__listeners.marketDepth, __listeners.marketUpdate, __listeners.cumulativeVolume]).length;
 		}
 
-		function resetTaskPump(polling) {
-			var pumpDelegate = void 0;
-			var milliseconds = void 0;
+		/**
+   * Extracts all "producer" symbols from an array of listener maps.
+   *
+   * A listener map is keyed by "consumer" symbol -- the symbol used
+   * to establish the subscription (e.g. ESZ18), which is could be an
+   * alias for a "producer" symbol (e.g. ESZ8).
+   *
+   * @private
+   * @param {Array<Object>} listenerMaps
+   * @returns {Array<String>}
+   */
+		function getProducerSymbols(listenerMaps) {
+			var producerSymbols = listenerMaps.reduce(function (symbols, listenerMap) {
+				return symbols.concat(object.keys(listenerMap).map(function (consumerSymbol) {
+					return utilities.symbolParser.getProducerSymbol(consumerSymbol);
+				}));
+			}, []);
 
-			if (__pollingFrequency) {
-				if (!polling) {
-					enqueueStopTasks();
-					pumpStreamingTasks(true);
-				}
+			return array.unique(producerSymbols);
+		}
 
-				pumpDelegate = pumpPollingTasks;
-				milliseconds = __pollingFrequency;
-			} else {
-				if (polling) {
-					enqueueGoTasks();
-				}
+		/**
+   * A predicate that determines if an upstream subscription should
+   * exist for a "producer" symbol, based on the consumer symbols in
+   * the array of listener maps.
+   *
+   * A "consumer" symbol (e.g. ESZ18) is the symbol used to establish a
+   * subscription with this library and a "producer" symbol (e.g. ESZ8)
+   * is used to communicate with upstream services (e.g. JERQ). In other
+   * words, a "consumer" symbol could be an alias for a "producer" symbol
+   * and multiple "consumer" symbols can exist for a single "producer" symbol.
+   *
+   * @private
+   * @param {String} producerSymbol
+   * @param {Array<Object>} listenerMaps
+   * @returns {Boolean}
+   */
+		function getProducerListenerExists(producerSymbol, listenerMaps) {
+			var consumerSymbols = __knownConsumerSymbols[producerSymbol] || [];
 
-				pumpDelegate = pumpStreamingTasks;
-				milliseconds = 250;
+			return consumerSymbols.some(function (consumerSymbol) {
+				return getConsumerListenerExists(consumerSymbol, listenerMaps);
+			});
+		}
+
+		/**
+   * A predicate that determines if an upstream subscription should
+   * exist for a "consumer" symbol, based on the consumer symbols in
+   * the array of listener maps.
+   *
+   * A "consumer" symbol (e.g. ESZ18) is the symbol used to establish a
+   * subscription with this library and a "producer" symbol (e.g. ESZ8)
+   * is used to communicate with upstream services (e.g. JERQ). In other
+   * words, a "consumer" symbol could be an alias for a "producer" symbol
+   * and multiple "consumer" symbols can exist for a single "producer" symbol.
+   *
+   * @private
+   * @param {String} consumerSymbol
+   * @param {Array<Object>} listenerMaps
+   * @returns {boolean}
+   */
+		function getConsumerListenerExists(consumerSymbol, listenerMaps) {
+			return listenerMaps.some(function (listenerMap) {
+				return listenerMap.hasOwnProperty(consumerSymbol) && listenerMap[consumerSymbol].length !== 0;
+			});
+		}
+
+		/**
+   * Links a "consumer" symbol to a "producer" symbol in the map
+   * of known aliases. This map of "known" consumer symbols is
+   * keyed by "producer" symbols and has an array of "consumer"
+   * symbols as values.
+   *
+   * A "consumer" symbol (e.g. ESZ18) is the symbol used to establish a
+   * subscription with this library and a "producer" symbol (e.g. ESZ8)
+   * is used to communicate with upstream services (e.g. JERQ). In other
+   * words, a "consumer" symbol could be an alias for a "producer" symbol
+   * and multiple "consumer" symbols can exist for a single "producer" symbol.
+   *
+   * @private
+   * @param {String} consumerSymbol
+   * @param {String} producerSymbol
+   */
+		function addKnownConsumerSymbol(consumerSymbol, producerSymbol) {
+			if (!__knownConsumerSymbols.hasOwnProperty(producerSymbol)) {
+				__knownConsumerSymbols[producerSymbol] = [];
 			}
 
-			setTimeout(pumpDelegate, milliseconds);
-		}
+			var consumerSymbols = __knownConsumerSymbols[producerSymbol];
 
-		setTimeout(processCommands, 200);
-		setTimeout(pumpMessages, 125);
-		setTimeout(processFeedMessages, 125);
-		setTimeout(resetTaskPump, 250);
-		setTimeout(pumpSnapshotTasks, 3600000);
-
-		function initializeConnection(server, username, password) {
-			__suppressReconnect = false;
-
-			connect(server, username, password);
-		}
-
-		function terminateConnection() {
-			__suppressReconnect = true;
-
-			__loginInfo.username = null;
-			__loginInfo.password = null;
-			__loginInfo.server = null;
-
-			disconnect();
-		}
-
-		function handleProfileRequest(consumerSymbol) {
-			var producerSymbol = utilities.symbolParser.getProducerSymbol(consumerSymbol);
-
-			var pendingConsumerSymbols = __pendingProfileLookups[producerSymbol] || [];
-
-			if (!pendingConsumerSymbols.some(function (candidate) {
+			if (!consumerSymbols.some(function (candidate) {
 				return candidate === consumerSymbol;
 			})) {
-				pendingConsumerSymbols.push(consumerSymbol);
+				consumerSymbols.push(consumerSymbol);
 			}
-
-			if (!pendingConsumerSymbols.some(function (candidate) {
-				return candidate === producerSymbol;
-			})) {
-				pendingConsumerSymbols.push(producerSymbol);
-			}
-
-			__pendingProfileLookups[producerSymbol] = pendingConsumerSymbols;
-
-			addTask('P_SNAPSHOT', producerSymbol);
 		}
 
+		//
+		// Pure utility functions.
+		//
+
+		/**
+   * Predicate used to determine if a symbol is supported by JERQ (allowing a
+   * streaming market data subscription to be established).
+   *
+   * @private
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
 		function getIsStreamingSymbol(symbol) {
 			return symbol.indexOf(':') < 0;
 		}
 
+		/**
+   * Predicate used to determine if a symbol is not supported by JERQ (which
+   * requires out-of-band efforts to get market data for the symbol).
+   *
+   * @private
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
 		function getIsSnapshotSymbol(symbol) {
 			return !(symbol.indexOf(':') < 0);
 		}
 
-		function getSymbolBatch(symbols, predicate) {
+		/**
+   * Breaks an array of symbols into multiple array, each containing no more
+   * than 250 symbols. Also, symbols are filtered according to a predicate.
+   *
+   * @private
+   * @param {Array<String>} symbols
+   * @param {Function} predicate
+   * @returns {Array<Array<String>>}
+   */
+		function getSymbolBatches(symbols, predicate) {
 			var candidates = symbols.filter(predicate);
 			var partitions = [];
 
@@ -1666,12 +2075,22 @@ module.exports = function () {
 			return partitions;
 		}
 
+		//
+		// Begin "pumps" which perform repeated repeated processing.
+		//
+
+		setTimeout(pumpInboundProcessing, 125);
+		setTimeout(pumpOutboundProcessing, 200);
+		setTimeout(pumpMarketProcessing, 125);
+		setTimeout(pumpTaskProcessing, 250);
+		setTimeout(pumpSnapshotRefresh, 3600000);
+
 		return {
 			connect: initializeConnection,
 			disconnect: terminateConnection,
 			off: off,
 			on: on,
-			getActiveSymbolCount: getActiveSymbolCount,
+			getProducerSymbolCount: getProducerSymbolCount,
 			setPollingFrequency: setPollingFrequency,
 			handleProfileRequest: handleProfileRequest
 		};
@@ -1720,7 +2139,7 @@ module.exports = function () {
 		}, {
 			key: '_getActiveSymbolCount',
 			value: function _getActiveSymbolCount() {
-				return this._internal.getActiveSymbolCount();
+				return this._internal.getProducerSymbolCount();
 			}
 		}, {
 			key: '_onPollingFrequencyChanged',
@@ -1767,7 +2186,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.31'
+		version: '3.1.32'
 	};
 }();
 
