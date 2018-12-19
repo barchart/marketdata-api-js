@@ -878,18 +878,18 @@ module.exports = function () {
 			}
 
 			if (!_window.WebSocket) {
-				console.warn('Connection: Unable to connect, Websockets are not supported.');
+				console.warn('Connection: Unable to connect, websockets are not supported.');
 
 				return;
 			}
 
 			if (__connection !== null) {
-				console.warn('Connection: Unable to connect, a connection already exists');
+				console.warn('Connection: Unable to connect, a connection already exists.');
 
 				return;
 			}
 
-			console.log('Connection: Initializing');
+			console.log('Connection: Initializing.');
 
 			__loginInfo.username = username;
 			__loginInfo.password = password;
@@ -901,11 +901,11 @@ module.exports = function () {
 			__connection.binaryType = 'arraybuffer';
 
 			__connection.onopen = function () {
-				console.log('Connection: Open event received');
+				console.log('Connection: Open event received.');
 			};
 
 			__connection.onclose = function () {
-				console.log('Connection: Close event received');
+				console.log('Connection: Close event received.');
 
 				__connectionState = state.disconnected;
 
@@ -935,12 +935,12 @@ module.exports = function () {
 
 					broadcastEvent('events', { event: 'login fail' });
 				} else {
-					console.warn('Connection: Connection dropped');
+					console.warn('Connection: Connection dropped.');
 
 					broadcastEvent('events', { event: 'disconnect' });
 
 					if (__reconnectAllowed) {
-						console.log('Connection: Scheduling reconnect attempt');
+						console.log('Connection: Scheduling reconnect attempt.');
 
 						var reconnectAction = function reconnectAction() {
 							return connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
@@ -978,7 +978,7 @@ module.exports = function () {
    * @private
    */
 		function disconnect() {
-			console.warn('Disconnect: Executing');
+			console.warn('Connection: Disconnecting.');
 
 			__connectionState = state.disconnected;
 
@@ -990,11 +990,11 @@ module.exports = function () {
 						__connection.send('LOGOUT\r\n');
 					}
 
-					console.warn('Disconnect: Closing connection');
+					console.warn('Connection: Closing connection.');
 
 					__connection.close();
 				} catch (e) {
-					console.warn('Disconnect: Unable to close connection');
+					console.warn('Connection: Unable to close connection.');
 				}
 			}
 
@@ -1012,7 +1012,7 @@ module.exports = function () {
 		function startWatchdog() {
 			stopWatchdog();
 
-			console.log('Connection: Watchdog started');
+			console.log('Connection: Watchdog started.');
 
 			var watchdogAction = function watchdogAction() {
 				if (__watchdogAwake) {
@@ -1037,7 +1037,7 @@ module.exports = function () {
    */
 		function stopWatchdog() {
 			if (__watchdogToken !== null) {
-				console.log('Connection: Watchdog stopped');
+				console.log('Connection: Watchdog stopped.');
 
 				clearInterval(__watchdogToken);
 			}
@@ -1386,7 +1386,7 @@ module.exports = function () {
 				})) {
 					__connectionState = state.authenticating;
 
-					console.log('Connection: Sending credentials');
+					console.log('Connection: Sending credentials.');
 
 					__connection.send('LOGIN ' + __loginInfo.username + ':' + __loginInfo.password + ' VERSION=' + _API_VERSION + '\r\n');
 				}
@@ -1396,15 +1396,15 @@ module.exports = function () {
 				if (firstCharacter === '+') {
 					__connectionState = state.authenticated;
 
-					console.log('Connection: Login accepted');
+					console.log('Connection: Login accepted.');
 
 					broadcastEvent('events', { event: 'login success' });
 
-					console.log('Connection: Establishing subscriptions to feed for existing symbols');
+					console.log('Connection: Establishing subscriptions to feed for existing symbols.');
 
 					enqueueGoTasks();
 				} else if (firstCharacter === '-') {
-					console.log('Connection: Login failed');
+					console.log('Connection: Login failed.');
 
 					broadcastEvent('events', { event: 'login fail' });
 
@@ -1462,7 +1462,7 @@ module.exports = function () {
 			} else if (eventType === 'timestamp') {
 				listeners = __listeners.timestamp;
 			} else {
-				console.warn('Broadcast: Unable to notify subscribers of [ ' + eventType + ' ] event');
+				console.warn('Broadcast: Unable to notify subscribers of [ ' + eventType + ' ] event.');
 
 				listeners = null;
 			}
@@ -1752,7 +1752,7 @@ module.exports = function () {
 						}
 
 						if (command === null || suffix === null) {
-							console.warn('An unsupported task was found in the tasks queue.');
+							console.warn('Pump Tasks: An unsupported task was found in the tasks queue.');
 
 							return 'continue';
 						}
@@ -1909,7 +1909,7 @@ module.exports = function () {
 						processSnapshots(batch);
 					});
 				} catch (e) {
-					console.warn('Snapshot Refresh: An error occurred during refresh processing. Ignoring.', e);
+					console.warn('Snapshots: An error occurred during refresh processing. Ignoring.', e);
 				}
 			}
 
@@ -2186,7 +2186,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.32'
+		version: '3.1.33'
 	};
 }();
 
