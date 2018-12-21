@@ -2186,7 +2186,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.33'
+		version: '3.1.34'
 	};
 }();
 
@@ -2860,7 +2860,7 @@ module.exports = function () {
 					}
 
 					if (cv && cv.container && message.tradePrice && message.tradeSize) {
-						cv.container.incrementVolume(q.tradePrice, q.tradeSize);
+						cv.container.incrementVolume(message.tradePrice, message.tradeSize);
 					}
 					break;
 				case 'TRADE_OUT_OF_SEQUENCE':
@@ -2869,7 +2869,7 @@ module.exports = function () {
 					}
 
 					if (cv && cv.container && message.tradePrice && message.tradeSize) {
-						cv.container.incrementVolume(q.tradePrice, q.tradeSize);
+						cv.container.incrementVolume(message.tradePrice, message.tradeSize);
 					}
 
 					break;
