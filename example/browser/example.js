@@ -2186,7 +2186,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.37'
+		version: '3.1.38'
 	};
 }();
 
@@ -3564,7 +3564,8 @@ module.exports = function () {
 
 var xhr = require('xhr');
 
-var convertDayCodeToNumber = require('./convertDayCodeToNumber');
+var convertDayCodeToNumber = require('./convertDayCodeToNumber'),
+    convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode');
 
 module.exports = function () {
 	'use strict';
@@ -3630,7 +3631,7 @@ module.exports = function () {
 									message.symbol = result.symbol.toUpperCase();
 									message.name = result.name;
 									message.exchange = result.exchange;
-									message.unitcode = result.unitCode;
+									message.unitcode = convertBaseCodeToUnitCode(parseInt(result.unitCode));
 
 									message.day = result.dayCode;
 									message.dayNum = convertDayCodeToNumber(result.dayCode);
@@ -3676,7 +3677,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convertDayCodeToNumber":19,"xhr":49}],27:[function(require,module,exports){
+},{"./convertBaseCodeToUnitCode":17,"./convertDayCodeToNumber":19,"xhr":49}],27:[function(require,module,exports){
 'use strict';
 
 var xhr = require('xhr');
