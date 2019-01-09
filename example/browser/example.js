@@ -1339,7 +1339,7 @@ module.exports = function () {
 			}));
 
 			pendingProfileSymbols.forEach(function (symbol) {
-				addTask('P_SNAPHSOT', symbol);
+				addTask('P_SNAPSHOT', symbol);
 			});
 		}
 
@@ -2186,7 +2186,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.35'
+		version: '3.1.36'
 	};
 }();
 
@@ -4983,59 +4983,44 @@ module.exports = function () {
 		},
 
 		getProducerSymbol: function getProducerSymbol(symbol) {
-			if (typeof symbol !== 'string') {
-				return null;
-			}
+			if (typeof symbol === 'string') {
+				var instrumentType = symbolParser.parseInstrumentType(symbol);
 
-			var instrumentType = symbolParser.parseInstrumentType(symbol);
+				if (instrumentType !== null && instrumentType.type === 'future_option') {
+					var currentDate = new Date();
+					var currentYear = currentDate.getFullYear();
+					var optionType = instrumentType.option_type === 'call' ? 'C' : 'P';
+					var optionTypeTrans = String.fromCharCode(optionType.charCodeAt(0) + (instrumentType.year - currentYear));
 
-			if (instrumentType !== null && instrumentType.type === 'future') {
-				return symbol.replace(jerqFutureConversionRegex, '$1$2$4');
-			} else if (instrumentType !== null && instrumentType.type === 'future_option') {
-				var currentDate = new Date();
-				var currentYear = currentDate.getFullYear();
-				var optionType = instrumentType.option_type === 'call' ? 'C' : 'P';
-				var optionTypeTrans = String.fromCharCode(optionType.charCodeAt(0) + (instrumentType.year - currentYear));
+					if (instrumentType.root.length < 3) {
+						return instrumentType.root + instrumentType.month + instrumentType.strike + optionTypeTrans;
+					} else {
+						var year = instrumentType.year.toString().substr(-1);
 
-				if (instrumentType.root.length < 3) {
-					return instrumentType.root + instrumentType.month + instrumentType.strike + optionTypeTrans;
-				} else {
-					var year = instrumentType.year.toString().substr(-1);
-
-					return instrumentType.root + instrumentType.month + year + '|' + instrumentType.strike + optionType;
+						return instrumentType.root + instrumentType.month + year + '|' + instrumentType.strike + optionType;
+					}
 				}
+
+				return symbol.replace(jerqFutureConversionRegex, '$1$2$4');
 			} else {
-				return symbol;
+				return null;
 			}
 		},
 
 		/**
    * Attempts to convert database format of futures options to pipeline format
-   * (e.g. ZLF320Q -> ZLF9|320C)
-   *
-   * @public
-   * @param {String} symbol
-   * @returns {String|null}
+   * ZLF320Q -> ZLF9|320C
    */
 		getFuturesOptionPipelineFormat: function getFuturesOptionPipelineFormat(symbol) {
 			var instrument = symbolParser.parseInstrumentType(symbol);
 
-			if (instrument === null || instrument.type !== 'future_option') {
-				return null;
-			}
+			if (!instrument || instrument.type !== 'future_option') return null;
 
 			var optionType = instrument.option_type === 'call' ? 'C' : 'P';
 
 			return '' + instrument.root + instrument.month + instrument.year.toString().substr(-1, 1) + '|' + instrument.strike + optionType;
 		},
 
-		/**
-   * Tests to see if instrument prices should be displayed as percentages.
-   *
-   * @public
-   * @param {String} symbol
-   * @returns {boolean}
-   */
 		displayUsingPercent: function displayUsingPercent(symbol) {
 			return usePercentRegex.test(symbol);
 		}
