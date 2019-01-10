@@ -2186,7 +2186,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.38'
+		version: '3.1.39'
 	};
 }();
 
@@ -4102,134 +4102,134 @@ module.exports = function () {
 												message.mode = node.attributes[_i2].value;
 												break;
 										}
+									}
 
-										var sessions = {};
+									var sessions = {};
 
-										for (var j = 0; j < node.childNodes.length; j++) {
-											if (node.childNodes[j].nodeName == 'SESSION') {
-												var s = {};
-												var attributes = node.childNodes[j].attributes;
+									for (var j = 0; j < node.childNodes.length; j++) {
+										if (node.childNodes[j].nodeName == 'SESSION') {
+											var s = {};
+											var attributes = node.childNodes[j].attributes;
 
-												if (attributes.getNamedItem('id')) s.id = attributes.getNamedItem('id').value;
-												if (attributes.getNamedItem('day')) s.day = attributes.getNamedItem('day').value;
-												if (attributes.getNamedItem('last')) s.lastPrice = parseValue(attributes.getNamedItem('last').value, message.unitcode);
-												if (attributes.getNamedItem('previous')) s.previousPrice = parseValue(attributes.getNamedItem('previous').value, message.unitcode);
-												if (attributes.getNamedItem('open')) s.openPrice = parseValue(attributes.getNamedItem('open').value, message.unitcode);
-												if (attributes.getNamedItem('high')) s.highPrice = parseValue(attributes.getNamedItem('high').value, message.unitcode);
-												if (attributes.getNamedItem('low')) s.lowPrice = parseValue(attributes.getNamedItem('low').value, message.unitcode);
-												if (attributes.getNamedItem('tradesize')) s.tradeSize = parseInt(attributes.getNamedItem('tradesize').value);
-												if (attributes.getNamedItem('numtrades')) s.numberOfTrades = parseInt(attributes.getNamedItem('numtrades').value);
-												if (attributes.getNamedItem('settlement')) s.settlementPrice = parseValue(attributes.getNamedItem('settlement').value, message.unitcode);
-												if (attributes.getNamedItem('volume')) s.volume = parseInt(attributes.getNamedItem('volume').value);
-												if (attributes.getNamedItem('openinterest')) s.openInterest = parseInt(attributes.getNamedItem('openinterest').value);
-												if (attributes.getNamedItem('timestamp')) {
-													var _v = attributes.getNamedItem('timestamp').value;
-													s.timeStamp = new Date(parseInt(_v.substr(0, 4)), parseInt(_v.substr(4, 2)) - 1, parseInt(_v.substr(6, 2)), parseInt(_v.substr(8, 2)), parseInt(_v.substr(10, 2)), parseInt(_v.substr(12, 2)));
-												}
-												if (attributes.getNamedItem('tradetime')) {
-													var _v2 = attributes.getNamedItem('tradetime').value;
-													s.tradeTime = new Date(parseInt(_v2.substr(0, 4)), parseInt(_v2.substr(4, 2)) - 1, parseInt(_v2.substr(6, 2)), parseInt(_v2.substr(8, 2)), parseInt(_v2.substr(10, 2)), parseInt(_v2.substr(12, 2)));
-												}
-
-												if (s.id) sessions[s.id] = s;
+											if (attributes.getNamedItem('id')) s.id = attributes.getNamedItem('id').value;
+											if (attributes.getNamedItem('day')) s.day = attributes.getNamedItem('day').value;
+											if (attributes.getNamedItem('last')) s.lastPrice = parseValue(attributes.getNamedItem('last').value, message.unitcode);
+											if (attributes.getNamedItem('previous')) s.previousPrice = parseValue(attributes.getNamedItem('previous').value, message.unitcode);
+											if (attributes.getNamedItem('open')) s.openPrice = parseValue(attributes.getNamedItem('open').value, message.unitcode);
+											if (attributes.getNamedItem('high')) s.highPrice = parseValue(attributes.getNamedItem('high').value, message.unitcode);
+											if (attributes.getNamedItem('low')) s.lowPrice = parseValue(attributes.getNamedItem('low').value, message.unitcode);
+											if (attributes.getNamedItem('tradesize')) s.tradeSize = parseInt(attributes.getNamedItem('tradesize').value);
+											if (attributes.getNamedItem('numtrades')) s.numberOfTrades = parseInt(attributes.getNamedItem('numtrades').value);
+											if (attributes.getNamedItem('settlement')) s.settlementPrice = parseValue(attributes.getNamedItem('settlement').value, message.unitcode);
+											if (attributes.getNamedItem('volume')) s.volume = parseInt(attributes.getNamedItem('volume').value);
+											if (attributes.getNamedItem('openinterest')) s.openInterest = parseInt(attributes.getNamedItem('openinterest').value);
+											if (attributes.getNamedItem('timestamp')) {
+												var _v = attributes.getNamedItem('timestamp').value;
+												s.timeStamp = new Date(parseInt(_v.substr(0, 4)), parseInt(_v.substr(4, 2)) - 1, parseInt(_v.substr(6, 2)), parseInt(_v.substr(8, 2)), parseInt(_v.substr(10, 2)), parseInt(_v.substr(12, 2)));
 											}
+											if (attributes.getNamedItem('tradetime')) {
+												var _v2 = attributes.getNamedItem('tradetime').value;
+												s.tradeTime = new Date(parseInt(_v2.substr(0, 4)), parseInt(_v2.substr(4, 2)) - 1, parseInt(_v2.substr(6, 2)), parseInt(_v2.substr(8, 2)), parseInt(_v2.substr(10, 2)), parseInt(_v2.substr(12, 2)));
+											}
+
+											if (s.id) sessions[s.id] = s;
 										}
+									}
 
-										var premarket = typeof sessions.combined.lastPrice === 'undefined';
-										var postmarket = !premarket && typeof sessions.combined.settlementPrice !== 'undefined';
+									var premarket = typeof sessions.combined.lastPrice === 'undefined';
+									var postmarket = !premarket && typeof sessions.combined.settlementPrice !== 'undefined';
 
-										var session = premarket ? sessions.previous : sessions.combined;
+									var session = premarket ? sessions.previous : sessions.combined;
 
-										if (sessions.combined.previousPrice) {
-											message.previousPrice = sessions.combined.previousPrice;
-										} else {
-											message.previousPrice = sessions.previous.previousPrice;
-										}
+									if (sessions.combined.previousPrice) {
+										message.previousPrice = sessions.combined.previousPrice;
+									} else {
+										message.previousPrice = sessions.previous.previousPrice;
+									}
 
-										if (session.lastPrice) message.lastPrice = session.lastPrice;
-										if (session.openPrice) message.openPrice = session.openPrice;
-										if (session.highPrice) message.highPrice = session.highPrice;
-										if (session.lowPrice) message.lowPrice = session.lowPrice;
-										if (session.tradeSize) message.tradeSize = session.tradeSize;
-										if (session.numberOfTrades) message.numberOfTrades = session.numberOfTrades;
-										if (session.settlementPrice) message.settlementPrice = session.settlementPrice;
-										if (session.volume) message.volume = session.volume;
-										if (session.openInterest) message.openInterest = session.openInterest;
-										if (session.id === 'combined' && sessions.previous.openInterest) message.openInterest = sessions.previous.openInterest;
-										if (session.timeStamp) message.timeStamp = session.timeStamp;
-										if (session.tradeTime) message.tradeTime = session.tradeTime;
+									if (session.lastPrice) message.lastPrice = session.lastPrice;
+									if (session.openPrice) message.openPrice = session.openPrice;
+									if (session.highPrice) message.highPrice = session.highPrice;
+									if (session.lowPrice) message.lowPrice = session.lowPrice;
+									if (session.tradeSize) message.tradeSize = session.tradeSize;
+									if (session.numberOfTrades) message.numberOfTrades = session.numberOfTrades;
+									if (session.settlementPrice) message.settlementPrice = session.settlementPrice;
+									if (session.volume) message.volume = session.volume;
+									if (session.openInterest) message.openInterest = session.openInterest;
+									if (session.id === 'combined' && sessions.previous.openInterest) message.openInterest = sessions.previous.openInterest;
+									if (session.timeStamp) message.timeStamp = session.timeStamp;
+									if (session.tradeTime) message.tradeTime = session.tradeTime;
 
-										// 2016/10/29, BRI. We have a problem where we don't "roll" quotes
-										// for futures. For example, LEZ16 doesn't "roll" the settlementPrice
-										// to the previous price -- so, we did this on the open message (2,0A).
-										// Eero has another idea. Perhaps we are setting the "day" improperly
-										// here. Perhaps we should base the day off of the actual session
-										// (i.e. "session" variable) -- instead of taking it from the "combined"
-										// session.
+									// 2016/10/29, BRI. We have a problem where we don't "roll" quotes
+									// for futures. For example, LEZ16 doesn't "roll" the settlementPrice
+									// to the previous price -- so, we did this on the open message (2,0A).
+									// Eero has another idea. Perhaps we are setting the "day" improperly
+									// here. Perhaps we should base the day off of the actual session
+									// (i.e. "session" variable) -- instead of taking it from the "combined"
+									// session.
 
-										if (sessions.combined.day) message.day = sessions.combined.day;
-										if (premarket && typeof message.flag === 'undefined') message.flag = 'p';
+									if (sessions.combined.day) message.day = sessions.combined.day;
+									if (premarket && typeof message.flag === 'undefined') message.flag = 'p';
 
-										var p = sessions.previous;
+									var p = sessions.previous;
 
-										message.previousPreviousPrice = p.previousPrice;
-										message.previousSettlementPrice = p.settlementPrice;
-										message.previousOpenPrice = p.openPrice;
-										message.previousHighPrice = p.highPrice;
-										message.previousLowPrice = p.lowPrice;
-										message.previousTimeStamp = p.timeStamp;
+									message.previousPreviousPrice = p.previousPrice;
+									message.previousSettlementPrice = p.settlementPrice;
+									message.previousOpenPrice = p.openPrice;
+									message.previousHighPrice = p.highPrice;
+									message.previousLowPrice = p.lowPrice;
+									message.previousTimeStamp = p.timeStamp;
 
-										if (sessions.combined.day) {
-											var sessionFormT = 'session_' + sessions.combined.day + '_T';
+									if (sessions.combined.day) {
+										var sessionFormT = 'session_' + sessions.combined.day + '_T';
 
-											if (sessions.hasOwnProperty(sessionFormT)) {
-												var t = sessions[sessionFormT];
+										if (sessions.hasOwnProperty(sessionFormT)) {
+											var t = sessions[sessionFormT];
 
-												var lastPriceT = t.lastPrice;
+											var lastPriceT = t.lastPrice;
 
-												if (lastPriceT) {
-													var tradeTimeT = t.tradeTime;
-													var tradeSizeT = t.tradeSize;
+											if (lastPriceT) {
+												var tradeTimeT = t.tradeTime;
+												var tradeSizeT = t.tradeSize;
 
-													var sessionIsEvening = void 0;
+												var sessionIsEvening = void 0;
 
-													if (tradeTimeT) {
-														var noon = new Date(tradeTimeT.getFullYear(), tradeTimeT.getMonth(), tradeTimeT.getDate(), 12, 0, 0, 0);
+												if (tradeTimeT) {
+													var noon = new Date(tradeTimeT.getFullYear(), tradeTimeT.getMonth(), tradeTimeT.getDate(), 12, 0, 0, 0);
 
-														sessionIsEvening = tradeTimeT.getTime() > noon.getTime();
-													} else {
-														sessionIsEvening = false;
-													}
+													sessionIsEvening = tradeTimeT.getTime() > noon.getTime();
+												} else {
+													sessionIsEvening = false;
+												}
 
-													message.sessionT = sessionIsEvening;
+												message.sessionT = sessionIsEvening;
 
-													var sessionIsCurrent = premarket || sessionIsEvening;
+												var sessionIsCurrent = premarket || sessionIsEvening;
+
+												if (sessionIsCurrent) {
+													message.lastPriceT = lastPriceT;
+												}
+
+												if (premarket || postmarket) {
+													message.session = 'T';
 
 													if (sessionIsCurrent) {
-														message.lastPriceT = lastPriceT;
-													}
-
-													if (premarket || postmarket) {
-														message.session = 'T';
-
-														if (sessionIsCurrent) {
-															if (tradeTimeT) {
-																message.tradeTime = tradeTimeT;
-															}
-
-															if (tradeSizeT) {
-																message.tradeSize = tradeSizeT;
-															}
+														if (tradeTimeT) {
+															message.tradeTime = tradeTimeT;
 														}
 
-														if (premarket) {
-															if (t.volume) {
-																message.volume = t.volume;
-															}
+														if (tradeSizeT) {
+															message.tradeSize = tradeSizeT;
+														}
+													}
 
-															if (t.previousPrice) {
-																message.previousPrice = t.previousPrice;
-															}
+													if (premarket) {
+														if (t.volume) {
+															message.volume = t.volume;
+														}
+
+														if (t.previousPrice) {
+															message.previousPrice = t.previousPrice;
 														}
 													}
 												}
