@@ -1091,8 +1091,8 @@ module.exports = function () {
 
 				symbol = symbol.toUpperCase().trim();
 
-				if (!symbol) {
-					console.log('Consumer: Unable to process "on" command, the "symbol" argument is empty.');
+				if (!symbol || !(symbol.indexOf(' ') < 0)) {
+					console.log('Consumer: Unable to process "on" command, the "symbol" argument is invalid.');
 					console.trace();
 
 					return;
@@ -1204,7 +1204,7 @@ module.exports = function () {
 
 				symbol = symbol.toUpperCase().trim();
 
-				if (!symbol) {
+				if (!symbol || !(symbol.indexOf(' ') < 0)) {
 					console.log('Consumer: Unable to process "off" command, the "symbol" argument is empty.');
 					console.trace();
 
@@ -1283,7 +1283,7 @@ module.exports = function () {
 
 			var consumerSymbol = symbol.toUpperCase().trim();
 
-			if (!consumerSymbol) {
+			if (!consumerSymbol || !(consumerSymbol.indexOf(' ') < 0)) {
 				console.log('Consumer: Unable to process profile request, the "symbol" argument is empty.');
 				console.trace();
 
@@ -2209,7 +2209,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.40'
+		version: '3.1.41'
 	};
 }();
 
