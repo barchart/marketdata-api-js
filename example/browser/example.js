@@ -2209,7 +2209,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.41'
+		version: '3.1.42'
 	};
 }();
 
@@ -2664,8 +2664,6 @@ module.exports = function () {
 
 				return;
 			}
-
-			debugger;
 
 			var p = _getOrCreateProfile(symbol);
 
@@ -3903,6 +3901,10 @@ module.exports = function () {
 		},
 
 		dateToDayCode: function dateToDayCode(date) {
+			if (date === null || date === undefined) {
+				return null;
+			}
+
 			var d = date.getDate();
 
 			if (d >= 1 && d <= 9) {
@@ -3915,6 +3917,10 @@ module.exports = function () {
 		},
 
 		dayCodeToNumber: function dayCodeToNumber(dayCode) {
+			if (dayCode === null || dayCode === undefined) {
+				return null;
+			}
+
 			var d = parseInt(dayCode, 31);
 
 			if (d > 9) {
