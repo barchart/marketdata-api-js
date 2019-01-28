@@ -2665,6 +2665,8 @@ module.exports = function () {
 				return;
 			}
 
+			debugger;
+
 			var p = _getOrCreateProfile(symbol);
 
 			if (!p && message.type !== 'REFRESH_QUOTE') {
@@ -3587,7 +3589,8 @@ module.exports = function () {
 
 var xhr = require('xhr');
 
-var convertDayCodeToNumber = require('./convertDayCodeToNumber'),
+var convertDateToDayCode = require('./convertDateToDayCode'),
+    convertDayCodeToNumber = require('./convertDayCodeToNumber'),
     convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode');
 
 module.exports = function () {
@@ -3656,8 +3659,18 @@ module.exports = function () {
 									message.exchange = result.exchange;
 									message.unitcode = convertBaseCodeToUnitCode(parseInt(result.unitCode));
 
-									message.day = result.dayCode;
-									message.dayNum = convertDayCodeToNumber(result.dayCode);
+									message.tradeTime = new Date(result.tradeTimestamp);
+
+									var dayCode = void 0;
+
+									if (typeof result.dayCode === 'string' && result.dayCode.length === 1) {
+										dayCode = result.dayCode;
+									} else {
+										dayCode = convertDateToDayCode(message.tradeTime);
+									}
+
+									message.day = dayCode;
+									message.dayNum = convertDayCodeToNumber(dayCode);
 									message.flag = result.flag;
 									message.mode = result.mode;
 
@@ -3679,8 +3692,6 @@ module.exports = function () {
 
 									message.volume = result.volume;
 
-									message.tradeTime = new Date(result.tradeTimestamp);
-
 									message.lastUpdate = message.tradeTime;
 
 									return message;
@@ -3700,7 +3711,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convertBaseCodeToUnitCode":17,"./convertDayCodeToNumber":19,"xhr":49}],27:[function(require,module,exports){
+},{"./convertBaseCodeToUnitCode":17,"./convertDateToDayCode":18,"./convertDayCodeToNumber":19,"xhr":49}],27:[function(require,module,exports){
 'use strict';
 
 var xhr = require('xhr');
