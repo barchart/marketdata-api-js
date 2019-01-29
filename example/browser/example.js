@@ -1939,7 +1939,7 @@ module.exports = function () {
 					return processMarketMessage(message);
 				});
 			}).catch(function (e) {
-				console.log('Snapshots: Out-of-band snapshot request failed.', e);
+				console.log('Snapshots: Out-of-band snapshot request failed for [ ${symbols.join()} ]', e);
 			});
 		}
 
@@ -2235,7 +2235,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.42'
+		version: '3.1.43'
 	};
 }();
 
@@ -3796,36 +3796,38 @@ module.exports = function () {
 							rejectCallback('The server returned an HTTP ' + response.statusCode + ' response code.');
 						} else {
 							var messages = JSON.parse(body).results.map(function (result) {
-								var message = void 0;
+								if (!result.stats || !result.stats.length > 0) {
+									rejectCallback('The server returned an invalid response for ' + symbol + '.');
 
-								if (result.stats && result.stats.length > 0) {
-									var first = result.stats[0];
-									var second = result.length > 1 ? result.stats[1] : null;
-
-									var match = first.date.match(regex.day);
-									var date = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
-									var dayCode = convertDateToDayCode(date);
-
-									message = {};
-
-									message.type = 'REFRESH_QUOTE';
-
-									message.symbol = result.symbol.toUpperCase();
-									message.name = result.seriesDescription;
-									message.exchange = 'CSTATS';
-									message.unitcode = 2;
-
-									message.day = dayCode;
-									message.dayNum = convertDayCodeToNumber(dayCode);
-
-									message.lastPrice = first.value;
-
-									if (second !== null) {
-										message.previousPrice = second.value;
-									}
-
-									message.lastUpdate = date;
+									return;
 								}
+
+								var first = result.stats[0];
+								var second = result.length > 1 ? result.stats[1] : null;
+
+								var match = first.date.match(regex.day);
+								var date = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
+								var dayCode = convertDateToDayCode(date);
+
+								var message = {};
+
+								message.type = 'REFRESH_QUOTE';
+
+								message.symbol = result.symbol.toUpperCase();
+								message.name = result.seriesDescription;
+								message.exchange = 'CSTATS';
+								message.unitcode = 2;
+
+								message.day = dayCode;
+								message.dayNum = convertDayCodeToNumber(dayCode);
+
+								message.lastPrice = first.value;
+
+								if (second !== null) {
+									message.previousPrice = second.value;
+								}
+
+								message.lastUpdate = date;
 
 								return message;
 							});
