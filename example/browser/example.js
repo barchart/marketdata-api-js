@@ -376,6 +376,28 @@ module.exports = function () {
 	'use strict';
 
 	var array = {
+		/**
+   * Returns a copy of an array, replacing any item that is itself an array
+   * with the item's items.
+   *
+   * @static
+   * @param {Array} a
+   * @param {Boolean=} recursive - If true, all nested arrays will be flattened.
+   * @returns {Array}
+   */
+		flatten: function flatten(a, recursive) {
+			var empty = [];
+
+			var flat = empty.concat.apply(empty, a);
+
+			if (recursive && flat.some(function (x) {
+				return Array.isArray(x);
+			})) {
+				flat = this.flatten(flat, true);
+			}
+
+			return flat;
+		},
 		unique: function unique(array) {
 			var arrayToFilter = array || [];
 
@@ -752,6 +774,10 @@ module.exports = function () {
 
 	var _RECONNECT_INTERVAL = 5000;
 	var _WATCHDOG_INTERVAL = 10000;
+
+	var regex = {};
+
+	regex.snapshot = /^(BCSD-|BEA-|BLS-|EIA-|CFTC-|USCB-|USDA-)|:/;
 
 	function ConnectionInternal(marketState) {
 		var __marketState = marketState;
@@ -2063,7 +2089,7 @@ module.exports = function () {
    * @returns {Boolean}
    */
 		function getIsStreamingSymbol(symbol) {
-			return symbol.indexOf(':') < 0;
+			return !getIsSnapshotSymbol(symbol);
 		}
 
 		/**
@@ -2075,7 +2101,7 @@ module.exports = function () {
    * @returns {Boolean}
    */
 		function getIsSnapshotSymbol(symbol) {
-			return !(symbol.indexOf(':') < 0);
+			return regex.snapshot.test(symbol);
 		}
 
 		/**
@@ -3587,6 +3613,8 @@ module.exports = function () {
 
 var xhr = require('xhr');
 
+var array = require('./../common/lang/array');
+
 var convertDateToDayCode = require('./convertDateToDayCode'),
     convertDayCodeToNumber = require('./convertDayCodeToNumber'),
     convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode');
@@ -3594,7 +3622,10 @@ var convertDateToDayCode = require('./convertDateToDayCode'),
 module.exports = function () {
 	'use strict';
 
-	var ADDITIONAL_FIELDS = ['exchange', 'bid', 'bidSize', 'ask', 'askSize', 'tradeSize', 'numTrades', 'settlement', 'previousLastPrice'];
+	var regex = {};
+
+	regex.cmdty = /^(BCSD-|BEA-|BLS-|EIA-|CFTC-|USCB-|USDA-)/;
+	regex.day = /^([0-9]{4}).?([0-9]{2}).?([0-9]{2})$/;
 
 	/**
   * Executes an HTTP request for a quote snapshot(s) and returns a
@@ -3607,7 +3638,7 @@ module.exports = function () {
   * @param {String} password
   * @returns {Promise.<Array>}
   */
-	return function (symbols, username, password) {
+	function retrieveSnapshots(symbols, username, password) {
 		return Promise.resolve().then(function () {
 			var symbolsToUse = void 0;
 
@@ -3633,83 +3664,188 @@ module.exports = function () {
 				throw new Error('The "password" argument must be a string.');
 			}
 
-			return new Promise(function (resolveCallback, rejectCallback) {
-				try {
-					var options = {
-						url: 'https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getQuote.json?username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password) + '&symbols=' + encodeURIComponent(symbolsToUse.join()) + '&fields=' + encodeURIComponent(ADDITIONAL_FIELDS.join()),
-						method: 'GET'
-					};
+			var getCmdtySymbols = [];
+			var getQuoteSymbols = [];
 
-					xhr(options, function (error, response, body) {
-						try {
-							if (error) {
-								rejectCallback(error);
-							} else if (response.statusCode !== 200) {
-								rejectCallback('The server returned an HTTP ' + response.statusCode + ' response code.');
-							} else {
-								var messages = JSON.parse(body).results.map(function (result) {
-									var message = {};
+			symbolsToUse.forEach(function (symbol) {
+				if (regex.cmdty.test(symbol)) {
+					getCmdtySymbols.push(symbol);
+				} else {
+					getQuoteSymbols.push(symbol);
+				}
+			});
+
+			var promises = [];
+
+			if (getCmdtySymbols.length !== 0) {
+				promises.push(retrieveSnapshotsUsingGetCmdtyStats(getCmdtySymbols, username, password));
+			}
+
+			if (getQuoteSymbols.length !== 0) {
+				promises.push(retrieveSnapshotsUsingGetQuote(getQuoteSymbols, username, password));
+			}
+
+			if (promises.length === 0) {
+				return Promise.resolve([]);
+			}
+
+			return Promise.all(promises).then(function (results) {
+				debugger;
+
+				return array.flatten(results, true);
+			});
+		});
+	}
+
+	var ADDITIONAL_FIELDS = ['exchange', 'bid', 'bidSize', 'ask', 'askSize', 'tradeSize', 'numTrades', 'settlement', 'previousLastPrice'];
+
+	function retrieveSnapshotsUsingGetQuote(symbols, username, password) {
+		return new Promise(function (resolveCallback, rejectCallback) {
+			try {
+				var options = {
+					url: 'https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getQuote.json?username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password) + '&symbols=' + encodeURIComponent(symbols.join()) + '&fields=' + encodeURIComponent(ADDITIONAL_FIELDS.join()),
+					method: 'GET'
+				};
+
+				xhr(options, function (error, response, body) {
+					try {
+						if (error) {
+							rejectCallback(error);
+						} else if (response.statusCode !== 200) {
+							rejectCallback('The server returned an HTTP ' + response.statusCode + ' response code.');
+						} else {
+							var messages = JSON.parse(body).results.map(function (result) {
+								var message = {};
+
+								message.type = 'REFRESH_QUOTE';
+
+								message.symbol = result.symbol.toUpperCase();
+								message.name = result.name;
+								message.exchange = result.exchange;
+								message.unitcode = convertBaseCodeToUnitCode(parseInt(result.unitCode));
+
+								message.tradeTime = new Date(result.tradeTimestamp);
+
+								var dayCode = void 0;
+
+								if (typeof result.dayCode === 'string' && result.dayCode.length === 1) {
+									dayCode = result.dayCode;
+								} else {
+									dayCode = convertDateToDayCode(message.tradeTime);
+								}
+
+								message.day = dayCode;
+								message.dayNum = convertDayCodeToNumber(dayCode);
+								message.flag = result.flag;
+								message.mode = result.mode;
+
+								message.lastPrice = result.lastPrice;
+								message.tradeSize = result.tradeSize;
+								message.numberOfTrades = result.numTrades;
+
+								message.bidPrice = result.bid;
+								message.bidSize = result.bidSize;
+								message.askPrice = result.ask;
+								message.askSize = result.askSize;
+
+								message.settlementPrice = result.settlement;
+								message.previousPrice = result.previousLastPrice;
+
+								message.openPrice = result.open;
+								message.highPrice = result.high;
+								message.lowPrice = result.low;
+
+								message.volume = result.volume;
+
+								message.lastUpdate = message.tradeTime;
+
+								return message;
+							});
+
+							resolveCallback(messages);
+						}
+					} catch (processError) {
+						rejectCallback(processError);
+					}
+				});
+			} catch (executeError) {
+				rejectCallback(executeError);
+			}
+		});
+	}
+
+	function retrieveSnapshotsUsingGetCmdtyStats(symbols, username, password) {
+		return Promise.all(symbols.map(function (symbol) {
+			return retrieveSnapshotUsingGetCmdtyStats(symbol, username, password);
+		}));
+	}
+
+	function retrieveSnapshotUsingGetCmdtyStats(symbol, username, password) {
+		return new Promise(function (resolveCallback, rejectCallback) {
+			try {
+				var options = {
+					url: 'https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getCmdtyStats.json?username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password) + '&symbol=' + encodeURIComponent(symbol),
+					method: 'GET'
+				};
+
+				xhr(options, function (error, response, body) {
+					try {
+						if (error) {
+							rejectCallback(error);
+						} else if (response.statusCode !== 200) {
+							rejectCallback('The server returned an HTTP ' + response.statusCode + ' response code.');
+						} else {
+							var messages = JSON.parse(body).results.map(function (result) {
+								var message = void 0;
+
+								if (result.stats && result.stats.length > 0) {
+									var first = result.stats[0];
+									var second = result.length > 1 ? result.stats[1] : null;
+
+									var match = first.date.match(regex.day);
+									var date = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
+									var dayCode = convertDateToDayCode(date);
+
+									message = {};
 
 									message.type = 'REFRESH_QUOTE';
 
 									message.symbol = result.symbol.toUpperCase();
-									message.name = result.name;
-									message.exchange = result.exchange;
-									message.unitcode = convertBaseCodeToUnitCode(parseInt(result.unitCode));
-
-									message.tradeTime = new Date(result.tradeTimestamp);
-
-									var dayCode = void 0;
-
-									if (typeof result.dayCode === 'string' && result.dayCode.length === 1) {
-										dayCode = result.dayCode;
-									} else {
-										dayCode = convertDateToDayCode(message.tradeTime);
-									}
+									message.name = result.seriesDescription;
+									message.exchange = 'CSTATS';
+									message.unitcode = 2;
 
 									message.day = dayCode;
 									message.dayNum = convertDayCodeToNumber(dayCode);
-									message.flag = result.flag;
-									message.mode = result.mode;
 
-									message.lastPrice = result.lastPrice;
-									message.tradeSize = result.tradeSize;
-									message.numberOfTrades = result.numTrades;
+									message.lastPrice = first.value;
 
-									message.bidPrice = result.bid;
-									message.bidSize = result.bidSize;
-									message.askPrice = result.ask;
-									message.askSize = result.askSize;
+									if (second !== null) {
+										message.previousPrice = second.value;
+									}
 
-									message.settlementPrice = result.settlement;
-									message.previousPrice = result.previousLastPrice;
+									message.lastUpdate = date;
+								}
 
-									message.openPrice = result.open;
-									message.highPrice = result.high;
-									message.lowPrice = result.low;
+								return message;
+							});
 
-									message.volume = result.volume;
-
-									message.lastUpdate = message.tradeTime;
-
-									return message;
-								});
-
-								resolveCallback(messages);
-							}
-						} catch (processError) {
-							rejectCallback(processError);
+							resolveCallback(messages);
 						}
-					});
-				} catch (executeError) {
-					rejectCallback(executeError);
-				}
-			});
+					} catch (processError) {
+						rejectCallback(processError);
+					}
+				});
+			} catch (executeError) {
+				rejectCallback(executeError);
+			}
 		});
-	};
+	}
+
+	return retrieveSnapshots;
 }();
 
-},{"./convertBaseCodeToUnitCode":17,"./convertDateToDayCode":18,"./convertDayCodeToNumber":19,"xhr":49}],27:[function(require,module,exports){
+},{"./../common/lang/array":2,"./convertBaseCodeToUnitCode":17,"./convertDateToDayCode":18,"./convertDayCodeToNumber":19,"xhr":49}],27:[function(require,module,exports){
 'use strict';
 
 var xhr = require('xhr');
