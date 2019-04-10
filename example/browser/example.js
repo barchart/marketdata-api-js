@@ -141,6 +141,8 @@ module.exports = function () {
 
 			if (symbol === '#SP500') {
 				symbols = SP_500.slice(0, 3);
+			} else if (symbol === '#C3') {
+				symbols = C3;
 			} else {
 				symbols = [symbol];
 			}
@@ -361,6 +363,7 @@ module.exports = function () {
 	};
 
 	var SP_500 = ['ABT', 'ABBV', 'ACN', 'ATVI', 'AYI', 'ADBE', 'AMD', 'AAP', 'AES', 'AET', 'AMG', 'AFL', 'A', 'APD', 'AKAM', 'ALK', 'ALB', 'ARE', 'ALXN', 'ALGN', 'ALLE', 'AGN', 'ADS', 'LNT', 'ALL', 'GOOGL', 'GOOG', 'MO', 'AMZN', 'AEE', 'AAL', 'AEP', 'AXP', 'AIG', 'AMT', 'AWK', 'AMP', 'ABC', 'AME', 'AMGN', 'APH', 'APC', 'ADI', 'ANDV', 'ANSS', 'ANTM', 'AON', 'AOS', 'APA', 'AIV', 'AAPL', 'AMAT', 'ADM', 'ARNC', 'AJG', 'AIZ', 'T', 'ADSK', 'ADP', 'AZO', 'AVB', 'AVY', 'BHGE', 'BLL', 'BAC', 'BK', 'BCR', 'BAX', 'BBT', 'BDX', 'BRK.B', 'BBY', 'BIIB', 'BLK', 'HRB', 'BA', 'BWA', 'BXP', 'BSX', 'BHF', 'BMY', 'AVGO', 'BF.B', 'CHRW', 'CA', 'COG', 'CDNS', 'CPB', 'COF', 'CAH', 'CBOE', 'KMX', 'CCL', 'CAT', 'CBG', 'CBS', 'CELG', 'CNC', 'CNP', 'CTL', 'CERN', 'CF', 'SCHW', 'CHTR', 'CHK', 'CVX', 'CMG', 'CB', 'CHD', 'CI', 'XEC', 'CINF', 'CTAS', 'CSCO', 'C', 'CFG', 'CTXS', 'CLX', 'CME', 'CMS', 'COH', 'KO', 'CTSH', 'CL', 'CMCSA', 'CMA', 'CAG', 'CXO', 'COP', 'ED', 'STZ', 'COO', 'GLW', 'COST', 'COTY', 'CCI', 'CSRA', 'CSX', 'CMI', 'CVS', 'DHI', 'DHR', 'DRI', 'DVA', 'DE', 'DLPH', 'DAL', 'XRAY', 'DVN', 'DLR', 'DFS', 'DISCA', 'DISCK', 'DISH', 'DG', 'DLTR', 'D', 'DOV', 'DWDP', 'DPS', 'DTE', 'DRE', 'DUK', 'DXC', 'ETFC', 'EMN', 'ETN', 'EBAY', 'ECL', 'EIX', 'EW', 'EA', 'EMR', 'ETR', 'EVHC', 'EOG', 'EQT', 'EFX', 'EQIX', 'EQR', 'ESS', 'EL', 'ES', 'RE', 'EXC', 'EXPE', 'EXPD', 'ESRX', 'EXR', 'XOM', 'FFIV', 'FB', 'FAST', 'FRT', 'FDX', 'FIS', 'FITB', 'FE', 'FISV', 'FLIR', 'FLS', 'FLR', 'FMC', 'FL', 'F', 'FTV', 'FBHS', 'BEN', 'FCX', 'GPS', 'GRMN', 'IT', 'GD', 'GE', 'GGP', 'GIS', 'GM', 'GPC', 'GILD', 'GPN', 'GS', 'GT', 'GWW', 'HAL', 'HBI', 'HOG', 'HRS', 'HIG', 'HAS', 'HCA', 'HCP', 'HP', 'HSIC', 'HSY', 'HES', 'HPE', 'HLT', 'HOLX', 'HD', 'HON', 'HRL', 'HST', 'HPQ', 'HUM', 'HBAN', 'IDXX', 'INFO', 'ITW', 'ILMN', 'IR', 'INTC', 'ICE', 'IBM', 'INCY', 'IP', 'IPG', 'IFF', 'INTU', 'ISRG', 'IVZ', 'IRM', 'JEC', 'JBHT', 'SJM', 'JNJ', 'JCI', 'JPM', 'JNPR', 'KSU', 'K', 'KEY', 'KMB', 'KIM', 'KMI', 'KLAC', 'KSS', 'KHC', 'KR', 'LB', 'LLL', 'LH', 'LRCX', 'LEG', 'LEN', 'LUK', 'LLY', 'LNC', 'LKQ', 'LMT', 'L', 'LOW', 'LYB', 'MTB', 'MAC', 'M', 'MRO', 'MPC', 'MAR', 'MMC', 'MLM', 'MAS', 'MA', 'MAT', 'MKC', 'MCD', 'MCK', 'MDT', 'MRK', 'MET', 'MTD', 'MGM', 'KORS', 'MCHP', 'MU', 'MSFT', 'MAA', 'MHK', 'TAP', 'MDLZ', 'MON', 'MNST', 'MCO', 'MS', 'MOS', 'MSI', 'MYL', 'NDAQ', 'NOV', 'NAVI', 'NTAP', 'NFLX', 'NWL', 'NFX', 'NEM', 'NWSA', 'NWS', 'NEE', 'NLSN', 'NKE', 'NI', 'NBL', 'JWN', 'NSC', 'NTRS', 'NOC', 'NCLH', 'NRG', 'NUE', 'NVDA', 'ORLY', 'OXY', 'OMC', 'OKE', 'ORCL', 'PCAR', 'PKG', 'PH', 'PDCO', 'PAYX', 'PYPL', 'PNR', 'PBCT', 'PEP', 'PKI', 'PRGO', 'PFE', 'PCG', 'PM', 'PSX', 'PNW', 'PXD', 'PNC', 'RL', 'PPG', 'PPL', 'PX', 'PCLN', 'PFG', 'PG', 'PGR', 'PLD', 'PRU', 'PEG', 'PSA', 'PHM', 'PVH', 'QRVO', 'PWR', 'QCOM', 'DGX', 'Q', 'RRC', 'RJF', 'RTN', 'O', 'RHT', 'REG', 'REGN', 'RF', 'RSG', 'RMD', 'RHI', 'ROK', 'COL', 'ROP', 'ROST', 'RCL', 'CRM', 'SBAC', 'SCG', 'SLB', 'SNI', 'STX', 'SEE', 'SRE', 'SHW', 'SIG', 'SPG', 'SWKS', 'SLG', 'SNA', 'SO', 'LUV', 'SPGI', 'SWK', 'SBUX', 'STT', 'SRCL', 'SYK', 'STI', 'SYMC', 'SYF', 'SNPS', 'SYY', 'TROW', 'TGT', 'TEL', 'FTI', 'TXN', 'TXT', 'TMO', 'TIF', 'TWX', 'TJX', 'TMK', 'TSS', 'TSCO', 'TDG', 'TRV', 'TRIP', 'FOXA', 'FOX', 'TSN', 'UDR', 'ULTA', 'USB', 'UA', 'UAA', 'UNP', 'UAL', 'UNH', 'UPS', 'URI', 'UTX', 'UHS', 'UNM', 'VFC', 'VLO', 'VAR', 'VTR', 'VRSN', 'VRSK', 'VZ', 'VRTX', 'VIAB', 'V', 'VNO', 'VMC', 'WMT', 'WBA', 'DIS', 'WM', 'WAT', 'WEC', 'WFC', 'HCN', 'WDC', 'WU', 'WRK', 'WY', 'WHR', 'WMB', 'WLTW', 'WYN', 'WYNN', 'XEL', 'XRX', 'XLNX', 'XL', 'XYL', 'YUM', 'ZBH', 'ZION', 'ZTS'];
+	var C3 = ['C3:AL79MRM1', 'C3:BSP9WGQ1', 'C3:RA10BGM1'];
 
 	$(document).ready(function () {
 		var pageModel = new PageModel();
@@ -2235,7 +2238,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.44'
+		version: '3.1.45'
 	};
 }();
 
@@ -2830,7 +2833,7 @@ module.exports = function () {
 					}
 					break;
 				case 'REFRESH_QUOTE':
-					p = new Profile(symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement);
+					p = new Profile(symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement, message.additional || null);
 
 					if (!q.profile) {
 						q.profile = p;
@@ -3150,6 +3153,8 @@ module.exports = function () {
 },{"./../util/convertDayCodeToNumber":19,"./CumulativeVolume":8,"./Profile":10,"./Quote":11,"@barchart/marketdata-utilities-js":32}],10:[function(require,module,exports){
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -3170,7 +3175,7 @@ module.exports = function () {
   */
 
 	var Profile = function () {
-		function Profile(symbol, name, exchange, unitCode, pointValue, tickIncrement) {
+		function Profile(symbol, name, exchange, unitCode, pointValue, tickIncrement, additional) {
 			_classCallCheck(this, Profile);
 
 			/**
@@ -3221,6 +3226,12 @@ module.exports = function () {
       * @property {undefined|number} year - the expiration year, if a symbol; otherwise undefined
       */
 					this.year = info.year;
+				}
+			}
+
+			if ((typeof additional === 'undefined' ? 'undefined' : _typeof(additional)) === 'object' && additional !== null) {
+				for (var p in additional) {
+					this[p] = additional[p];
 				}
 			}
 
@@ -3624,8 +3635,19 @@ module.exports = function () {
 
 	var regex = {};
 
-	regex.cmdty = /^(BCSD-|BEA-|BLS-|EIA-|CFTC-|USCB-|USDA-)/;
 	regex.day = /^([0-9]{4}).?([0-9]{2}).?([0-9]{2})$/;
+
+	regex.cmdty = {};
+	regex.cmdty.symbol = /^(BCSD-|BEA-|BLS-|EIA-|CFTC-|USCB-|USDA-)/;
+
+	regex.c3 = {};
+	regex.c3.symbol = /^(C3:)(.*)$/;
+
+	regex.c3.currencies = {};
+	regex.c3.currencies.eur = /^(EUR)\/(.*)$/i;
+	regex.c3.currencies.rub = /^(RUB)\/(.*)$/i;
+	regex.c3.currencies.uah = /^(UAH)\/(.*)$/i;
+	regex.c3.currencies.usd = /^(USD|Usc|\$|)\/(.*)$/i;
 
 	/**
   * Executes an HTTP request for a quote snapshot(s) and returns a
@@ -3664,44 +3686,144 @@ module.exports = function () {
 				throw new Error('The "password" argument must be a string.');
 			}
 
+			var getC3ProfileSymbols = [];
+
 			var getCmdtySymbols = [];
 			var getQuoteSymbols = [];
 
 			symbolsToUse.forEach(function (symbol) {
-				if (regex.cmdty.test(symbol)) {
+				if (regex.c3.symbol.test(symbol)) {
+					getC3ProfileSymbols.push(symbol);
+				}
+
+				if (regex.cmdty.symbol.test(symbol)) {
 					getCmdtySymbols.push(symbol);
 				} else {
 					getQuoteSymbols.push(symbol);
 				}
 			});
 
-			var promises = [];
+			var profilePromises = [];
+			var snapshotPromises = [];
+
+			if (getC3ProfileSymbols.length !== 0) {
+				profilePromises.push(retrieveC3Profiles(getC3ProfileSymbols));
+			}
 
 			if (getCmdtySymbols.length !== 0) {
-				promises.push(retrieveSnapshotsUsingGetCmdtyStats(getCmdtySymbols, username, password));
+				snapshotPromises.push(retrieveSnapshotsUsingGetCmdtyStats(getCmdtySymbols, username, password));
 			}
 
 			if (getQuoteSymbols.length !== 0) {
-				promises.push(retrieveSnapshotsUsingGetQuote(getQuoteSymbols, username, password));
+				snapshotPromises.push(retrieveSnapshotsUsingGetQuote(getQuoteSymbols, username, password));
 			}
 
-			if (promises.length === 0) {
+			if (snapshotPromises.length === 0) {
 				return Promise.resolve([]);
 			}
 
-			return Promise.all(promises).then(function (results) {
-				return array.flatten(results, true);
+			return Promise.all([Promise.all(profilePromises), Promise.all(snapshotPromises)]).then(function (results) {
+				var profiles = array.flatten(results[0], true);
+				var snapshots = array.flatten(results[1], true);
+
+				if (profiles.length !== 0) {
+					profiles.forEach(function (profile) {
+						var snapshot = snapshots.find(function (snapshot) {
+							return snapshot.symbol === profile.symbol;
+						}) || null;
+
+						if (snapshot) {
+							snapshot.additional = profile.data;
+						}
+					});
+				}
+
+				return array.flatten(snapshots, true);
 			});
 		});
 	}
 
-	var ADDITIONAL_FIELDS = ['exchange', 'bid', 'bidSize', 'ask', 'askSize', 'tradeSize', 'numTrades', 'settlement', 'previousLastPrice'];
+	var c3ProfilePromises = {};
+
+	function retrieveC3Profiles(symbols) {
+		var existingSymbols = Object.keys(c3ProfilePromises);
+		var requiredSymbols = symbols.filter(function (s) {
+			return existingSymbols.every(function (e) {
+				return e !== s;
+			});
+		});
+
+		var profileRequestPromise = void 0;
+
+		if (requiredSymbols.length === 0) {
+			profileRequestPromise = Promise.resolve([]);
+		} else {
+			profileRequestPromise = new Promise(function (resolveCallback, rejectCallback) {
+				try {
+					var options = {
+						url: 'https://8pvqdg9sp5.execute-api.us-east-1.amazonaws.com/prod/c3/v1/profile?symbols=' + encodeURIComponent(requiredSymbols.join(',')),
+						method: 'GET',
+						headers: {
+							"Content-Type": "application/json"
+						}
+					};
+
+					xhr(options, function (error, response, body) {
+						try {
+							if (error) {
+								rejectCallback(error);
+							} else if (response.statusCode !== 200) {
+								rejectCallback('The server returned an HTTP ' + response.statusCode + ' response code.');
+							} else {
+								var messages = JSON.parse(body);
+
+								resolveCallback(messages);
+							}
+						} catch (processError) {
+							rejectCallback(processError);
+						}
+					});
+				} catch (executeError) {
+					rejectCallback(executeError);
+				}
+			});
+		}
+
+		return Promise.all(requiredSymbols.map(function (symbol) {
+			if (!c3ProfilePromises.hasOwnProperty(symbol)) {
+				c3ProfilePromises[symbol] = profileRequestPromise.then(function (profiles) {
+					var profile = profiles.find(function (p) {
+						return p.Symbol === symbol;
+					}) || null;
+
+					var data = {};
+
+					data.curency = null;
+					data.delivery = null;
+
+					if (profile !== null) {
+						if (profile.LotSizeFix) {
+							data.curency = getC3Currency(profile.LotSizeFix);
+						}
+					}
+
+					return { symbol: symbol, data: { c3: data } };
+				}).catch(function () {
+					return null;
+				});
+			}
+
+			return c3ProfilePromises[symbol];
+		}));
+	}
+
+	var ADDITIONAL_QUOTE_FIELDS = ['exchange', 'bid', 'bidSize', 'ask', 'askSize', 'tradeSize', 'numTrades', 'settlement', 'previousLastPrice'];
 
 	function retrieveSnapshotsUsingGetQuote(symbols, username, password) {
 		return new Promise(function (resolveCallback, rejectCallback) {
 			try {
 				var options = {
-					url: 'https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getQuote.json?username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password) + '&symbols=' + encodeURIComponent(symbols.join()) + '&fields=' + encodeURIComponent(ADDITIONAL_FIELDS.join()),
+					url: 'https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getQuote.json?username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password) + '&symbols=' + encodeURIComponent(symbols.join()) + '&fields=' + encodeURIComponent(ADDITIONAL_QUOTE_FIELDS.join()),
 					method: 'GET'
 				};
 
@@ -3840,6 +3962,20 @@ module.exports = function () {
 				rejectCallback(executeError);
 			}
 		});
+	}
+
+	function getC3Currency(lotSizeFix) {
+		if (regex.c3.currencies.eur.test(lotSizeFix)) {
+			return 'EUR';
+		} else if (regex.c3.currencies.rub.test(lotSizeFix)) {
+			return 'RUB';
+		} else if (regex.c3.currencies.uah.test(lotSizeFix)) {
+			return 'UAH';
+		} else if (regex.c3.currencies.usd.test(lotSizeFix)) {
+			return 'USD';
+		} else {
+			return null;
+		}
 	}
 
 	return retrieveSnapshots;

@@ -327,6 +327,8 @@ module.exports = function () {
 },{"./../common/lang/object":1}],3:[function(require,module,exports){
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -347,7 +349,7 @@ module.exports = function () {
   */
 
 	var Profile = function () {
-		function Profile(symbol, name, exchange, unitCode, pointValue, tickIncrement) {
+		function Profile(symbol, name, exchange, unitCode, pointValue, tickIncrement, additional) {
 			_classCallCheck(this, Profile);
 
 			/**
@@ -398,6 +400,12 @@ module.exports = function () {
       * @property {undefined|number} year - the expiration year, if a symbol; otherwise undefined
       */
 					this.year = info.year;
+				}
+			}
+
+			if ((typeof additional === 'undefined' ? 'undefined' : _typeof(additional)) === 'object' && additional !== null) {
+				for (var p in additional) {
+					this[p] = additional[p];
 				}
 			}
 
