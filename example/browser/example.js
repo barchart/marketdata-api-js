@@ -2238,7 +2238,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.46'
+		version: '3.1.47'
 	};
 }();
 
@@ -3798,7 +3798,7 @@ module.exports = function () {
 
 					var data = {};
 
-					data.curency = null;
+					data.currency = null;
 					data.delivery = null;
 
 					if (profile !== null) {
