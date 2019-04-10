@@ -2238,7 +2238,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.45'
+		version: '3.1.46'
 	};
 }();
 
@@ -3803,7 +3803,7 @@ module.exports = function () {
 
 					if (profile !== null) {
 						if (profile.LotSizeFix) {
-							data.curency = getC3Currency(profile.LotSizeFix);
+							data.currency = getC3Currency(profile.LotSizeFix);
 						}
 					}
 
