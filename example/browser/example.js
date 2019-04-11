@@ -2238,7 +2238,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.47'
+		version: '3.1.48'
 	};
 }();
 
@@ -3686,16 +3686,10 @@ module.exports = function () {
 				throw new Error('The "password" argument must be a string.');
 			}
 
-			var getC3ProfileSymbols = [];
-
 			var getCmdtySymbols = [];
 			var getQuoteSymbols = [];
 
 			symbolsToUse.forEach(function (symbol) {
-				if (regex.c3.symbol.test(symbol)) {
-					getC3ProfileSymbols.push(symbol);
-				}
-
 				if (regex.cmdty.symbol.test(symbol)) {
 					getCmdtySymbols.push(symbol);
 				} else {
@@ -3703,127 +3697,33 @@ module.exports = function () {
 				}
 			});
 
-			var profilePromises = [];
-			var snapshotPromises = [];
-
-			if (getC3ProfileSymbols.length !== 0) {
-				profilePromises.push(retrieveC3Profiles(getC3ProfileSymbols));
-			}
+			var promises = [];
 
 			if (getCmdtySymbols.length !== 0) {
-				snapshotPromises.push(retrieveSnapshotsUsingGetCmdtyStats(getCmdtySymbols, username, password));
+				promises.push(retrieveSnapshotsUsingGetCmdtyStats(getCmdtySymbols, username, password));
 			}
 
 			if (getQuoteSymbols.length !== 0) {
-				snapshotPromises.push(retrieveSnapshotsUsingGetQuote(getQuoteSymbols, username, password));
+				promises.push(retrieveSnapshotsUsingGetQuote(getQuoteSymbols, username, password));
 			}
 
-			if (snapshotPromises.length === 0) {
+			if (promises.length === 0) {
 				return Promise.resolve([]);
 			}
 
-			return Promise.all([Promise.all(profilePromises), Promise.all(snapshotPromises)]).then(function (results) {
-				var profiles = array.flatten(results[0], true);
-				var snapshots = array.flatten(results[1], true);
-
-				if (profiles.length !== 0) {
-					profiles.forEach(function (profile) {
-						var snapshot = snapshots.find(function (snapshot) {
-							return snapshot.symbol === profile.symbol;
-						}) || null;
-
-						if (snapshot) {
-							snapshot.additional = profile.data;
-						}
-					});
-				}
-
-				return array.flatten(snapshots, true);
+			return Promise.all(promises).then(function (results) {
+				return array.flatten(results, true);
 			});
 		});
 	}
 
-	var c3ProfilePromises = {};
-
-	function retrieveC3Profiles(symbols) {
-		var existingSymbols = Object.keys(c3ProfilePromises);
-		var requiredSymbols = symbols.filter(function (s) {
-			return existingSymbols.every(function (e) {
-				return e !== s;
-			});
-		});
-
-		var profileRequestPromise = void 0;
-
-		if (requiredSymbols.length === 0) {
-			profileRequestPromise = Promise.resolve([]);
-		} else {
-			profileRequestPromise = new Promise(function (resolveCallback, rejectCallback) {
-				try {
-					var options = {
-						url: 'https://8pvqdg9sp5.execute-api.us-east-1.amazonaws.com/prod/c3/v1/profile?symbols=' + encodeURIComponent(requiredSymbols.join(',')),
-						method: 'GET',
-						headers: {
-							"Content-Type": "application/json"
-						}
-					};
-
-					xhr(options, function (error, response, body) {
-						try {
-							if (error) {
-								rejectCallback(error);
-							} else if (response.statusCode !== 200) {
-								rejectCallback('The server returned an HTTP ' + response.statusCode + ' response code.');
-							} else {
-								var messages = JSON.parse(body);
-
-								resolveCallback(messages);
-							}
-						} catch (processError) {
-							rejectCallback(processError);
-						}
-					});
-				} catch (executeError) {
-					rejectCallback(executeError);
-				}
-			});
-		}
-
-		return Promise.all(requiredSymbols.map(function (symbol) {
-			if (!c3ProfilePromises.hasOwnProperty(symbol)) {
-				c3ProfilePromises[symbol] = profileRequestPromise.then(function (profiles) {
-					var profile = profiles.find(function (p) {
-						return p.Symbol === symbol;
-					}) || null;
-
-					var data = {};
-
-					data.currency = null;
-					data.delivery = null;
-
-					if (profile !== null) {
-						if (profile.LotSizeFix) {
-							data.currency = getC3Currency(profile.LotSizeFix);
-						}
-					}
-
-					return { symbol: symbol, data: { c3: data } };
-				}).catch(function () {
-					return null;
-				});
-			}
-
-			return c3ProfilePromises[symbol];
-		}));
-	}
-
-	var ADDITIONAL_QUOTE_FIELDS = ['exchange', 'bid', 'bidSize', 'ask', 'askSize', 'tradeSize', 'numTrades', 'settlement', 'previousLastPrice'];
+	var ADDITIONAL_FIELDS = ['exchange', 'bid', 'bidSize', 'ask', 'askSize', 'tradeSize', 'numTrades', 'settlement', 'previousLastPrice'];
 
 	function retrieveSnapshotsUsingGetQuote(symbols, username, password) {
 		return new Promise(function (resolveCallback, rejectCallback) {
 			try {
 				var options = {
-					url: 'https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getQuote.json?username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password) + '&symbols=' + encodeURIComponent(symbols.join()) + '&fields=' + encodeURIComponent(ADDITIONAL_QUOTE_FIELDS.join()),
+					url: 'https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getQuote.json?username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password) + '&symbols=' + encodeURIComponent(symbols.join()) + '&fields=' + encodeURIComponent(ADDITIONAL_FIELDS.join()),
 					method: 'GET'
 				};
 
@@ -3878,6 +3778,23 @@ module.exports = function () {
 								message.volume = result.volume;
 
 								message.lastUpdate = message.tradeTime;
+
+								if (regex.c3.symbol.test(message.symbol)) {
+									var c3 = {};
+
+									c3.currency = null;
+									c3.delivery = null;
+
+									if (result.commodityDataCurrency) {
+										c3.currency = getC3Currency(result.commodityDataCurrency);
+									}
+
+									if (result.commodityDataDelivery) {
+										c3.delivery = result.commodityDataDelivery;
+									}
+
+									message.additional = { c3: c3 };
+								}
 
 								return message;
 							});
