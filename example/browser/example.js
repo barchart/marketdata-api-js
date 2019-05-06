@@ -780,7 +780,7 @@ module.exports = function () {
 
 	var regex = {};
 
-	regex.snapshot = /^(BCSD-|BEA-|BLS-|EIA-|CFTC-|USCB-|USDA-)|:/;
+	regex.snapshot = /^(BCDS-|BEA-|BLS-|EIA-|CFTC-|USCB-|USDA-)|:/;
 
 	function ConnectionInternal(marketState) {
 		var __marketState = marketState;
@@ -2104,8 +2104,6 @@ module.exports = function () {
    * @returns {Boolean}
    */
 		function getIsSnapshotSymbol(symbol) {
-			console.log(symbol + ' is snapshot ' + regex.snapshot.test(symbol));
-
 			return regex.snapshot.test(symbol);
 		}
 
@@ -2240,7 +2238,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.48'
+		version: '3.1.49'
 	};
 }();
 
@@ -3640,7 +3638,7 @@ module.exports = function () {
 	regex.day = /^([0-9]{4}).?([0-9]{2}).?([0-9]{2})$/;
 
 	regex.cmdty = {};
-	regex.cmdty.symbol = /^(BCSD-|BEA-|BLS-|EIA-|CFTC-|USCB-|USDA-)/;
+	regex.cmdty.symbol = /^(BCDS-|BEA-|BLS-|EIA-|CFTC-|USCB-|USDA-)/;
 
 	regex.c3 = {};
 	regex.c3.symbol = /^(C3:)(.*)$/;
