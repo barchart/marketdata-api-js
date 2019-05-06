@@ -2104,6 +2104,8 @@ module.exports = function () {
    * @returns {Boolean}
    */
 		function getIsSnapshotSymbol(symbol) {
+			console.log(symbol + ' is snapshot ' + regex.snapshot.test(symbol));
+
 			return regex.snapshot.test(symbol);
 		}
 
@@ -2128,7 +2130,7 @@ module.exports = function () {
 		}
 
 		//
-		// Begin "pumps" which perform repeated repeated processing.
+		// Begin "pumps" which perform repeated processing.
 		//
 
 		setTimeout(pumpInboundProcessing, 125);
