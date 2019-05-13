@@ -1942,7 +1942,7 @@ module.exports = function () {
 					return processMarketMessage(message);
 				});
 			}).catch(function (e) {
-				console.log('Snapshots: Out-of-band snapshot request failed for [ ${symbols.join()} ]', e);
+				console.log('Snapshots: Out-of-band snapshot request failed for [ ' + symbols.join() + ' ]', e);
 			});
 		}
 
@@ -2238,7 +2238,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.49'
+		version: '3.1.50'
 	};
 }();
 
