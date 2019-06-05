@@ -2393,7 +2393,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.1.48'
+		version: '3.2.1'
 	};
 }();
 
