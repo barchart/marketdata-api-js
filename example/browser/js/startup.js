@@ -26,12 +26,19 @@ module.exports = (() => {
 
 		that.connected = ko.observable(false);
 		that.connecting = ko.observable(false);
+		that.paused = ko.observable(false);
 
 		that.canConnect = ko.computed(function() {
 			return !that.connecting() && !that.connected();
 		});
 		that.canDisconnect = ko.computed(function() {
 			return that.connected();
+		});
+		that.canPause = ko.computed(function() {
+			return !that.paused();
+		});
+		that.canResume = ko.computed(function() {
+			return that.paused();
 		});
 		that.canReset = ko.computed(function() {
 			var connected = that.connected();
@@ -53,6 +60,10 @@ module.exports = (() => {
 					that.connected(true);
 
 					that.showGrid();
+				} else if (event === 'feed paused') {
+					that.paused(true);
+				} else if (event === 'feed resumed') {
+					that.paused(false);
 				}
 
 				toastr.info(data.event);
@@ -115,8 +126,17 @@ module.exports = (() => {
 
 			that.connecting(false);
 			that.connected(false);
+			that.paused(false);
 
 			that.activeTemplate('disconnected-template');
+		};
+
+		that.pause = function() {
+			connection.pause();
+		};
+
+		that.resume = function() {
+			connection.resume();
 		};
 
 		that.handleLoginKeypress = function(d, e) {
