@@ -1083,8 +1083,6 @@ module.exports = function () {
 					message = event.data;
 				}
 
-				console.log(message);
-
 				if (message) {
 					__inboundMessages.push(message);
 				}
@@ -2393,7 +2391,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.2.1'
+		version: '3.2.2'
 	};
 }();
 
