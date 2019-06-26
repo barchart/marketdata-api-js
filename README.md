@@ -18,7 +18,7 @@ Open the following file in your browser:
 
     ./example/browser/example.html
     
-Or, visit the hosted version of the example page:
+Or, visit the hosted page at:
 
 - [https://examples.aws.barchart.com/marketdata-api-js/example.html](https://examples.aws.barchart.com/marketdata-api-js/example.html)
 
