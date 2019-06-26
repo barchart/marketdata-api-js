@@ -8,10 +8,12 @@ All you need is a username/password from Barchart, and your app can be live with
 
 ## Supported Environments
 
-The library is intended for use in client (i.e. browser) environments. However, since the source code uses ES6, some assembly may be required for browser use (i.e. polyfills and transpilation).
+* *Modern Browsers* -- First, an assumption is made that WebSockets are supported. Second, ES6 is used, so transpilation (with the appropriate polyfills) is recommended.
+* *Node.js* -- Node.js does not natively support WebSockets. So, third-party library called [WS](https://github.com/websockets/ws) is used to connect to Barchart servers.
 
+## Examples
 
-## Run The Example
+### Browser
 
 Open the following file in your browser:
 
@@ -21,6 +23,11 @@ Or, the visit the hosted version of the example page:
 
 - [https://examples.aws.barchart.com/marketdata-api-js/example.html](https://examples.aws.barchart.com/marketdata-api-js/example.html)
 
+### Node.js
+
+Ensure you're running a recent version of Node.js (e.g. 8.1.0) and execute the following command:
+
+    > node examples/browser/example.js {host} {username} {password} {comma-delimited symbol list}
 
 ## Documentation
 
