@@ -421,6 +421,16 @@ module.exports = function () {
 
 			return flat;
 		},
+
+
+		/**
+   * Returns a copy of with only the unique elements from the original array.
+   * Elements are compared using strict equality.
+   *
+   * @static
+   * @param {Array} a
+   * @returns {Array}
+   */
 		unique: function unique(array) {
 			var arrayToFilter = array || [];
 
@@ -499,29 +509,29 @@ module.exports = function () {
    * @param {string} server
    * @param {string} username
    * @param {string} password
-   * @param {AdapterFactory=} adapterFactory
+   * @param {WebSocketAdapterFactory=} webSocketAdapterFactory
    */
 
 
 		_createClass(ConnectionBase, [{
 			key: 'connect',
-			value: function connect(server, username, password, adapterFactory) {
+			value: function connect(server, username, password, webSocketAdapterFactory) {
 				this._server = server;
 				this._username = username;
 				this._password = password;
 
-				this._connect(adapterFactory || null);
+				this._connect(webSocketAdapterFactory || null);
 			}
 
 			/**
     * @protected
-    * @param {AdapterFactory=} adapterFactory
+    * @param {WebSocketAdapterFactory=} webSocketAdapterFactory
     * @ignore
     */
 
 		}, {
 			key: '_connect',
-			value: function _connect(adapterFactory) {
+			value: function _connect(webSocketAdapterFactory) {
 				return;
 			}
 
@@ -809,8 +819,8 @@ var ConnectionBase = require('./../ConnectionBase'),
 
 var snapshotProvider = require('./../../util/snapshotProvider');
 
-var AdapterFactory = require('./adapter/AdapterFactory'),
-    BrowserAdapterFactory = require('./adapter/BrowserAdapterFactory');
+var WebSocketAdapterFactory = require('./adapter/WebSocketAdapterFactory'),
+    WebSocketAdapterFactoryForBrowsers = require('./adapter/WebSocketAdapterFactoryForBrowsers');
 
 module.exports = function () {
 	'use strict';
@@ -849,7 +859,7 @@ module.exports = function () {
 	function ConnectionInternal(marketState) {
 		var __marketState = marketState;
 
-		var __adapterFactory = null;
+		var __connectionFactory = null;
 
 		var __connection = null;
 		var __connectionState = state.disconnected;
@@ -927,10 +937,10 @@ module.exports = function () {
    * @param {String} server
    * @param {String} username
    * @param {String} password
-   * @param {AdapterFactory} adapterFactory
+   * @param {WebSocketAdapterFactory} webSocketAdapterFactory
    */
-		function initializeConnection(server, username, password, adapterFactory) {
-			__adapterFactory = adapterFactory;
+		function initializeConnection(server, username, password, webSocketAdapterFactory) {
+			__connectionFactory = webSocketAdapterFactory;
 			__reconnectAllowed = true;
 
 			connect(server, username, password);
@@ -998,7 +1008,7 @@ module.exports = function () {
 
 			__connectionState = state.disconnected;
 
-			__connection = __adapterFactory.build('wss://' + __loginInfo.server + '/jerq');
+			__connection = __connectionFactory.build('wss://' + __loginInfo.server + '/jerq');
 			__connection.binaryType = 'arraybuffer';
 
 			__decoder = __connection.getDecoder();
@@ -2296,8 +2306,8 @@ module.exports = function () {
 
 		_createClass(Connection, [{
 			key: '_connect',
-			value: function _connect(adapterFactory) {
-				this._internal.connect(this.getServer(), this.getUsername(), this.getPassword(), adapterFactory === null ? new BrowserAdapterFactory() : adapterFactory);
+			value: function _connect(webSocketAdapterFactory) {
+				this._internal.connect(this.getServer(), this.getUsername(), this.getPassword(), webSocketAdapterFactory === null ? new WebSocketAdapterFactoryForBrowsers() : webSocketAdapterFactory);
 			}
 		}, {
 			key: '_disconnect',
@@ -2352,7 +2362,7 @@ module.exports = function () {
 	return Connection;
 }();
 
-},{"./../../common/lang/array":2,"./../../common/lang/object":3,"./../../messageParser/parseMessage":17,"./../../util/snapshotProvider":29,"./../ConnectionBase":4,"./adapter/AdapterFactory":8,"./adapter/BrowserAdapterFactory":9,"@barchart/marketdata-utilities-js":35}],7:[function(require,module,exports){
+},{"./../../common/lang/array":2,"./../../common/lang/object":3,"./../../messageParser/parseMessage":17,"./../../util/snapshotProvider":29,"./../ConnectionBase":4,"./adapter/WebSocketAdapterFactory":8,"./adapter/WebSocketAdapterFactoryForBrowsers":9,"@barchart/marketdata-utilities-js":35}],7:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2370,12 +2380,12 @@ module.exports = function () {
   * @interface
   */
 
-	var Adapter = function () {
-		function Adapter(host) {
-			_classCallCheck(this, Adapter);
+	var WebSocketAdapter = function () {
+		function WebSocketAdapter(host) {
+			_classCallCheck(this, WebSocketAdapter);
 		}
 
-		_createClass(Adapter, [{
+		_createClass(WebSocketAdapter, [{
 			key: 'send',
 			value: function send(message) {
 				return;
@@ -2393,7 +2403,7 @@ module.exports = function () {
 		}, {
 			key: 'toString',
 			value: function toString() {
-				return '[Adapter]';
+				return '[WebSocketAdapter]';
 			}
 		}, {
 			key: 'CONNECTING',
@@ -2457,10 +2467,10 @@ module.exports = function () {
 			}
 		}]);
 
-		return Adapter;
+		return WebSocketAdapter;
 	}();
 
-	return Adapter;
+	return WebSocketAdapter;
 }();
 
 },{}],8:[function(require,module,exports){
@@ -2474,18 +2484,18 @@ module.exports = function () {
 	'use strict';
 
 	/**
-  * An interface for creating a WebSocket {@link Adapter}.
+  * An interface for creating WebSocket {@link WebSocketAdapter} instances.
   *
   * @public
   * @interface
   */
 
-	var AdapterFactory = function () {
-		function AdapterFactory() {
-			_classCallCheck(this, AdapterFactory);
+	var WebSocketAdapterFactory = function () {
+		function WebSocketAdapterFactory() {
+			_classCallCheck(this, WebSocketAdapterFactory);
 		}
 
-		_createClass(AdapterFactory, [{
+		_createClass(WebSocketAdapterFactory, [{
 			key: 'build',
 			value: function build(host) {
 				return null;
@@ -2493,14 +2503,14 @@ module.exports = function () {
 		}, {
 			key: 'toString',
 			value: function toString() {
-				return '[AdapterFactory]';
+				return '[WebSocketAdapterFactory]';
 			}
 		}]);
 
-		return AdapterFactory;
+		return WebSocketAdapterFactory;
 	}();
 
-	return AdapterFactory;
+	return WebSocketAdapterFactory;
 }();
 
 },{}],9:[function(require,module,exports){
@@ -2514,8 +2524,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Adapter = require('./Adapter'),
-    AdapterFactory = require('./AdapterFactory');
+var WebSocketAdapter = require('./WebSocketAdapter'),
+    WebSocketAdapterFactory = require('./WebSocketAdapterFactory');
 
 module.exports = function () {
 	'use strict';
@@ -2529,22 +2539,22 @@ module.exports = function () {
 	}
 
 	/**
-  * An interface for creating and interacting with a WebSocket connection.
+  * An implementation of {@link WebSocketAdapterFactory} for use with web browsers.
   *
   * @public
-  * @interface
+  * @extends {WebSocketAdapterFactory}
   */
 
-	var BrowserAdapterFactory = function (_AdapterFactory) {
-		_inherits(BrowserAdapterFactory, _AdapterFactory);
+	var WebSocketAdapterFactoryForBrowsers = function (_WebSocketAdapterFact) {
+		_inherits(WebSocketAdapterFactoryForBrowsers, _WebSocketAdapterFact);
 
-		function BrowserAdapterFactory() {
-			_classCallCheck(this, BrowserAdapterFactory);
+		function WebSocketAdapterFactoryForBrowsers() {
+			_classCallCheck(this, WebSocketAdapterFactoryForBrowsers);
 
-			return _possibleConstructorReturn(this, (BrowserAdapterFactory.__proto__ || Object.getPrototypeOf(BrowserAdapterFactory)).call(this));
+			return _possibleConstructorReturn(this, (WebSocketAdapterFactoryForBrowsers.__proto__ || Object.getPrototypeOf(WebSocketAdapterFactoryForBrowsers)).call(this));
 		}
 
-		_createClass(BrowserAdapterFactory, [{
+		_createClass(WebSocketAdapterFactoryForBrowsers, [{
 			key: 'build',
 			value: function build(host) {
 				if (!__window || !__window.WebSocket) {
@@ -2553,31 +2563,39 @@ module.exports = function () {
 					return;
 				}
 
-				return new BrowserAdapter(host);
+				return new WebSocketAdapterForBrowsers(host);
 			}
 		}, {
 			key: 'toString',
 			value: function toString() {
-				return '[BrowserAdapterFactory]';
+				return '[WebSocketAdapterFactoryForBrowsers]';
 			}
 		}]);
 
-		return BrowserAdapterFactory;
-	}(AdapterFactory);
+		return WebSocketAdapterFactoryForBrowsers;
+	}(WebSocketAdapterFactory);
 
-	var BrowserAdapter = function (_Adapter) {
-		_inherits(BrowserAdapter, _Adapter);
+	/**
+  * A {@link WebSocketAdapter} for use with browsers.
+  * 
+  * @private
+  * @extends {WebSocketAdapter}
+  */
 
-		function BrowserAdapter(host) {
-			_classCallCheck(this, BrowserAdapter);
 
-			var _this2 = _possibleConstructorReturn(this, (BrowserAdapter.__proto__ || Object.getPrototypeOf(BrowserAdapter)).call(this, host));
+	var WebSocketAdapterForBrowsers = function (_WebSocketAdapter) {
+		_inherits(WebSocketAdapterForBrowsers, _WebSocketAdapter);
+
+		function WebSocketAdapterForBrowsers(host) {
+			_classCallCheck(this, WebSocketAdapterForBrowsers);
+
+			var _this2 = _possibleConstructorReturn(this, (WebSocketAdapterForBrowsers.__proto__ || Object.getPrototypeOf(WebSocketAdapterForBrowsers)).call(this, host));
 
 			_this2._socket = new WebSocket(host);
 			return _this2;
 		}
 
-		_createClass(BrowserAdapter, [{
+		_createClass(WebSocketAdapterForBrowsers, [{
 			key: 'send',
 			value: function send(message) {
 				this._socket.send(message);
@@ -2607,7 +2625,7 @@ module.exports = function () {
 		}, {
 			key: 'toString',
 			value: function toString() {
-				return '[BrowserAdapter]';
+				return '[WebSocketAdapterForBrowsers]';
 			}
 		}, {
 			key: 'CONNECTING',
@@ -2671,13 +2689,13 @@ module.exports = function () {
 			}
 		}]);
 
-		return BrowserAdapter;
-	}(Adapter);
+		return WebSocketAdapterForBrowsers;
+	}(WebSocketAdapter);
 
-	return BrowserAdapterFactory;
+	return WebSocketAdapterFactoryForBrowsers;
 }();
 
-},{"./Adapter":7,"./AdapterFactory":8}],10:[function(require,module,exports){
+},{"./WebSocketAdapter":7,"./WebSocketAdapterFactory":8}],10:[function(require,module,exports){
 'use strict';
 
 var connection = require('./connection/index'),
@@ -2699,7 +2717,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.2.4'
+		version: '3.2.5'
 	};
 }();
 
