@@ -47,7 +47,7 @@ const startup = (() => {
 				if (price !== current) {
 					price = current;
 
-					console.log(`Example: ${s} = ${connection.getMarketState().getQuote(s).lastPrice}`);
+					console.log(`Example: ${s} = ${current}`);
 				}
 			};
 
