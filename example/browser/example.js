@@ -1124,6 +1124,8 @@ module.exports = function () {
 				return;
 			}
 
+			console.log('Connection: Pausing feed.');
+
 			if (__pollingFrequency === null) {
 				enqueueStopTasks();
 				enqueueHeartbeat();
@@ -1140,6 +1142,8 @@ module.exports = function () {
 
 				return;
 			}
+
+			console.log('Connection: Resuming feed.');
 
 			__paused = false;
 
@@ -2717,7 +2721,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.2.6'
+		version: '3.2.7'
 	};
 }();
 
