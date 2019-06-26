@@ -8,7 +8,7 @@ All you need is a username/password from Barchart and your app can be live withi
 ## Supported Environments
 
 * *Browsers* - Your target browser must support WebSockets (which all modern Browsers do). Also, the source code is written using ES6, so transpilation (with appropriate polyfills) is recommended before distribution.
-* *Node.js* - Node.js does not natively support WebSockets. So, third-party library called [WS](https://github.com/websockets/ws) is used to connect to Barchart's servers.
+* *Node.js* - Node.js does not natively support WebSockets. Instead, a third-party library called [WS](https://github.com/websockets/ws) is responsible for maintaining the WebSocket connection to Barchart's servers.
 
 ## Examples
 
