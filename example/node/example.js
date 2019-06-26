@@ -8,13 +8,13 @@ const Connection = require('./../../lib/connection/websocket/Connection'),
 const startup = (() => {
 	'use strict';
 
-	console.log('Example: Node.js example script started.');
+	console.log(`Example: Node.js example script started [ version ${version} ]`);
 
 	let connection = null;
 	let adapterFactory = null;
 
 	process.on('SIGINT', () => {
-		console.log('\nExample: SIGINT processing started');
+		console.log('\nExample: Processing SIGINT');
 
 		if (connection !== null) {
 			connection.disconnect();
