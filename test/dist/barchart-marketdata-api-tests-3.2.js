@@ -543,7 +543,24 @@ module.exports = function () {
 module.exports = function () {
 	'use strict';
 
+	function convertDayNumberToDayCode(d) {
+		if (d >= 1 && d <= 9) {
+			return String.fromCharCode("1".charCodeAt(0) + d - 1);
+		} else if (d == 10) {
+			return '0';
+		} else {
+			return String.fromCharCode("A".charCodeAt(0) + d - 11);
+		}
+	}
+
 	return {
+		/**
+   * Converts a unit code into a base code.
+   *
+   * @public
+   * @param {String} baseCode
+   * @return {Number}
+   */
 		unitCodeToBaseCode: function unitCodeToBaseCode(unitCode) {
 			switch (unitCode) {
 				case '2':
@@ -579,6 +596,13 @@ module.exports = function () {
 			}
 		},
 
+		/**
+   * Converts a base code into a unit code.
+   *
+   * @public
+   * @param {Number} baseCode
+   * @return {String}
+   */
 		baseCodeToUnitCode: function baseCodeToUnitCode(baseCode) {
 			switch (baseCode) {
 				case -1:
@@ -614,19 +638,33 @@ module.exports = function () {
 			}
 		},
 
+		/**
+   * Converts a date instance to a day code.
+   *
+   * @public
+   * @param {Date} date
+   * @returns {String|null}
+   */
 		dateToDayCode: function dateToDayCode(date) {
-			var d = date.getDate();
-
-			if (d >= 1 && d <= 9) {
-				return String.fromCharCode("1".charCodeAt(0) + d - 1);
-			} else if (d == 10) {
-				return '0';
-			} else {
-				return String.fromCharCode("A".charCodeAt(0) + d - 11);
+			if (date === null || date === undefined) {
+				return null;
 			}
+
+			return convertDayNumberToDayCode(date.getDate());
 		},
 
+		/**
+   * Converts a day code (e.g. "A" ) to a day number (e.g. 11).
+   *
+   * @public
+   * @param {String} dayCode
+   * @returns {Number|null}
+   */
 		dayCodeToNumber: function dayCodeToNumber(dayCode) {
+			if (dayCode === null || dayCode === undefined || dayCode === '') {
+				return null;
+			}
+
 			var d = parseInt(dayCode, 31);
 
 			if (d > 9) {
@@ -636,6 +674,21 @@ module.exports = function () {
 			}
 
 			return d;
+		},
+
+		/**
+   * Converts a day number (e.g. the 11th of the month) in o a day code (e.g. 'A').
+   *
+   * @public
+   * @param {Number=} dayNumber
+   * @returns {Number|null}
+   */
+		numberToDayCode: function numberToDayCode(dayNumber) {
+			if (dayNumber === null || dayNumber === undefined) {
+				return null;
+			}
+
+			return convertDayNumberToDayCode(dayNumber);
 		}
 	};
 }();
@@ -848,134 +901,134 @@ module.exports = function () {
 												message.mode = node.attributes[_i2].value;
 												break;
 										}
+									}
 
-										var sessions = {};
+									var sessions = {};
 
-										for (var j = 0; j < node.childNodes.length; j++) {
-											if (node.childNodes[j].nodeName == 'SESSION') {
-												var s = {};
-												var attributes = node.childNodes[j].attributes;
+									for (var j = 0; j < node.childNodes.length; j++) {
+										if (node.childNodes[j].nodeName == 'SESSION') {
+											var s = {};
+											var attributes = node.childNodes[j].attributes;
 
-												if (attributes.getNamedItem('id')) s.id = attributes.getNamedItem('id').value;
-												if (attributes.getNamedItem('day')) s.day = attributes.getNamedItem('day').value;
-												if (attributes.getNamedItem('last')) s.lastPrice = parseValue(attributes.getNamedItem('last').value, message.unitcode);
-												if (attributes.getNamedItem('previous')) s.previousPrice = parseValue(attributes.getNamedItem('previous').value, message.unitcode);
-												if (attributes.getNamedItem('open')) s.openPrice = parseValue(attributes.getNamedItem('open').value, message.unitcode);
-												if (attributes.getNamedItem('high')) s.highPrice = parseValue(attributes.getNamedItem('high').value, message.unitcode);
-												if (attributes.getNamedItem('low')) s.lowPrice = parseValue(attributes.getNamedItem('low').value, message.unitcode);
-												if (attributes.getNamedItem('tradesize')) s.tradeSize = parseInt(attributes.getNamedItem('tradesize').value);
-												if (attributes.getNamedItem('numtrades')) s.numberOfTrades = parseInt(attributes.getNamedItem('numtrades').value);
-												if (attributes.getNamedItem('settlement')) s.settlementPrice = parseValue(attributes.getNamedItem('settlement').value, message.unitcode);
-												if (attributes.getNamedItem('volume')) s.volume = parseInt(attributes.getNamedItem('volume').value);
-												if (attributes.getNamedItem('openinterest')) s.openInterest = parseInt(attributes.getNamedItem('openinterest').value);
-												if (attributes.getNamedItem('timestamp')) {
-													var _v = attributes.getNamedItem('timestamp').value;
-													s.timeStamp = new Date(parseInt(_v.substr(0, 4)), parseInt(_v.substr(4, 2)) - 1, parseInt(_v.substr(6, 2)), parseInt(_v.substr(8, 2)), parseInt(_v.substr(10, 2)), parseInt(_v.substr(12, 2)));
-												}
-												if (attributes.getNamedItem('tradetime')) {
-													var _v2 = attributes.getNamedItem('tradetime').value;
-													s.tradeTime = new Date(parseInt(_v2.substr(0, 4)), parseInt(_v2.substr(4, 2)) - 1, parseInt(_v2.substr(6, 2)), parseInt(_v2.substr(8, 2)), parseInt(_v2.substr(10, 2)), parseInt(_v2.substr(12, 2)));
-												}
-
-												if (s.id) sessions[s.id] = s;
+											if (attributes.getNamedItem('id')) s.id = attributes.getNamedItem('id').value;
+											if (attributes.getNamedItem('day')) s.day = attributes.getNamedItem('day').value;
+											if (attributes.getNamedItem('last')) s.lastPrice = parseValue(attributes.getNamedItem('last').value, message.unitcode);
+											if (attributes.getNamedItem('previous')) s.previousPrice = parseValue(attributes.getNamedItem('previous').value, message.unitcode);
+											if (attributes.getNamedItem('open')) s.openPrice = parseValue(attributes.getNamedItem('open').value, message.unitcode);
+											if (attributes.getNamedItem('high')) s.highPrice = parseValue(attributes.getNamedItem('high').value, message.unitcode);
+											if (attributes.getNamedItem('low')) s.lowPrice = parseValue(attributes.getNamedItem('low').value, message.unitcode);
+											if (attributes.getNamedItem('tradesize')) s.tradeSize = parseInt(attributes.getNamedItem('tradesize').value);
+											if (attributes.getNamedItem('numtrades')) s.numberOfTrades = parseInt(attributes.getNamedItem('numtrades').value);
+											if (attributes.getNamedItem('settlement')) s.settlementPrice = parseValue(attributes.getNamedItem('settlement').value, message.unitcode);
+											if (attributes.getNamedItem('volume')) s.volume = parseInt(attributes.getNamedItem('volume').value);
+											if (attributes.getNamedItem('openinterest')) s.openInterest = parseInt(attributes.getNamedItem('openinterest').value);
+											if (attributes.getNamedItem('timestamp')) {
+												var _v = attributes.getNamedItem('timestamp').value;
+												s.timeStamp = new Date(parseInt(_v.substr(0, 4)), parseInt(_v.substr(4, 2)) - 1, parseInt(_v.substr(6, 2)), parseInt(_v.substr(8, 2)), parseInt(_v.substr(10, 2)), parseInt(_v.substr(12, 2)));
 											}
+											if (attributes.getNamedItem('tradetime')) {
+												var _v2 = attributes.getNamedItem('tradetime').value;
+												s.tradeTime = new Date(parseInt(_v2.substr(0, 4)), parseInt(_v2.substr(4, 2)) - 1, parseInt(_v2.substr(6, 2)), parseInt(_v2.substr(8, 2)), parseInt(_v2.substr(10, 2)), parseInt(_v2.substr(12, 2)));
+											}
+
+											if (s.id) sessions[s.id] = s;
 										}
+									}
 
-										var premarket = typeof sessions.combined.lastPrice === 'undefined';
-										var postmarket = !premarket && typeof sessions.combined.settlementPrice !== 'undefined';
+									var premarket = typeof sessions.combined.lastPrice === 'undefined';
+									var postmarket = !premarket && typeof sessions.combined.settlementPrice !== 'undefined';
 
-										var session = premarket ? sessions.previous : sessions.combined;
+									var session = premarket ? sessions.previous : sessions.combined;
 
-										if (sessions.combined.previousPrice) {
-											message.previousPrice = sessions.combined.previousPrice;
-										} else {
-											message.previousPrice = sessions.previous.previousPrice;
-										}
+									if (sessions.combined.previousPrice) {
+										message.previousPrice = sessions.combined.previousPrice;
+									} else {
+										message.previousPrice = sessions.previous.previousPrice;
+									}
 
-										if (session.lastPrice) message.lastPrice = session.lastPrice;
-										if (session.openPrice) message.openPrice = session.openPrice;
-										if (session.highPrice) message.highPrice = session.highPrice;
-										if (session.lowPrice) message.lowPrice = session.lowPrice;
-										if (session.tradeSize) message.tradeSize = session.tradeSize;
-										if (session.numberOfTrades) message.numberOfTrades = session.numberOfTrades;
-										if (session.settlementPrice) message.settlementPrice = session.settlementPrice;
-										if (session.volume) message.volume = session.volume;
-										if (session.openInterest) message.openInterest = session.openInterest;
-										if (session.id === 'combined' && sessions.previous.openInterest) message.openInterest = sessions.previous.openInterest;
-										if (session.timeStamp) message.timeStamp = session.timeStamp;
-										if (session.tradeTime) message.tradeTime = session.tradeTime;
+									if (session.lastPrice) message.lastPrice = session.lastPrice;
+									if (session.openPrice) message.openPrice = session.openPrice;
+									if (session.highPrice) message.highPrice = session.highPrice;
+									if (session.lowPrice) message.lowPrice = session.lowPrice;
+									if (session.tradeSize) message.tradeSize = session.tradeSize;
+									if (session.numberOfTrades) message.numberOfTrades = session.numberOfTrades;
+									if (session.settlementPrice) message.settlementPrice = session.settlementPrice;
+									if (session.volume) message.volume = session.volume;
+									if (session.openInterest) message.openInterest = session.openInterest;
+									if (session.id === 'combined' && sessions.previous.openInterest) message.openInterest = sessions.previous.openInterest;
+									if (session.timeStamp) message.timeStamp = session.timeStamp;
+									if (session.tradeTime) message.tradeTime = session.tradeTime;
 
-										// 2016/10/29, BRI. We have a problem where we don't "roll" quotes
-										// for futures. For example, LEZ16 doesn't "roll" the settlementPrice
-										// to the previous price -- so, we did this on the open message (2,0A).
-										// Eero has another idea. Perhaps we are setting the "day" improperly
-										// here. Perhaps we should base the day off of the actual session
-										// (i.e. "session" variable) -- instead of taking it from the "combined"
-										// session.
+									// 2016/10/29, BRI. We have a problem where we don't "roll" quotes
+									// for futures. For example, LEZ16 doesn't "roll" the settlementPrice
+									// to the previous price -- so, we did this on the open message (2,0A).
+									// Eero has another idea. Perhaps we are setting the "day" improperly
+									// here. Perhaps we should base the day off of the actual session
+									// (i.e. "session" variable) -- instead of taking it from the "combined"
+									// session.
 
-										if (sessions.combined.day) message.day = sessions.combined.day;
-										if (premarket && typeof message.flag === 'undefined') message.flag = 'p';
+									if (sessions.combined.day) message.day = session.day;
+									if (premarket && typeof message.flag === 'undefined') message.flag = 'p';
 
-										var p = sessions.previous;
+									var p = sessions.previous;
 
-										message.previousPreviousPrice = p.previousPrice;
-										message.previousSettlementPrice = p.settlementPrice;
-										message.previousOpenPrice = p.openPrice;
-										message.previousHighPrice = p.highPrice;
-										message.previousLowPrice = p.lowPrice;
-										message.previousTimeStamp = p.timeStamp;
+									message.previousPreviousPrice = p.previousPrice;
+									message.previousSettlementPrice = p.settlementPrice;
+									message.previousOpenPrice = p.openPrice;
+									message.previousHighPrice = p.highPrice;
+									message.previousLowPrice = p.lowPrice;
+									message.previousTimeStamp = p.timeStamp;
 
-										if (sessions.combined.day) {
-											var sessionFormT = 'session_' + sessions.combined.day + '_T';
+									if (sessions.combined.day) {
+										var sessionFormT = 'session_' + sessions.combined.day + '_T';
 
-											if (sessions.hasOwnProperty(sessionFormT)) {
-												var t = sessions[sessionFormT];
+										if (sessions.hasOwnProperty(sessionFormT)) {
+											var t = sessions[sessionFormT];
 
-												var lastPriceT = t.lastPrice;
+											var lastPriceT = t.lastPrice;
 
-												if (lastPriceT) {
-													var tradeTimeT = t.tradeTime;
-													var tradeSizeT = t.tradeSize;
+											if (lastPriceT) {
+												var tradeTimeT = t.tradeTime;
+												var tradeSizeT = t.tradeSize;
 
-													var sessionIsEvening = void 0;
+												var sessionIsEvening = void 0;
 
-													if (tradeTimeT) {
-														var noon = new Date(tradeTimeT.getFullYear(), tradeTimeT.getMonth(), tradeTimeT.getDate(), 12, 0, 0, 0);
+												if (tradeTimeT) {
+													var noon = new Date(tradeTimeT.getFullYear(), tradeTimeT.getMonth(), tradeTimeT.getDate(), 12, 0, 0, 0);
 
-														sessionIsEvening = tradeTimeT.getTime() > noon.getTime();
-													} else {
-														sessionIsEvening = false;
-													}
+													sessionIsEvening = tradeTimeT.getTime() > noon.getTime();
+												} else {
+													sessionIsEvening = false;
+												}
 
-													message.sessionT = sessionIsEvening;
+												message.sessionT = sessionIsEvening;
 
-													var sessionIsCurrent = premarket || sessionIsEvening;
+												var sessionIsCurrent = premarket || sessionIsEvening;
+
+												if (sessionIsCurrent) {
+													message.lastPriceT = lastPriceT;
+												}
+
+												if (premarket || postmarket) {
+													message.session = 'T';
 
 													if (sessionIsCurrent) {
-														message.lastPriceT = lastPriceT;
-													}
-
-													if (premarket || postmarket) {
-														message.session = 'T';
-
-														if (sessionIsCurrent) {
-															if (tradeTimeT) {
-																message.tradeTime = tradeTimeT;
-															}
-
-															if (tradeSizeT) {
-																message.tradeSize = tradeSizeT;
-															}
+														if (tradeTimeT) {
+															message.tradeTime = tradeTimeT;
 														}
 
-														if (premarket) {
-															if (t.volume) {
-																message.volume = t.volume;
-															}
+														if (tradeSizeT) {
+															message.tradeSize = tradeSizeT;
+														}
+													}
 
-															if (t.previousPrice) {
-																message.previousPrice = t.previousPrice;
-															}
+													if (premarket) {
+														if (t.volume) {
+															message.volume = t.volume;
+														}
+
+														if (t.previousPrice) {
+															message.previousPrice = t.previousPrice;
 														}
 													}
 												}
@@ -1357,9 +1410,9 @@ module.exports = function () {
 					case '4':
 						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 32, 2), suffix].join('');
 					case '5':
-						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 64), specialFractions ? 3 : 2), suffix].join('');
+						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad(Math.floor(((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 64)).toFixed(1)), specialFractions ? 3 : 2), suffix].join('');
 					case '6':
-						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 128), 3), suffix].join('');
+						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad(Math.floor(((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 128)).toFixed(1)), 3), suffix].join('');
 					case '7':
 						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 256), 3), suffix].join('');
 					case '8':
@@ -1470,38 +1523,37 @@ module.exports = function () {
 var Converter = require('./convert');
 
 module.exports = function () {
+	/**
+  * Adapted from legacy code: https://github.com/barchart/php-jscharts/blob/372deb9b4d9ee678f32b6f8c4268434249c1b4ac/chart_package/webroot/js/deps/ddfplus/com.ddfplus.js
+  */
+	return function (string, unitCode) {
+		var baseCode = Converter.unitCodeToBaseCode(unitCode);
 
-    /**
-     * Adapted from legacy code: https://github.com/barchart/php-jscharts/blob/372deb9b4d9ee678f32b6f8c4268434249c1b4ac/chart_package/webroot/js/deps/ddfplus/com.ddfplus.js
-     */
-    return function (string, unitCode) {
-        var baseCode = Converter.unitCodeToBaseCode(unitCode);
+		// Fix for 10-Yr T-Notes
+		if (baseCode === -4 && (string.length === 7 || string.length === 6 && string.charAt(0) !== '1')) {
+			baseCode -= 1;
+		}
 
-        // Fix for 10-Yr T-Notes
-        if (baseCode === -4 && (string.length === 7 || string.length === 6 && string.charAt(0) !== '1')) {
-            baseCode -= 1;
-        }
+		if (baseCode >= 0) {
+			var ival = string * 1;
+			return Math.round(ival * Math.pow(10, baseCode)) / Math.pow(10, baseCode);
+		} else {
+			var has_dash = string.match(/-/);
+			var divisor = Math.pow(2, Math.abs(baseCode) + 2);
+			var fracsize = String(divisor).length;
+			var denomstart = string.length - fracsize;
+			var numerend = denomstart;
+			if (string.substring(numerend - 1, numerend) == '-') numerend--;
+			var numerator = string.substring(0, numerend) * 1;
+			var denominator = string.substring(denomstart, string.length) * 1;
 
-        if (baseCode >= 0) {
-            var ival = string * 1;
-            return Math.round(ival * Math.pow(10, baseCode)) / Math.pow(10, baseCode);
-        } else {
-            var has_dash = string.match(/-/);
-            var divisor = Math.pow(2, Math.abs(baseCode) + 2);
-            var fracsize = String(divisor).length;
-            var denomstart = string.length - fracsize;
-            var numerend = denomstart;
-            if (string.substring(numerend - 1, numerend) == '-') numerend--;
-            var numerator = string.substring(0, numerend) * 1;
-            var denominator = string.substring(denomstart, string.length) * 1;
+			if (baseCode === -5) {
+				divisor = has_dash ? 320 : 128;
+			}
 
-            if (baseCode === -5) {
-                divisor = has_dash ? 320 : 128;
-            }
-
-            return numerator + denominator / divisor;
-        }
-    };
+			return numerator + denominator / divisor;
+		}
+	};
 }();
 
 },{"./convert":7}],15:[function(require,module,exports){
@@ -1527,33 +1579,248 @@ module.exports = function () {
 module.exports = function () {
 	'use strict';
 
-	var exchangeRegex = /^(.*)\\.([A-Z]{1,4})$/i,
-	    jerqFutureConversionRegex = /(.{1,3})([A-Z]{1})([0-9]{3}|[0-9]{1})?([0-9]{1})$/i,
-	    concreteFutureRegex = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z]{1})([0-9]{4}|[0-9]{1,2})$/i,
-	    referenceFutureRegex = /^([A-Z][A-Z0-9\$\-!\.]{0,2})(\*{1})([0-9]{1})$/i,
-	    futureSpreadRegex = /^_S_/i,
-	    shortFutureOptionRegex = /^([A-Z][A-Z0-9\$\-!\.]?)([A-Z])([0-9]{1,4})([A-Z])$/i,
-	    longFutureOptionRegex = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i,
-	    historicalFutureOptionRegex = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{2})([0-9]{1,5})(C|P)$/i,
-	    forexRegex = /^\^([A-Z]{3})([A-Z]{3})$/i,
-	    sectorRegex = /^\-(.*)$/i,
-	    indexRegex = /^\$(.*)$/i,
-	    batsRegex = /^(.*)\.BZ$/i,
-	    usePercentRegex = /(\.RT)$/;
-
-	var altMonthCodes = {
-		A: 'F', B: 'G', C: 'H', D: 'J', E: 'K', I: 'M', L: 'N', O: 'Q', P: 'U', R: 'V', S: 'X', T: 'Z'
+	var alternateFuturesMonths = {
+		A: 'F',
+		B: 'G',
+		C: 'H',
+		D: 'J',
+		E: 'K',
+		I: 'M',
+		L: 'N',
+		O: 'Q',
+		P: 'U',
+		R: 'V',
+		S: 'X',
+		T: 'Z'
 	};
 
-	function getIsType(symbol, type) {
-		var instrumentType = symbolParser.parseInstrumentType(symbol);
+	var predicates = {};
 
-		return instrumentType !== null && instrumentType.type === type;
+	predicates.bats = /^(.*)\.BZ$/i;
+	predicates.percent = /(\.RT)$/;
+
+	var types = {};
+
+	types.forex = /^\^([A-Z]{3})([A-Z]{3})$/i;
+	types.futures = {};
+	types.futures.spread = /^_S_/i;
+	types.futures.concrete = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z]{1})([0-9]{4}|[0-9]{1,2})$/i;
+	types.futures.alias = /^([A-Z][A-Z0-9\$\-!\.]{0,2})(\*{1})([0-9]{1})$/i;
+	types.futures.options = {};
+	types.futures.options.short = /^([A-Z][A-Z0-9\$\-!\.]?)([A-Z])([0-9]{1,4})([A-Z])$/i;
+	types.futures.options.long = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i;
+	types.futures.options.historical = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{2})([0-9]{1,5})(C|P)$/i;
+	types.indicies = {};
+	types.indicies.external = /^\$(.*)$/i;
+	types.indicies.sector = /^\-(.*)$/i;
+	types.indicies.cmdty = /^(.*)\.CM$/i;
+
+	var parsers = [];
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		if (types.futures.spread.test(symbol)) {
+			definition = {};
+
+			definition.symbol = symbol;
+			definition.type = 'future_spread';
+		}
+
+		return definition;
+	});
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		var match = symbol.match(types.futures.concrete);
+
+		if (match !== null) {
+			definition = {};
+
+			definition.symbol = symbol;
+			definition.type = 'future';
+
+			definition.dynamic = false;
+			definition.root = match[1];
+			definition.month = match[2];
+			definition.year = getFuturesYear(match[3]);
+		}
+
+		return definition;
+	});
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		var match = symbol.match(types.futures.alias);
+
+		if (match !== null) {
+			definition = {};
+
+			definition.symbol = symbol;
+			definition.type = 'future';
+
+			definition.dynamic = true;
+			definition.root = match[1];
+			definition.dynamicCode = match[3];
+		}
+
+		return definition;
+	});
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		if (types.forex.test(symbol)) {
+			definition = {};
+
+			definition.symbol = symbol;
+			definition.type = 'forex';
+		}
+
+		return definition;
+	});
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		if (types.indicies.external.test(symbol)) {
+			definition = {};
+
+			definition.symbol = symbol;
+			definition.type = 'index';
+		}
+
+		return definition;
+	});
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		if (types.indicies.sector.test(symbol)) {
+			definition = {};
+
+			definition.symbol = symbol;
+			definition.type = 'sector';
+		}
+
+		return definition;
+	});
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		var match = symbol.match(types.futures.options.short);
+
+		if (match !== null) {
+			definition = {};
+
+			var putCallCharacterCode = match[4].charCodeAt(0);
+			var putCharacterCode = 80;
+			var callCharacterCode = 67;
+
+			var optionType = void 0;
+			var optionYearDelta = void 0;
+
+			if (putCallCharacterCode < putCharacterCode) {
+				optionType = 'call';
+				optionYearDelta = putCallCharacterCode - callCharacterCode;
+			} else {
+				optionType = 'put';
+				optionYearDelta = putCallCharacterCode - putCharacterCode;
+			}
+
+			definition.symbol = symbol;
+			definition.type = 'future_option';
+
+			definition.option_type = optionType;
+			definition.strike = parseInt(match[3]);
+
+			definition.root = match[1];
+			definition.month = match[2];
+			definition.year = getCurrentYear() + optionYearDelta;
+		}
+
+		return definition;
+	});
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		var match = symbol.match(types.futures.options.long) || symbol.match(types.futures.options.historical);
+
+		if (match !== null) {
+			definition = {};
+
+			definition.symbol = symbol;
+			definition.type = 'future_option';
+
+			definition.option_type = match[5] === 'C' ? 'call' : 'put';
+			definition.strike = parseInt(match[4]);
+
+			definition.root = match[1];
+			definition.month = getFuturesMonth(match[2]);
+			definition.year = getFuturesYear(match[3]);
+		}
+
+		return definition;
+	});
+
+	var converters = [];
+
+	converters.push(function (symbol) {
+		var converted = null;
+
+		if (symbolParser.getIsFuture(symbol) && symbolParser.getIsConcrete(symbol)) {
+			converted = symbol.replace(/(.{1,3})([A-Z]{1})([0-9]{3}|[0-9]{1})?([0-9]{1})$/i, '$1$2$4') || null;
+		}
+
+		return converted;
+	});
+
+	converters.push(function (symbol) {
+		var converted = null;
+
+		if (symbolParser.getIsFutureOption(symbol)) {
+			var definition = symbolParser.parseInstrumentType(symbol);
+
+			var putCallCharacter = getPutCallCharacter(definition.option_type);
+
+			if (definition.root.length < 3) {
+				var putCallCharacterCode = putCallCharacter.charCodeAt(0);
+
+				converted = '' + definition.root + definition.month + definition.strike + String.fromCharCode(putCallCharacterCode + definition.year - getCurrentYear());
+			} else {
+				converted = '' + definition.root + definition.month + getYearDigits(definition.year, 1) + '|' + definition.strike + putCallCharacter;
+			}
+		}
+
+		return converted;
+	});
+
+	converters.push(function (symbol) {
+		return symbol;
+	});
+
+	function getCurrentYear() {
+		var now = new Date();
+
+		return now.getFullYear();
+	}
+
+	function getYearDigits(year, digits) {
+		var yearString = year.toString();
+
+		return yearString.substring(yearString.length - digits, yearString.length);
+	}
+
+	function getFuturesMonth(monthString) {
+		return alternateFuturesMonths[monthString] || monthString;
 	}
 
 	function getFuturesYear(yearString) {
-		var currentDate = new Date();
-		var currentYear = currentDate.getFullYear();
+		var currentYear = getCurrentYear();
 
 		var year = parseInt(yearString);
 
@@ -1576,185 +1843,63 @@ module.exports = function () {
 		return year;
 	}
 
+	function getPutCallCharacter(optionType) {
+		if (optionType === 'call') {
+			return 'C';
+		} else if (optionType === 'put') {
+			return 'P';
+		} else {
+			return null;
+		}
+	}
+
 	var symbolParser = {
+		/**
+   * Returns a simple instrument definition with the terms that can be
+   * gleaned from a symbol. If no specifics can be determined from the
+   * symbol, a null value is returned.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Object|null}
+   */
 		parseInstrumentType: function parseInstrumentType(symbol) {
 			if (typeof symbol !== 'string') {
 				return null;
 			}
 
-			var exchangeMatch = symbol.match(exchangeRegex);
+			var definition = null;
 
-			if (exchangeMatch !== null) {
-				symbol = exchangeMatch[1];
+			for (var i = 0; i < parsers.length && definition === null; i++) {
+				var parser = parsers[i];
+
+				definition = parser(symbol);
 			}
 
-			if (futureSpreadRegex.test(symbol)) {
-				return {
-					symbol: symbol,
-					type: 'future_spread'
-				};
-			}
-
-			var staticFutureMatch = symbol.match(concreteFutureRegex);
-
-			if (staticFutureMatch !== null) {
-				return {
-					symbol: symbol,
-					type: 'future',
-					root: staticFutureMatch[1],
-					dynamic: false,
-					month: staticFutureMatch[2],
-					year: getFuturesYear(staticFutureMatch[3])
-				};
-			}
-
-			var dynamicFutureMatch = symbol.match(referenceFutureRegex);
-
-			if (dynamicFutureMatch !== null) {
-				return {
-					symbol: symbol,
-					type: 'future',
-					root: dynamicFutureMatch[1],
-					dynamic: true,
-					dynamicCode: dynamicFutureMatch[3]
-				};
-			}
-
-			var forexMatch = symbol.match(forexRegex);
-
-			if (forexMatch !== null) {
-				return {
-					symbol: symbol,
-					type: 'forex'
-				};
-			}
-
-			var indexMatch = symbol.match(indexRegex);
-
-			if (indexMatch !== null) {
-				return {
-					symbol: symbol,
-					type: 'index'
-				};
-			}
-
-			var sectorMatch = symbol.match(sectorRegex);
-
-			if (sectorMatch !== null) {
-				return {
-					symbol: symbol,
-					type: 'sector'
-				};
-			}
-
-			var shortFutureOptionMatch = symbol.match(shortFutureOptionRegex);
-
-			if (shortFutureOptionMatch !== null) {
-				var currentDate = new Date();
-				var currentYear = currentDate.getFullYear();
-				var optionType = void 0,
-				    optionYear = void 0;
-
-				if (shortFutureOptionMatch[4] >= 'P') {
-					optionYear = currentYear + (shortFutureOptionMatch[4].charCodeAt(0) - 'P'.charCodeAt(0));
-					optionType = 'put';
-				} else {
-					optionYear = currentYear + (shortFutureOptionMatch[4].charCodeAt(0) - 'C'.charCodeAt(0));
-					optionType = 'call';
-				}
-
-				return {
-					symbol: symbol,
-					type: 'future_option',
-					root: shortFutureOptionMatch[1],
-					month: shortFutureOptionMatch[2],
-					year: optionYear,
-					strike: parseInt(shortFutureOptionMatch[3]),
-					option_type: optionType
-				};
-			}
-
-			var longFutureOptionMatch = symbol.match(longFutureOptionRegex);
-			var futureOptionMatch = longFutureOptionMatch !== null ? longFutureOptionMatch : symbol.match(historicalFutureOptionRegex);
-
-			if (futureOptionMatch !== null) {
-				var month = futureOptionMatch[2];
-
-				return {
-					symbol: symbol,
-					type: 'future_option',
-					root: futureOptionMatch[1],
-					month: altMonthCodes.hasOwnProperty(month) ? altMonthCodes[month] : month,
-					year: getFuturesYear(futureOptionMatch[3]),
-					strike: parseInt(futureOptionMatch[4]),
-					option_type: futureOptionMatch[5] === 'C' ? 'call' : 'put'
-				};
-			}
-
-			return null;
+			return definition;
 		},
 
-		getIsConcrete: function getIsConcrete(symbol) {
-			return !symbolParser.getIsReference(symbol);
-		},
-
-		getIsReference: function getIsReference(symbol) {
-			return referenceFutureRegex.test(symbol);
-		},
-
-		getIsFuture: function getIsFuture(symbol) {
-			return getIsType(symbol, 'future');
-		},
-
-		getIsFutureSpread: function getIsFutureSpread(symbol) {
-			return getIsType(symbol, 'future_spread');
-		},
-
-		getIsFutureOption: function getIsFutureOption(symbol) {
-			return getIsType(symbol, 'future_option');
-		},
-
-		getIsForex: function getIsForex(symbol) {
-			return getIsType(symbol, 'forex');
-		},
-
-		getIsSector: function getIsSector(symbol) {
-			return getIsType(symbol, 'sector');
-		},
-
-		getIsIndex: function getIsIndex(symbol) {
-			return getIsType(symbol, 'index');
-		},
-
-		getIsBats: function getIsBats(symbol) {
-			return batsRegex.test(symbol);
-		},
-
+		/**
+   * Translates a symbol into a form suitable for use with JERQ (i.e. our quote "producer").
+   *
+   * @public
+   * @param {String} symbol
+   * @return {String|null}
+   */
 		getProducerSymbol: function getProducerSymbol(symbol) {
 			if (typeof symbol !== 'string') {
 				return null;
 			}
 
-			var instrumentType = symbolParser.parseInstrumentType(symbol);
+			var converted = null;
 
-			if (instrumentType !== null && instrumentType.type === 'future') {
-				return symbol.replace(jerqFutureConversionRegex, '$1$2$4');
-			} else if (instrumentType !== null && instrumentType.type === 'future_option') {
-				var currentDate = new Date();
-				var currentYear = currentDate.getFullYear();
-				var optionType = instrumentType.option_type === 'call' ? 'C' : 'P';
-				var optionTypeTrans = String.fromCharCode(optionType.charCodeAt(0) + (instrumentType.year - currentYear));
+			for (var i = 0; i < converters.length && converted === null; i++) {
+				var converter = converters[i];
 
-				if (instrumentType.root.length < 3) {
-					return instrumentType.root + instrumentType.month + instrumentType.strike + optionTypeTrans;
-				} else {
-					var year = instrumentType.year.toString().substr(-1);
-
-					return instrumentType.root + instrumentType.month + year + '|' + instrumentType.strike + optionType;
-				}
-			} else {
-				return symbol;
+				converted = converter(symbol);
 			}
+
+			return converted;
 		},
 
 		/**
@@ -1766,26 +1911,145 @@ module.exports = function () {
    * @returns {String|null}
    */
 		getFuturesOptionPipelineFormat: function getFuturesOptionPipelineFormat(symbol) {
-			var instrument = symbolParser.parseInstrumentType(symbol);
+			var definition = symbolParser.parseInstrumentType(symbol);
 
-			if (instrument === null || instrument.type !== 'future_option') {
-				return null;
+			var formatted = null;
+
+			if (definition.type === 'future_option') {
+				var putCallCharacter = getPutCallCharacter(definition.option_type);
+
+				formatted = '' + definition.root + definition.month + getYearDigits(definition.year, 1) + '|' + definition.strike + putCallCharacter;
 			}
 
-			var optionType = instrument.option_type === 'call' ? 'C' : 'P';
-
-			return '' + instrument.root + instrument.month + instrument.year.toString().substr(-1, 1) + '|' + instrument.strike + optionType;
+			return formatted;
 		},
 
 		/**
-   * Tests to see if instrument prices should be displayed as percentages.
+   * Returns true if the symbol is not an alias to another symbol; otherwise
+   * false.
    *
    * @public
    * @param {String} symbol
-   * @returns {boolean}
+   * @returns {Boolean}
+   */
+		getIsConcrete: function getIsConcrete(symbol) {
+			return typeof symbol === 'string' && !types.futures.alias.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol is an alias for another symbol; otherwise false.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsReference: function getIsReference(symbol) {
+			return typeof symbol === 'string' && types.futures.alias.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol represents futures contract; false otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsFuture: function getIsFuture(symbol) {
+			return typeof symbol === 'string' && (types.futures.concrete.test(symbol) || types.futures.alias.test(symbol));
+		},
+
+		/**
+   * Returns true if the symbol represents futures spread; false otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsFutureSpread: function getIsFutureSpread(symbol) {
+			return typeof symbol === 'string' && types.futures.spread.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol represents an option on a futures contract; false
+   * otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsFutureOption: function getIsFutureOption(symbol) {
+			return typeof symbol === 'string' && (types.futures.options.short.test(symbol) || types.futures.options.long.test(symbol) || types.futures.options.historical.test(symbol));
+		},
+
+		/**
+   * Returns true if the symbol represents a foreign exchange currency pair;
+   * false otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsForex: function getIsForex(symbol) {
+			return typeof symbol === 'string' && types.forex.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol represents an external index (e.g. Dow Jones
+   * Industrials); false otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsIndex: function getIsIndex(symbol) {
+			return typeof symbol === 'string' && types.indicies.external.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol represents an internally-calculated sector
+   * index; false otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsSector: function getIsSector(symbol) {
+			return typeof symbol === 'string' && types.indicies.sector.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol represents an internally-calculated, cmdty-branded
+   * index; false otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsCmdty: function getIsCmdty(symbol) {
+			return typeof symbol === 'string' && types.indicies.cmdty.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol is listed on the BATS exchange; false otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsBats: function getIsBats(symbol) {
+			return typeof symbol === 'string' && predicates.bats.test(symbol);
+		},
+
+		/**
+   * Returns true if prices for the symbol should be represented as a percentage; false
+   * otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
    */
 		displayUsingPercent: function displayUsingPercent(symbol) {
-			return usePercentRegex.test(symbol);
+			return typeof symbol === 'string' && predicates.percent.test(symbol);
 		}
 	};
 

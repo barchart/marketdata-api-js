@@ -392,7 +392,7 @@ module.exports = function () {
 	});
 }();
 
-},{"./../../../lib/connection/websocket/Connection":6,"./../../../lib/index":7,"./../../../lib/util/symbolResolver":27}],2:[function(require,module,exports){
+},{"./../../../lib/connection/websocket/Connection":6,"./../../../lib/index":10,"./../../../lib/util/symbolResolver":30}],2:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -499,27 +499,29 @@ module.exports = function () {
    * @param {string} server
    * @param {string} username
    * @param {string} password
+   * @param {AdapterFactory=} adapterFactory
    */
 
 
 		_createClass(ConnectionBase, [{
 			key: 'connect',
-			value: function connect(server, username, password) {
+			value: function connect(server, username, password, adapterFactory) {
 				this._server = server;
 				this._username = username;
 				this._password = password;
 
-				this._connect();
+				this._connect(adapterFactory || null);
 			}
 
 			/**
     * @protected
+    * @param {AdapterFactory=} adapterFactory
     * @ignore
     */
 
 		}, {
 			key: '_connect',
-			value: function _connect() {
+			value: function _connect(adapterFactory) {
 				return;
 			}
 
@@ -775,7 +777,7 @@ module.exports = function () {
 	return ConnectionBase;
 }();
 
-},{"./../marketState/MarketState":9}],5:[function(require,module,exports){
+},{"./../marketState/MarketState":12}],5:[function(require,module,exports){
 'use strict';
 
 var Connection = require('./websocket/Connection');
@@ -807,22 +809,13 @@ var ConnectionBase = require('./../ConnectionBase'),
 
 var snapshotProvider = require('./../../util/snapshotProvider');
 
+var AdapterFactory = require('./adapter/AdapterFactory'),
+    BrowserAdapterFactory = require('./adapter/BrowserAdapterFactory');
+
 module.exports = function () {
 	'use strict';
 
 	var _API_VERSION = 4;
-
-	var _window = null;
-
-	try {
-		_window = self || null;
-	} catch (e) {
-		_window = null;
-	}
-
-	if (_window === null) {
-		_window = window;
-	}
 
 	var state = {
 		connecting: 'CONNECTING',
@@ -855,6 +848,8 @@ module.exports = function () {
 
 	function ConnectionInternal(marketState) {
 		var __marketState = marketState;
+
+		var __adapterFactory = null;
 
 		var __connection = null;
 		var __connectionState = state.disconnected;
@@ -889,17 +884,7 @@ module.exports = function () {
 			server: null
 		};
 
-		var __decoder = void 0;
-
-		if (_window.TextDecoder) {
-			__decoder = new TextDecoder();
-		} else {
-			__decoder = {
-				decode: function decode(data) {
-					return String.fromCharCode.apply(null, new Uint8Array(data));
-				}
-			};
-		}
+		var __decoder = null;
 
 		//
 		// Functions used to configure the connection.
@@ -942,8 +927,10 @@ module.exports = function () {
    * @param {String} server
    * @param {String} username
    * @param {String} password
+   * @param {AdapterFactory} adapterFactory
    */
-		function initializeConnection(server, username, password) {
+		function initializeConnection(server, username, password, adapterFactory) {
+			__adapterFactory = adapterFactory;
 			__reconnectAllowed = true;
 
 			connect(server, username, password);
@@ -997,12 +984,6 @@ module.exports = function () {
 				throw new Error('Unable to connect, the "password" argument is required.');
 			}
 
-			if (!_window.WebSocket) {
-				console.warn('Connection: Unable to connect, websockets are not supported.');
-
-				return;
-			}
-
 			if (__connection !== null) {
 				console.warn('Connection: Unable to connect, a connection already exists.');
 
@@ -1017,8 +998,10 @@ module.exports = function () {
 
 			__connectionState = state.disconnected;
 
-			__connection = new WebSocket('wss://' + __loginInfo.server + '/jerq');
+			__connection = __adapterFactory.build('wss://' + __loginInfo.server + '/jerq');
 			__connection.binaryType = 'arraybuffer';
+
+			__decoder = __connection.getDecoder();
 
 			__connection.onopen = function () {
 				console.log('Connection: Open event received.');
@@ -1106,7 +1089,7 @@ module.exports = function () {
 
 			if (__connection !== null) {
 				try {
-					if (__connection.readyState === WebSocket.OPEN) {
+					if (__connection.readyState === __connection.OPEN) {
 						__connection.send('LOGOUT\r\n');
 					}
 
@@ -2313,8 +2296,8 @@ module.exports = function () {
 
 		_createClass(Connection, [{
 			key: '_connect',
-			value: function _connect() {
-				this._internal.connect(this.getServer(), this.getUsername(), this.getPassword());
+			value: function _connect(adapterFactory) {
+				this._internal.connect(this.getServer(), this.getUsername(), this.getPassword(), adapterFactory === null ? new BrowserAdapterFactory() : adapterFactory);
 			}
 		}, {
 			key: '_disconnect',
@@ -2369,7 +2352,332 @@ module.exports = function () {
 	return Connection;
 }();
 
-},{"./../../common/lang/array":2,"./../../common/lang/object":3,"./../../messageParser/parseMessage":14,"./../../util/snapshotProvider":26,"./../ConnectionBase":4,"@barchart/marketdata-utilities-js":32}],7:[function(require,module,exports){
+},{"./../../common/lang/array":2,"./../../common/lang/object":3,"./../../messageParser/parseMessage":17,"./../../util/snapshotProvider":29,"./../ConnectionBase":4,"./adapter/AdapterFactory":8,"./adapter/BrowserAdapterFactory":9,"@barchart/marketdata-utilities-js":35}],7:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+module.exports = function () {
+	'use strict';
+
+	/**
+  * An interface for establishing and interacting with a WebSocket connection.
+  *
+  * @public
+  * @private
+  * @interface
+  */
+
+	var Adapter = function () {
+		function Adapter(host) {
+			_classCallCheck(this, Adapter);
+		}
+
+		_createClass(Adapter, [{
+			key: 'send',
+			value: function send(message) {
+				return;
+			}
+		}, {
+			key: 'close',
+			value: function close() {
+				return;
+			}
+		}, {
+			key: 'getDecoder',
+			value: function getDecoder() {
+				return null;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[Adapter]';
+			}
+		}, {
+			key: 'CONNECTING',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'OPEN',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'CLOSING',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'CLOSED',
+			get: function get() {
+				return null;
+			}
+		}, {
+			key: 'binaryType',
+			get: function get() {
+				return null;
+			},
+			set: function set(value) {
+				return;
+			}
+		}, {
+			key: 'readyState',
+			get: function get() {
+				return null;
+			},
+			set: function set(value) {
+				return;
+			}
+		}, {
+			key: 'onopen',
+			get: function get() {
+				return null;
+			},
+			set: function set(callback) {
+				return;
+			}
+		}, {
+			key: 'onclose',
+			get: function get() {
+				return null;
+			},
+			set: function set(callback) {
+				return;
+			}
+		}, {
+			key: 'onmessage',
+			get: function get() {
+				return null;
+			},
+			set: function set(callback) {
+				return;
+			}
+		}]);
+
+		return Adapter;
+	}();
+
+	return Adapter;
+}();
+
+},{}],8:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+module.exports = function () {
+	'use strict';
+
+	/**
+  * An interface for creating a WebSocket {@link Adapter}.
+  *
+  * @public
+  * @interface
+  */
+
+	var AdapterFactory = function () {
+		function AdapterFactory() {
+			_classCallCheck(this, AdapterFactory);
+		}
+
+		_createClass(AdapterFactory, [{
+			key: 'build',
+			value: function build(host) {
+				return null;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[AdapterFactory]';
+			}
+		}]);
+
+		return AdapterFactory;
+	}();
+
+	return AdapterFactory;
+}();
+
+},{}],9:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Adapter = require('./Adapter'),
+    AdapterFactory = require('./AdapterFactory');
+
+module.exports = function () {
+	'use strict';
+
+	var __window = void 0;
+
+	try {
+		__window = window || self || null;
+	} catch (e) {
+		__window = null;
+	}
+
+	/**
+  * An interface for creating and interacting with a WebSocket connection.
+  *
+  * @public
+  * @interface
+  */
+
+	var BrowserAdapterFactory = function (_AdapterFactory) {
+		_inherits(BrowserAdapterFactory, _AdapterFactory);
+
+		function BrowserAdapterFactory() {
+			_classCallCheck(this, BrowserAdapterFactory);
+
+			return _possibleConstructorReturn(this, (BrowserAdapterFactory.__proto__ || Object.getPrototypeOf(BrowserAdapterFactory)).call(this));
+		}
+
+		_createClass(BrowserAdapterFactory, [{
+			key: 'build',
+			value: function build(host) {
+				if (!__window || !__window.WebSocket) {
+					console.warn('Connection: Unable to connect, WebSockets are not supported.');
+
+					return;
+				}
+
+				return new BrowserAdapter(host);
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[BrowserAdapterFactory]';
+			}
+		}]);
+
+		return BrowserAdapterFactory;
+	}(AdapterFactory);
+
+	var BrowserAdapter = function (_Adapter) {
+		_inherits(BrowserAdapter, _Adapter);
+
+		function BrowserAdapter(host) {
+			_classCallCheck(this, BrowserAdapter);
+
+			var _this2 = _possibleConstructorReturn(this, (BrowserAdapter.__proto__ || Object.getPrototypeOf(BrowserAdapter)).call(this, host));
+
+			_this2._socket = new WebSocket(host);
+			return _this2;
+		}
+
+		_createClass(BrowserAdapter, [{
+			key: 'send',
+			value: function send(message) {
+				this._socket.send(message);
+			}
+		}, {
+			key: 'close',
+			value: function close() {
+				this._socket.close();
+			}
+		}, {
+			key: 'getDecoder',
+			value: function getDecoder() {
+				var decoder = void 0;
+
+				if (__window) {
+					decoder = new __window.TextDecoder();
+				} else {
+					decoder = {
+						decode: function decode(data) {
+							return String.fromCharCode.apply(null, new Uint8Array(data));
+						}
+					};
+				}
+
+				return decoder;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[BrowserAdapter]';
+			}
+		}, {
+			key: 'CONNECTING',
+			get: function get() {
+				return WebSocket.CONNECTING;
+			}
+		}, {
+			key: 'OPEN',
+			get: function get() {
+				return WebSocket.OPEN;
+			}
+		}, {
+			key: 'CLOSING',
+			get: function get() {
+				return WebSocket.CLOSING;
+			}
+		}, {
+			key: 'CLOSED',
+			get: function get() {
+				return WebSocket.CLOSED;
+			}
+		}, {
+			key: 'binaryType',
+			get: function get() {
+				return this._socket.binaryType;
+			},
+			set: function set(value) {
+				this._socket.binaryType = value;
+			}
+		}, {
+			key: 'readyState',
+			get: function get() {
+				return this._socket.readyState;
+			},
+			set: function set(value) {
+				this._socket.readyState = value;
+			}
+		}, {
+			key: 'onopen',
+			get: function get() {
+				return this._socket.onopen;
+			},
+			set: function set(callback) {
+				this._socket.onopen = callback;
+			}
+		}, {
+			key: 'onclose',
+			get: function get() {
+				return this._socket.onclose;
+			},
+			set: function set(callback) {
+				this._socket.onclose = callback;
+			}
+		}, {
+			key: 'onmessage',
+			get: function get() {
+				return this._socket.onmessage;
+			},
+			set: function set(callback) {
+				this._socket.onmessage = callback;
+			}
+		}]);
+
+		return BrowserAdapter;
+	}(Adapter);
+
+	return BrowserAdapterFactory;
+}();
+
+},{"./Adapter":7,"./AdapterFactory":8}],10:[function(require,module,exports){
 'use strict';
 
 var connection = require('./connection/index'),
@@ -2391,11 +2699,11 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.2.3'
+		version: '3.2.4'
 	};
 }();
 
-},{"./connection/index":5,"./marketState/index":12,"./messageParser/index":13,"./util/index":22}],8:[function(require,module,exports){
+},{"./connection/index":5,"./marketState/index":15,"./messageParser/index":16,"./util/index":25}],11:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2698,7 +3006,7 @@ module.exports = function () {
 	return CumulativeVolume;
 }();
 
-},{"./../common/lang/object":3}],9:[function(require,module,exports){
+},{"./../common/lang/object":3}],12:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -3303,7 +3611,7 @@ module.exports = function () {
 	return MarketState;
 }();
 
-},{"./../util/convertDayCodeToNumber":19,"./CumulativeVolume":8,"./Profile":10,"./Quote":11,"@barchart/marketdata-utilities-js":32}],10:[function(require,module,exports){
+},{"./../util/convertDayCodeToNumber":22,"./CumulativeVolume":11,"./Profile":13,"./Quote":14,"@barchart/marketdata-utilities-js":35}],13:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -3453,7 +3761,7 @@ module.exports = function () {
 	return Profile;
 }();
 
-},{"./../util/parseSymbolType":24,"./../util/priceFormatter":25}],11:[function(require,module,exports){
+},{"./../util/parseSymbolType":27,"./../util/priceFormatter":28}],14:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -3579,7 +3887,7 @@ module.exports = function () {
 	return Quote;
 }();
 
-},{}],12:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 var MarketState = require('./MarketState');
@@ -3590,7 +3898,7 @@ module.exports = function () {
 	return MarketState;
 }();
 
-},{"./MarketState":9}],13:[function(require,module,exports){
+},{"./MarketState":12}],16:[function(require,module,exports){
 'use strict';
 
 var parseMessage = require('./parseMessage'),
@@ -3611,7 +3919,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./parseMessage":14,"./parseTimestamp":15,"./parseValue":16}],14:[function(require,module,exports){
+},{"./parseMessage":17,"./parseTimestamp":18,"./parseValue":19}],17:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3622,7 +3930,7 @@ module.exports = function () {
 	return utilities.messageParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":32}],15:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":35}],18:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3633,7 +3941,7 @@ module.exports = function () {
 	return utilities.timestampParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":32}],16:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":35}],19:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3644,7 +3952,7 @@ module.exports = function () {
 	return utilities.priceParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":32}],17:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":35}],20:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3655,7 +3963,7 @@ module.exports = function () {
 	return utilities.convert.baseCodeToUnitCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":32}],18:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":35}],21:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3666,7 +3974,7 @@ module.exports = function () {
 	return utilities.convert.dateToDayCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":32}],19:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":35}],22:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3677,7 +3985,7 @@ module.exports = function () {
 	return utilities.convert.dayCodeToNumber;
 }();
 
-},{"@barchart/marketdata-utilities-js":32}],20:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":35}],23:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3688,7 +3996,7 @@ module.exports = function () {
 	return utilities.convert.unitCodeToBaseCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":32}],21:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":35}],24:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3699,7 +4007,7 @@ module.exports = function () {
 	return utilities.decimalFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":32}],22:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":35}],25:[function(require,module,exports){
 'use strict';
 
 var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode'),
@@ -3739,7 +4047,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convertBaseCodeToUnitCode":17,"./convertDateToDayCode":18,"./convertDayCodeToNumber":19,"./convertUnitCodeToBaseCode":20,"./decimalFormatter":21,"./monthCodes":23,"./parseSymbolType":24,"./priceFormatter":25,"./snapshotProvider":26,"./symbolResolver":27,"./timeFormatter":28}],23:[function(require,module,exports){
+},{"./convertBaseCodeToUnitCode":20,"./convertDateToDayCode":21,"./convertDayCodeToNumber":22,"./convertUnitCodeToBaseCode":23,"./decimalFormatter":24,"./monthCodes":26,"./parseSymbolType":27,"./priceFormatter":28,"./snapshotProvider":29,"./symbolResolver":30,"./timeFormatter":31}],26:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3750,7 +4058,7 @@ module.exports = function () {
 	return utilities.monthCodes.getCodeToNameMap();
 }();
 
-},{"@barchart/marketdata-utilities-js":32}],24:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":35}],27:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3761,7 +4069,7 @@ module.exports = function () {
 	return utilities.symbolParser.parseInstrumentType;
 }();
 
-},{"@barchart/marketdata-utilities-js":32}],25:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":35}],28:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3772,7 +4080,7 @@ module.exports = function () {
 	return utilities.priceFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":32}],26:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":35}],29:[function(require,module,exports){
 'use strict';
 
 var xhr = require('xhr');
@@ -4051,7 +4359,7 @@ module.exports = function () {
 	return retrieveSnapshots;
 }();
 
-},{"./../common/lang/array":2,"./convertBaseCodeToUnitCode":17,"./convertDateToDayCode":18,"./convertDayCodeToNumber":19,"xhr":49}],27:[function(require,module,exports){
+},{"./../common/lang/array":2,"./convertBaseCodeToUnitCode":20,"./convertDateToDayCode":21,"./convertDayCodeToNumber":22,"xhr":71}],30:[function(require,module,exports){
 'use strict';
 
 var xhr = require('xhr');
@@ -4113,7 +4421,7 @@ module.exports = function () {
 	};
 }();
 
-},{"xhr":49}],28:[function(require,module,exports){
+},{"xhr":71}],31:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -4124,7 +4432,7 @@ module.exports = function () {
 	return utilities.timeFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":32}],29:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":35}],32:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -4165,13 +4473,30 @@ module.exports = function () {
     return XmlDomParser;
 }();
 
-},{"xmldom":50}],30:[function(require,module,exports){
+},{"xmldom":72}],33:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
 	'use strict';
 
+	function convertDayNumberToDayCode(d) {
+		if (d >= 1 && d <= 9) {
+			return String.fromCharCode("1".charCodeAt(0) + d - 1);
+		} else if (d == 10) {
+			return '0';
+		} else {
+			return String.fromCharCode("A".charCodeAt(0) + d - 11);
+		}
+	}
+
 	return {
+		/**
+   * Converts a unit code into a base code.
+   *
+   * @public
+   * @param {String} baseCode
+   * @return {Number}
+   */
 		unitCodeToBaseCode: function unitCodeToBaseCode(unitCode) {
 			switch (unitCode) {
 				case '2':
@@ -4207,6 +4532,13 @@ module.exports = function () {
 			}
 		},
 
+		/**
+   * Converts a base code into a unit code.
+   *
+   * @public
+   * @param {Number} baseCode
+   * @return {String}
+   */
 		baseCodeToUnitCode: function baseCodeToUnitCode(baseCode) {
 			switch (baseCode) {
 				case -1:
@@ -4242,19 +4574,33 @@ module.exports = function () {
 			}
 		},
 
+		/**
+   * Converts a date instance to a day code.
+   *
+   * @public
+   * @param {Date} date
+   * @returns {String|null}
+   */
 		dateToDayCode: function dateToDayCode(date) {
-			var d = date.getDate();
-
-			if (d >= 1 && d <= 9) {
-				return String.fromCharCode("1".charCodeAt(0) + d - 1);
-			} else if (d == 10) {
-				return '0';
-			} else {
-				return String.fromCharCode("A".charCodeAt(0) + d - 11);
+			if (date === null || date === undefined) {
+				return null;
 			}
+
+			return convertDayNumberToDayCode(date.getDate());
 		},
 
+		/**
+   * Converts a day code (e.g. "A" ) to a day number (e.g. 11).
+   *
+   * @public
+   * @param {String} dayCode
+   * @returns {Number|null}
+   */
 		dayCodeToNumber: function dayCodeToNumber(dayCode) {
+			if (dayCode === null || dayCode === undefined || dayCode === '') {
+				return null;
+			}
+
 			var d = parseInt(dayCode, 31);
 
 			if (d > 9) {
@@ -4264,11 +4610,26 @@ module.exports = function () {
 			}
 
 			return d;
+		},
+
+		/**
+   * Converts a day number (e.g. the 11th of the month) in o a day code (e.g. 'A').
+   *
+   * @public
+   * @param {Number=} dayNumber
+   * @returns {Number|null}
+   */
+		numberToDayCode: function numberToDayCode(dayNumber) {
+			if (dayNumber === null || dayNumber === undefined) {
+				return null;
+			}
+
+			return convertDayNumberToDayCode(dayNumber);
 		}
 	};
 }();
 
-},{}],31:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 'use strict';
 
 var lodashIsNaN = require('lodash.isnan');
@@ -4330,7 +4691,7 @@ module.exports = function () {
 	};
 }();
 
-},{"lodash.isnan":46}],32:[function(require,module,exports){
+},{"lodash.isnan":62}],35:[function(require,module,exports){
 'use strict';
 
 var convert = require('./convert'),
@@ -4363,7 +4724,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convert":30,"./decimalFormatter":31,"./messageParser":33,"./monthCodes":34,"./priceFormatter":35,"./priceParser":36,"./stringToDecimalFormatter":37,"./symbolFormatter":38,"./symbolParser":39,"./timeFormatter":40,"./timestampParser":41}],33:[function(require,module,exports){
+},{"./convert":33,"./decimalFormatter":34,"./messageParser":36,"./monthCodes":37,"./priceFormatter":38,"./priceParser":39,"./stringToDecimalFormatter":40,"./symbolFormatter":41,"./symbolParser":42,"./timeFormatter":43,"./timestampParser":44}],36:[function(require,module,exports){
 'use strict';
 
 var parseValue = require('./priceParser'),
@@ -4476,134 +4837,134 @@ module.exports = function () {
 												message.mode = node.attributes[_i2].value;
 												break;
 										}
+									}
 
-										var sessions = {};
+									var sessions = {};
 
-										for (var j = 0; j < node.childNodes.length; j++) {
-											if (node.childNodes[j].nodeName == 'SESSION') {
-												var s = {};
-												var attributes = node.childNodes[j].attributes;
+									for (var j = 0; j < node.childNodes.length; j++) {
+										if (node.childNodes[j].nodeName == 'SESSION') {
+											var s = {};
+											var attributes = node.childNodes[j].attributes;
 
-												if (attributes.getNamedItem('id')) s.id = attributes.getNamedItem('id').value;
-												if (attributes.getNamedItem('day')) s.day = attributes.getNamedItem('day').value;
-												if (attributes.getNamedItem('last')) s.lastPrice = parseValue(attributes.getNamedItem('last').value, message.unitcode);
-												if (attributes.getNamedItem('previous')) s.previousPrice = parseValue(attributes.getNamedItem('previous').value, message.unitcode);
-												if (attributes.getNamedItem('open')) s.openPrice = parseValue(attributes.getNamedItem('open').value, message.unitcode);
-												if (attributes.getNamedItem('high')) s.highPrice = parseValue(attributes.getNamedItem('high').value, message.unitcode);
-												if (attributes.getNamedItem('low')) s.lowPrice = parseValue(attributes.getNamedItem('low').value, message.unitcode);
-												if (attributes.getNamedItem('tradesize')) s.tradeSize = parseInt(attributes.getNamedItem('tradesize').value);
-												if (attributes.getNamedItem('numtrades')) s.numberOfTrades = parseInt(attributes.getNamedItem('numtrades').value);
-												if (attributes.getNamedItem('settlement')) s.settlementPrice = parseValue(attributes.getNamedItem('settlement').value, message.unitcode);
-												if (attributes.getNamedItem('volume')) s.volume = parseInt(attributes.getNamedItem('volume').value);
-												if (attributes.getNamedItem('openinterest')) s.openInterest = parseInt(attributes.getNamedItem('openinterest').value);
-												if (attributes.getNamedItem('timestamp')) {
-													var _v = attributes.getNamedItem('timestamp').value;
-													s.timeStamp = new Date(parseInt(_v.substr(0, 4)), parseInt(_v.substr(4, 2)) - 1, parseInt(_v.substr(6, 2)), parseInt(_v.substr(8, 2)), parseInt(_v.substr(10, 2)), parseInt(_v.substr(12, 2)));
-												}
-												if (attributes.getNamedItem('tradetime')) {
-													var _v2 = attributes.getNamedItem('tradetime').value;
-													s.tradeTime = new Date(parseInt(_v2.substr(0, 4)), parseInt(_v2.substr(4, 2)) - 1, parseInt(_v2.substr(6, 2)), parseInt(_v2.substr(8, 2)), parseInt(_v2.substr(10, 2)), parseInt(_v2.substr(12, 2)));
-												}
-
-												if (s.id) sessions[s.id] = s;
+											if (attributes.getNamedItem('id')) s.id = attributes.getNamedItem('id').value;
+											if (attributes.getNamedItem('day')) s.day = attributes.getNamedItem('day').value;
+											if (attributes.getNamedItem('last')) s.lastPrice = parseValue(attributes.getNamedItem('last').value, message.unitcode);
+											if (attributes.getNamedItem('previous')) s.previousPrice = parseValue(attributes.getNamedItem('previous').value, message.unitcode);
+											if (attributes.getNamedItem('open')) s.openPrice = parseValue(attributes.getNamedItem('open').value, message.unitcode);
+											if (attributes.getNamedItem('high')) s.highPrice = parseValue(attributes.getNamedItem('high').value, message.unitcode);
+											if (attributes.getNamedItem('low')) s.lowPrice = parseValue(attributes.getNamedItem('low').value, message.unitcode);
+											if (attributes.getNamedItem('tradesize')) s.tradeSize = parseInt(attributes.getNamedItem('tradesize').value);
+											if (attributes.getNamedItem('numtrades')) s.numberOfTrades = parseInt(attributes.getNamedItem('numtrades').value);
+											if (attributes.getNamedItem('settlement')) s.settlementPrice = parseValue(attributes.getNamedItem('settlement').value, message.unitcode);
+											if (attributes.getNamedItem('volume')) s.volume = parseInt(attributes.getNamedItem('volume').value);
+											if (attributes.getNamedItem('openinterest')) s.openInterest = parseInt(attributes.getNamedItem('openinterest').value);
+											if (attributes.getNamedItem('timestamp')) {
+												var _v = attributes.getNamedItem('timestamp').value;
+												s.timeStamp = new Date(parseInt(_v.substr(0, 4)), parseInt(_v.substr(4, 2)) - 1, parseInt(_v.substr(6, 2)), parseInt(_v.substr(8, 2)), parseInt(_v.substr(10, 2)), parseInt(_v.substr(12, 2)));
 											}
+											if (attributes.getNamedItem('tradetime')) {
+												var _v2 = attributes.getNamedItem('tradetime').value;
+												s.tradeTime = new Date(parseInt(_v2.substr(0, 4)), parseInt(_v2.substr(4, 2)) - 1, parseInt(_v2.substr(6, 2)), parseInt(_v2.substr(8, 2)), parseInt(_v2.substr(10, 2)), parseInt(_v2.substr(12, 2)));
+											}
+
+											if (s.id) sessions[s.id] = s;
 										}
+									}
 
-										var premarket = typeof sessions.combined.lastPrice === 'undefined';
-										var postmarket = !premarket && typeof sessions.combined.settlementPrice !== 'undefined';
+									var premarket = typeof sessions.combined.lastPrice === 'undefined';
+									var postmarket = !premarket && typeof sessions.combined.settlementPrice !== 'undefined';
 
-										var session = premarket ? sessions.previous : sessions.combined;
+									var session = premarket ? sessions.previous : sessions.combined;
 
-										if (sessions.combined.previousPrice) {
-											message.previousPrice = sessions.combined.previousPrice;
-										} else {
-											message.previousPrice = sessions.previous.previousPrice;
-										}
+									if (sessions.combined.previousPrice) {
+										message.previousPrice = sessions.combined.previousPrice;
+									} else {
+										message.previousPrice = sessions.previous.previousPrice;
+									}
 
-										if (session.lastPrice) message.lastPrice = session.lastPrice;
-										if (session.openPrice) message.openPrice = session.openPrice;
-										if (session.highPrice) message.highPrice = session.highPrice;
-										if (session.lowPrice) message.lowPrice = session.lowPrice;
-										if (session.tradeSize) message.tradeSize = session.tradeSize;
-										if (session.numberOfTrades) message.numberOfTrades = session.numberOfTrades;
-										if (session.settlementPrice) message.settlementPrice = session.settlementPrice;
-										if (session.volume) message.volume = session.volume;
-										if (session.openInterest) message.openInterest = session.openInterest;
-										if (session.id === 'combined' && sessions.previous.openInterest) message.openInterest = sessions.previous.openInterest;
-										if (session.timeStamp) message.timeStamp = session.timeStamp;
-										if (session.tradeTime) message.tradeTime = session.tradeTime;
+									if (session.lastPrice) message.lastPrice = session.lastPrice;
+									if (session.openPrice) message.openPrice = session.openPrice;
+									if (session.highPrice) message.highPrice = session.highPrice;
+									if (session.lowPrice) message.lowPrice = session.lowPrice;
+									if (session.tradeSize) message.tradeSize = session.tradeSize;
+									if (session.numberOfTrades) message.numberOfTrades = session.numberOfTrades;
+									if (session.settlementPrice) message.settlementPrice = session.settlementPrice;
+									if (session.volume) message.volume = session.volume;
+									if (session.openInterest) message.openInterest = session.openInterest;
+									if (session.id === 'combined' && sessions.previous.openInterest) message.openInterest = sessions.previous.openInterest;
+									if (session.timeStamp) message.timeStamp = session.timeStamp;
+									if (session.tradeTime) message.tradeTime = session.tradeTime;
 
-										// 2016/10/29, BRI. We have a problem where we don't "roll" quotes
-										// for futures. For example, LEZ16 doesn't "roll" the settlementPrice
-										// to the previous price -- so, we did this on the open message (2,0A).
-										// Eero has another idea. Perhaps we are setting the "day" improperly
-										// here. Perhaps we should base the day off of the actual session
-										// (i.e. "session" variable) -- instead of taking it from the "combined"
-										// session.
+									// 2016/10/29, BRI. We have a problem where we don't "roll" quotes
+									// for futures. For example, LEZ16 doesn't "roll" the settlementPrice
+									// to the previous price -- so, we did this on the open message (2,0A).
+									// Eero has another idea. Perhaps we are setting the "day" improperly
+									// here. Perhaps we should base the day off of the actual session
+									// (i.e. "session" variable) -- instead of taking it from the "combined"
+									// session.
 
-										if (sessions.combined.day) message.day = sessions.combined.day;
-										if (premarket && typeof message.flag === 'undefined') message.flag = 'p';
+									if (sessions.combined.day) message.day = session.day;
+									if (premarket && typeof message.flag === 'undefined') message.flag = 'p';
 
-										var p = sessions.previous;
+									var p = sessions.previous;
 
-										message.previousPreviousPrice = p.previousPrice;
-										message.previousSettlementPrice = p.settlementPrice;
-										message.previousOpenPrice = p.openPrice;
-										message.previousHighPrice = p.highPrice;
-										message.previousLowPrice = p.lowPrice;
-										message.previousTimeStamp = p.timeStamp;
+									message.previousPreviousPrice = p.previousPrice;
+									message.previousSettlementPrice = p.settlementPrice;
+									message.previousOpenPrice = p.openPrice;
+									message.previousHighPrice = p.highPrice;
+									message.previousLowPrice = p.lowPrice;
+									message.previousTimeStamp = p.timeStamp;
 
-										if (sessions.combined.day) {
-											var sessionFormT = 'session_' + sessions.combined.day + '_T';
+									if (sessions.combined.day) {
+										var sessionFormT = 'session_' + sessions.combined.day + '_T';
 
-											if (sessions.hasOwnProperty(sessionFormT)) {
-												var t = sessions[sessionFormT];
+										if (sessions.hasOwnProperty(sessionFormT)) {
+											var t = sessions[sessionFormT];
 
-												var lastPriceT = t.lastPrice;
+											var lastPriceT = t.lastPrice;
 
-												if (lastPriceT) {
-													var tradeTimeT = t.tradeTime;
-													var tradeSizeT = t.tradeSize;
+											if (lastPriceT) {
+												var tradeTimeT = t.tradeTime;
+												var tradeSizeT = t.tradeSize;
 
-													var sessionIsEvening = void 0;
+												var sessionIsEvening = void 0;
 
-													if (tradeTimeT) {
-														var noon = new Date(tradeTimeT.getFullYear(), tradeTimeT.getMonth(), tradeTimeT.getDate(), 12, 0, 0, 0);
+												if (tradeTimeT) {
+													var noon = new Date(tradeTimeT.getFullYear(), tradeTimeT.getMonth(), tradeTimeT.getDate(), 12, 0, 0, 0);
 
-														sessionIsEvening = tradeTimeT.getTime() > noon.getTime();
-													} else {
-														sessionIsEvening = false;
-													}
+													sessionIsEvening = tradeTimeT.getTime() > noon.getTime();
+												} else {
+													sessionIsEvening = false;
+												}
 
-													message.sessionT = sessionIsEvening;
+												message.sessionT = sessionIsEvening;
 
-													var sessionIsCurrent = premarket || sessionIsEvening;
+												var sessionIsCurrent = premarket || sessionIsEvening;
+
+												if (sessionIsCurrent) {
+													message.lastPriceT = lastPriceT;
+												}
+
+												if (premarket || postmarket) {
+													message.session = 'T';
 
 													if (sessionIsCurrent) {
-														message.lastPriceT = lastPriceT;
-													}
-
-													if (premarket || postmarket) {
-														message.session = 'T';
-
-														if (sessionIsCurrent) {
-															if (tradeTimeT) {
-																message.tradeTime = tradeTimeT;
-															}
-
-															if (tradeSizeT) {
-																message.tradeSize = tradeSizeT;
-															}
+														if (tradeTimeT) {
+															message.tradeTime = tradeTimeT;
 														}
 
-														if (premarket) {
-															if (t.volume) {
-																message.volume = t.volume;
-															}
+														if (tradeSizeT) {
+															message.tradeSize = tradeSizeT;
+														}
+													}
 
-															if (t.previousPrice) {
-																message.previousPrice = t.previousPrice;
-															}
+													if (premarket) {
+														if (t.volume) {
+															message.volume = t.volume;
+														}
+
+														if (t.previousPrice) {
+															message.previousPrice = t.previousPrice;
 														}
 													}
 												}
@@ -4844,7 +5205,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./common/xml/XmlDomParser":29,"./priceParser":36,"./timestampParser":41}],34:[function(require,module,exports){
+},{"./common/xml/XmlDomParser":32,"./priceParser":39,"./timestampParser":44}],37:[function(require,module,exports){
 "use strict";
 
 module.exports = function () {
@@ -4883,7 +5244,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],35:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 
 var lodashIsNaN = require('lodash.isnan');
@@ -4985,9 +5346,9 @@ module.exports = function () {
 					case '4':
 						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 32, 2), suffix].join('');
 					case '5':
-						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 64), specialFractions ? 3 : 2), suffix].join('');
+						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad(Math.floor(((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 64)).toFixed(1)), specialFractions ? 3 : 2), suffix].join('');
 					case '6':
-						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 128), 3), suffix].join('');
+						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad(Math.floor(((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 128)).toFixed(1)), 3), suffix].join('');
 					case '7':
 						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 256), 3), suffix].join('');
 					case '8':
@@ -5016,7 +5377,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./decimalFormatter":31,"lodash.isnan":46}],36:[function(require,module,exports){
+},{"./decimalFormatter":34,"lodash.isnan":62}],39:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -5092,47 +5453,46 @@ module.exports = function () {
 	};
 }();
 
-},{}],37:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 'use strict';
 
 var Converter = require('./convert');
 
 module.exports = function () {
+	/**
+  * Adapted from legacy code: https://github.com/barchart/php-jscharts/blob/372deb9b4d9ee678f32b6f8c4268434249c1b4ac/chart_package/webroot/js/deps/ddfplus/com.ddfplus.js
+  */
+	return function (string, unitCode) {
+		var baseCode = Converter.unitCodeToBaseCode(unitCode);
 
-    /**
-     * Adapted from legacy code: https://github.com/barchart/php-jscharts/blob/372deb9b4d9ee678f32b6f8c4268434249c1b4ac/chart_package/webroot/js/deps/ddfplus/com.ddfplus.js
-     */
-    return function (string, unitCode) {
-        var baseCode = Converter.unitCodeToBaseCode(unitCode);
+		// Fix for 10-Yr T-Notes
+		if (baseCode === -4 && (string.length === 7 || string.length === 6 && string.charAt(0) !== '1')) {
+			baseCode -= 1;
+		}
 
-        // Fix for 10-Yr T-Notes
-        if (baseCode === -4 && (string.length === 7 || string.length === 6 && string.charAt(0) !== '1')) {
-            baseCode -= 1;
-        }
+		if (baseCode >= 0) {
+			var ival = string * 1;
+			return Math.round(ival * Math.pow(10, baseCode)) / Math.pow(10, baseCode);
+		} else {
+			var has_dash = string.match(/-/);
+			var divisor = Math.pow(2, Math.abs(baseCode) + 2);
+			var fracsize = String(divisor).length;
+			var denomstart = string.length - fracsize;
+			var numerend = denomstart;
+			if (string.substring(numerend - 1, numerend) == '-') numerend--;
+			var numerator = string.substring(0, numerend) * 1;
+			var denominator = string.substring(denomstart, string.length) * 1;
 
-        if (baseCode >= 0) {
-            var ival = string * 1;
-            return Math.round(ival * Math.pow(10, baseCode)) / Math.pow(10, baseCode);
-        } else {
-            var has_dash = string.match(/-/);
-            var divisor = Math.pow(2, Math.abs(baseCode) + 2);
-            var fracsize = String(divisor).length;
-            var denomstart = string.length - fracsize;
-            var numerend = denomstart;
-            if (string.substring(numerend - 1, numerend) == '-') numerend--;
-            var numerator = string.substring(0, numerend) * 1;
-            var denominator = string.substring(denomstart, string.length) * 1;
+			if (baseCode === -5) {
+				divisor = has_dash ? 320 : 128;
+			}
 
-            if (baseCode === -5) {
-                divisor = has_dash ? 320 : 128;
-            }
-
-            return numerator + denominator / divisor;
-        }
-    };
+			return numerator + denominator / divisor;
+		}
+	};
 }();
 
-},{"./convert":30}],38:[function(require,module,exports){
+},{"./convert":33}],41:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -5149,39 +5509,254 @@ module.exports = function () {
 	};
 }();
 
-},{}],39:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
 	'use strict';
 
-	var exchangeRegex = /^(.*)\\.([A-Z]{1,4})$/i,
-	    jerqFutureConversionRegex = /(.{1,3})([A-Z]{1})([0-9]{3}|[0-9]{1})?([0-9]{1})$/i,
-	    concreteFutureRegex = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z]{1})([0-9]{4}|[0-9]{1,2})$/i,
-	    referenceFutureRegex = /^([A-Z][A-Z0-9\$\-!\.]{0,2})(\*{1})([0-9]{1})$/i,
-	    futureSpreadRegex = /^_S_/i,
-	    shortFutureOptionRegex = /^([A-Z][A-Z0-9\$\-!\.]?)([A-Z])([0-9]{1,4})([A-Z])$/i,
-	    longFutureOptionRegex = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i,
-	    historicalFutureOptionRegex = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{2})([0-9]{1,5})(C|P)$/i,
-	    forexRegex = /^\^([A-Z]{3})([A-Z]{3})$/i,
-	    sectorRegex = /^\-(.*)$/i,
-	    indexRegex = /^\$(.*)$/i,
-	    batsRegex = /^(.*)\.BZ$/i,
-	    usePercentRegex = /(\.RT)$/;
-
-	var altMonthCodes = {
-		A: 'F', B: 'G', C: 'H', D: 'J', E: 'K', I: 'M', L: 'N', O: 'Q', P: 'U', R: 'V', S: 'X', T: 'Z'
+	var alternateFuturesMonths = {
+		A: 'F',
+		B: 'G',
+		C: 'H',
+		D: 'J',
+		E: 'K',
+		I: 'M',
+		L: 'N',
+		O: 'Q',
+		P: 'U',
+		R: 'V',
+		S: 'X',
+		T: 'Z'
 	};
 
-	function getIsType(symbol, type) {
-		var instrumentType = symbolParser.parseInstrumentType(symbol);
+	var predicates = {};
 
-		return instrumentType !== null && instrumentType.type === type;
+	predicates.bats = /^(.*)\.BZ$/i;
+	predicates.percent = /(\.RT)$/;
+
+	var types = {};
+
+	types.forex = /^\^([A-Z]{3})([A-Z]{3})$/i;
+	types.futures = {};
+	types.futures.spread = /^_S_/i;
+	types.futures.concrete = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z]{1})([0-9]{4}|[0-9]{1,2})$/i;
+	types.futures.alias = /^([A-Z][A-Z0-9\$\-!\.]{0,2})(\*{1})([0-9]{1})$/i;
+	types.futures.options = {};
+	types.futures.options.short = /^([A-Z][A-Z0-9\$\-!\.]?)([A-Z])([0-9]{1,4})([A-Z])$/i;
+	types.futures.options.long = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i;
+	types.futures.options.historical = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{2})([0-9]{1,5})(C|P)$/i;
+	types.indicies = {};
+	types.indicies.external = /^\$(.*)$/i;
+	types.indicies.sector = /^\-(.*)$/i;
+	types.indicies.cmdty = /^(.*)\.CM$/i;
+
+	var parsers = [];
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		if (types.futures.spread.test(symbol)) {
+			definition = {};
+
+			definition.symbol = symbol;
+			definition.type = 'future_spread';
+		}
+
+		return definition;
+	});
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		var match = symbol.match(types.futures.concrete);
+
+		if (match !== null) {
+			definition = {};
+
+			definition.symbol = symbol;
+			definition.type = 'future';
+
+			definition.dynamic = false;
+			definition.root = match[1];
+			definition.month = match[2];
+			definition.year = getFuturesYear(match[3]);
+		}
+
+		return definition;
+	});
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		var match = symbol.match(types.futures.alias);
+
+		if (match !== null) {
+			definition = {};
+
+			definition.symbol = symbol;
+			definition.type = 'future';
+
+			definition.dynamic = true;
+			definition.root = match[1];
+			definition.dynamicCode = match[3];
+		}
+
+		return definition;
+	});
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		if (types.forex.test(symbol)) {
+			definition = {};
+
+			definition.symbol = symbol;
+			definition.type = 'forex';
+		}
+
+		return definition;
+	});
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		if (types.indicies.external.test(symbol)) {
+			definition = {};
+
+			definition.symbol = symbol;
+			definition.type = 'index';
+		}
+
+		return definition;
+	});
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		if (types.indicies.sector.test(symbol)) {
+			definition = {};
+
+			definition.symbol = symbol;
+			definition.type = 'sector';
+		}
+
+		return definition;
+	});
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		var match = symbol.match(types.futures.options.short);
+
+		if (match !== null) {
+			definition = {};
+
+			var putCallCharacterCode = match[4].charCodeAt(0);
+			var putCharacterCode = 80;
+			var callCharacterCode = 67;
+
+			var optionType = void 0;
+			var optionYearDelta = void 0;
+
+			if (putCallCharacterCode < putCharacterCode) {
+				optionType = 'call';
+				optionYearDelta = putCallCharacterCode - callCharacterCode;
+			} else {
+				optionType = 'put';
+				optionYearDelta = putCallCharacterCode - putCharacterCode;
+			}
+
+			definition.symbol = symbol;
+			definition.type = 'future_option';
+
+			definition.option_type = optionType;
+			definition.strike = parseInt(match[3]);
+
+			definition.root = match[1];
+			definition.month = match[2];
+			definition.year = getCurrentYear() + optionYearDelta;
+		}
+
+		return definition;
+	});
+
+	parsers.push(function (symbol) {
+		var definition = null;
+
+		var match = symbol.match(types.futures.options.long) || symbol.match(types.futures.options.historical);
+
+		if (match !== null) {
+			definition = {};
+
+			definition.symbol = symbol;
+			definition.type = 'future_option';
+
+			definition.option_type = match[5] === 'C' ? 'call' : 'put';
+			definition.strike = parseInt(match[4]);
+
+			definition.root = match[1];
+			definition.month = getFuturesMonth(match[2]);
+			definition.year = getFuturesYear(match[3]);
+		}
+
+		return definition;
+	});
+
+	var converters = [];
+
+	converters.push(function (symbol) {
+		var converted = null;
+
+		if (symbolParser.getIsFuture(symbol) && symbolParser.getIsConcrete(symbol)) {
+			converted = symbol.replace(/(.{1,3})([A-Z]{1})([0-9]{3}|[0-9]{1})?([0-9]{1})$/i, '$1$2$4') || null;
+		}
+
+		return converted;
+	});
+
+	converters.push(function (symbol) {
+		var converted = null;
+
+		if (symbolParser.getIsFutureOption(symbol)) {
+			var definition = symbolParser.parseInstrumentType(symbol);
+
+			var putCallCharacter = getPutCallCharacter(definition.option_type);
+
+			if (definition.root.length < 3) {
+				var putCallCharacterCode = putCallCharacter.charCodeAt(0);
+
+				converted = '' + definition.root + definition.month + definition.strike + String.fromCharCode(putCallCharacterCode + definition.year - getCurrentYear());
+			} else {
+				converted = '' + definition.root + definition.month + getYearDigits(definition.year, 1) + '|' + definition.strike + putCallCharacter;
+			}
+		}
+
+		return converted;
+	});
+
+	converters.push(function (symbol) {
+		return symbol;
+	});
+
+	function getCurrentYear() {
+		var now = new Date();
+
+		return now.getFullYear();
+	}
+
+	function getYearDigits(year, digits) {
+		var yearString = year.toString();
+
+		return yearString.substring(yearString.length - digits, yearString.length);
+	}
+
+	function getFuturesMonth(monthString) {
+		return alternateFuturesMonths[monthString] || monthString;
 	}
 
 	function getFuturesYear(yearString) {
-		var currentDate = new Date();
-		var currentYear = currentDate.getFullYear();
+		var currentYear = getCurrentYear();
 
 		var year = parseInt(yearString);
 
@@ -5204,185 +5779,63 @@ module.exports = function () {
 		return year;
 	}
 
+	function getPutCallCharacter(optionType) {
+		if (optionType === 'call') {
+			return 'C';
+		} else if (optionType === 'put') {
+			return 'P';
+		} else {
+			return null;
+		}
+	}
+
 	var symbolParser = {
+		/**
+   * Returns a simple instrument definition with the terms that can be
+   * gleaned from a symbol. If no specifics can be determined from the
+   * symbol, a null value is returned.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Object|null}
+   */
 		parseInstrumentType: function parseInstrumentType(symbol) {
 			if (typeof symbol !== 'string') {
 				return null;
 			}
 
-			var exchangeMatch = symbol.match(exchangeRegex);
+			var definition = null;
 
-			if (exchangeMatch !== null) {
-				symbol = exchangeMatch[1];
+			for (var i = 0; i < parsers.length && definition === null; i++) {
+				var parser = parsers[i];
+
+				definition = parser(symbol);
 			}
 
-			if (futureSpreadRegex.test(symbol)) {
-				return {
-					symbol: symbol,
-					type: 'future_spread'
-				};
-			}
-
-			var staticFutureMatch = symbol.match(concreteFutureRegex);
-
-			if (staticFutureMatch !== null) {
-				return {
-					symbol: symbol,
-					type: 'future',
-					root: staticFutureMatch[1],
-					dynamic: false,
-					month: staticFutureMatch[2],
-					year: getFuturesYear(staticFutureMatch[3])
-				};
-			}
-
-			var dynamicFutureMatch = symbol.match(referenceFutureRegex);
-
-			if (dynamicFutureMatch !== null) {
-				return {
-					symbol: symbol,
-					type: 'future',
-					root: dynamicFutureMatch[1],
-					dynamic: true,
-					dynamicCode: dynamicFutureMatch[3]
-				};
-			}
-
-			var forexMatch = symbol.match(forexRegex);
-
-			if (forexMatch !== null) {
-				return {
-					symbol: symbol,
-					type: 'forex'
-				};
-			}
-
-			var indexMatch = symbol.match(indexRegex);
-
-			if (indexMatch !== null) {
-				return {
-					symbol: symbol,
-					type: 'index'
-				};
-			}
-
-			var sectorMatch = symbol.match(sectorRegex);
-
-			if (sectorMatch !== null) {
-				return {
-					symbol: symbol,
-					type: 'sector'
-				};
-			}
-
-			var shortFutureOptionMatch = symbol.match(shortFutureOptionRegex);
-
-			if (shortFutureOptionMatch !== null) {
-				var currentDate = new Date();
-				var currentYear = currentDate.getFullYear();
-				var optionType = void 0,
-				    optionYear = void 0;
-
-				if (shortFutureOptionMatch[4] >= 'P') {
-					optionYear = currentYear + (shortFutureOptionMatch[4].charCodeAt(0) - 'P'.charCodeAt(0));
-					optionType = 'put';
-				} else {
-					optionYear = currentYear + (shortFutureOptionMatch[4].charCodeAt(0) - 'C'.charCodeAt(0));
-					optionType = 'call';
-				}
-
-				return {
-					symbol: symbol,
-					type: 'future_option',
-					root: shortFutureOptionMatch[1],
-					month: shortFutureOptionMatch[2],
-					year: optionYear,
-					strike: parseInt(shortFutureOptionMatch[3]),
-					option_type: optionType
-				};
-			}
-
-			var longFutureOptionMatch = symbol.match(longFutureOptionRegex);
-			var futureOptionMatch = longFutureOptionMatch !== null ? longFutureOptionMatch : symbol.match(historicalFutureOptionRegex);
-
-			if (futureOptionMatch !== null) {
-				var month = futureOptionMatch[2];
-
-				return {
-					symbol: symbol,
-					type: 'future_option',
-					root: futureOptionMatch[1],
-					month: altMonthCodes.hasOwnProperty(month) ? altMonthCodes[month] : month,
-					year: getFuturesYear(futureOptionMatch[3]),
-					strike: parseInt(futureOptionMatch[4]),
-					option_type: futureOptionMatch[5] === 'C' ? 'call' : 'put'
-				};
-			}
-
-			return null;
+			return definition;
 		},
 
-		getIsConcrete: function getIsConcrete(symbol) {
-			return !symbolParser.getIsReference(symbol);
-		},
-
-		getIsReference: function getIsReference(symbol) {
-			return referenceFutureRegex.test(symbol);
-		},
-
-		getIsFuture: function getIsFuture(symbol) {
-			return getIsType(symbol, 'future');
-		},
-
-		getIsFutureSpread: function getIsFutureSpread(symbol) {
-			return getIsType(symbol, 'future_spread');
-		},
-
-		getIsFutureOption: function getIsFutureOption(symbol) {
-			return getIsType(symbol, 'future_option');
-		},
-
-		getIsForex: function getIsForex(symbol) {
-			return getIsType(symbol, 'forex');
-		},
-
-		getIsSector: function getIsSector(symbol) {
-			return getIsType(symbol, 'sector');
-		},
-
-		getIsIndex: function getIsIndex(symbol) {
-			return getIsType(symbol, 'index');
-		},
-
-		getIsBats: function getIsBats(symbol) {
-			return batsRegex.test(symbol);
-		},
-
+		/**
+   * Translates a symbol into a form suitable for use with JERQ (i.e. our quote "producer").
+   *
+   * @public
+   * @param {String} symbol
+   * @return {String|null}
+   */
 		getProducerSymbol: function getProducerSymbol(symbol) {
 			if (typeof symbol !== 'string') {
 				return null;
 			}
 
-			var instrumentType = symbolParser.parseInstrumentType(symbol);
+			var converted = null;
 
-			if (instrumentType !== null && instrumentType.type === 'future') {
-				return symbol.replace(jerqFutureConversionRegex, '$1$2$4');
-			} else if (instrumentType !== null && instrumentType.type === 'future_option') {
-				var currentDate = new Date();
-				var currentYear = currentDate.getFullYear();
-				var optionType = instrumentType.option_type === 'call' ? 'C' : 'P';
-				var optionTypeTrans = String.fromCharCode(optionType.charCodeAt(0) + (instrumentType.year - currentYear));
+			for (var i = 0; i < converters.length && converted === null; i++) {
+				var converter = converters[i];
 
-				if (instrumentType.root.length < 3) {
-					return instrumentType.root + instrumentType.month + instrumentType.strike + optionTypeTrans;
-				} else {
-					var year = instrumentType.year.toString().substr(-1);
-
-					return instrumentType.root + instrumentType.month + year + '|' + instrumentType.strike + optionType;
-				}
-			} else {
-				return symbol;
+				converted = converter(symbol);
 			}
+
+			return converted;
 		},
 
 		/**
@@ -5394,33 +5847,152 @@ module.exports = function () {
    * @returns {String|null}
    */
 		getFuturesOptionPipelineFormat: function getFuturesOptionPipelineFormat(symbol) {
-			var instrument = symbolParser.parseInstrumentType(symbol);
+			var definition = symbolParser.parseInstrumentType(symbol);
 
-			if (instrument === null || instrument.type !== 'future_option') {
-				return null;
+			var formatted = null;
+
+			if (definition.type === 'future_option') {
+				var putCallCharacter = getPutCallCharacter(definition.option_type);
+
+				formatted = '' + definition.root + definition.month + getYearDigits(definition.year, 1) + '|' + definition.strike + putCallCharacter;
 			}
 
-			var optionType = instrument.option_type === 'call' ? 'C' : 'P';
-
-			return '' + instrument.root + instrument.month + instrument.year.toString().substr(-1, 1) + '|' + instrument.strike + optionType;
+			return formatted;
 		},
 
 		/**
-   * Tests to see if instrument prices should be displayed as percentages.
+   * Returns true if the symbol is not an alias to another symbol; otherwise
+   * false.
    *
    * @public
    * @param {String} symbol
-   * @returns {boolean}
+   * @returns {Boolean}
+   */
+		getIsConcrete: function getIsConcrete(symbol) {
+			return typeof symbol === 'string' && !types.futures.alias.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol is an alias for another symbol; otherwise false.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsReference: function getIsReference(symbol) {
+			return typeof symbol === 'string' && types.futures.alias.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol represents futures contract; false otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsFuture: function getIsFuture(symbol) {
+			return typeof symbol === 'string' && (types.futures.concrete.test(symbol) || types.futures.alias.test(symbol));
+		},
+
+		/**
+   * Returns true if the symbol represents futures spread; false otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsFutureSpread: function getIsFutureSpread(symbol) {
+			return typeof symbol === 'string' && types.futures.spread.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol represents an option on a futures contract; false
+   * otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsFutureOption: function getIsFutureOption(symbol) {
+			return typeof symbol === 'string' && (types.futures.options.short.test(symbol) || types.futures.options.long.test(symbol) || types.futures.options.historical.test(symbol));
+		},
+
+		/**
+   * Returns true if the symbol represents a foreign exchange currency pair;
+   * false otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsForex: function getIsForex(symbol) {
+			return typeof symbol === 'string' && types.forex.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol represents an external index (e.g. Dow Jones
+   * Industrials); false otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsIndex: function getIsIndex(symbol) {
+			return typeof symbol === 'string' && types.indicies.external.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol represents an internally-calculated sector
+   * index; false otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsSector: function getIsSector(symbol) {
+			return typeof symbol === 'string' && types.indicies.sector.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol represents an internally-calculated, cmdty-branded
+   * index; false otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsCmdty: function getIsCmdty(symbol) {
+			return typeof symbol === 'string' && types.indicies.cmdty.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol is listed on the BATS exchange; false otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsBats: function getIsBats(symbol) {
+			return typeof symbol === 'string' && predicates.bats.test(symbol);
+		},
+
+		/**
+   * Returns true if prices for the symbol should be represented as a percentage; false
+   * otherwise.
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
    */
 		displayUsingPercent: function displayUsingPercent(symbol) {
-			return usePercentRegex.test(symbol);
+			return typeof symbol === 'string' && predicates.percent.test(symbol);
 		}
 	};
 
 	return symbolParser;
 }();
 
-},{}],40:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -5539,7 +6111,7 @@ module.exports = function () {
 	}
 }();
 
-},{}],41:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -5576,7 +6148,607 @@ module.exports = function () {
 	};
 }();
 
-},{}],42:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
+'use strict';
+
+var keys = require('object-keys');
+var hasSymbols = typeof Symbol === 'function' && typeof Symbol('foo') === 'symbol';
+
+var toStr = Object.prototype.toString;
+var concat = Array.prototype.concat;
+var origDefineProperty = Object.defineProperty;
+
+var isFunction = function (fn) {
+	return typeof fn === 'function' && toStr.call(fn) === '[object Function]';
+};
+
+var arePropertyDescriptorsSupported = function () {
+	var obj = {};
+	try {
+		origDefineProperty(obj, 'x', { enumerable: false, value: obj });
+		// eslint-disable-next-line no-unused-vars, no-restricted-syntax
+		for (var _ in obj) { // jscs:ignore disallowUnusedVariables
+			return false;
+		}
+		return obj.x === obj;
+	} catch (e) { /* this is IE 8. */
+		return false;
+	}
+};
+var supportsDescriptors = origDefineProperty && arePropertyDescriptorsSupported();
+
+var defineProperty = function (object, name, value, predicate) {
+	if (name in object && (!isFunction(predicate) || !predicate())) {
+		return;
+	}
+	if (supportsDescriptors) {
+		origDefineProperty(object, name, {
+			configurable: true,
+			enumerable: false,
+			value: value,
+			writable: true
+		});
+	} else {
+		object[name] = value;
+	}
+};
+
+var defineProperties = function (object, map) {
+	var predicates = arguments.length > 2 ? arguments[2] : {};
+	var props = keys(map);
+	if (hasSymbols) {
+		props = concat.call(props, Object.getOwnPropertySymbols(map));
+	}
+	for (var i = 0; i < props.length; i += 1) {
+		defineProperty(object, props[i], map[props[i]], predicates[props[i]]);
+	}
+};
+
+defineProperties.supportsDescriptors = !!supportsDescriptors;
+
+module.exports = defineProperties;
+
+},{"object-keys":64}],46:[function(require,module,exports){
+'use strict';
+
+/* globals
+	Set,
+	Map,
+	WeakSet,
+	WeakMap,
+
+	Promise,
+
+	Symbol,
+	Proxy,
+
+	Atomics,
+	SharedArrayBuffer,
+
+	ArrayBuffer,
+	DataView,
+	Uint8Array,
+	Float32Array,
+	Float64Array,
+	Int8Array,
+	Int16Array,
+	Int32Array,
+	Uint8ClampedArray,
+	Uint16Array,
+	Uint32Array,
+*/
+
+var undefined; // eslint-disable-line no-shadow-restricted-names
+
+var ThrowTypeError = Object.getOwnPropertyDescriptor
+	? (function () { return Object.getOwnPropertyDescriptor(arguments, 'callee').get; }())
+	: function () { throw new TypeError(); };
+
+var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
+
+var getProto = Object.getPrototypeOf || function (x) { return x.__proto__; }; // eslint-disable-line no-proto
+
+var generator; // = function * () {};
+var generatorFunction = generator ? getProto(generator) : undefined;
+var asyncFn; // async function() {};
+var asyncFunction = asyncFn ? asyncFn.constructor : undefined;
+var asyncGen; // async function * () {};
+var asyncGenFunction = asyncGen ? getProto(asyncGen) : undefined;
+var asyncGenIterator = asyncGen ? asyncGen() : undefined;
+
+var TypedArray = typeof Uint8Array === 'undefined' ? undefined : getProto(Uint8Array);
+
+var INTRINSICS = {
+	'$ %Array%': Array,
+	'$ %ArrayBuffer%': typeof ArrayBuffer === 'undefined' ? undefined : ArrayBuffer,
+	'$ %ArrayBufferPrototype%': typeof ArrayBuffer === 'undefined' ? undefined : ArrayBuffer.prototype,
+	'$ %ArrayIteratorPrototype%': hasSymbols ? getProto([][Symbol.iterator]()) : undefined,
+	'$ %ArrayPrototype%': Array.prototype,
+	'$ %ArrayProto_entries%': Array.prototype.entries,
+	'$ %ArrayProto_forEach%': Array.prototype.forEach,
+	'$ %ArrayProto_keys%': Array.prototype.keys,
+	'$ %ArrayProto_values%': Array.prototype.values,
+	'$ %AsyncFromSyncIteratorPrototype%': undefined,
+	'$ %AsyncFunction%': asyncFunction,
+	'$ %AsyncFunctionPrototype%': asyncFunction ? asyncFunction.prototype : undefined,
+	'$ %AsyncGenerator%': asyncGen ? getProto(asyncGenIterator) : undefined,
+	'$ %AsyncGeneratorFunction%': asyncGenFunction,
+	'$ %AsyncGeneratorPrototype%': asyncGenFunction ? asyncGenFunction.prototype : undefined,
+	'$ %AsyncIteratorPrototype%': asyncGenIterator && hasSymbols && Symbol.asyncIterator ? asyncGenIterator[Symbol.asyncIterator]() : undefined,
+	'$ %Atomics%': typeof Atomics === 'undefined' ? undefined : Atomics,
+	'$ %Boolean%': Boolean,
+	'$ %BooleanPrototype%': Boolean.prototype,
+	'$ %DataView%': typeof DataView === 'undefined' ? undefined : DataView,
+	'$ %DataViewPrototype%': typeof DataView === 'undefined' ? undefined : DataView.prototype,
+	'$ %Date%': Date,
+	'$ %DatePrototype%': Date.prototype,
+	'$ %decodeURI%': decodeURI,
+	'$ %decodeURIComponent%': decodeURIComponent,
+	'$ %encodeURI%': encodeURI,
+	'$ %encodeURIComponent%': encodeURIComponent,
+	'$ %Error%': Error,
+	'$ %ErrorPrototype%': Error.prototype,
+	'$ %eval%': eval, // eslint-disable-line no-eval
+	'$ %EvalError%': EvalError,
+	'$ %EvalErrorPrototype%': EvalError.prototype,
+	'$ %Float32Array%': typeof Float32Array === 'undefined' ? undefined : Float32Array,
+	'$ %Float32ArrayPrototype%': typeof Float32Array === 'undefined' ? undefined : Float32Array.prototype,
+	'$ %Float64Array%': typeof Float64Array === 'undefined' ? undefined : Float64Array,
+	'$ %Float64ArrayPrototype%': typeof Float64Array === 'undefined' ? undefined : Float64Array.prototype,
+	'$ %Function%': Function,
+	'$ %FunctionPrototype%': Function.prototype,
+	'$ %Generator%': generator ? getProto(generator()) : undefined,
+	'$ %GeneratorFunction%': generatorFunction,
+	'$ %GeneratorPrototype%': generatorFunction ? generatorFunction.prototype : undefined,
+	'$ %Int8Array%': typeof Int8Array === 'undefined' ? undefined : Int8Array,
+	'$ %Int8ArrayPrototype%': typeof Int8Array === 'undefined' ? undefined : Int8Array.prototype,
+	'$ %Int16Array%': typeof Int16Array === 'undefined' ? undefined : Int16Array,
+	'$ %Int16ArrayPrototype%': typeof Int16Array === 'undefined' ? undefined : Int8Array.prototype,
+	'$ %Int32Array%': typeof Int32Array === 'undefined' ? undefined : Int32Array,
+	'$ %Int32ArrayPrototype%': typeof Int32Array === 'undefined' ? undefined : Int32Array.prototype,
+	'$ %isFinite%': isFinite,
+	'$ %isNaN%': isNaN,
+	'$ %IteratorPrototype%': hasSymbols ? getProto(getProto([][Symbol.iterator]())) : undefined,
+	'$ %JSON%': JSON,
+	'$ %JSONParse%': JSON.parse,
+	'$ %Map%': typeof Map === 'undefined' ? undefined : Map,
+	'$ %MapIteratorPrototype%': typeof Map === 'undefined' || !hasSymbols ? undefined : getProto(new Map()[Symbol.iterator]()),
+	'$ %MapPrototype%': typeof Map === 'undefined' ? undefined : Map.prototype,
+	'$ %Math%': Math,
+	'$ %Number%': Number,
+	'$ %NumberPrototype%': Number.prototype,
+	'$ %Object%': Object,
+	'$ %ObjectPrototype%': Object.prototype,
+	'$ %ObjProto_toString%': Object.prototype.toString,
+	'$ %ObjProto_valueOf%': Object.prototype.valueOf,
+	'$ %parseFloat%': parseFloat,
+	'$ %parseInt%': parseInt,
+	'$ %Promise%': typeof Promise === 'undefined' ? undefined : Promise,
+	'$ %PromisePrototype%': typeof Promise === 'undefined' ? undefined : Promise.prototype,
+	'$ %PromiseProto_then%': typeof Promise === 'undefined' ? undefined : Promise.prototype.then,
+	'$ %Promise_all%': typeof Promise === 'undefined' ? undefined : Promise.all,
+	'$ %Promise_reject%': typeof Promise === 'undefined' ? undefined : Promise.reject,
+	'$ %Promise_resolve%': typeof Promise === 'undefined' ? undefined : Promise.resolve,
+	'$ %Proxy%': typeof Proxy === 'undefined' ? undefined : Proxy,
+	'$ %RangeError%': RangeError,
+	'$ %RangeErrorPrototype%': RangeError.prototype,
+	'$ %ReferenceError%': ReferenceError,
+	'$ %ReferenceErrorPrototype%': ReferenceError.prototype,
+	'$ %Reflect%': typeof Reflect === 'undefined' ? undefined : Reflect,
+	'$ %RegExp%': RegExp,
+	'$ %RegExpPrototype%': RegExp.prototype,
+	'$ %Set%': typeof Set === 'undefined' ? undefined : Set,
+	'$ %SetIteratorPrototype%': typeof Set === 'undefined' || !hasSymbols ? undefined : getProto(new Set()[Symbol.iterator]()),
+	'$ %SetPrototype%': typeof Set === 'undefined' ? undefined : Set.prototype,
+	'$ %SharedArrayBuffer%': typeof SharedArrayBuffer === 'undefined' ? undefined : SharedArrayBuffer,
+	'$ %SharedArrayBufferPrototype%': typeof SharedArrayBuffer === 'undefined' ? undefined : SharedArrayBuffer.prototype,
+	'$ %String%': String,
+	'$ %StringIteratorPrototype%': hasSymbols ? getProto(''[Symbol.iterator]()) : undefined,
+	'$ %StringPrototype%': String.prototype,
+	'$ %Symbol%': hasSymbols ? Symbol : undefined,
+	'$ %SymbolPrototype%': hasSymbols ? Symbol.prototype : undefined,
+	'$ %SyntaxError%': SyntaxError,
+	'$ %SyntaxErrorPrototype%': SyntaxError.prototype,
+	'$ %ThrowTypeError%': ThrowTypeError,
+	'$ %TypedArray%': TypedArray,
+	'$ %TypedArrayPrototype%': TypedArray ? TypedArray.prototype : undefined,
+	'$ %TypeError%': TypeError,
+	'$ %TypeErrorPrototype%': TypeError.prototype,
+	'$ %Uint8Array%': typeof Uint8Array === 'undefined' ? undefined : Uint8Array,
+	'$ %Uint8ArrayPrototype%': typeof Uint8Array === 'undefined' ? undefined : Uint8Array.prototype,
+	'$ %Uint8ClampedArray%': typeof Uint8ClampedArray === 'undefined' ? undefined : Uint8ClampedArray,
+	'$ %Uint8ClampedArrayPrototype%': typeof Uint8ClampedArray === 'undefined' ? undefined : Uint8ClampedArray.prototype,
+	'$ %Uint16Array%': typeof Uint16Array === 'undefined' ? undefined : Uint16Array,
+	'$ %Uint16ArrayPrototype%': typeof Uint16Array === 'undefined' ? undefined : Uint16Array.prototype,
+	'$ %Uint32Array%': typeof Uint32Array === 'undefined' ? undefined : Uint32Array,
+	'$ %Uint32ArrayPrototype%': typeof Uint32Array === 'undefined' ? undefined : Uint32Array.prototype,
+	'$ %URIError%': URIError,
+	'$ %URIErrorPrototype%': URIError.prototype,
+	'$ %WeakMap%': typeof WeakMap === 'undefined' ? undefined : WeakMap,
+	'$ %WeakMapPrototype%': typeof WeakMap === 'undefined' ? undefined : WeakMap.prototype,
+	'$ %WeakSet%': typeof WeakSet === 'undefined' ? undefined : WeakSet,
+	'$ %WeakSetPrototype%': typeof WeakSet === 'undefined' ? undefined : WeakSet.prototype
+};
+
+module.exports = function GetIntrinsic(name, allowMissing) {
+	if (arguments.length > 1 && typeof allowMissing !== 'boolean') {
+		throw new TypeError('"allowMissing" argument must be a boolean');
+	}
+
+	var key = '$ ' + name;
+	if (!(key in INTRINSICS)) {
+		throw new SyntaxError('intrinsic ' + name + ' does not exist!');
+	}
+
+	// istanbul ignore if // hopefully this is impossible to test :-)
+	if (typeof INTRINSICS[key] === 'undefined' && !allowMissing) {
+		throw new TypeError('intrinsic ' + name + ' exists, but is not available. Please file an issue!');
+	}
+	return INTRINSICS[key];
+};
+
+},{}],47:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('./GetIntrinsic');
+
+var $Object = GetIntrinsic('%Object%');
+var $TypeError = GetIntrinsic('%TypeError%');
+var $String = GetIntrinsic('%String%');
+
+var assertRecord = require('./helpers/assertRecord');
+var $isNaN = require('./helpers/isNaN');
+var $isFinite = require('./helpers/isFinite');
+
+var sign = require('./helpers/sign');
+var mod = require('./helpers/mod');
+
+var IsCallable = require('is-callable');
+var toPrimitive = require('es-to-primitive/es5');
+
+var has = require('has');
+
+// https://es5.github.io/#x9
+var ES5 = {
+	ToPrimitive: toPrimitive,
+
+	ToBoolean: function ToBoolean(value) {
+		return !!value;
+	},
+	ToNumber: function ToNumber(value) {
+		return +value; // eslint-disable-line no-implicit-coercion
+	},
+	ToInteger: function ToInteger(value) {
+		var number = this.ToNumber(value);
+		if ($isNaN(number)) { return 0; }
+		if (number === 0 || !$isFinite(number)) { return number; }
+		return sign(number) * Math.floor(Math.abs(number));
+	},
+	ToInt32: function ToInt32(x) {
+		return this.ToNumber(x) >> 0;
+	},
+	ToUint32: function ToUint32(x) {
+		return this.ToNumber(x) >>> 0;
+	},
+	ToUint16: function ToUint16(value) {
+		var number = this.ToNumber(value);
+		if ($isNaN(number) || number === 0 || !$isFinite(number)) { return 0; }
+		var posInt = sign(number) * Math.floor(Math.abs(number));
+		return mod(posInt, 0x10000);
+	},
+	ToString: function ToString(value) {
+		return $String(value);
+	},
+	ToObject: function ToObject(value) {
+		this.CheckObjectCoercible(value);
+		return $Object(value);
+	},
+	CheckObjectCoercible: function CheckObjectCoercible(value, optMessage) {
+		/* jshint eqnull:true */
+		if (value == null) {
+			throw new $TypeError(optMessage || 'Cannot call method on ' + value);
+		}
+		return value;
+	},
+	IsCallable: IsCallable,
+	SameValue: function SameValue(x, y) {
+		if (x === y) { // 0 === -0, but they are not identical.
+			if (x === 0) { return 1 / x === 1 / y; }
+			return true;
+		}
+		return $isNaN(x) && $isNaN(y);
+	},
+
+	// https://www.ecma-international.org/ecma-262/5.1/#sec-8
+	Type: function Type(x) {
+		if (x === null) {
+			return 'Null';
+		}
+		if (typeof x === 'undefined') {
+			return 'Undefined';
+		}
+		if (typeof x === 'function' || typeof x === 'object') {
+			return 'Object';
+		}
+		if (typeof x === 'number') {
+			return 'Number';
+		}
+		if (typeof x === 'boolean') {
+			return 'Boolean';
+		}
+		if (typeof x === 'string') {
+			return 'String';
+		}
+	},
+
+	// https://ecma-international.org/ecma-262/6.0/#sec-property-descriptor-specification-type
+	IsPropertyDescriptor: function IsPropertyDescriptor(Desc) {
+		if (this.Type(Desc) !== 'Object') {
+			return false;
+		}
+		var allowed = {
+			'[[Configurable]]': true,
+			'[[Enumerable]]': true,
+			'[[Get]]': true,
+			'[[Set]]': true,
+			'[[Value]]': true,
+			'[[Writable]]': true
+		};
+
+		for (var key in Desc) { // eslint-disable-line
+			if (has(Desc, key) && !allowed[key]) {
+				return false;
+			}
+		}
+
+		var isData = has(Desc, '[[Value]]');
+		var IsAccessor = has(Desc, '[[Get]]') || has(Desc, '[[Set]]');
+		if (isData && IsAccessor) {
+			throw new $TypeError('Property Descriptors may not be both accessor and data descriptors');
+		}
+		return true;
+	},
+
+	// https://ecma-international.org/ecma-262/5.1/#sec-8.10.1
+	IsAccessorDescriptor: function IsAccessorDescriptor(Desc) {
+		if (typeof Desc === 'undefined') {
+			return false;
+		}
+
+		assertRecord(this, 'Property Descriptor', 'Desc', Desc);
+
+		if (!has(Desc, '[[Get]]') && !has(Desc, '[[Set]]')) {
+			return false;
+		}
+
+		return true;
+	},
+
+	// https://ecma-international.org/ecma-262/5.1/#sec-8.10.2
+	IsDataDescriptor: function IsDataDescriptor(Desc) {
+		if (typeof Desc === 'undefined') {
+			return false;
+		}
+
+		assertRecord(this, 'Property Descriptor', 'Desc', Desc);
+
+		if (!has(Desc, '[[Value]]') && !has(Desc, '[[Writable]]')) {
+			return false;
+		}
+
+		return true;
+	},
+
+	// https://ecma-international.org/ecma-262/5.1/#sec-8.10.3
+	IsGenericDescriptor: function IsGenericDescriptor(Desc) {
+		if (typeof Desc === 'undefined') {
+			return false;
+		}
+
+		assertRecord(this, 'Property Descriptor', 'Desc', Desc);
+
+		if (!this.IsAccessorDescriptor(Desc) && !this.IsDataDescriptor(Desc)) {
+			return true;
+		}
+
+		return false;
+	},
+
+	// https://ecma-international.org/ecma-262/5.1/#sec-8.10.4
+	FromPropertyDescriptor: function FromPropertyDescriptor(Desc) {
+		if (typeof Desc === 'undefined') {
+			return Desc;
+		}
+
+		assertRecord(this, 'Property Descriptor', 'Desc', Desc);
+
+		if (this.IsDataDescriptor(Desc)) {
+			return {
+				value: Desc['[[Value]]'],
+				writable: !!Desc['[[Writable]]'],
+				enumerable: !!Desc['[[Enumerable]]'],
+				configurable: !!Desc['[[Configurable]]']
+			};
+		} else if (this.IsAccessorDescriptor(Desc)) {
+			return {
+				get: Desc['[[Get]]'],
+				set: Desc['[[Set]]'],
+				enumerable: !!Desc['[[Enumerable]]'],
+				configurable: !!Desc['[[Configurable]]']
+			};
+		} else {
+			throw new $TypeError('FromPropertyDescriptor must be called with a fully populated Property Descriptor');
+		}
+	},
+
+	// https://ecma-international.org/ecma-262/5.1/#sec-8.10.5
+	ToPropertyDescriptor: function ToPropertyDescriptor(Obj) {
+		if (this.Type(Obj) !== 'Object') {
+			throw new $TypeError('ToPropertyDescriptor requires an object');
+		}
+
+		var desc = {};
+		if (has(Obj, 'enumerable')) {
+			desc['[[Enumerable]]'] = this.ToBoolean(Obj.enumerable);
+		}
+		if (has(Obj, 'configurable')) {
+			desc['[[Configurable]]'] = this.ToBoolean(Obj.configurable);
+		}
+		if (has(Obj, 'value')) {
+			desc['[[Value]]'] = Obj.value;
+		}
+		if (has(Obj, 'writable')) {
+			desc['[[Writable]]'] = this.ToBoolean(Obj.writable);
+		}
+		if (has(Obj, 'get')) {
+			var getter = Obj.get;
+			if (typeof getter !== 'undefined' && !this.IsCallable(getter)) {
+				throw new TypeError('getter must be a function');
+			}
+			desc['[[Get]]'] = getter;
+		}
+		if (has(Obj, 'set')) {
+			var setter = Obj.set;
+			if (typeof setter !== 'undefined' && !this.IsCallable(setter)) {
+				throw new $TypeError('setter must be a function');
+			}
+			desc['[[Set]]'] = setter;
+		}
+
+		if ((has(desc, '[[Get]]') || has(desc, '[[Set]]')) && (has(desc, '[[Value]]') || has(desc, '[[Writable]]'))) {
+			throw new $TypeError('Invalid property descriptor. Cannot both specify accessors and a value or writable attribute');
+		}
+		return desc;
+	}
+};
+
+module.exports = ES5;
+
+},{"./GetIntrinsic":46,"./helpers/assertRecord":48,"./helpers/isFinite":49,"./helpers/isNaN":50,"./helpers/mod":51,"./helpers/sign":52,"es-to-primitive/es5":53,"has":59,"is-callable":60}],48:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('../GetIntrinsic');
+
+var $TypeError = GetIntrinsic('%TypeError%');
+var $SyntaxError = GetIntrinsic('%SyntaxError%');
+
+var has = require('has');
+
+var predicates = {
+  // https://ecma-international.org/ecma-262/6.0/#sec-property-descriptor-specification-type
+  'Property Descriptor': function isPropertyDescriptor(ES, Desc) {
+    if (ES.Type(Desc) !== 'Object') {
+      return false;
+    }
+    var allowed = {
+      '[[Configurable]]': true,
+      '[[Enumerable]]': true,
+      '[[Get]]': true,
+      '[[Set]]': true,
+      '[[Value]]': true,
+      '[[Writable]]': true
+    };
+
+    for (var key in Desc) { // eslint-disable-line
+      if (has(Desc, key) && !allowed[key]) {
+        return false;
+      }
+    }
+
+    var isData = has(Desc, '[[Value]]');
+    var IsAccessor = has(Desc, '[[Get]]') || has(Desc, '[[Set]]');
+    if (isData && IsAccessor) {
+      throw new $TypeError('Property Descriptors may not be both accessor and data descriptors');
+    }
+    return true;
+  }
+};
+
+module.exports = function assertRecord(ES, recordType, argumentName, value) {
+  var predicate = predicates[recordType];
+  if (typeof predicate !== 'function') {
+    throw new $SyntaxError('unknown record type: ' + recordType);
+  }
+  if (!predicate(ES, value)) {
+    throw new $TypeError(argumentName + ' must be a ' + recordType);
+  }
+  console.log(predicate(ES, value), value);
+};
+
+},{"../GetIntrinsic":46,"has":59}],49:[function(require,module,exports){
+var $isNaN = Number.isNaN || function (a) { return a !== a; };
+
+module.exports = Number.isFinite || function (x) { return typeof x === 'number' && !$isNaN(x) && x !== Infinity && x !== -Infinity; };
+
+},{}],50:[function(require,module,exports){
+module.exports = Number.isNaN || function isNaN(a) {
+	return a !== a;
+};
+
+},{}],51:[function(require,module,exports){
+module.exports = function mod(number, modulo) {
+	var remain = number % modulo;
+	return Math.floor(remain >= 0 ? remain : remain + modulo);
+};
+
+},{}],52:[function(require,module,exports){
+module.exports = function sign(number) {
+	return number >= 0 ? 1 : -1;
+};
+
+},{}],53:[function(require,module,exports){
+'use strict';
+
+var toStr = Object.prototype.toString;
+
+var isPrimitive = require('./helpers/isPrimitive');
+
+var isCallable = require('is-callable');
+
+// http://ecma-international.org/ecma-262/5.1/#sec-8.12.8
+var ES5internalSlots = {
+	'[[DefaultValue]]': function (O) {
+		var actualHint;
+		if (arguments.length > 1) {
+			actualHint = arguments[1];
+		} else {
+			actualHint = toStr.call(O) === '[object Date]' ? String : Number;
+		}
+
+		if (actualHint === String || actualHint === Number) {
+			var methods = actualHint === String ? ['toString', 'valueOf'] : ['valueOf', 'toString'];
+			var value, i;
+			for (i = 0; i < methods.length; ++i) {
+				if (isCallable(O[methods[i]])) {
+					value = O[methods[i]]();
+					if (isPrimitive(value)) {
+						return value;
+					}
+				}
+			}
+			throw new TypeError('No default value');
+		}
+		throw new TypeError('invalid [[DefaultValue]] hint supplied');
+	}
+};
+
+// http://ecma-international.org/ecma-262/5.1/#sec-9.1
+module.exports = function ToPrimitive(input) {
+	if (isPrimitive(input)) {
+		return input;
+	}
+	if (arguments.length > 1) {
+		return ES5internalSlots['[[DefaultValue]]'](input, arguments[1]);
+	}
+	return ES5internalSlots['[[DefaultValue]]'](input);
+};
+
+},{"./helpers/isPrimitive":54,"is-callable":60}],54:[function(require,module,exports){
+module.exports = function isPrimitive(value) {
+	return value === null || (typeof value !== 'function' && typeof value !== 'object');
+};
+
+},{}],55:[function(require,module,exports){
 'use strict';
 
 var isCallable = require('is-callable');
@@ -5640,7 +6812,68 @@ var forEach = function forEach(list, iterator, thisArg) {
 
 module.exports = forEach;
 
-},{"is-callable":44}],43:[function(require,module,exports){
+},{"is-callable":60}],56:[function(require,module,exports){
+'use strict';
+
+/* eslint no-invalid-this: 1 */
+
+var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
+var slice = Array.prototype.slice;
+var toStr = Object.prototype.toString;
+var funcType = '[object Function]';
+
+module.exports = function bind(that) {
+    var target = this;
+    if (typeof target !== 'function' || toStr.call(target) !== funcType) {
+        throw new TypeError(ERROR_MESSAGE + target);
+    }
+    var args = slice.call(arguments, 1);
+
+    var bound;
+    var binder = function () {
+        if (this instanceof bound) {
+            var result = target.apply(
+                this,
+                args.concat(slice.call(arguments))
+            );
+            if (Object(result) === result) {
+                return result;
+            }
+            return this;
+        } else {
+            return target.apply(
+                that,
+                args.concat(slice.call(arguments))
+            );
+        }
+    };
+
+    var boundLength = Math.max(0, target.length - args.length);
+    var boundArgs = [];
+    for (var i = 0; i < boundLength; i++) {
+        boundArgs.push('$' + i);
+    }
+
+    bound = Function('binder', 'return function (' + boundArgs.join(',') + '){ return binder.apply(this,arguments); }')(binder);
+
+    if (target.prototype) {
+        var Empty = function Empty() {};
+        Empty.prototype = target.prototype;
+        bound.prototype = new Empty();
+        Empty.prototype = null;
+    }
+
+    return bound;
+};
+
+},{}],57:[function(require,module,exports){
+'use strict';
+
+var implementation = require('./implementation');
+
+module.exports = Function.prototype.bind || implementation;
+
+},{"./implementation":56}],58:[function(require,module,exports){
 (function (global){
 var win;
 
@@ -5657,7 +6890,14 @@ if (typeof window !== "undefined") {
 module.exports = win;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],44:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
+'use strict';
+
+var bind = require('function-bind');
+
+module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
+
+},{"function-bind":57}],60:[function(require,module,exports){
 'use strict';
 
 var fnToStr = Function.prototype.toString;
@@ -5696,7 +6936,7 @@ module.exports = function isCallable(value) {
 	return strClass === fnClass || strClass === genClass;
 };
 
-},{}],45:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -5713,7 +6953,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],46:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -5825,8 +7065,185 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-},{}],47:[function(require,module,exports){
-var trim = require('trim')
+},{}],63:[function(require,module,exports){
+'use strict';
+
+var keysShim;
+if (!Object.keys) {
+	// modified from https://github.com/es-shims/es5-shim
+	var has = Object.prototype.hasOwnProperty;
+	var toStr = Object.prototype.toString;
+	var isArgs = require('./isArguments'); // eslint-disable-line global-require
+	var isEnumerable = Object.prototype.propertyIsEnumerable;
+	var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
+	var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
+	var dontEnums = [
+		'toString',
+		'toLocaleString',
+		'valueOf',
+		'hasOwnProperty',
+		'isPrototypeOf',
+		'propertyIsEnumerable',
+		'constructor'
+	];
+	var equalsConstructorPrototype = function (o) {
+		var ctor = o.constructor;
+		return ctor && ctor.prototype === o;
+	};
+	var excludedKeys = {
+		$applicationCache: true,
+		$console: true,
+		$external: true,
+		$frame: true,
+		$frameElement: true,
+		$frames: true,
+		$innerHeight: true,
+		$innerWidth: true,
+		$onmozfullscreenchange: true,
+		$onmozfullscreenerror: true,
+		$outerHeight: true,
+		$outerWidth: true,
+		$pageXOffset: true,
+		$pageYOffset: true,
+		$parent: true,
+		$scrollLeft: true,
+		$scrollTop: true,
+		$scrollX: true,
+		$scrollY: true,
+		$self: true,
+		$webkitIndexedDB: true,
+		$webkitStorageInfo: true,
+		$window: true
+	};
+	var hasAutomationEqualityBug = (function () {
+		/* global window */
+		if (typeof window === 'undefined') { return false; }
+		for (var k in window) {
+			try {
+				if (!excludedKeys['$' + k] && has.call(window, k) && window[k] !== null && typeof window[k] === 'object') {
+					try {
+						equalsConstructorPrototype(window[k]);
+					} catch (e) {
+						return true;
+					}
+				}
+			} catch (e) {
+				return true;
+			}
+		}
+		return false;
+	}());
+	var equalsConstructorPrototypeIfNotBuggy = function (o) {
+		/* global window */
+		if (typeof window === 'undefined' || !hasAutomationEqualityBug) {
+			return equalsConstructorPrototype(o);
+		}
+		try {
+			return equalsConstructorPrototype(o);
+		} catch (e) {
+			return false;
+		}
+	};
+
+	keysShim = function keys(object) {
+		var isObject = object !== null && typeof object === 'object';
+		var isFunction = toStr.call(object) === '[object Function]';
+		var isArguments = isArgs(object);
+		var isString = isObject && toStr.call(object) === '[object String]';
+		var theKeys = [];
+
+		if (!isObject && !isFunction && !isArguments) {
+			throw new TypeError('Object.keys called on a non-object');
+		}
+
+		var skipProto = hasProtoEnumBug && isFunction;
+		if (isString && object.length > 0 && !has.call(object, 0)) {
+			for (var i = 0; i < object.length; ++i) {
+				theKeys.push(String(i));
+			}
+		}
+
+		if (isArguments && object.length > 0) {
+			for (var j = 0; j < object.length; ++j) {
+				theKeys.push(String(j));
+			}
+		} else {
+			for (var name in object) {
+				if (!(skipProto && name === 'prototype') && has.call(object, name)) {
+					theKeys.push(String(name));
+				}
+			}
+		}
+
+		if (hasDontEnumBug) {
+			var skipConstructor = equalsConstructorPrototypeIfNotBuggy(object);
+
+			for (var k = 0; k < dontEnums.length; ++k) {
+				if (!(skipConstructor && dontEnums[k] === 'constructor') && has.call(object, dontEnums[k])) {
+					theKeys.push(dontEnums[k]);
+				}
+			}
+		}
+		return theKeys;
+	};
+}
+module.exports = keysShim;
+
+},{"./isArguments":65}],64:[function(require,module,exports){
+'use strict';
+
+var slice = Array.prototype.slice;
+var isArgs = require('./isArguments');
+
+var origKeys = Object.keys;
+var keysShim = origKeys ? function keys(o) { return origKeys(o); } : require('./implementation');
+
+var originalKeys = Object.keys;
+
+keysShim.shim = function shimObjectKeys() {
+	if (Object.keys) {
+		var keysWorksWithArguments = (function () {
+			// Safari 5.0 bug
+			var args = Object.keys(arguments);
+			return args && args.length === arguments.length;
+		}(1, 2));
+		if (!keysWorksWithArguments) {
+			Object.keys = function keys(object) { // eslint-disable-line func-name-matching
+				if (isArgs(object)) {
+					return originalKeys(slice.call(object));
+				}
+				return originalKeys(object);
+			};
+		}
+	} else {
+		Object.keys = keysShim;
+	}
+	return Object.keys || keysShim;
+};
+
+module.exports = keysShim;
+
+},{"./implementation":63,"./isArguments":65}],65:[function(require,module,exports){
+'use strict';
+
+var toStr = Object.prototype.toString;
+
+module.exports = function isArguments(value) {
+	var str = toStr.call(value);
+	var isArgs = str === '[object Arguments]';
+	if (!isArgs) {
+		isArgs = str !== '[object Array]' &&
+			value !== null &&
+			typeof value === 'object' &&
+			typeof value.length === 'number' &&
+			value.length >= 0 &&
+			toStr.call(value.callee) === '[object Function]';
+	}
+	return isArgs;
+};
+
+},{}],66:[function(require,module,exports){
+var trim = require('string.prototype.trim')
   , forEach = require('for-each')
   , isArray = function(arg) {
       return Object.prototype.toString.call(arg) === '[object Array]';
@@ -5857,23 +7274,69 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":42,"trim":48}],48:[function(require,module,exports){
 
-exports = module.exports = trim;
+},{"for-each":55,"string.prototype.trim":68}],67:[function(require,module,exports){
+'use strict';
 
-function trim(str){
-  return str.replace(/^\s*|\s*$/g, '');
-}
+var bind = require('function-bind');
+var ES = require('es-abstract/es5');
+var replace = bind.call(Function.call, String.prototype.replace);
 
-exports.left = function(str){
-  return str.replace(/^\s*/, '');
+var leftWhitespace = /^[\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028\u2029\uFEFF]+/;
+var rightWhitespace = /[\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028\u2029\uFEFF]+$/;
+
+module.exports = function trim() {
+	var S = ES.ToString(ES.CheckObjectCoercible(this));
+	return replace(replace(S, leftWhitespace, ''), rightWhitespace, '');
 };
 
-exports.right = function(str){
-  return str.replace(/\s*$/, '');
+},{"es-abstract/es5":47,"function-bind":57}],68:[function(require,module,exports){
+'use strict';
+
+var bind = require('function-bind');
+var define = require('define-properties');
+
+var implementation = require('./implementation');
+var getPolyfill = require('./polyfill');
+var shim = require('./shim');
+
+var boundTrim = bind.call(Function.call, getPolyfill());
+
+define(boundTrim, {
+	getPolyfill: getPolyfill,
+	implementation: implementation,
+	shim: shim
+});
+
+module.exports = boundTrim;
+
+},{"./implementation":67,"./polyfill":69,"./shim":70,"define-properties":45,"function-bind":57}],69:[function(require,module,exports){
+'use strict';
+
+var implementation = require('./implementation');
+
+var zeroWidthSpace = '\u200b';
+
+module.exports = function getPolyfill() {
+	if (String.prototype.trim && zeroWidthSpace.trim() === zeroWidthSpace) {
+		return String.prototype.trim;
+	}
+	return implementation;
 };
 
-},{}],49:[function(require,module,exports){
+},{"./implementation":67}],70:[function(require,module,exports){
+'use strict';
+
+var define = require('define-properties');
+var getPolyfill = require('./polyfill');
+
+module.exports = function shimStringTrim() {
+	var polyfill = getPolyfill();
+	define(String.prototype, { trim: polyfill }, { trim: function () { return String.prototype.trim !== polyfill; } });
+	return polyfill;
+};
+
+},{"./polyfill":69,"define-properties":45}],71:[function(require,module,exports){
 "use strict";
 var window = require("global/window")
 var isFunction = require("is-function")
@@ -6113,7 +7576,7 @@ function getXml(xhr) {
 
 function noop() {}
 
-},{"global/window":43,"is-function":45,"parse-headers":47,"xtend":53}],50:[function(require,module,exports){
+},{"global/window":58,"is-function":61,"parse-headers":66,"xtend":75}],72:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -6366,7 +7829,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":51,"./sax":52}],51:[function(require,module,exports){
+},{"./dom":73,"./sax":74}],73:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -7612,7 +9075,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],52:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -8247,7 +9710,7 @@ function split(source,start){
 exports.XMLReader = XMLReader;
 
 
-},{}],53:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -8268,4 +9731,4 @@ function extend() {
     return target
 }
 
-},{}]},{},[7,1]);
+},{}]},{},[10,1]);
