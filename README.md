@@ -3,7 +3,7 @@
 
 Include streaming market data in your applications. Asset classes include equities, futures, and forex.
 
-All you need is a username/password from Barchart and your app can be live within a matter of minutes. To obtain your credentials, please contact solutions@barchart.com. (Depending on your access level, and the symbol observed, feeds may be realtime or delayed).
+All you need is a username/password from Barchart and your app can be live within a matter of minutes. To obtain your credentials, please contact solutions@barchart.com.
 
 ## Supported Environments
 
