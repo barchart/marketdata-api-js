@@ -24,7 +24,7 @@ Or, visit the hosted page at:
 
 ### Node.js
 
-Ensure you're running a recent version of Node.js (e.g. 8.1.0) and execute the [example script](https://github.com/barchart/marketdata-api-js/blob/master/example/node/example.js) as follows:
+Ensure you're running a recent version of Node.js (e.g. v10.16.0) and execute the [example script](https://github.com/barchart/marketdata-api-js/blob/master/example/node/example.js) as follows:
 
     > node example/node/example.js {host} {username} {password} {comma-delimited symbol list}
 
