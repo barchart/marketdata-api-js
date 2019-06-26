@@ -3,7 +3,7 @@ const process = require('process');
 const version = require('./../../lib/index').version;
 
 const Connection = require('./../../lib/connection/websocket/Connection'),
-	NodeAdapterFactory = require('./../../lib/connection/websocket/adapter/NodeAdapterFactory');
+	WebSocketAdapterFactoryForNode = require('./../../lib/connection/websocket/adapter/WebSocketAdapterFactoryForNode');
 
 const startup = (() => {
 	'use strict';
@@ -33,7 +33,7 @@ const startup = (() => {
 	console.log(`Example: Instantiating Connection (using Node.js adapter) for [ ${username}/${password} ] @ [ ${host} ]`);
 
 	connection = new Connection();
-	adapterFactory = new NodeAdapterFactory();
+	adapterFactory = new WebSocketAdapterFactoryForNode();
 
 	connection.connect(host, username, password, adapterFactory);
 
