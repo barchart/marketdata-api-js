@@ -953,6 +953,8 @@ module.exports = function () {
    * @private
    */
 		function terminateConnection() {
+			broadcastEvent('events', { event: 'disconnecting' });
+
 			__reconnectAllowed = false;
 
 			__loginInfo.username = null;
@@ -2721,7 +2723,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.2.7'
+		version: '3.2.8'
 	};
 }();
 
