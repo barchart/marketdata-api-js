@@ -3,6 +3,7 @@ const process = require('process');
 const version = require('./../../lib/index').version;
 
 const Connection = require('./../../lib/connection/websocket/Connection'),
+	SubscriptionType = require('./../../lib/connection/SubscriptionType'),
 	WebSocketAdapterFactoryForNode = require('./../../lib/connection/websocket/adapter/WebSocketAdapterFactoryForNode');
 
 const startup = (() => {
@@ -51,7 +52,7 @@ const startup = (() => {
 				}
 			};
 
-			connection.on('marketUpdate', handleMarketUpdate, s);
+			connection.on(SubscriptionType.MarketUpdate, handleMarketUpdate, s);
 		});
 	}
 })();
