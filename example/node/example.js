@@ -6,22 +6,33 @@ const Connection = require('./../../lib/connection/websocket/Connection'),
 	SubscriptionType = require('./../../lib/connection/SubscriptionType'),
 	WebSocketAdapterFactoryForNode = require('./../../lib/connection/websocket/adapter/WebSocketAdapterFactoryForNode');
 
+const CustomLoggingProvider = require('./logging/CustomLoggingProvider');
+
+const LoggerFactory = require('./../../lib/logging/LoggerFactory');
+
 const startup = (() => {
 	'use strict';
+	
+	//LoggerFactory.configureForConsole();
+	//LoggerFactory.configureForSilence();
 
-	console.log(`Example: Node.js example script started [ version ${version} ]`);
+	LoggerFactory.configure(new CustomLoggingProvider());
+
+	const __logger = LoggerFactory.getLogger('@barchart/example');
+
+	__logger.log(`Example: Node.js example script started [ version ${version} ]`);
 
 	let connection = null;
 	let adapterFactory = null;
 
 	process.on('SIGINT', () => {
-		console.log('\nExample: Processing SIGINT');
+		__logger.log('\nExample: Processing SIGINT');
 
 		if (connection !== null) {
 			connection.disconnect();
 		}
 
-		console.log('Example: Node.js example script ending');
+		__logger.log('Example: Node.js example script ending');
 
 		process.exit();
 	});
@@ -31,7 +42,7 @@ const startup = (() => {
 	const password = process.argv[4];
 	const symbols = process.argv[5];
 
-	console.log(`Example: Instantiating Connection (using Node.js adapter) for [ ${username}/${password} ] @ [ ${host} ]`);
+	__logger.log(`Example: Instantiating Connection (using Node.js adapter) for [ ${username}/${password} ] @ [ ${host} ]`);
 
 	connection = new Connection();
 	adapterFactory = new WebSocketAdapterFactoryForNode();
@@ -48,7 +59,7 @@ const startup = (() => {
 				if (price !== current) {
 					price = current;
 
-					console.log(`Example: ${s} = ${price}`);
+					__logger.log(`Example: ${s} = ${price}`);
 				}
 			};
 
