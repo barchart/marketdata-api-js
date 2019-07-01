@@ -58,7 +58,407 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+module.exports = function () {
+	'use strict';
+
+	/**
+  * An interface for writing log messages.
+  *
+  * @public
+  * @interface
+  */
+
+	var Logger = function () {
+		function Logger() {
+			_classCallCheck(this, Logger);
+		}
+
+		/**
+   * Writes a log message.
+   *
+   * @public
+   */
+
+
+		_createClass(Logger, [{
+			key: 'log',
+			value: function log() {
+				return;
+			}
+
+			/**
+    * Writes a log message, at "debug" level.
+    *
+    * @public
+    */
+
+		}, {
+			key: 'debug',
+			value: function debug() {
+				return;
+			}
+
+			/**
+    * Writes a log message, at "info" level.
+    *
+    * @public
+    */
+
+		}, {
+			key: 'info',
+			value: function info() {
+				return;
+			}
+
+			/**
+    * Writes a log message, at "warn" level.
+    *
+    * @public
+    */
+
+		}, {
+			key: 'warn',
+			value: function warn() {
+				return;
+			}
+
+			/**
+    * Writes a log message, at "error" level.
+    *
+    * @public
+    */
+
+		}, {
+			key: 'error',
+			value: function error() {
+				return;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[Logger]';
+			}
+		}]);
+
+		return Logger;
+	}();
+
+	return Logger;
+}();
+
+},{}],3:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Logger = require('./Logger'),
+    LoggerProvider = require('./LoggerProvider');
+
+module.exports = function () {
+	'use strict';
+
+	var __provider = null;
+
+	/**
+  * Static utilities for interacting with the log system.
+  *
+  * @public
+  * @interface
+  */
+
+	var LoggerFactory = function () {
+		function LoggerFactory() {
+			_classCallCheck(this, LoggerFactory);
+		}
+
+		/**
+   * Configures the library to write log messages to the console.
+   *
+   * @public
+   * @static
+   */
+
+
+		_createClass(LoggerFactory, [{
+			key: 'toString',
+			value: function toString() {
+				return '[LoggerFactory]';
+			}
+		}], [{
+			key: 'configureForConsole',
+			value: function configureForConsole() {
+				LoggerFactory.configure(new ConsoleLoggerProvider());
+			}
+
+			/**
+    * Configures the mute all log messages.
+    *
+    * @public
+    * @static
+    */
+
+		}, {
+			key: 'configureForSilence',
+			value: function configureForSilence() {
+				LoggerFactory.configure(new EmptyLoggerProvider());
+			}
+
+			/**
+    * Configures the library to delegate any log messages to a custom
+    * implementation of the {@link LoggerProvider} interface.
+    *
+    * @public
+    * @static
+    * @param {LoggerProvider} provider
+    */
+
+		}, {
+			key: 'configure',
+			value: function configure(provider) {
+				if (__provider === null && provider instanceof LoggerProvider) {
+					__provider = provider;
+				}
+			}
+
+			/**
+    * Returns an instance of {@link Logger} for a specific category.
+    *
+    * @public
+    * @static
+    * @param {String} category
+    * @return {Logger}
+    */
+
+		}, {
+			key: 'getLogger',
+			value: function getLogger(category) {
+				if (__provider === null) {
+					LoggerFactory.configureForConsole();
+				}
+
+				return __provider.getLogger(category);
+			}
+		}]);
+
+		return LoggerFactory;
+	}();
+
+	var __consoleLogger = null;
+
+	var ConsoleLoggerProvider = function (_LoggerProvider) {
+		_inherits(ConsoleLoggerProvider, _LoggerProvider);
+
+		function ConsoleLoggerProvider() {
+			_classCallCheck(this, ConsoleLoggerProvider);
+
+			return _possibleConstructorReturn(this, (ConsoleLoggerProvider.__proto__ || Object.getPrototypeOf(ConsoleLoggerProvider)).call(this));
+		}
+
+		_createClass(ConsoleLoggerProvider, [{
+			key: 'getLogger',
+			value: function getLogger(category) {
+				if (__consoleLogger === null) {
+					__consoleLogger = new ConsoleLogger();
+				}
+
+				return __consoleLogger;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[ConsoleLoggerProvider]';
+			}
+		}]);
+
+		return ConsoleLoggerProvider;
+	}(LoggerProvider);
+
+	var ConsoleLogger = function (_Logger) {
+		_inherits(ConsoleLogger, _Logger);
+
+		function ConsoleLogger() {
+			_classCallCheck(this, ConsoleLogger);
+
+			return _possibleConstructorReturn(this, (ConsoleLogger.__proto__ || Object.getPrototypeOf(ConsoleLogger)).call(this));
+		}
+
+		_createClass(ConsoleLogger, [{
+			key: 'log',
+			value: function log() {
+				console.log.apply(console, arguments);
+			}
+		}, {
+			key: 'trace',
+			value: function trace() {
+				console.trace.apply(console, arguments);
+			}
+		}, {
+			key: 'info',
+			value: function info() {
+				console.info.apply(console, arguments);
+			}
+		}, {
+			key: 'warn',
+			value: function warn() {
+				console.warn.apply(console, arguments);
+			}
+		}, {
+			key: 'error',
+			value: function error() {
+				console.error.apply(console, arguments);
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[ConsoleLogger]';
+			}
+		}]);
+
+		return ConsoleLogger;
+	}(Logger);
+
+	var __emptyLogger = null;
+
+	var EmptyLoggerProvider = function (_LoggerProvider2) {
+		_inherits(EmptyLoggerProvider, _LoggerProvider2);
+
+		function EmptyLoggerProvider() {
+			_classCallCheck(this, EmptyLoggerProvider);
+
+			return _possibleConstructorReturn(this, (EmptyLoggerProvider.__proto__ || Object.getPrototypeOf(EmptyLoggerProvider)).call(this));
+		}
+
+		_createClass(EmptyLoggerProvider, [{
+			key: 'getLogger',
+			value: function getLogger(category) {
+				if (__emptyLogger === null) {
+					__emptyLogger = new EmptyLogger();
+				}
+
+				return __emptyLogger;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[EmptyLoggerProvider]';
+			}
+		}]);
+
+		return EmptyLoggerProvider;
+	}(LoggerProvider);
+
+	var EmptyLogger = function (_Logger2) {
+		_inherits(EmptyLogger, _Logger2);
+
+		function EmptyLogger() {
+			_classCallCheck(this, EmptyLogger);
+
+			return _possibleConstructorReturn(this, (EmptyLogger.__proto__ || Object.getPrototypeOf(EmptyLogger)).call(this));
+		}
+
+		_createClass(EmptyLogger, [{
+			key: 'log',
+			value: function log() {
+				return;
+			}
+		}, {
+			key: 'trace',
+			value: function trace() {
+				return;
+			}
+		}, {
+			key: 'info',
+			value: function info() {
+				return;
+			}
+		}, {
+			key: 'warn',
+			value: function warn() {
+				return;
+			}
+		}, {
+			key: 'error',
+			value: function error() {
+				return;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[ConsoleLogger]';
+			}
+		}]);
+
+		return EmptyLogger;
+	}(Logger);
+
+	return LoggerFactory;
+}();
+
+},{"./Logger":2,"./LoggerProvider":4}],4:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+module.exports = function () {
+	'use strict';
+
+	/**
+  * An interface for generating {@link Logger} instances.
+  *
+  * @public
+  * @interface
+  */
+
+	var LoggerProvider = function () {
+		function LoggerProvider() {
+			_classCallCheck(this, LoggerProvider);
+		}
+
+		/**
+   * Returns an instance of {@link Logger}.
+   *
+   * @public
+   * @param {String} category
+   * @returns {Logger}
+   */
+
+
+		_createClass(LoggerProvider, [{
+			key: 'getLogger',
+			value: function getLogger(category) {
+				return null;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[LoggerProvider]';
+			}
+		}]);
+
+		return LoggerProvider;
+	}();
+
+	return LoggerProvider;
+}();
+
+},{}],5:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var object = require('./../common/lang/object');
+
+var LoggerFactory = require('./../logging/LoggerFactory');
 
 module.exports = function () {
 	'use strict';
@@ -99,6 +499,8 @@ module.exports = function () {
 			this._priceLevels = {};
 			this._highPrice = null;
 			this._lowPrice = null;
+
+			this._logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
 		}
 
 		/**
@@ -330,7 +732,7 @@ module.exports = function () {
 				volume: priceLevel.volume
 			});
 		} catch (e) {
-			console.error('An error was thrown by a cumulative volume observer.', e);
+			undefined._logger.error('An error was thrown by a cumulative volume observer.', e);
 		}
 	};
 
@@ -354,7 +756,7 @@ module.exports = function () {
 	return CumulativeVolume;
 }();
 
-},{"./../common/lang/object":1}],3:[function(require,module,exports){
+},{"./../common/lang/object":1,"./../logging/LoggerFactory":3}],6:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -504,7 +906,7 @@ module.exports = function () {
 	return Profile;
 }();
 
-},{"./../util/parseSymbolType":4,"./../util/priceFormatter":5}],4:[function(require,module,exports){
+},{"./../util/parseSymbolType":7,"./../util/priceFormatter":8}],7:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -515,7 +917,7 @@ module.exports = function () {
 	return utilities.symbolParser.parseInstrumentType;
 }();
 
-},{"@barchart/marketdata-utilities-js":9}],5:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":12}],8:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -526,7 +928,7 @@ module.exports = function () {
 	return utilities.priceFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":9}],6:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":12}],9:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -567,7 +969,7 @@ module.exports = function () {
     return XmlDomParser;
 }();
 
-},{"xmldom":20}],7:[function(require,module,exports){
+},{"xmldom":23}],10:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -723,7 +1125,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],8:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 var lodashIsNaN = require('lodash.isnan');
@@ -785,7 +1187,7 @@ module.exports = function () {
 	};
 }();
 
-},{"lodash.isnan":19}],9:[function(require,module,exports){
+},{"lodash.isnan":22}],12:[function(require,module,exports){
 'use strict';
 
 var convert = require('./convert'),
@@ -818,7 +1220,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convert":7,"./decimalFormatter":8,"./messageParser":10,"./monthCodes":11,"./priceFormatter":12,"./priceParser":13,"./stringToDecimalFormatter":14,"./symbolFormatter":15,"./symbolParser":16,"./timeFormatter":17,"./timestampParser":18}],10:[function(require,module,exports){
+},{"./convert":10,"./decimalFormatter":11,"./messageParser":13,"./monthCodes":14,"./priceFormatter":15,"./priceParser":16,"./stringToDecimalFormatter":17,"./symbolFormatter":18,"./symbolParser":19,"./timeFormatter":20,"./timestampParser":21}],13:[function(require,module,exports){
 'use strict';
 
 var parseValue = require('./priceParser'),
@@ -1299,7 +1701,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./common/xml/XmlDomParser":6,"./priceParser":13,"./timestampParser":18}],11:[function(require,module,exports){
+},{"./common/xml/XmlDomParser":9,"./priceParser":16,"./timestampParser":21}],14:[function(require,module,exports){
 "use strict";
 
 module.exports = function () {
@@ -1338,7 +1740,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],12:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 var lodashIsNaN = require('lodash.isnan');
@@ -1471,7 +1873,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./decimalFormatter":8,"lodash.isnan":19}],13:[function(require,module,exports){
+},{"./decimalFormatter":11,"lodash.isnan":22}],16:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -1547,7 +1949,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],14:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 var Converter = require('./convert');
@@ -1586,7 +1988,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convert":7}],15:[function(require,module,exports){
+},{"./convert":10}],18:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -1603,7 +2005,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],16:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -2086,7 +2488,7 @@ module.exports = function () {
 	return symbolParser;
 }();
 
-},{}],17:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -2205,7 +2607,7 @@ module.exports = function () {
 	}
 }();
 
-},{}],18:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -2242,7 +2644,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],19:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -2354,7 +2756,7 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-},{}],20:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -2607,7 +3009,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":21,"./sax":22}],21:[function(require,module,exports){
+},{"./dom":24,"./sax":25}],24:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -3853,7 +4255,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],22:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -4488,7 +4890,7 @@ function split(source,start){
 exports.XMLReader = XMLReader;
 
 
-},{}],23:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
 var CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
@@ -4932,7 +5334,7 @@ describe('When a cumulative volume container is created with a tick increment of
 	});
 });
 
-},{"../../../lib/marketState/CumulativeVolume":2}],24:[function(require,module,exports){
+},{"../../../lib/marketState/CumulativeVolume":5}],27:[function(require,module,exports){
 'use strict';
 
 var Profile = require('../../../lib/marketState/Profile');
@@ -4951,4 +5353,4 @@ describe('When a Profile is created (for a symbol with unitCode "2")', function 
 	});
 });
 
-},{"../../../lib/marketState/Profile":3}]},{},[23,24]);
+},{"../../../lib/marketState/Profile":6}]},{},[26,27]);

@@ -392,7 +392,7 @@ module.exports = function () {
 	});
 }();
 
-},{"./../../../lib/connection/websocket/Connection":6,"./../../../lib/index":10,"./../../../lib/util/symbolResolver":30}],2:[function(require,module,exports){
+},{"./../../../lib/connection/websocket/Connection":6,"./../../../lib/index":10,"./../../../lib/util/symbolResolver":33}],2:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -817,7 +817,7 @@ module.exports = function () {
 	return ConnectionBase;
 }();
 
-},{"./../marketState/MarketState":12}],5:[function(require,module,exports){
+},{"./../marketState/MarketState":15}],5:[function(require,module,exports){
 'use strict';
 
 var Connection = require('./websocket/Connection');
@@ -851,6 +851,8 @@ var snapshotProvider = require('./../../util/snapshotProvider');
 
 var WebSocketAdapterFactory = require('./adapter/WebSocketAdapterFactory'),
     WebSocketAdapterFactoryForBrowsers = require('./adapter/WebSocketAdapterFactoryForBrowsers');
+
+var LoggerFactory = require('./../../logging/LoggerFactory');
 
 module.exports = function () {
 	'use strict';
@@ -887,6 +889,8 @@ module.exports = function () {
 	regex.snapshot = /^(BCSD-|BEA-|BLS-|EIA-|CFTC-|USCB-|USDA-)|:/;
 
 	function ConnectionInternal(marketState) {
+		var __logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
+
 		var __marketState = marketState;
 
 		var __connectionFactory = null;
@@ -944,11 +948,11 @@ module.exports = function () {
 			}
 
 			if (pollingFrequency === null || pollingFrequency === undefined) {
-				console.info('Connection: Switching to streaming mode.');
+				__logger.log('Connection: Switching to streaming mode.');
 
 				__pollingFrequency = null;
 			} else if (typeof pollingFrequency === 'number' && !isNaN(pollingFrequency) && !(pollingFrequency < 1000)) {
-				console.info('Connection: Switching to polling mode.');
+				__logger.log('Connection: Switching to polling mode.');
 
 				__pollingFrequency = pollingFrequency;
 			}
@@ -1027,12 +1031,12 @@ module.exports = function () {
 			}
 
 			if (__connection !== null) {
-				console.warn('Connection: Unable to connect, a connection already exists.');
+				__logger.warn('Connection: Unable to connect, a connection already exists.');
 
 				return;
 			}
 
-			console.log('Connection: Initializing.');
+			__logger.log('Connection: Initializing.');
 
 			__loginInfo.username = username;
 			__loginInfo.password = password;
@@ -1046,11 +1050,11 @@ module.exports = function () {
 			__decoder = __connection.getDecoder();
 
 			__connection.onopen = function () {
-				console.log('Connection: Open event received.');
+				__logger.log('Connection: Open event received.');
 			};
 
 			__connection.onclose = function () {
-				console.log('Connection: Close event received.');
+				__logger.log('Connection: Close event received.');
 
 				__connectionState = state.disconnected;
 
@@ -1076,16 +1080,16 @@ module.exports = function () {
 				__outboundMessages = [];
 
 				if (loginFailed) {
-					console.warn('Connection: Connection closed before login was processed.');
+					__logger.warn('Connection: Connection closed before login was processed.');
 
 					broadcastEvent('events', { event: 'login fail' });
 				} else {
-					console.warn('Connection: Connection dropped.');
+					__logger.warn('Connection: Connection dropped.');
 
 					broadcastEvent('events', { event: 'disconnect' });
 
 					if (__reconnectAllowed) {
-						console.log('Connection: Scheduling reconnect attempt.');
+						__logger.log('Connection: Scheduling reconnect attempt.');
 
 						var reconnectAction = function reconnectAction() {
 							return connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
@@ -1123,7 +1127,7 @@ module.exports = function () {
    * @private
    */
 		function disconnect() {
-			console.warn('Connection: Disconnecting.');
+			__logger.warn('Connection: Disconnecting.');
 
 			__connectionState = state.disconnected;
 
@@ -1135,11 +1139,11 @@ module.exports = function () {
 						__connection.send('LOGOUT\r\n');
 					}
 
-					console.warn('Connection: Closing connection.');
+					__logger.warn('Connection: Closing connection.');
 
 					__connection.close();
 				} catch (e) {
-					console.warn('Connection: Unable to close connection.');
+					__logger.warn('Connection: Unable to close connection.');
 				}
 			}
 
@@ -1151,12 +1155,12 @@ module.exports = function () {
 
 		function pause() {
 			if (__paused) {
-				console.warn('Connection: Unable to pause, feed is already paused.');
+				__logger.warn('Connection: Unable to pause, feed is already paused.');
 
 				return;
 			}
 
-			console.log('Connection: Pausing feed.');
+			__logger.log('Connection: Pausing feed.');
 
 			if (__pollingFrequency === null) {
 				enqueueStopTasks();
@@ -1170,12 +1174,12 @@ module.exports = function () {
 
 		function resume() {
 			if (!__paused) {
-				console.warn('Connection: Unable to resume, feed is not paused.');
+				__logger.warn('Connection: Unable to resume, feed is not paused.');
 
 				return;
 			}
 
-			console.log('Connection: Resuming feed.');
+			__logger.log('Connection: Resuming feed.');
 
 			__paused = false;
 
@@ -1194,11 +1198,11 @@ module.exports = function () {
 		function startWatchdog() {
 			stopWatchdog();
 
-			console.log('Connection: Watchdog started.');
+			__logger.log('Connection: Watchdog started.');
 
 			var watchdogAction = function watchdogAction() {
 				if (__watchdogAwake) {
-					console.log('Connection: Watchdog triggered, connection silent for too long. Triggering disconnect.');
+					__logger.log('Connection: Watchdog triggered, connection silent for too long. Triggering disconnect.');
 
 					stopWatchdog();
 
@@ -1219,7 +1223,7 @@ module.exports = function () {
    */
 		function stopWatchdog() {
 			if (__watchdogToken !== null) {
-				console.log('Connection: Watchdog stopped.');
+				__logger.log('Connection: Watchdog stopped.');
 
 				clearInterval(__watchdogToken);
 			}
@@ -1251,7 +1255,7 @@ module.exports = function () {
 			}
 
 			if (!eventTypes.hasOwnProperty(eventType)) {
-				console.log('Consumer: Unable to process "on" event, event type is not recognized.');
+				__logger.log('Consumer: Unable to process "on" event, event type is not recognized.');
 
 				return;
 			}
@@ -1266,8 +1270,8 @@ module.exports = function () {
 				symbol = symbol.toUpperCase().trim();
 
 				if (!symbol || !(symbol.indexOf(' ') < 0)) {
-					console.log('Consumer: Unable to process "on" command, the "symbol" argument is invalid.');
-					console.trace();
+					__logger.log('Consumer: Unable to process "on" command, the "symbol" argument is invalid.');
+					__logger.trace();
 
 					return;
 				}
@@ -1365,8 +1369,8 @@ module.exports = function () {
 			}
 
 			if (!eventTypes.hasOwnProperty(eventType)) {
-				console.log('Consumer: Unable to process "off" command, event type is not supported [ ' + eventType + ' ].');
-				console.trace();
+				__logger.log('Consumer: Unable to process "off" command, event type is not supported [ ' + eventType + ' ].');
+				__logger.trace();
 
 				return;
 			}
@@ -1381,8 +1385,8 @@ module.exports = function () {
 				symbol = symbol.toUpperCase().trim();
 
 				if (!symbol || !(symbol.indexOf(' ') < 0)) {
-					console.log('Consumer: Unable to process "off" command, the "symbol" argument is empty.');
-					console.trace();
+					__logger.log('Consumer: Unable to process "off" command, the "symbol" argument is empty.');
+					__logger.trace();
 
 					return;
 				}
@@ -1464,8 +1468,8 @@ module.exports = function () {
 			var consumerSymbol = symbol.toUpperCase().trim();
 
 			if (!consumerSymbol || !(consumerSymbol.indexOf(' ') < 0)) {
-				console.log('Consumer: Unable to process profile request, the "symbol" argument is empty.');
-				console.trace();
+				__logger.log('Consumer: Unable to process profile request, the "symbol" argument is empty.');
+				__logger.trace();
 
 				return;
 			}
@@ -1593,7 +1597,7 @@ module.exports = function () {
 				})) {
 					__connectionState = state.authenticating;
 
-					console.log('Connection: Sending credentials.');
+					__logger.log('Connection: Sending credentials.');
 
 					__connection.send('LOGIN ' + __loginInfo.username + ':' + __loginInfo.password + ' VERSION=' + _API_VERSION + '\r\n');
 				}
@@ -1603,22 +1607,22 @@ module.exports = function () {
 				if (firstCharacter === '+') {
 					__connectionState = state.authenticated;
 
-					console.log('Connection: Login accepted.');
+					__logger.log('Connection: Login accepted.');
 
 					broadcastEvent('events', { event: 'login success' });
 
 					if (__paused) {
-						console.log('Connection: Establishing heartbeat only -- feed is paused.');
+						__logger.log('Connection: Establishing heartbeat only -- feed is paused.');
 
 						enqueueHeartbeat();
 					} else {
-						console.log('Connection: Establishing subscriptions for heartbeat and existing symbols.');
+						__logger.log('Connection: Establishing subscriptions for heartbeat and existing symbols.');
 
 						enqueueHeartbeat();
 						enqueueGoTasks();
 					}
 				} else if (firstCharacter === '-') {
-					console.log('Connection: Login failed.');
+					__logger.log('Connection: Login failed.');
 
 					broadcastEvent('events', { event: 'login fail' });
 
@@ -1643,7 +1647,7 @@ module.exports = function () {
 					processInboundMessage(__inboundMessages.shift());
 				}
 			} catch (e) {
-				console.warn('Pump Inbound: An error occurred during inbound message queue processing. Disconnecting.', e);
+				__logger.warn('Pump Inbound: An error occurred during inbound message queue processing. Disconnecting.', e);
 
 				disconnect();
 			}
@@ -1676,7 +1680,7 @@ module.exports = function () {
 			} else if (eventType === 'timestamp') {
 				listeners = __listeners.timestamp;
 			} else {
-				console.warn('Broadcast: Unable to notify subscribers of [ ' + eventType + ' ] event.');
+				__logger.warn('Broadcast: Unable to notify subscribers of [ ' + eventType + ' ] event.');
 
 				listeners = null;
 			}
@@ -1686,7 +1690,7 @@ module.exports = function () {
 					try {
 						listener(message);
 					} catch (e) {
-						console.warn('Broadcast: A consumer-supplied listener for [ ' + eventType + ' ] events threw an error. Continuing.,', e);
+						__logger.warn('Broadcast: A consumer-supplied listener for [ ' + eventType + ' ] events threw an error. Continuing.,', e);
 					}
 				});
 			}
@@ -1755,10 +1759,10 @@ module.exports = function () {
 						processMarketMessage(parsed);
 					}
 				} else {
-					console.log(message);
+					__logger.log(message);
 				}
 			} catch (e) {
-				console.error('An error occurred while parsing a market message [ ' + message + ' ]. Continuing.', e);
+				__logger.error('An error occurred while parsing a market message [ ' + message + ' ]. Continuing.', e);
 			}
 		}
 
@@ -1970,7 +1974,7 @@ module.exports = function () {
 						}
 
 						if (command === null) {
-							console.warn('Pump Tasks: An unsupported task was found in the tasks queue.');
+							__logger.warn('Pump Tasks: An unsupported task was found in the tasks queue.');
 
 							return 'continue';
 						}
@@ -2047,7 +2051,7 @@ module.exports = function () {
 				try {
 					pumpDelegate();
 				} catch (e) {
-					console.warn('Pump Tasks: An error occurred during task queue processing. Disconnecting.', e);
+					__logger.warn('Pump Tasks: An error occurred during task queue processing. Disconnecting.', e);
 
 					disconnect();
 				}
@@ -2073,11 +2077,11 @@ module.exports = function () {
 					try {
 						var message = __outboundMessages.shift();
 
-						console.log(message);
+						__logger.log(message);
 
 						__connection.send(message);
 					} catch (e) {
-						console.warn('Pump Outbound: An error occurred during outbound message queue processing. Disconnecting.', e);
+						__logger.warn('Pump Outbound: An error occurred during outbound message queue processing. Disconnecting.', e);
 
 						disconnect();
 
@@ -2112,7 +2116,7 @@ module.exports = function () {
 					return processMarketMessage(message);
 				});
 			}).catch(function (e) {
-				console.log('Snapshots: Out-of-band snapshot request failed for [ ${symbols.join()} ]', e);
+				__logger.log('Snapshots: Out-of-band snapshot request failed for [ ${symbols.join()} ]', e);
 			});
 		}
 
@@ -2131,7 +2135,7 @@ module.exports = function () {
 						processSnapshots(batch);
 					});
 				} catch (e) {
-					console.warn('Snapshots: An error occurred during refresh processing. Ignoring.', e);
+					__logger.warn('Snapshots: An error occurred during refresh processing. Ignoring.', e);
 				}
 			}
 
@@ -2408,7 +2412,7 @@ module.exports = function () {
 	return Connection;
 }();
 
-},{"./../../common/lang/array":2,"./../../common/lang/object":3,"./../../messageParser/parseMessage":17,"./../../util/snapshotProvider":29,"./../ConnectionBase":4,"./adapter/WebSocketAdapterFactory":8,"./adapter/WebSocketAdapterFactoryForBrowsers":9,"@barchart/marketdata-utilities-js":35}],7:[function(require,module,exports){
+},{"./../../common/lang/array":2,"./../../common/lang/object":3,"./../../logging/LoggerFactory":12,"./../../messageParser/parseMessage":20,"./../../util/snapshotProvider":32,"./../ConnectionBase":4,"./adapter/WebSocketAdapterFactory":8,"./adapter/WebSocketAdapterFactoryForBrowsers":9,"@barchart/marketdata-utilities-js":38}],7:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2573,6 +2577,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var WebSocketAdapter = require('./WebSocketAdapter'),
     WebSocketAdapterFactory = require('./WebSocketAdapterFactory');
 
+var LoggerFactory = require('./../../../logging/LoggerFactory');
+
 module.exports = function () {
 	'use strict';
 
@@ -2597,14 +2603,17 @@ module.exports = function () {
 		function WebSocketAdapterFactoryForBrowsers() {
 			_classCallCheck(this, WebSocketAdapterFactoryForBrowsers);
 
-			return _possibleConstructorReturn(this, (WebSocketAdapterFactoryForBrowsers.__proto__ || Object.getPrototypeOf(WebSocketAdapterFactoryForBrowsers)).call(this));
+			var _this = _possibleConstructorReturn(this, (WebSocketAdapterFactoryForBrowsers.__proto__ || Object.getPrototypeOf(WebSocketAdapterFactoryForBrowsers)).call(this));
+
+			_this._logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
+			return _this;
 		}
 
 		_createClass(WebSocketAdapterFactoryForBrowsers, [{
 			key: 'build',
 			value: function build(host) {
 				if (!__window || !__window.WebSocket) {
-					console.warn('Connection: Unable to connect, WebSockets are not supported.');
+					this._logger.warn('Connection: Unable to connect, WebSockets are not supported.');
 
 					return;
 				}
@@ -2741,7 +2750,7 @@ module.exports = function () {
 	return WebSocketAdapterFactoryForBrowsers;
 }();
 
-},{"./WebSocketAdapter":7,"./WebSocketAdapterFactory":8}],10:[function(require,module,exports){
+},{"./../../../logging/LoggerFactory":12,"./WebSocketAdapter":7,"./WebSocketAdapterFactory":8}],10:[function(require,module,exports){
 'use strict';
 
 var connection = require('./connection/index'),
@@ -2763,11 +2772,409 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.2.9'
+		version: '3.2.10'
 	};
 }();
 
-},{"./connection/index":5,"./marketState/index":15,"./messageParser/index":16,"./util/index":25}],11:[function(require,module,exports){
+},{"./connection/index":5,"./marketState/index":18,"./messageParser/index":19,"./util/index":28}],11:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+module.exports = function () {
+	'use strict';
+
+	/**
+  * An interface for writing log messages.
+  *
+  * @public
+  * @interface
+  */
+
+	var Logger = function () {
+		function Logger() {
+			_classCallCheck(this, Logger);
+		}
+
+		/**
+   * Writes a log message.
+   *
+   * @public
+   */
+
+
+		_createClass(Logger, [{
+			key: 'log',
+			value: function log() {
+				return;
+			}
+
+			/**
+    * Writes a log message, at "debug" level.
+    *
+    * @public
+    */
+
+		}, {
+			key: 'debug',
+			value: function debug() {
+				return;
+			}
+
+			/**
+    * Writes a log message, at "info" level.
+    *
+    * @public
+    */
+
+		}, {
+			key: 'info',
+			value: function info() {
+				return;
+			}
+
+			/**
+    * Writes a log message, at "warn" level.
+    *
+    * @public
+    */
+
+		}, {
+			key: 'warn',
+			value: function warn() {
+				return;
+			}
+
+			/**
+    * Writes a log message, at "error" level.
+    *
+    * @public
+    */
+
+		}, {
+			key: 'error',
+			value: function error() {
+				return;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[Logger]';
+			}
+		}]);
+
+		return Logger;
+	}();
+
+	return Logger;
+}();
+
+},{}],12:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Logger = require('./Logger'),
+    LoggerProvider = require('./LoggerProvider');
+
+module.exports = function () {
+	'use strict';
+
+	var __provider = null;
+
+	/**
+  * Static utilities for interacting with the log system.
+  *
+  * @public
+  * @interface
+  */
+
+	var LoggerFactory = function () {
+		function LoggerFactory() {
+			_classCallCheck(this, LoggerFactory);
+		}
+
+		/**
+   * Configures the library to write log messages to the console.
+   *
+   * @public
+   * @static
+   */
+
+
+		_createClass(LoggerFactory, [{
+			key: 'toString',
+			value: function toString() {
+				return '[LoggerFactory]';
+			}
+		}], [{
+			key: 'configureForConsole',
+			value: function configureForConsole() {
+				LoggerFactory.configure(new ConsoleLoggerProvider());
+			}
+
+			/**
+    * Configures the mute all log messages.
+    *
+    * @public
+    * @static
+    */
+
+		}, {
+			key: 'configureForSilence',
+			value: function configureForSilence() {
+				LoggerFactory.configure(new EmptyLoggerProvider());
+			}
+
+			/**
+    * Configures the library to delegate any log messages to a custom
+    * implementation of the {@link LoggerProvider} interface.
+    *
+    * @public
+    * @static
+    * @param {LoggerProvider} provider
+    */
+
+		}, {
+			key: 'configure',
+			value: function configure(provider) {
+				if (__provider === null && provider instanceof LoggerProvider) {
+					__provider = provider;
+				}
+			}
+
+			/**
+    * Returns an instance of {@link Logger} for a specific category.
+    *
+    * @public
+    * @static
+    * @param {String} category
+    * @return {Logger}
+    */
+
+		}, {
+			key: 'getLogger',
+			value: function getLogger(category) {
+				if (__provider === null) {
+					LoggerFactory.configureForConsole();
+				}
+
+				return __provider.getLogger(category);
+			}
+		}]);
+
+		return LoggerFactory;
+	}();
+
+	var __consoleLogger = null;
+
+	var ConsoleLoggerProvider = function (_LoggerProvider) {
+		_inherits(ConsoleLoggerProvider, _LoggerProvider);
+
+		function ConsoleLoggerProvider() {
+			_classCallCheck(this, ConsoleLoggerProvider);
+
+			return _possibleConstructorReturn(this, (ConsoleLoggerProvider.__proto__ || Object.getPrototypeOf(ConsoleLoggerProvider)).call(this));
+		}
+
+		_createClass(ConsoleLoggerProvider, [{
+			key: 'getLogger',
+			value: function getLogger(category) {
+				if (__consoleLogger === null) {
+					__consoleLogger = new ConsoleLogger();
+				}
+
+				return __consoleLogger;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[ConsoleLoggerProvider]';
+			}
+		}]);
+
+		return ConsoleLoggerProvider;
+	}(LoggerProvider);
+
+	var ConsoleLogger = function (_Logger) {
+		_inherits(ConsoleLogger, _Logger);
+
+		function ConsoleLogger() {
+			_classCallCheck(this, ConsoleLogger);
+
+			return _possibleConstructorReturn(this, (ConsoleLogger.__proto__ || Object.getPrototypeOf(ConsoleLogger)).call(this));
+		}
+
+		_createClass(ConsoleLogger, [{
+			key: 'log',
+			value: function log() {
+				console.log.apply(console, arguments);
+			}
+		}, {
+			key: 'trace',
+			value: function trace() {
+				console.trace.apply(console, arguments);
+			}
+		}, {
+			key: 'info',
+			value: function info() {
+				console.info.apply(console, arguments);
+			}
+		}, {
+			key: 'warn',
+			value: function warn() {
+				console.warn.apply(console, arguments);
+			}
+		}, {
+			key: 'error',
+			value: function error() {
+				console.error.apply(console, arguments);
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[ConsoleLogger]';
+			}
+		}]);
+
+		return ConsoleLogger;
+	}(Logger);
+
+	var __emptyLogger = null;
+
+	var EmptyLoggerProvider = function (_LoggerProvider2) {
+		_inherits(EmptyLoggerProvider, _LoggerProvider2);
+
+		function EmptyLoggerProvider() {
+			_classCallCheck(this, EmptyLoggerProvider);
+
+			return _possibleConstructorReturn(this, (EmptyLoggerProvider.__proto__ || Object.getPrototypeOf(EmptyLoggerProvider)).call(this));
+		}
+
+		_createClass(EmptyLoggerProvider, [{
+			key: 'getLogger',
+			value: function getLogger(category) {
+				if (__emptyLogger === null) {
+					__emptyLogger = new EmptyLogger();
+				}
+
+				return __emptyLogger;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[EmptyLoggerProvider]';
+			}
+		}]);
+
+		return EmptyLoggerProvider;
+	}(LoggerProvider);
+
+	var EmptyLogger = function (_Logger2) {
+		_inherits(EmptyLogger, _Logger2);
+
+		function EmptyLogger() {
+			_classCallCheck(this, EmptyLogger);
+
+			return _possibleConstructorReturn(this, (EmptyLogger.__proto__ || Object.getPrototypeOf(EmptyLogger)).call(this));
+		}
+
+		_createClass(EmptyLogger, [{
+			key: 'log',
+			value: function log() {
+				return;
+			}
+		}, {
+			key: 'trace',
+			value: function trace() {
+				return;
+			}
+		}, {
+			key: 'info',
+			value: function info() {
+				return;
+			}
+		}, {
+			key: 'warn',
+			value: function warn() {
+				return;
+			}
+		}, {
+			key: 'error',
+			value: function error() {
+				return;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[ConsoleLogger]';
+			}
+		}]);
+
+		return EmptyLogger;
+	}(Logger);
+
+	return LoggerFactory;
+}();
+
+},{"./Logger":11,"./LoggerProvider":13}],13:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+module.exports = function () {
+	'use strict';
+
+	/**
+  * An interface for generating {@link Logger} instances.
+  *
+  * @public
+  * @interface
+  */
+
+	var LoggerProvider = function () {
+		function LoggerProvider() {
+			_classCallCheck(this, LoggerProvider);
+		}
+
+		/**
+   * Returns an instance of {@link Logger}.
+   *
+   * @public
+   * @param {String} category
+   * @returns {Logger}
+   */
+
+
+		_createClass(LoggerProvider, [{
+			key: 'getLogger',
+			value: function getLogger(category) {
+				return null;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return '[LoggerProvider]';
+			}
+		}]);
+
+		return LoggerProvider;
+	}();
+
+	return LoggerProvider;
+}();
+
+},{}],14:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2775,6 +3182,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var object = require('./../common/lang/object');
+
+var LoggerFactory = require('./../logging/LoggerFactory');
 
 module.exports = function () {
 	'use strict';
@@ -2815,6 +3224,8 @@ module.exports = function () {
 			this._priceLevels = {};
 			this._highPrice = null;
 			this._lowPrice = null;
+
+			this._logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
 		}
 
 		/**
@@ -3046,7 +3457,7 @@ module.exports = function () {
 				volume: priceLevel.volume
 			});
 		} catch (e) {
-			console.error('An error was thrown by a cumulative volume observer.', e);
+			undefined._logger.error('An error was thrown by a cumulative volume observer.', e);
 		}
 	};
 
@@ -3070,7 +3481,7 @@ module.exports = function () {
 	return CumulativeVolume;
 }();
 
-},{"./../common/lang/object":3}],12:[function(require,module,exports){
+},{"./../common/lang/object":3,"./../logging/LoggerFactory":12}],15:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -3085,10 +3496,14 @@ var CumulativeVolume = require('./CumulativeVolume'),
 
 var dayCodeToNumber = require('./../util/convertDayCodeToNumber');
 
+var LoggerFactory = require('./../logging/LoggerFactory');
+
 module.exports = function () {
 	'use strict';
 
 	function MarketStateInternal(handleProfileRequest) {
+		var _logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
+
 		var _book = {};
 		var _quote = {};
 		var _cvol = {};
@@ -3222,8 +3637,8 @@ module.exports = function () {
 			var p = _getOrCreateProfile(symbol);
 
 			if (!p && message.type !== 'REFRESH_QUOTE') {
-				console.warn('No profile found for ' + symbol);
-				console.log(message);
+				_logger.warn('No profile found for ' + symbol);
+				_logger.log(message);
 
 				return;
 			}
@@ -3459,8 +3874,8 @@ module.exports = function () {
 					q.vwap1 = message.value;
 					break;
 				default:
-					console.error('Unhandled Market Message:');
-					console.log(message);
+					_logger.error('Unhandled Market Message:');
+					_logger.log(message);
 					break;
 			}
 		};
@@ -3675,7 +4090,7 @@ module.exports = function () {
 	return MarketState;
 }();
 
-},{"./../util/convertDayCodeToNumber":22,"./CumulativeVolume":11,"./Profile":13,"./Quote":14,"@barchart/marketdata-utilities-js":35}],13:[function(require,module,exports){
+},{"./../logging/LoggerFactory":12,"./../util/convertDayCodeToNumber":25,"./CumulativeVolume":14,"./Profile":16,"./Quote":17,"@barchart/marketdata-utilities-js":38}],16:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -3825,7 +4240,7 @@ module.exports = function () {
 	return Profile;
 }();
 
-},{"./../util/parseSymbolType":27,"./../util/priceFormatter":28}],14:[function(require,module,exports){
+},{"./../util/parseSymbolType":30,"./../util/priceFormatter":31}],17:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -3951,7 +4366,7 @@ module.exports = function () {
 	return Quote;
 }();
 
-},{}],15:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 var MarketState = require('./MarketState');
@@ -3962,7 +4377,7 @@ module.exports = function () {
 	return MarketState;
 }();
 
-},{"./MarketState":12}],16:[function(require,module,exports){
+},{"./MarketState":15}],19:[function(require,module,exports){
 'use strict';
 
 var parseMessage = require('./parseMessage'),
@@ -3983,7 +4398,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./parseMessage":17,"./parseTimestamp":18,"./parseValue":19}],17:[function(require,module,exports){
+},{"./parseMessage":20,"./parseTimestamp":21,"./parseValue":22}],20:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -3994,7 +4409,7 @@ module.exports = function () {
 	return utilities.messageParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":35}],18:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":38}],21:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -4005,7 +4420,7 @@ module.exports = function () {
 	return utilities.timestampParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":35}],19:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":38}],22:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -4016,7 +4431,7 @@ module.exports = function () {
 	return utilities.priceParser;
 }();
 
-},{"@barchart/marketdata-utilities-js":35}],20:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":38}],23:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -4027,7 +4442,7 @@ module.exports = function () {
 	return utilities.convert.baseCodeToUnitCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":35}],21:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":38}],24:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -4038,7 +4453,7 @@ module.exports = function () {
 	return utilities.convert.dateToDayCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":35}],22:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":38}],25:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -4049,7 +4464,7 @@ module.exports = function () {
 	return utilities.convert.dayCodeToNumber;
 }();
 
-},{"@barchart/marketdata-utilities-js":35}],23:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":38}],26:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -4060,7 +4475,7 @@ module.exports = function () {
 	return utilities.convert.unitCodeToBaseCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":35}],24:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":38}],27:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -4071,7 +4486,7 @@ module.exports = function () {
 	return utilities.decimalFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":35}],25:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":38}],28:[function(require,module,exports){
 'use strict';
 
 var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode'),
@@ -4111,7 +4526,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convertBaseCodeToUnitCode":20,"./convertDateToDayCode":21,"./convertDayCodeToNumber":22,"./convertUnitCodeToBaseCode":23,"./decimalFormatter":24,"./monthCodes":26,"./parseSymbolType":27,"./priceFormatter":28,"./snapshotProvider":29,"./symbolResolver":30,"./timeFormatter":31}],26:[function(require,module,exports){
+},{"./convertBaseCodeToUnitCode":23,"./convertDateToDayCode":24,"./convertDayCodeToNumber":25,"./convertUnitCodeToBaseCode":26,"./decimalFormatter":27,"./monthCodes":29,"./parseSymbolType":30,"./priceFormatter":31,"./snapshotProvider":32,"./symbolResolver":33,"./timeFormatter":34}],29:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -4122,7 +4537,7 @@ module.exports = function () {
 	return utilities.monthCodes.getCodeToNameMap();
 }();
 
-},{"@barchart/marketdata-utilities-js":35}],27:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":38}],30:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -4133,7 +4548,7 @@ module.exports = function () {
 	return utilities.symbolParser.parseInstrumentType;
 }();
 
-},{"@barchart/marketdata-utilities-js":35}],28:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":38}],31:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -4144,7 +4559,7 @@ module.exports = function () {
 	return utilities.priceFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":35}],29:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":38}],32:[function(require,module,exports){
 'use strict';
 
 var xhr = require('xhr');
@@ -4423,7 +4838,7 @@ module.exports = function () {
 	return retrieveSnapshots;
 }();
 
-},{"./../common/lang/array":2,"./convertBaseCodeToUnitCode":20,"./convertDateToDayCode":21,"./convertDayCodeToNumber":22,"xhr":71}],30:[function(require,module,exports){
+},{"./../common/lang/array":2,"./convertBaseCodeToUnitCode":23,"./convertDateToDayCode":24,"./convertDayCodeToNumber":25,"xhr":74}],33:[function(require,module,exports){
 'use strict';
 
 var xhr = require('xhr');
@@ -4485,7 +4900,7 @@ module.exports = function () {
 	};
 }();
 
-},{"xhr":71}],31:[function(require,module,exports){
+},{"xhr":74}],34:[function(require,module,exports){
 'use strict';
 
 var utilities = require('@barchart/marketdata-utilities-js');
@@ -4496,7 +4911,7 @@ module.exports = function () {
 	return utilities.timeFormatter;
 }();
 
-},{"@barchart/marketdata-utilities-js":35}],32:[function(require,module,exports){
+},{"@barchart/marketdata-utilities-js":38}],35:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -4537,7 +4952,7 @@ module.exports = function () {
     return XmlDomParser;
 }();
 
-},{"xmldom":72}],33:[function(require,module,exports){
+},{"xmldom":75}],36:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -4693,7 +5108,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],34:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 var lodashIsNaN = require('lodash.isnan');
@@ -4755,7 +5170,7 @@ module.exports = function () {
 	};
 }();
 
-},{"lodash.isnan":62}],35:[function(require,module,exports){
+},{"lodash.isnan":65}],38:[function(require,module,exports){
 'use strict';
 
 var convert = require('./convert'),
@@ -4788,7 +5203,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convert":33,"./decimalFormatter":34,"./messageParser":36,"./monthCodes":37,"./priceFormatter":38,"./priceParser":39,"./stringToDecimalFormatter":40,"./symbolFormatter":41,"./symbolParser":42,"./timeFormatter":43,"./timestampParser":44}],36:[function(require,module,exports){
+},{"./convert":36,"./decimalFormatter":37,"./messageParser":39,"./monthCodes":40,"./priceFormatter":41,"./priceParser":42,"./stringToDecimalFormatter":43,"./symbolFormatter":44,"./symbolParser":45,"./timeFormatter":46,"./timestampParser":47}],39:[function(require,module,exports){
 'use strict';
 
 var parseValue = require('./priceParser'),
@@ -5269,7 +5684,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./common/xml/XmlDomParser":32,"./priceParser":39,"./timestampParser":44}],37:[function(require,module,exports){
+},{"./common/xml/XmlDomParser":35,"./priceParser":42,"./timestampParser":47}],40:[function(require,module,exports){
 "use strict";
 
 module.exports = function () {
@@ -5308,7 +5723,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],38:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 'use strict';
 
 var lodashIsNaN = require('lodash.isnan');
@@ -5441,7 +5856,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./decimalFormatter":34,"lodash.isnan":62}],39:[function(require,module,exports){
+},{"./decimalFormatter":37,"lodash.isnan":65}],42:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -5517,7 +5932,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],40:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 'use strict';
 
 var Converter = require('./convert');
@@ -5556,7 +5971,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./convert":33}],41:[function(require,module,exports){
+},{"./convert":36}],44:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -5573,7 +5988,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],42:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -6056,7 +6471,7 @@ module.exports = function () {
 	return symbolParser;
 }();
 
-},{}],43:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -6175,7 +6590,7 @@ module.exports = function () {
 	}
 }();
 
-},{}],44:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -6212,7 +6627,7 @@ module.exports = function () {
 	};
 }();
 
-},{}],45:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 'use strict';
 
 var keys = require('object-keys');
@@ -6272,7 +6687,7 @@ defineProperties.supportsDescriptors = !!supportsDescriptors;
 
 module.exports = defineProperties;
 
-},{"object-keys":64}],46:[function(require,module,exports){
+},{"object-keys":67}],49:[function(require,module,exports){
 'use strict';
 
 /* globals
@@ -6451,7 +6866,7 @@ module.exports = function GetIntrinsic(name, allowMissing) {
 	return INTRINSICS[key];
 };
 
-},{}],47:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('./GetIntrinsic');
@@ -6688,7 +7103,7 @@ var ES5 = {
 
 module.exports = ES5;
 
-},{"./GetIntrinsic":46,"./helpers/assertRecord":48,"./helpers/isFinite":49,"./helpers/isNaN":50,"./helpers/mod":51,"./helpers/sign":52,"es-to-primitive/es5":53,"has":59,"is-callable":60}],48:[function(require,module,exports){
+},{"./GetIntrinsic":49,"./helpers/assertRecord":51,"./helpers/isFinite":52,"./helpers/isNaN":53,"./helpers/mod":54,"./helpers/sign":55,"es-to-primitive/es5":56,"has":62,"is-callable":63}],51:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('../GetIntrinsic');
@@ -6739,28 +7154,28 @@ module.exports = function assertRecord(ES, recordType, argumentName, value) {
   console.log(predicate(ES, value), value);
 };
 
-},{"../GetIntrinsic":46,"has":59}],49:[function(require,module,exports){
+},{"../GetIntrinsic":49,"has":62}],52:[function(require,module,exports){
 var $isNaN = Number.isNaN || function (a) { return a !== a; };
 
 module.exports = Number.isFinite || function (x) { return typeof x === 'number' && !$isNaN(x) && x !== Infinity && x !== -Infinity; };
 
-},{}],50:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 module.exports = Number.isNaN || function isNaN(a) {
 	return a !== a;
 };
 
-},{}],51:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 module.exports = function mod(number, modulo) {
 	var remain = number % modulo;
 	return Math.floor(remain >= 0 ? remain : remain + modulo);
 };
 
-},{}],52:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 module.exports = function sign(number) {
 	return number >= 0 ? 1 : -1;
 };
 
-},{}],53:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 'use strict';
 
 var toStr = Object.prototype.toString;
@@ -6807,12 +7222,12 @@ module.exports = function ToPrimitive(input) {
 	return ES5internalSlots['[[DefaultValue]]'](input);
 };
 
-},{"./helpers/isPrimitive":54,"is-callable":60}],54:[function(require,module,exports){
+},{"./helpers/isPrimitive":57,"is-callable":63}],57:[function(require,module,exports){
 module.exports = function isPrimitive(value) {
 	return value === null || (typeof value !== 'function' && typeof value !== 'object');
 };
 
-},{}],55:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 'use strict';
 
 var isCallable = require('is-callable');
@@ -6876,7 +7291,7 @@ var forEach = function forEach(list, iterator, thisArg) {
 
 module.exports = forEach;
 
-},{"is-callable":60}],56:[function(require,module,exports){
+},{"is-callable":63}],59:[function(require,module,exports){
 'use strict';
 
 /* eslint no-invalid-this: 1 */
@@ -6930,14 +7345,14 @@ module.exports = function bind(that) {
     return bound;
 };
 
-},{}],57:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
 
 module.exports = Function.prototype.bind || implementation;
 
-},{"./implementation":56}],58:[function(require,module,exports){
+},{"./implementation":59}],61:[function(require,module,exports){
 (function (global){
 var win;
 
@@ -6954,14 +7369,14 @@ if (typeof window !== "undefined") {
 module.exports = win;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],59:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
 
 module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
 
-},{"function-bind":57}],60:[function(require,module,exports){
+},{"function-bind":60}],63:[function(require,module,exports){
 'use strict';
 
 var fnToStr = Function.prototype.toString;
@@ -7000,7 +7415,7 @@ module.exports = function isCallable(value) {
 	return strClass === fnClass || strClass === genClass;
 };
 
-},{}],61:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -7017,7 +7432,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],62:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -7129,7 +7544,7 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-},{}],63:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 'use strict';
 
 var keysShim;
@@ -7253,7 +7668,7 @@ if (!Object.keys) {
 }
 module.exports = keysShim;
 
-},{"./isArguments":65}],64:[function(require,module,exports){
+},{"./isArguments":68}],67:[function(require,module,exports){
 'use strict';
 
 var slice = Array.prototype.slice;
@@ -7287,7 +7702,7 @@ keysShim.shim = function shimObjectKeys() {
 
 module.exports = keysShim;
 
-},{"./implementation":63,"./isArguments":65}],65:[function(require,module,exports){
+},{"./implementation":66,"./isArguments":68}],68:[function(require,module,exports){
 'use strict';
 
 var toStr = Object.prototype.toString;
@@ -7306,7 +7721,7 @@ module.exports = function isArguments(value) {
 	return isArgs;
 };
 
-},{}],66:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 var trim = require('string.prototype.trim')
   , forEach = require('for-each')
   , isArray = function(arg) {
@@ -7339,7 +7754,7 @@ module.exports = function (headers) {
   return result
 }
 
-},{"for-each":55,"string.prototype.trim":68}],67:[function(require,module,exports){
+},{"for-each":58,"string.prototype.trim":71}],70:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -7354,7 +7769,7 @@ module.exports = function trim() {
 	return replace(replace(S, leftWhitespace, ''), rightWhitespace, '');
 };
 
-},{"es-abstract/es5":47,"function-bind":57}],68:[function(require,module,exports){
+},{"es-abstract/es5":50,"function-bind":60}],71:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -7374,7 +7789,7 @@ define(boundTrim, {
 
 module.exports = boundTrim;
 
-},{"./implementation":67,"./polyfill":69,"./shim":70,"define-properties":45,"function-bind":57}],69:[function(require,module,exports){
+},{"./implementation":70,"./polyfill":72,"./shim":73,"define-properties":48,"function-bind":60}],72:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
@@ -7388,7 +7803,7 @@ module.exports = function getPolyfill() {
 	return implementation;
 };
 
-},{"./implementation":67}],70:[function(require,module,exports){
+},{"./implementation":70}],73:[function(require,module,exports){
 'use strict';
 
 var define = require('define-properties');
@@ -7400,7 +7815,7 @@ module.exports = function shimStringTrim() {
 	return polyfill;
 };
 
-},{"./polyfill":69,"define-properties":45}],71:[function(require,module,exports){
+},{"./polyfill":72,"define-properties":48}],74:[function(require,module,exports){
 "use strict";
 var window = require("global/window")
 var isFunction = require("is-function")
@@ -7640,7 +8055,7 @@ function getXml(xhr) {
 
 function noop() {}
 
-},{"global/window":58,"is-function":61,"parse-headers":66,"xtend":75}],72:[function(require,module,exports){
+},{"global/window":61,"is-function":64,"parse-headers":69,"xtend":78}],75:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -7893,7 +8308,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":73,"./sax":74}],73:[function(require,module,exports){
+},{"./dom":76,"./sax":77}],76:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -9139,7 +9554,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],74:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -9774,7 +10189,7 @@ function split(source,start){
 exports.XMLReader = XMLReader;
 
 
-},{}],75:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
