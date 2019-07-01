@@ -450,6 +450,13 @@ module.exports = function () {
 	'use strict';
 
 	var object = {
+		/**
+   * Given an object, returns an array of "own" properties.
+   *
+   * @static
+   * @param {Object} target - The object to interrogate.
+   * @returns {Array<string>}
+   */
 		keys: function keys(target) {
 			var keys = [];
 
@@ -460,6 +467,29 @@ module.exports = function () {
 			}
 
 			return keys;
+		},
+
+
+		/**
+   * Given an object, returns a Boolean value, indicating if the
+   * object has any "own" properties.
+   *
+   * @static
+   * @param {Object} target - The object to interrogate.
+   * @returns {Boolean}
+   */
+		empty: function empty(target) {
+			var empty = true;
+
+			for (var k in target) {
+				if (target.hasOwnProperty(k)) {
+					empty = false;
+
+					break;
+				}
+			}
+
+			return empty;
 		}
 	};
 
@@ -1386,7 +1416,7 @@ module.exports = function () {
 				if (previousProducerListenerExists && !currentProducerListenerExists && !__paused) {
 					addTask(stopTaskName, producerSymbol);
 
-					if (getProducerSymbolCount() === 0) {
+					if (!getProducerSymbolsExist()) {
 						enqueueHeartbeat();
 					}
 				}
@@ -2119,7 +2149,17 @@ module.exports = function () {
    * @returns {Number}
    */
 		function getProducerSymbolCount() {
-			return getProducerSymbols([__listeners.marketDepth, __listeners.marketUpdate, __listeners.cumulativeVolume]).length;
+			return getProducerSymbols([__listeners.marketUpdate, __listeners.marketDepth, __listeners.cumulativeVolume]).length;
+		}
+
+		/**
+   * If true, if at least one "producer" symbol has user interest.
+   *
+   * @private
+   * @returns {Boolean}
+   */
+		function getProducerSymbolsExist() {
+			return !(object.empty(__listeners.marketUpdate) && object.empty(__listeners.marketDepth) && object.empty(__listeners.cumulativeVolume));
 		}
 
 		/**
@@ -2723,7 +2763,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.2.8'
+		version: '3.2.9'
 	};
 }();
 
