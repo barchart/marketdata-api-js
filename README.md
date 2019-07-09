@@ -34,7 +34,6 @@ Ensure you're running a recent version of Node.js (e.g. v10.16.0) and execute th
 
 [Read the Wiki for full documentation](https://github.com/barchart/marketdata-api-js/wiki)
 
-
 ### Code
 
 [JSDoc](http://usejsdoc.org/) is used to document the source code. HTML documentation can be generated (into a "docs" folder), as follows:
