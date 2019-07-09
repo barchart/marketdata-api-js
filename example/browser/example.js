@@ -2781,7 +2781,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.2.14'
+		version: '3.2.15'
 	};
 }();
 
@@ -4772,7 +4772,7 @@ module.exports = function () {
 					}
 
 					var first = result.stats[0];
-					var second = result.length > 1 ? result.stats[1] : null;
+					var second = result.stats.length > 1 ? result.stats[1] : null;
 
 					var match = first.date.match(regex.day);
 					var date = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
@@ -4796,8 +4796,6 @@ module.exports = function () {
 					message.dayNum = convertDayCodeToNumber(dayCode);
 
 					message.lastPrice = first.value;
-
-					debugger;
 
 					if (second !== null) {
 						message.previousPrice = second.value;
