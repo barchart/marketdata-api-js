@@ -4768,7 +4768,7 @@ module.exports = function () {
 
 				var messages = results.map(function (result) {
 					if (!result.stats || !result.stats.length > 0) {
-						return Promise.reject('The server returned an invalid response for ' + symbol + '.');
+						return Promise.reject('The server returned an invalid response for [ ' + symbol + ' ]');
 					}
 
 					var first = result.stats[0];
@@ -4796,6 +4796,8 @@ module.exports = function () {
 					message.dayNum = convertDayCodeToNumber(dayCode);
 
 					message.lastPrice = first.value;
+
+					debugger;
 
 					if (second !== null) {
 						message.previousPrice = second.value;
