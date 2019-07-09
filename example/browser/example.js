@@ -2781,7 +2781,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.2.13'
+		version: '3.2.14'
 	};
 }();
 
@@ -4788,7 +4788,7 @@ module.exports = function () {
 						message.symbol = result.shortSymbol.toUpperCase();
 					}
 
-					message.name = result.seriesDescription;
+					message.name = result.shortName;
 					message.exchange = 'CSTATS';
 					message.unitcode = 2;
 
@@ -4856,25 +4856,17 @@ module.exports = function () {
 				throw new Error('The "symbol" argument must be at least one character.');
 			}
 
-			return new Promise(function (resolveCallback, rejectCallback) {
-				try {
-					var options = {
-						url: 'https://instruments-prod.aws.barchart.com/instruments/' + encodeURIComponent(symbol),
-						method: 'GET'
-					};
+			var options = {
+				url: 'https://instruments-prod.aws.barchart.com/instruments/' + encodeURIComponent(symbol),
+				method: 'GET'
+			};
 
-					axios(options).then(function (response) {
-						if (!response.data || !response.data.instrument || !response.data.instrument.symbol) {
-							rejectCallback('The server was unable to resolve symbol ' + symbol + '.');
-						} else {
-							resolveCallback(response.data.instrument.symbol);
-						}
-					}).catch(function (error) {
-						rejectCallback(error);
-					});
-				} catch (executeError) {
-					rejectCallback(executeError);
+			return Promise.resolve(axios(options)).then(function (response) {
+				if (!response.data || !response.data.instrument || !response.data.instrument.symbol) {
+					throw new Error('The server was unable to resolve symbol ' + symbol + '.');
 				}
+
+				return response.data.instrument.symbol;
 			});
 		});
 	};
