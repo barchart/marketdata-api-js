@@ -4751,15 +4751,9 @@ module.exports = function () {
 	}
 
 	function retrieveSnapshotsUsingGetCmdtyStats(symbols, username, password) {
-		return Promise.all(symbols.map(function (symbol) {
-			return retrieveSnapshotUsingGetCmdtyStats(symbol, username, password);
-		}));
-	}
-
-	function retrieveSnapshotUsingGetCmdtyStats(symbol, username, password) {
 		return Promise.resolve().then(function () {
 			var options = {
-				url: 'https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getCmdtyStats.json?username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password) + '&symbol=' + encodeURIComponent(symbol),
+				url: 'https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getCmdtyQuotes.json?username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password) + '&symbols=' + encodeURIComponent(symbols.join(',')),
 				method: 'GET'
 			};
 
@@ -4771,10 +4765,7 @@ module.exports = function () {
 						return Promise.reject('The server returned an invalid response for [ ' + symbol + ' ]');
 					}
 
-					var first = result.stats[0];
-					var second = result.stats.length > 1 ? result.stats[1] : null;
-
-					var match = first.date.match(regex.day);
+					var match = result.tradeTimestamp.match(regex.day);
 					var date = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
 					var dayCode = convertDateToDayCode(date);
 
@@ -4795,10 +4786,10 @@ module.exports = function () {
 					message.day = dayCode;
 					message.dayNum = convertDayCodeToNumber(dayCode);
 
-					message.lastPrice = first.value;
+					message.lastPrice = result.lastPrice;
 
-					if (second !== null) {
-						message.previousPrice = second.value;
+					if (result.previousClose) {
+						message.previousPrice = result.previousClose;
 					}
 
 					message.lastUpdate = date;
