@@ -2781,7 +2781,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.2.16'
+		version: '3.2.17'
 	};
 }();
 
@@ -4785,7 +4785,7 @@ module.exports = function () {
 
 					message.name = result.shortName;
 					message.exchange = 'CSTATS';
-					message.unitcode = 2;
+					message.unitcode = '2';
 
 					message.day = dayCode;
 					message.dayNum = convertDayCodeToNumber(dayCode);
