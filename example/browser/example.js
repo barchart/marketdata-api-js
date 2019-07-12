@@ -2781,7 +2781,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.2.18'
+		version: '3.2.19'
 	};
 }();
 
@@ -4689,7 +4689,7 @@ module.exports = function () {
 					message.name = result.name;
 					message.exchange = result.exchange;
 
-					if (result.unitCode) {
+					if (result.unitCode !== null) {
 						message.unitcode = convertBaseCodeToUnitCode(parseInt(result.unitCode));
 					} else {
 						message.unitcode = '2';
