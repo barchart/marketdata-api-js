@@ -2781,7 +2781,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.2.17'
+		version: '3.2.18'
 	};
 }();
 
@@ -4688,7 +4688,12 @@ module.exports = function () {
 					message.symbol = result.symbol.toUpperCase();
 					message.name = result.name;
 					message.exchange = result.exchange;
-					message.unitcode = convertBaseCodeToUnitCode(parseInt(result.unitCode));
+
+					if (result.unitCode) {
+						message.unitcode = convertBaseCodeToUnitCode(parseInt(result.unitCode));
+					} else {
+						message.unitcode = '2';
+					}
 
 					message.tradeTime = new Date(result.tradeTimestamp);
 
