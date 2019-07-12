@@ -2781,7 +2781,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.2.15'
+		version: '3.2.16'
 	};
 }();
 
@@ -4760,9 +4760,13 @@ module.exports = function () {
 			return Promise.resolve(axios(options)).then(function (response) {
 				var results = response.data.results || [];
 
-				var messages = results.map(function (result) {
-					if (!result.stats || !result.stats.length > 0) {
-						return Promise.reject('The server returned an invalid response for [ ' + symbol + ' ]');
+				var messages = symbols.reduce(function (accumulator, symbol) {
+					var result = results.find(function (result) {
+						return result.symbol === symbol || result.shortSymbol === symbol;
+					});
+
+					if (!result) {
+						return accumulator;
 					}
 
 					var match = result.tradeTimestamp.match(regex.day);
@@ -4794,8 +4798,10 @@ module.exports = function () {
 
 					message.lastUpdate = date;
 
-					return message;
-				});
+					accumulator.push(message);
+
+					return accumulator;
+				}, []);
 
 				return messages;
 			});
