@@ -1310,6 +1310,12 @@ module.exports = function () {
 				var consumerSymbol = symbol;
 				var producerSymbol = utilities.symbolParser.getProducerSymbol(consumerSymbol);
 
+				if (utilities.symbolParser.getIsExpired(consumerSymbol)) {
+					__logger.warn('Connection: Ignoring subscription for expired symbol [ ' + consumerSymbol + ' ]');
+
+					return false;
+				}
+
 				addKnownConsumerSymbol(consumerSymbol, producerSymbol);
 
 				var producerListenerExists = getProducerListenerExists(producerSymbol, sharedListenerMaps.concat(listenerMap));
@@ -1323,6 +1329,8 @@ module.exports = function () {
 						addTask(streamingTaskName, producerSymbol);
 					}
 				}
+
+				return true;
 			};
 
 			switch (eventType) {
@@ -1330,27 +1338,27 @@ module.exports = function () {
 					__listeners.events = addListener(__listeners.events);
 					break;
 				case 'marketDepth':
-					subscribe('MD_GO', 'MD_REFRESH', __listeners.marketDepth, []);
-
-					if (__marketState.getBook(symbol)) {
-						handler({ type: 'INIT', symbol: symbol });
+					if (subscribe('MD_GO', 'MD_REFRESH', __listeners.marketDepth, [])) {
+						if (__marketState.getBook(symbol)) {
+							handler({ type: 'INIT', symbol: symbol });
+						}
 					}
 
 					break;
 				case 'marketUpdate':
-					subscribe('MU_GO', 'MU_REFRESH', __listeners.marketUpdate, [__listeners.cumulativeVolume]);
-
-					if (__marketState.getQuote(symbol)) {
-						handler({ type: 'INIT', symbol: symbol });
+					if (subscribe('MU_GO', 'MU_REFRESH', __listeners.marketUpdate, [__listeners.cumulativeVolume])) {
+						if (__marketState.getQuote(symbol)) {
+							handler({ type: 'INIT', symbol: symbol });
+						}
 					}
 
 					break;
 				case 'cumulativeVolume':
-					subscribe('MU_GO', 'MU_REFRESH', __listeners.cumulativeVolume, [__listeners.marketUpdate]);
-
-					__marketState.getCumulativeVolume(symbol, function (container) {
-						container.on('events', handler);
-					});
+					if (subscribe('MU_GO', 'MU_REFRESH', __listeners.cumulativeVolume, [__listeners.marketUpdate])) {
+						__marketState.getCumulativeVolume(symbol, function (container) {
+							container.on('events', handler);
+						});
+					}
 
 					break;
 				case 'timestamp':
@@ -2436,7 +2444,6 @@ module.exports = function () {
   * An interface for establishing and interacting with a WebSocket connection.
   *
   * @public
-  * @private
   * @interface
   */
 
@@ -2554,6 +2561,15 @@ module.exports = function () {
 		function WebSocketAdapterFactory() {
 			_classCallCheck(this, WebSocketAdapterFactory);
 		}
+
+		/**
+   * Returns a new {@link WebSocketAdapter} instance.
+   *
+   * @public
+   * @param {String} host
+   * @returns {null}
+   */
+
 
 		_createClass(WebSocketAdapterFactory, [{
 			key: 'build',
@@ -4264,6 +4280,7 @@ module.exports = function () {
   * Current market conditions for an instrument.
   *
   * @public
+  * @param {String=} symbol
   */
 
 	var Quote = function () {
@@ -5918,6 +5935,7 @@ module.exports = function () {
   */
 	return function (string, unitCode) {
 		var baseCode = Converter.unitCodeToBaseCode(unitCode);
+		var is_negative = false;
 
 		// Fix for 10-Yr T-Notes
 		if (baseCode === -4 && (string.length === 7 || string.length === 6 && string.charAt(0) !== '1')) {
@@ -5928,6 +5946,11 @@ module.exports = function () {
 			var ival = string * 1;
 			return Math.round(ival * Math.pow(10, baseCode)) / Math.pow(10, baseCode);
 		} else {
+			if (string.match(/^-/)) {
+				is_negative = true;
+				string = string.slice(1);
+			}
+
 			var has_dash = string.match(/-/);
 			var divisor = Math.pow(2, Math.abs(baseCode) + 2);
 			var fracsize = String(divisor).length;
@@ -5941,7 +5964,7 @@ module.exports = function () {
 				divisor = has_dash ? 320 : 128;
 			}
 
-			return numerator + denominator / divisor;
+			return (numerator + denominator / divisor) * (is_negative ? -1 : 1);
 		}
 	};
 }();
@@ -5982,6 +6005,21 @@ module.exports = function () {
 		R: 'V',
 		S: 'X',
 		T: 'Z'
+	};
+
+	var futuresMonthNumbers = {
+		F: 1,
+		G: 2,
+		H: 3,
+		J: 4,
+		K: 5,
+		M: 6,
+		N: 7,
+		Q: 8,
+		U: 8,
+		V: 10,
+		X: 11,
+		Z: 12
 	};
 
 	var predicates = {};
@@ -6193,6 +6231,12 @@ module.exports = function () {
 		return symbol;
 	});
 
+	function getCurrentMonth() {
+		var now = new Date();
+
+		return now.getMonth() + 1;
+	}
+
 	function getCurrentYear() {
 		var now = new Date();
 
@@ -6204,6 +6248,8 @@ module.exports = function () {
 
 		return yearString.substring(yearString.length - digits, yearString.length);
 	}
+
+	function getFuturesMonthNumber(monthString) {}
 
 	function getFuturesMonth(monthString) {
 		return alternateFuturesMonths[monthString] || monthString;
@@ -6428,6 +6474,37 @@ module.exports = function () {
    */
 		getIsBats: function getIsBats(symbol) {
 			return typeof symbol === 'string' && predicates.bats.test(symbol);
+		},
+
+		/**
+   * Returns true if the symbol has an expiration and the symbol appears
+   * to be expired (e.g. a future for a past year).
+   *
+   * @public
+   * @param {String} symbol
+   * @returns {Boolean}
+   */
+		getIsExpired: function getIsExpired(symbol) {
+			var definition = symbolParser.parseInstrumentType(symbol);
+
+			var returnVal = false;
+
+			if (definition !== null && definition.year && definition.month) {
+				var currentYear = getCurrentYear();
+
+				if (definition.year < currentYear) {
+					returnVal = true;
+				} else if (definition.year === currentYear && futuresMonthNumbers.hasOwnProperty(definition.month)) {
+					var currentMonth = getCurrentMonth();
+					var futuresMonth = futuresMonthNumbers[definition.month];
+
+					if (currentMonth > futuresMonth) {
+						returnVal = true;
+					}
+				}
+			}
+
+			return returnVal;
 		},
 
 		/**
