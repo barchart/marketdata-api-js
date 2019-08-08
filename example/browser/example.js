@@ -893,8 +893,8 @@ module.exports = function () {
 	var regex = {};
 
 	regex.cmdty = {};
-	regex.cmdty.short = /^(BC|BE|BL|EI|EU|CF|CB|UD)(.*)(.CM)$/i;
-	regex.cmdty.long = /^(BCSD-|BEA-|BLS-|EIA-|EURS-|CFTC-|USCB-|USDA-)/i;
+	regex.cmdty.short = /^(BC|BE|BL|CA|EI|EU|CF|CB|UD)(.*)(.CM)$/i;
+	regex.cmdty.long = /^(BCSD-|BEA-|BLS-|CANS-|EIA-|EURS-|CFTC-|USCB-|USDA-)/i;
 
 	regex.other = /:/i;
 
@@ -4605,8 +4605,8 @@ module.exports = function () {
 	regex.day = /^([0-9]{4}).?([0-9]{2}).?([0-9]{2})$/;
 
 	regex.cmdty = {};
-	regex.cmdty.short = /^(BC|BE|BL|EI|EU|CF|CB|UD)(.*)(.CM)$/i;
-	regex.cmdty.long = /^(BCSD-|BEA-|BLS-|EIA-|EURS-|CFTC-|USCB-|USDA-)/i;
+	regex.cmdty.short = /^(BC|BE|BL|CA|EI|EU|CF|CB|UD)(.*)(.CM)$/i;
+	regex.cmdty.long = /^(BCSD-|BEA-|BLS-|CANS-|EIA-|EURS-|CFTC-|USCB-|USDA-)/i;
 	regex.other = /:/i;
 
 	regex.c3 = {};
