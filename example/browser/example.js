@@ -2798,7 +2798,7 @@ module.exports = function () {
 		Util: util,
 		util: util,
 
-		version: '3.3.2'
+		version: '3.3.3'
 	};
 }();
 
