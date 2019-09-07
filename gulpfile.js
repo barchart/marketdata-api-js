@@ -91,16 +91,43 @@ gulp.task('build-example-bundle', function () {
 		.pipe(gulp.dest('./example/browser/'));
 });
 
-gulp.task('build-browser-tests', function () {
-    return browserify({ entries: glob.sync('test/specs/**/*.js') }).bundle()
-        .pipe(source('barchart-marketdata-api-tests-' + getVersionForComponent() + '.js'))
-        .pipe(buffer())
-        .pipe(gulp.dest('test/dist'));
-});
-
 gulp.task('build-browser-components', [ 'build-connection', 'build-util', 'build-historical-data', 'build-market-state', 'build-message-parser' ]);
 
 gulp.task('build', [ 'build-example-bundle' ]);
+
+
+gulp.task('build-browser-tests', function () {
+	return browserify({ entries: glob.sync('test/specs/**/*.js') }).bundle()
+		.pipe(source('barchart-marketdata-api-tests-' + getVersionForComponent() + '.js'))
+		.pipe(buffer())
+		.pipe(gulp.dest('test/dist'));
+});
+
+gulp.task('execute-browser-tests', function () {
+	return gulp.src('test/dist/barchart-marketdata-api-tests-' + getVersionForComponent() + '.js')
+		.pipe(jasmine());
+});
+
+gulp.task('execute-node-tests', function () {
+	return gulp.src(['lib/index.js', 'test/specs/**/*.js'])
+		.pipe(jasmine());
+});
+
+gulp.task('execute-tests', function (callback) {
+	runSequence(
+		'build-browser-tests',
+		'execute-node-tests',
+
+		function (error) {
+			if (error) {
+				console.log(error.message);
+			}
+
+			callback(error);
+		});
+});
+
+gulp.task('test', [ 'execute-tests' ]);
 
 gulp.task('release', function (callback) {
     runSequence(

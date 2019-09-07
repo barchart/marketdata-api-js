@@ -404,7 +404,7 @@ module.exports = function () {
 	});
 }();
 
-},{"./../../../lib/connection/websocket/Connection":6,"./../../../lib/index":10,"./../../../lib/util/symbolResolver":33}],2:[function(require,module,exports){
+},{"./../../../lib/connection/websocket/Connection":7,"./../../../lib/index":11,"./../../../lib/util/symbolResolver":36}],2:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -509,6 +509,47 @@ module.exports = function () {
 }();
 
 },{}],4:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var xmlDom = require('xmldom');
+
+module.exports = function () {
+    'use strict';
+
+    var XmlDomParser = function () {
+        function XmlDomParser() {
+            _classCallCheck(this, XmlDomParser);
+
+            this._xmlDomParser = new xmlDom.DOMParser();
+        }
+
+        _createClass(XmlDomParser, [{
+            key: 'parse',
+            value: function parse(textDocument) {
+                if (typeof textDocument !== 'string') {
+                    throw new Error('The "textDocument" argument must be a string.');
+                }
+
+                return this._xmlDomParser.parseFromString(textDocument, 'text/xml');
+            }
+        }, {
+            key: 'toString',
+            value: function toString() {
+                return '[XmlDomParser]';
+            }
+        }]);
+
+        return XmlDomParser;
+    }();
+
+    return XmlDomParser;
+}();
+
+},{"xmldom":66}],5:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -829,7 +870,7 @@ module.exports = function () {
 	return ConnectionBase;
 }();
 
-},{"./../marketState/MarketState":15}],5:[function(require,module,exports){
+},{"./../marketState/MarketState":16}],6:[function(require,module,exports){
 'use strict';
 
 var Connection = require('./websocket/Connection');
@@ -840,7 +881,7 @@ module.exports = function () {
 	return Connection;
 }();
 
-},{"./websocket/Connection":6}],6:[function(require,module,exports){
+},{"./websocket/Connection":7}],7:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -851,15 +892,14 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var utilities = require('@barchart/marketdata-utilities-js');
-
 var array = require('./../../common/lang/array'),
     object = require('./../../common/lang/object');
 
 var ConnectionBase = require('./../ConnectionBase'),
     parseMessage = require('./../../messageParser/parseMessage');
 
-var snapshotProvider = require('./../../util/snapshotProvider');
+var snapshotProvider = require('./../../util/snapshotProvider'),
+    symbolParser = require('./../../util/symbolParser');
 
 var WebSocketAdapterFactory = require('./adapter/WebSocketAdapterFactory'),
     WebSocketAdapterFactoryForBrowsers = require('./adapter/WebSocketAdapterFactoryForBrowsers');
@@ -1319,9 +1359,9 @@ module.exports = function () {
 
 			var subscribe = function subscribe(streamingTaskName, snapshotTaskName, listenerMap, sharedListenerMaps) {
 				var consumerSymbol = symbol;
-				var producerSymbol = utilities.symbolParser.getProducerSymbol(consumerSymbol);
+				var producerSymbol = symbolParser.getProducerSymbol(consumerSymbol);
 
-				if (utilities.symbolParser.getIsExpired(consumerSymbol)) {
+				if (symbolParser.getIsExpired(consumerSymbol)) {
 					__logger.warn('Connection: Ignoring subscription for expired symbol [ ' + consumerSymbol + ' ]');
 
 					return false;
@@ -1431,7 +1471,7 @@ module.exports = function () {
 
 			var unsubscribe = function unsubscribe(stopTaskName, listenerMap, sharedListenerMaps) {
 				var consumerSymbol = symbol;
-				var producerSymbol = utilities.symbolParser.getProducerSymbol(consumerSymbol);
+				var producerSymbol = symbolParser.getProducerSymbol(consumerSymbol);
 
 				var listenerMaps = sharedListenerMaps.concat(listenerMap);
 
@@ -1503,7 +1543,7 @@ module.exports = function () {
 				return;
 			}
 
-			var producerSymbol = utilities.symbolParser.getProducerSymbol(consumerSymbol);
+			var producerSymbol = symbolParser.getProducerSymbol(consumerSymbol);
 
 			var pendingConsumerSymbols = __pendingProfileSymbols[producerSymbol] || [];
 
@@ -2209,7 +2249,7 @@ module.exports = function () {
 		function getProducerSymbols(listenerMaps) {
 			var producerSymbols = listenerMaps.reduce(function (symbols, listenerMap) {
 				return symbols.concat(object.keys(listenerMap).map(function (consumerSymbol) {
-					return utilities.symbolParser.getProducerSymbol(consumerSymbol);
+					return symbolParser.getProducerSymbol(consumerSymbol);
 				}));
 			}, []);
 
@@ -2441,7 +2481,7 @@ module.exports = function () {
 	return Connection;
 }();
 
-},{"./../../common/lang/array":2,"./../../common/lang/object":3,"./../../logging/LoggerFactory":12,"./../../messageParser/parseMessage":20,"./../../util/snapshotProvider":32,"./../ConnectionBase":4,"./adapter/WebSocketAdapterFactory":8,"./adapter/WebSocketAdapterFactoryForBrowsers":9,"@barchart/marketdata-utilities-js":38}],7:[function(require,module,exports){
+},{"./../../common/lang/array":2,"./../../common/lang/object":3,"./../../logging/LoggerFactory":13,"./../../messageParser/parseMessage":21,"./../../util/snapshotProvider":34,"./../../util/symbolParser":35,"./../ConnectionBase":5,"./adapter/WebSocketAdapterFactory":9,"./adapter/WebSocketAdapterFactoryForBrowsers":10}],8:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2551,7 +2591,7 @@ module.exports = function () {
 	return WebSocketAdapter;
 }();
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2600,7 +2640,7 @@ module.exports = function () {
 	return WebSocketAdapterFactory;
 }();
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2787,7 +2827,7 @@ module.exports = function () {
 	return WebSocketAdapterFactoryForBrowsers;
 }();
 
-},{"./../../../logging/LoggerFactory":12,"./WebSocketAdapter":7,"./WebSocketAdapterFactory":8}],10:[function(require,module,exports){
+},{"./../../../logging/LoggerFactory":13,"./WebSocketAdapter":8,"./WebSocketAdapterFactory":9}],11:[function(require,module,exports){
 'use strict';
 
 var connection = require('./connection/index'),
@@ -2813,7 +2853,7 @@ module.exports = function () {
 	};
 }();
 
-},{"./connection/index":5,"./marketState/index":18,"./messageParser/index":19,"./util/index":28}],11:[function(require,module,exports){
+},{"./connection/index":6,"./marketState/index":19,"./messageParser/index":20,"./util/index":30}],12:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2908,7 +2948,7 @@ module.exports = function () {
 	return Logger;
 }();
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -3162,7 +3202,7 @@ module.exports = function () {
 	return LoggerFactory;
 }();
 
-},{"./Logger":11,"./LoggerProvider":13}],13:[function(require,module,exports){
+},{"./Logger":12,"./LoggerProvider":14}],14:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -3211,7 +3251,7 @@ module.exports = function () {
 	return LoggerProvider;
 }();
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -3518,20 +3558,19 @@ module.exports = function () {
 	return CumulativeVolume;
 }();
 
-},{"./../common/lang/object":3,"./../logging/LoggerFactory":12}],15:[function(require,module,exports){
+},{"./../common/lang/object":3,"./../logging/LoggerFactory":13}],16:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var utilities = require('@barchart/marketdata-utilities-js');
-
 var CumulativeVolume = require('./CumulativeVolume'),
     Profile = require('./Profile'),
     Quote = require('./Quote');
 
-var dayCodeToNumber = require('./../util/convertDayCodeToNumber');
+var dayCodeToNumber = require('./../util/convertDayCodeToNumber'),
+    symbolParser = require('./../util/symbolParser');
 
 var LoggerFactory = require('./../logging/LoggerFactory');
 
@@ -3558,7 +3597,7 @@ module.exports = function () {
 					asks: []
 				};
 
-				var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
+				var producerSymbol = symbolParser.getProducerSymbol(symbol);
 				var producerBook = _book[producerSymbol];
 
 				if (producerBook) {
@@ -3581,7 +3620,7 @@ module.exports = function () {
 					callbacks: []
 				};
 
-				var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
+				var producerSymbol = symbolParser.getProducerSymbol(symbol);
 				var producerCvol = _cvol[producerSymbol];
 
 				if (producerCvol && producerCvol.container) {
@@ -3598,7 +3637,7 @@ module.exports = function () {
 			var quote = _quote[symbol];
 
 			if (!quote) {
-				var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
+				var producerSymbol = symbolParser.getProducerSymbol(symbol);
 				var producerQuote = _quote[producerSymbol];
 
 				if (producerQuote) {
@@ -3617,7 +3656,7 @@ module.exports = function () {
 			var p = Profile.Profiles[symbol];
 
 			if (!p) {
-				var producerSymbol = utilities.symbolParser.getProducerSymbol(symbol);
+				var producerSymbol = symbolParser.getProducerSymbol(symbol);
 				var producerProfile = Profile.Profiles[producerSymbol];
 
 				if (producerProfile) {
@@ -4131,7 +4170,7 @@ module.exports = function () {
 	return MarketState;
 }();
 
-},{"./../logging/LoggerFactory":12,"./../util/convertDayCodeToNumber":25,"./CumulativeVolume":14,"./Profile":16,"./Quote":17,"@barchart/marketdata-utilities-js":38}],16:[function(require,module,exports){
+},{"./../logging/LoggerFactory":13,"./../util/convertDayCodeToNumber":27,"./../util/symbolParser":35,"./CumulativeVolume":15,"./Profile":17,"./Quote":18}],17:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -4281,7 +4320,7 @@ module.exports = function () {
 	return Profile;
 }();
 
-},{"./../util/parseSymbolType":30,"./../util/priceFormatter":31}],17:[function(require,module,exports){
+},{"./../util/parseSymbolType":32,"./../util/priceFormatter":33}],18:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -4413,7 +4452,7 @@ module.exports = function () {
 	return Quote;
 }();
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 var MarketState = require('./MarketState');
@@ -4424,7 +4463,7 @@ module.exports = function () {
 	return MarketState;
 }();
 
-},{"./MarketState":15}],19:[function(require,module,exports){
+},{"./MarketState":16}],20:[function(require,module,exports){
 'use strict';
 
 var parseMessage = require('./parseMessage'),
@@ -4445,95 +4484,868 @@ module.exports = function () {
 	};
 }();
 
-},{"./parseMessage":20,"./parseTimestamp":21,"./parseValue":22}],20:[function(require,module,exports){
+},{"./parseMessage":21,"./parseTimestamp":22,"./parseValue":23}],21:[function(require,module,exports){
 'use strict';
 
-var utilities = require('@barchart/marketdata-utilities-js');
+var parseValue = require('./parseValue'),
+    parseTimestamp = require('./parseTimestamp'),
+    XmlDomParser = require('./../common/xml/XmlDomParser');
+
+module.exports = function () {
+    'use strict';
+
+    return function (msg) {
+        var message = {
+            message: msg,
+            type: null
+        };
+
+        switch (msg.substr(0, 1)) {
+            case '%':
+                {
+                    // Jerq Refresh Messages
+                    var xmlDocument = void 0;
+
+                    try {
+                        var xmlDomParser = new XmlDomParser();
+                        xmlDocument = xmlDomParser.parse(msg.substring(1));
+                    } catch (e) {
+                        xmlDocument = undefined;
+                    }
+
+                    if (xmlDocument) {
+                        var node = xmlDocument.firstChild;
+
+                        switch (node.nodeName) {
+                            case 'BOOK':
+                                {
+                                    message.symbol = node.attributes.getNamedItem('symbol').value;
+                                    message.unitcode = node.attributes.getNamedItem('basecode').value;
+                                    message.askDepth = parseInt(node.attributes.getNamedItem('askcount').value);
+                                    message.bidDepth = parseInt(node.attributes.getNamedItem('bidcount').value);
+                                    message.asks = [];
+                                    message.bids = [];
+
+                                    var ary1 = void 0,
+                                        ary2 = void 0;
+
+                                    if (node.attributes.getNamedItem('askprices') && node.attributes.getNamedItem('asksizes')) {
+                                        ary1 = node.attributes.getNamedItem('askprices').value.split(',');
+                                        ary2 = node.attributes.getNamedItem('asksizes').value.split(',');
+
+                                        for (var i = 0; i < ary1.length; i++) {
+                                            message.asks.push({ "price": parseValue(ary1[i], message.unitcode), "size": parseInt(ary2[i]) });
+                                        }
+                                    }
+
+                                    if (node.attributes.getNamedItem('bidprices') && node.attributes.getNamedItem('bidsizes')) {
+                                        ary1 = node.attributes.getNamedItem('bidprices').value.split(',');
+                                        ary2 = node.attributes.getNamedItem('bidsizes').value.split(',');
+
+                                        for (var _i = 0; _i < ary1.length; _i++) {
+                                            message.bids.push({ "price": parseValue(ary1[_i], message.unitcode), "size": parseInt(ary2[_i]) });
+                                        }
+                                    }
+
+                                    message.type = 'BOOK';
+                                    break;
+                                }
+                            case 'QUOTE':
+                                {
+                                    for (var _i2 = 0; _i2 < node.attributes.length; _i2++) {
+                                        switch (node.attributes[_i2].name) {
+                                            case 'symbol':
+                                                message.symbol = node.attributes[_i2].value;
+                                                break;
+                                            case 'name':
+                                                message.name = node.attributes[_i2].value;
+                                                break;
+                                            case 'exchange':
+                                                message.exchange = node.attributes[_i2].value;
+                                                break;
+                                            case 'basecode':
+                                                message.unitcode = node.attributes[_i2].value;
+                                                break;
+                                            case 'pointvalue':
+                                                message.pointValue = parseFloat(node.attributes[_i2].value);
+                                                break;
+                                            case 'tickincrement':
+                                                message.tickIncrement = parseInt(node.attributes[_i2].value);
+                                                break;
+                                            case 'flag':
+                                                message.flag = node.attributes[_i2].value;
+                                                break;
+                                            case 'lastupdate':
+                                                {
+                                                    var v = node.attributes[_i2].value;
+                                                    message.lastUpdate = new Date(parseInt(v.substr(0, 4)), parseInt(v.substr(4, 2)) - 1, parseInt(v.substr(6, 2)), parseInt(v.substr(8, 2)), parseInt(v.substr(10, 2)), parseInt(v.substr(12, 2)));
+                                                    break;
+                                                }
+                                            case 'bid':
+                                                message.bidPrice = parseValue(node.attributes[_i2].value, message.unitcode);
+                                                break;
+                                            case 'bidsize':
+                                                message.bidSize = parseInt(node.attributes[_i2].value);
+                                                break;
+                                            case 'ask':
+                                                message.askPrice = parseValue(node.attributes[_i2].value, message.unitcode);
+                                                break;
+                                            case 'asksize':
+                                                message.askSize = parseInt(node.attributes[_i2].value);
+                                                break;
+                                            case 'mode':
+                                                message.mode = node.attributes[_i2].value;
+                                                break;
+                                        }
+                                    }
+
+                                    var sessions = {};
+
+                                    for (var j = 0; j < node.childNodes.length; j++) {
+                                        if (node.childNodes[j].nodeName == 'SESSION') {
+                                            var s = {};
+                                            var attributes = node.childNodes[j].attributes;
+
+                                            if (attributes.getNamedItem('id')) s.id = attributes.getNamedItem('id').value;
+                                            if (attributes.getNamedItem('day')) s.day = attributes.getNamedItem('day').value;
+                                            if (attributes.getNamedItem('last')) s.lastPrice = parseValue(attributes.getNamedItem('last').value, message.unitcode);
+                                            if (attributes.getNamedItem('previous')) s.previousPrice = parseValue(attributes.getNamedItem('previous').value, message.unitcode);
+                                            if (attributes.getNamedItem('open')) s.openPrice = parseValue(attributes.getNamedItem('open').value, message.unitcode);
+                                            if (attributes.getNamedItem('high')) s.highPrice = parseValue(attributes.getNamedItem('high').value, message.unitcode);
+                                            if (attributes.getNamedItem('low')) s.lowPrice = parseValue(attributes.getNamedItem('low').value, message.unitcode);
+                                            if (attributes.getNamedItem('tradesize')) s.tradeSize = parseInt(attributes.getNamedItem('tradesize').value);
+                                            if (attributes.getNamedItem('numtrades')) s.numberOfTrades = parseInt(attributes.getNamedItem('numtrades').value);
+                                            if (attributes.getNamedItem('settlement')) s.settlementPrice = parseValue(attributes.getNamedItem('settlement').value, message.unitcode);
+                                            if (attributes.getNamedItem('volume')) s.volume = parseInt(attributes.getNamedItem('volume').value);
+                                            if (attributes.getNamedItem('openinterest')) s.openInterest = parseInt(attributes.getNamedItem('openinterest').value);
+                                            if (attributes.getNamedItem('timestamp')) {
+                                                var _v = attributes.getNamedItem('timestamp').value;
+                                                s.timeStamp = new Date(parseInt(_v.substr(0, 4)), parseInt(_v.substr(4, 2)) - 1, parseInt(_v.substr(6, 2)), parseInt(_v.substr(8, 2)), parseInt(_v.substr(10, 2)), parseInt(_v.substr(12, 2)));
+                                            }
+                                            if (attributes.getNamedItem('tradetime')) {
+                                                var _v2 = attributes.getNamedItem('tradetime').value;
+                                                s.tradeTime = new Date(parseInt(_v2.substr(0, 4)), parseInt(_v2.substr(4, 2)) - 1, parseInt(_v2.substr(6, 2)), parseInt(_v2.substr(8, 2)), parseInt(_v2.substr(10, 2)), parseInt(_v2.substr(12, 2)));
+                                            }
+
+                                            if (attributes.getNamedItem('blocktrade')) s.blockTrade = parseValue(attributes.getNamedItem('blocktrade').value, message.unitcode);
+
+                                            if (s.id) sessions[s.id] = s;
+                                        }
+                                    }
+
+                                    var premarket = typeof sessions.combined.lastPrice === 'undefined';
+                                    var postmarket = !premarket && typeof sessions.combined.settlementPrice !== 'undefined';
+
+                                    var session = premarket ? sessions.previous : sessions.combined;
+
+                                    if (sessions.combined.previousPrice) {
+                                        message.previousPrice = sessions.combined.previousPrice;
+                                    } else {
+                                        message.previousPrice = sessions.previous.previousPrice;
+                                    }
+
+                                    if (session.lastPrice) message.lastPrice = session.lastPrice;
+                                    if (session.openPrice) message.openPrice = session.openPrice;
+                                    if (session.highPrice) message.highPrice = session.highPrice;
+                                    if (session.lowPrice) message.lowPrice = session.lowPrice;
+                                    if (session.tradeSize) message.tradeSize = session.tradeSize;
+                                    if (session.numberOfTrades) message.numberOfTrades = session.numberOfTrades;
+                                    if (session.settlementPrice) message.settlementPrice = session.settlementPrice;
+                                    if (session.volume) message.volume = session.volume;
+                                    if (session.openInterest) message.openInterest = session.openInterest;
+
+                                    if (session.blockTrade) message.blockTrade = session.blockTrade;
+
+                                    if (session.id === 'combined' && sessions.previous.openInterest) message.openInterest = sessions.previous.openInterest;
+                                    if (session.timeStamp) message.timeStamp = session.timeStamp;
+                                    if (session.tradeTime) message.tradeTime = session.tradeTime;
+
+                                    // 2016/10/29, BRI. We have a problem where we don't "roll" quotes
+                                    // for futures. For example, LEZ16 doesn't "roll" the settlementPrice
+                                    // to the previous price -- so, we did this on the open message (2,0A).
+                                    // Eero has another idea. Perhaps we are setting the "day" improperly
+                                    // here. Perhaps we should base the day off of the actual session
+                                    // (i.e. "session" variable) -- instead of taking it from the "combined"
+                                    // session.
+
+                                    if (sessions.combined.day) message.day = session.day;
+                                    if (premarket && typeof message.flag === 'undefined') message.flag = 'p';
+
+                                    var p = sessions.previous;
+
+                                    message.previousPreviousPrice = p.previousPrice;
+                                    message.previousSettlementPrice = p.settlementPrice;
+                                    message.previousOpenPrice = p.openPrice;
+                                    message.previousHighPrice = p.highPrice;
+                                    message.previousLowPrice = p.lowPrice;
+                                    message.previousTimeStamp = p.timeStamp;
+
+                                    if (sessions.combined.day) {
+                                        var sessionFormT = 'session_' + sessions.combined.day + '_T';
+
+                                        if (sessions.hasOwnProperty(sessionFormT)) {
+                                            var t = sessions[sessionFormT];
+
+                                            var lastPriceT = t.lastPrice;
+
+                                            if (lastPriceT) {
+                                                var tradeTimeT = t.tradeTime;
+                                                var tradeSizeT = t.tradeSize;
+
+                                                var sessionIsEvening = void 0;
+
+                                                if (tradeTimeT) {
+                                                    var noon = new Date(tradeTimeT.getFullYear(), tradeTimeT.getMonth(), tradeTimeT.getDate(), 12, 0, 0, 0);
+
+                                                    sessionIsEvening = tradeTimeT.getTime() > noon.getTime();
+                                                } else {
+                                                    sessionIsEvening = false;
+                                                }
+
+                                                message.sessionT = sessionIsEvening;
+
+                                                var sessionIsCurrent = premarket || sessionIsEvening;
+
+                                                if (sessionIsCurrent) {
+                                                    message.lastPriceT = lastPriceT;
+                                                }
+
+                                                if (premarket || postmarket) {
+                                                    message.session = 'T';
+
+                                                    if (sessionIsCurrent) {
+                                                        if (tradeTimeT) {
+                                                            message.tradeTime = tradeTimeT;
+                                                        }
+
+                                                        if (tradeSizeT) {
+                                                            message.tradeSize = tradeSizeT;
+                                                        }
+                                                    }
+
+                                                    if (premarket) {
+                                                        if (t.volume) {
+                                                            message.volume = t.volume;
+                                                        }
+
+                                                        if (t.previousPrice) {
+                                                            message.previousPrice = t.previousPrice;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    message.type = 'REFRESH_QUOTE';
+                                    break;
+                                }
+                            case 'CV':
+                                {
+                                    message.type = 'REFRESH_CUMULATIVE_VOLUME';
+                                    message.symbol = node.attributes.getNamedItem('symbol').value;
+                                    message.unitCode = node.attributes.getNamedItem('basecode').value;
+                                    message.tickIncrement = parseValue(node.attributes.getNamedItem('tickincrement').value, message.unitCode);
+
+                                    var dataAttribute = node.attributes.getNamedItem('data');
+
+                                    if (dataAttribute) {
+                                        var priceLevelsRaw = dataAttribute.value || '';
+                                        var priceLevels = priceLevelsRaw.split(':');
+
+                                        for (var _i3 = 0; _i3 < priceLevels.length; _i3++) {
+                                            var priceLevelRaw = priceLevels[_i3];
+                                            var priceLevelData = priceLevelRaw.split(',');
+
+                                            priceLevels[_i3] = {
+                                                price: parseValue(priceLevelData[0], message.unitCode),
+                                                volume: parseInt(priceLevelData[1])
+                                            };
+                                        }
+
+                                        priceLevels.sort(function (a, b) {
+                                            return a.price - b.price;
+                                        });
+
+                                        message.priceLevels = priceLevels;
+                                    } else {
+                                        message.priceLevels = [];
+                                    }
+
+                                    break;
+                                }
+                            default:
+                                console.log(msg);
+                                break;
+                        }
+                    }
+
+                    break;
+                }
+            case '\x01':
+                {
+                    // DDF Messages
+                    switch (msg.substr(1, 1)) {
+                        case '#':
+                            {
+                                // TO DO: Standardize the timezones for Daylight Savings
+                                message.type = 'TIMESTAMP';
+                                message.timestamp = new Date(parseInt(msg.substr(2, 4)), parseInt(msg.substr(6, 2)) - 1, parseInt(msg.substr(8, 2)), parseInt(msg.substr(10, 2)), parseInt(msg.substr(12, 2)), parseInt(msg.substr(14, 2)));
+                                break;
+                            }
+                        case 'C':
+                        case '2':
+                            {
+                                message.record = '2';
+                                var pos = msg.indexOf(',', 0);
+                                message.symbol = msg.substring(2, pos);
+                                message.subrecord = msg.substr(pos + 1, 1);
+                                message.unitcode = msg.substr(pos + 3, 1);
+                                message.exchange = msg.substr(pos + 4, 1);
+                                message.delay = parseInt(msg.substr(pos + 5, 2));
+                                switch (message.subrecord) {
+                                    case '0':
+                                        {
+                                            // TO DO: Error Handling / Sanity Check
+                                            var pos2 = msg.indexOf(',', pos + 7);
+                                            message.value = parseValue(msg.substring(pos + 7, pos2), message.unitcode);
+                                            message.element = msg.substr(pos2 + 1, 1);
+                                            message.modifier = msg.substr(pos2 + 2, 1);
+
+                                            switch (message.element) {
+                                                case 'A':
+                                                    message.type = 'OPEN';
+                                                    break;
+                                                case 'C':
+                                                    if (message.modifier == '1') message.type = 'OPEN_INTEREST';
+                                                    break;
+                                                case 'D':
+                                                case 'd':
+                                                    if (message.modifier == '0') message.type = 'SETTLEMENT';
+                                                    break;
+                                                case 'V':
+                                                    if (message.modifier == '0') message.type = 'VWAP';
+                                                    break;
+                                                case '0':
+                                                    {
+                                                        if (message.modifier == '0') {
+                                                            message.tradePrice = message.value;
+                                                            message.type = 'TRADE';
+                                                        }
+                                                        break;
+                                                    }
+                                                case '5':
+                                                    message.type = 'HIGH';
+                                                    break;
+                                                case '6':
+                                                    message.type = 'LOW';
+                                                    break;
+                                                case '7':
+                                                    {
+                                                        if (message.modifier == '1') message.type = 'VOLUME_YESTERDAY';else if (message.modifier == '6') message.type = 'VOLUME';
+                                                        break;
+                                                    }
+                                            }
+
+                                            message.day = msg.substr(pos2 + 3, 1);
+                                            message.session = msg.substr(pos2 + 4, 1);
+                                            message.time = parseTimestamp(msg.substr(msg.indexOf('\x03') + 1, 9));
+                                            break;
+                                        }
+                                    case '1':
+                                    case '2':
+                                    case '3':
+                                    case '4':
+                                        {
+                                            var ary = msg.substring(pos + 8).split(',');
+                                            message.openPrice = parseValue(ary[0], message.unitcode);
+                                            message.highPrice = parseValue(ary[1], message.unitcode);
+                                            message.lowPrice = parseValue(ary[2], message.unitcode);
+                                            message.lastPrice = parseValue(ary[3], message.unitcode);
+                                            message.bidPrice = parseValue(ary[4], message.unitcode);
+                                            message.askPrice = parseValue(ary[5], message.unitcode);
+                                            message.previousPrice = parseValue(ary[7], message.unitcode);
+                                            message.settlementPrice = parseValue(ary[10], message.unitcode);
+                                            message.volume = ary[13].length > 0 ? parseInt(ary[13]) : undefined;
+                                            message.openInterest = ary[12].length > 0 ? parseInt(ary[12]) : undefined;
+                                            message.day = ary[14].substr(0, 1);
+                                            message.session = ary[14].substr(1, 1);
+                                            message.time = parseTimestamp(msg.substr(msg.indexOf('\x03') + 1, 9));
+                                            message.type = 'REFRESH_DDF';
+                                            break;
+                                        }
+                                    case '7':
+                                        {
+                                            var _pos = msg.indexOf(',', pos + 7);
+                                            message.tradePrice = parseValue(msg.substring(pos + 7, _pos), message.unitcode);
+
+                                            pos = _pos + 1;
+                                            _pos = msg.indexOf(',', pos);
+                                            message.tradeSize = parseInt(msg.substring(pos, _pos));
+                                            pos = _pos + 1;
+                                            message.day = msg.substr(pos, 1);
+                                            message.session = msg.substr(pos + 1, 1);
+                                            message.time = parseTimestamp(msg.substr(msg.indexOf('\x03') + 1, 9));
+                                            message.type = 'TRADE';
+                                            break;
+                                        }
+                                    case '8':
+                                        {
+                                            var _pos2 = msg.indexOf(',', pos + 7);
+                                            message.bidPrice = parseValue(msg.substring(pos + 7, _pos2), message.unitcode);
+                                            pos = _pos2 + 1;
+                                            _pos2 = msg.indexOf(',', pos);
+                                            message.bidSize = parseInt(msg.substring(pos, _pos2));
+                                            pos = _pos2 + 1;
+                                            _pos2 = msg.indexOf(',', pos);
+                                            message.askPrice = parseValue(msg.substring(pos, _pos2), message.unitcode);
+                                            pos = _pos2 + 1;
+                                            _pos2 = msg.indexOf(',', pos);
+                                            message.askSize = parseInt(msg.substring(pos, _pos2));
+                                            pos = _pos2 + 1;
+                                            message.day = msg.substr(pos, 1);
+                                            message.session = msg.substr(pos + 1, 1);
+                                            message.time = parseTimestamp(msg.substr(msg.indexOf('\x03') + 1, 9));
+                                            message.type = 'TOB';
+                                            break;
+                                        }
+                                    case 'Z':
+                                        {
+                                            var _pos3 = msg.indexOf(',', pos + 7);
+                                            message.tradePrice = parseValue(msg.substring(pos + 7, _pos3), message.unitcode);
+
+                                            pos = _pos3 + 1;
+                                            _pos3 = msg.indexOf(',', pos);
+                                            message.tradeSize = parseInt(msg.substring(pos, _pos3));
+                                            pos = _pos3 + 1;
+                                            message.day = msg.substr(pos, 1);
+                                            message.session = msg.substr(pos + 1, 1);
+                                            message.time = parseTimestamp(msg.substr(msg.indexOf('\x03') + 1, 9));
+                                            message.type = 'TRADE_OUT_OF_SEQUENCE';
+                                            break;
+                                        }
+                                }
+                                break;
+                            }
+                        case '3':
+                            {
+                                var _pos4 = msg.indexOf(',', 0);
+                                message.symbol = msg.substring(2, _pos4);
+                                message.subrecord = msg.substr(_pos4 + 1, 1);
+                                switch (message.subrecord) {
+                                    case 'B':
+                                        {
+                                            message.unitcode = msg.substr(_pos4 + 3, 1);
+                                            message.exchange = msg.substr(_pos4 + 4, 1);
+                                            message.bidDepth = msg.substr(_pos4 + 5, 1) == 'A' ? 10 : parseInt(msg.substr(_pos4 + 5, 1));
+                                            message.askDepth = msg.substr(_pos4 + 6, 1) == 'A' ? 10 : parseInt(msg.substr(_pos4 + 6, 1));
+                                            message.bids = [];
+                                            message.asks = [];
+                                            var _ary = msg.substring(_pos4 + 8).split(',');
+                                            for (var _i4 = 0; _i4 < _ary.length; _i4++) {
+                                                var _ary2 = _ary[_i4].split(/[A-Z]/);
+                                                var c = _ary[_i4].substr(_ary2[0].length, 1);
+                                                if (c <= 'J') message.asks.push({ "price": parseValue(_ary2[0], message.unitcode), "size": parseInt(_ary2[1]) });else message.bids.push({ "price": parseValue(_ary2[0], message.unitcode), "size": parseInt(_ary2[1]) });
+                                            }
+
+                                            message.type = 'BOOK';
+                                            break;
+                                        }
+                                    default:
+                                        break;
+                                }
+
+                                break;
+                            }
+                        default:
+                            {
+                                message.type = 'UNKNOWN';
+                                break;
+                            }
+                    }
+                }
+        }
+
+        return message;
+    };
+}();
+
+},{"./../common/xml/XmlDomParser":4,"./parseTimestamp":22,"./parseValue":23}],22:[function(require,module,exports){
+'use strict';
 
 module.exports = function () {
 	'use strict';
 
-	return utilities.messageParser;
+	return function (bytes) {
+		if (bytes.length !== 9) {
+			return null;
+		}
+
+		var year = bytes.charCodeAt(0) * 100 + bytes.charCodeAt(1) - 64;
+		var month = bytes.charCodeAt(2) - 64 - 1;
+		var day = bytes.charCodeAt(3) - 64;
+		var hour = bytes.charCodeAt(4) - 64;
+		var minute = bytes.charCodeAt(5) - 64;
+		var second = bytes.charCodeAt(6) - 64;
+		var ms = (0xFF & bytes.charCodeAt(7)) + ((0xFF & bytes.charCodeAt(8)) << 8);
+
+		// 2016/02/17. JERQ is providing us with date and time values that
+		// are meant to be interpreted in the exchange's local timezone.
+		//
+		// This is interesting because different time values (e.g. 14:30 and
+		// 13:30) can refer to the same moment (e.g. EST for US equities and
+		// CST for US futures).
+		//
+		// Furthermore, when we use the timezone-sensitive Date object, we
+		// create a problem. The represents (computer) local time. So, for
+		// server applications, it is recommended that we use UTC -- so
+		// that the values (hours) are not changed when JSON serialized
+		// to ISO-8601 format. Then, the issue is passed along to the
+		// consumer (which must ignore the timezone too).
+
+		return new Date(year, month, day, hour, minute, second, ms);
+	};
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
-
-var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
 
-	return utilities.timestampParser;
+	var replaceExpressions = {};
+
+	function getReplaceExpression(thousandsSeparator) {
+		if (!replaceExpressions.hasOwnProperty(thousandsSeparator)) {
+			replaceExpressions[thousandsSeparator] = new RegExp(thousandsSeparator, 'g');
+		}
+
+		return replaceExpressions[thousandsSeparator];
+	}
+
+	return function (str, unitcode, thousandsSeparator) {
+		if (str.length < 1) {
+			return undefined;
+		} else if (str === '-') {
+			return null;
+		}
+
+		if (thousandsSeparator) {
+			str = str.replace(getReplaceExpression(thousandsSeparator), '');
+		}
+
+		if (!(str.indexOf('.') < 0)) {
+			return parseFloat(str);
+		}
+
+		var sign = str.substr(0, 1) == '-' ? -1 : 1;
+
+		if (sign === -1) {
+			str = str.substr(1);
+		}
+
+		switch (unitcode) {
+			case '2':
+				// 8ths
+				return sign * ((str.length > 1 ? parseInt(str.substr(0, str.length - 1)) : 0) + parseInt(str.substr(-1)) / 8);
+			case '3':
+				// 16ths
+				return sign * ((str.length > 2 ? parseInt(str.substr(0, str.length - 2)) : 0) + parseInt(str.substr(-2)) / 16);
+			case '4':
+				// 32ths
+				return sign * ((str.length > 2 ? parseInt(str.substr(0, str.length - 2)) : 0) + parseInt(str.substr(-2)) / 32);
+			case '5':
+				// 64ths
+				return sign * ((str.length > 2 ? parseInt(str.substr(0, str.length - 2)) : 0) + parseInt(str.substr(-2)) / 64);
+			case '6':
+				// 128ths
+				return sign * ((str.length > 3 ? parseInt(str.substr(0, str.length - 3)) : 0) + parseInt(str.substr(-3)) / 128);
+			case '7':
+				// 256ths
+				return sign * ((str.length > 3 ? parseInt(str.substr(0, str.length - 3)) : 0) + parseInt(str.substr(-3)) / 256);
+			case '8':
+				return sign * parseInt(str);
+			case '9':
+				return sign * (parseInt(str) / 10);
+			case 'A':
+				return sign * (parseInt(str) / 100);
+			case 'B':
+				return sign * (parseInt(str) / 1000);
+			case 'C':
+				return sign * (parseInt(str) / 10000);
+			case 'D':
+				return sign * (parseInt(str) / 100000);
+			case 'E':
+				return sign * (parseInt(str) / 1000000);
+			default:
+				return sign * parseInt(str);
+		}
+	};
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],22:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
-
-var utilities = require('@barchart/marketdata-utilities-js');
 
 module.exports = function () {
 	'use strict';
 
-	return utilities.priceParser;
+	function convertDayNumberToDayCode(d) {
+		if (d >= 1 && d <= 9) {
+			return String.fromCharCode("1".charCodeAt(0) + d - 1);
+		} else if (d == 10) {
+			return '0';
+		} else {
+			return String.fromCharCode("A".charCodeAt(0) + d - 11);
+		}
+	}
+
+	return {
+		/**
+   * Converts a unit code into a base code.
+   *
+   * @public
+   * @param {String} unitCode
+   * @return {Number}
+   */
+		unitCodeToBaseCode: function unitCodeToBaseCode(unitCode) {
+			switch (unitCode) {
+				case '2':
+					return -1;
+				case '3':
+					return -2;
+				case '4':
+					return -3;
+				case '5':
+					return -4;
+				case '6':
+					return -5;
+				case '7':
+					return -6;
+				case '8':
+					return 0;
+				case '9':
+					return 1;
+				case 'A':
+					return 2;
+				case 'B':
+					return 3;
+				case 'C':
+					return 4;
+				case 'D':
+					return 5;
+				case 'E':
+					return 6;
+				case 'F':
+					return 7;
+				default:
+					return 0;
+			}
+		},
+
+		/**
+   * Converts a base code into a unit code.
+   *
+   * @public
+   * @param {Number} baseCode
+   * @return {String}
+   */
+		baseCodeToUnitCode: function baseCodeToUnitCode(baseCode) {
+			switch (baseCode) {
+				case -1:
+					return '2';
+				case -2:
+					return '3';
+				case -3:
+					return '4';
+				case -4:
+					return '5';
+				case -5:
+					return '6';
+				case -6:
+					return '7';
+				case 0:
+					return '8';
+				case 1:
+					return '9';
+				case 2:
+					return 'A';
+				case 3:
+					return 'B';
+				case 4:
+					return 'C';
+				case 5:
+					return 'D';
+				case 6:
+					return 'E';
+				case 7:
+					return 'F';
+				default:
+					return 0;
+			}
+		},
+
+		/**
+   * Converts a date instance to a day code.
+   *
+   * @public
+   * @param {Date} date
+   * @returns {String|null}
+   */
+		dateToDayCode: function dateToDayCode(date) {
+			if (date === null || date === undefined) {
+				return null;
+			}
+
+			return convertDayNumberToDayCode(date.getDate());
+		},
+
+		/**
+   * Converts a day code (e.g. "A" ) to a day number (e.g. 11).
+   *
+   * @public
+   * @param {String} dayCode
+   * @returns {Number|null}
+   */
+		dayCodeToNumber: function dayCodeToNumber(dayCode) {
+			if (dayCode === null || dayCode === undefined || dayCode === '') {
+				return null;
+			}
+
+			var d = parseInt(dayCode, 31);
+
+			if (d > 9) {
+				d++;
+			} else if (d === 0) {
+				d = 10;
+			}
+
+			return d;
+		},
+
+		/**
+   * Converts a day number (e.g. the 11th of the month) in o a day code (e.g. 'A').
+   *
+   * @public
+   * @param {Number=} dayNumber
+   * @returns {Number|null}
+   */
+		numberToDayCode: function numberToDayCode(dayNumber) {
+			if (dayNumber === null || dayNumber === undefined) {
+				return null;
+			}
+
+			return convertDayNumberToDayCode(dayNumber);
+		}
+	};
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
-var utilities = require('@barchart/marketdata-utilities-js');
+var convert = require('./convert');
 
 module.exports = function () {
 	'use strict';
 
-	return utilities.convert.baseCodeToUnitCode;
+	return convert.baseCodeToUnitCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],24:[function(require,module,exports){
+},{"./convert":24}],26:[function(require,module,exports){
 'use strict';
 
-var utilities = require('@barchart/marketdata-utilities-js');
+var convert = require('./convert');
 
 module.exports = function () {
 	'use strict';
 
-	return utilities.convert.dateToDayCode;
+	return convert.dateToDayCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],25:[function(require,module,exports){
+},{"./convert":24}],27:[function(require,module,exports){
 'use strict';
 
-var utilities = require('@barchart/marketdata-utilities-js');
+var convert = require('./convert');
 
 module.exports = function () {
 	'use strict';
 
-	return utilities.convert.dayCodeToNumber;
+	return convert.dayCodeToNumber;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],26:[function(require,module,exports){
+},{"./convert":24}],28:[function(require,module,exports){
 'use strict';
 
-var utilities = require('@barchart/marketdata-utilities-js');
+var convert = require('./convert');
 
 module.exports = function () {
 	'use strict';
 
-	return utilities.convert.unitCodeToBaseCode;
+	return convert.unitCodeToBaseCode;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],27:[function(require,module,exports){
+},{"./convert":24}],29:[function(require,module,exports){
 'use strict';
 
-var utilities = require('@barchart/marketdata-utilities-js');
+var lodashIsNaN = require('lodash.isnan');
 
 module.exports = function () {
 	'use strict';
 
-	return utilities.decimalFormatter;
+	return function (value, digits, thousandsSeparator, useParenthesis) {
+		if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
+			return '';
+		}
+
+		var applyParenthesis = value < 0 && useParenthesis === true;
+
+		if (applyParenthesis) {
+			value = 0 - value;
+		}
+
+		var returnRef = value.toFixed(digits);
+
+		if (thousandsSeparator && !(value > -1000 && value < 1000)) {
+			var length = returnRef.length;
+			var negative = value < 0;
+
+			var found = digits === 0;
+			var counter = 0;
+
+			var buffer = [];
+
+			for (var i = length - 1; !(i < 0); i--) {
+				if (counter === 3 && !(negative && i === 0)) {
+					buffer.unshift(thousandsSeparator);
+
+					counter = 0;
+				}
+
+				var character = returnRef.charAt(i);
+
+				buffer.unshift(character);
+
+				if (found) {
+					counter = counter + 1;
+				} else if (character === '.') {
+					found = true;
+				}
+			}
+
+			if (applyParenthesis) {
+				buffer.unshift('(');
+				buffer.push(')');
+			}
+
+			returnRef = buffer.join('');
+		} else if (applyParenthesis) {
+			returnRef = '(' + returnRef + ')';
+		}
+
+		return returnRef;
+	};
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],28:[function(require,module,exports){
+},{"lodash.isnan":64}],30:[function(require,module,exports){
 'use strict';
 
 var convertBaseCodeToUnitCode = require('./convertBaseCodeToUnitCode'),
@@ -4573,40 +5385,190 @@ module.exports = function () {
 	};
 }();
 
-},{"./convertBaseCodeToUnitCode":23,"./convertDateToDayCode":24,"./convertDayCodeToNumber":25,"./convertUnitCodeToBaseCode":26,"./decimalFormatter":27,"./monthCodes":29,"./parseSymbolType":30,"./priceFormatter":31,"./snapshotProvider":32,"./symbolResolver":33,"./timeFormatter":34}],29:[function(require,module,exports){
-'use strict';
-
-var utilities = require('@barchart/marketdata-utilities-js');
+},{"./convertBaseCodeToUnitCode":25,"./convertDateToDayCode":26,"./convertDayCodeToNumber":27,"./convertUnitCodeToBaseCode":28,"./decimalFormatter":29,"./monthCodes":31,"./parseSymbolType":32,"./priceFormatter":33,"./snapshotProvider":34,"./symbolResolver":36,"./timeFormatter":37}],31:[function(require,module,exports){
+"use strict";
 
 module.exports = function () {
 	'use strict';
 
-	return utilities.monthCodes.getCodeToNameMap();
+	var monthMap = {};
+	var numberMap = {};
+
+	var addMonth = function addMonth(code, name, number) {
+		monthMap[code] = name;
+		numberMap[code] = number;
+	};
+
+	addMonth("F", "January", 1);
+	addMonth("G", "February", 2);
+	addMonth("H", "March", 3);
+	addMonth("J", "April", 4);
+	addMonth("K", "May", 5);
+	addMonth("M", "June", 6);
+	addMonth("N", "July", 7);
+	addMonth("Q", "August", 8);
+	addMonth("U", "September", 9);
+	addMonth("V", "October", 10);
+	addMonth("X", "November", 11);
+	addMonth("Z", "December", 12);
+	addMonth("Y", "Cash", 0);
+
+	return {
+		getCodeToNameMap: function getCodeToNameMap() {
+			return monthMap;
+		},
+
+		getCodeToNumberMap: function getCodeToNumberMap() {
+			return numberMap;
+		}
+	};
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],30:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
-var utilities = require('@barchart/marketdata-utilities-js');
+var symbolParser = require('./symbolParser');
 
 module.exports = function () {
 	'use strict';
 
-	return utilities.symbolParser.parseInstrumentType;
+	return symbolParser.parseInstrumentType;
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],31:[function(require,module,exports){
+},{"./symbolParser":35}],33:[function(require,module,exports){
 'use strict';
 
-var utilities = require('@barchart/marketdata-utilities-js');
+var lodashIsNaN = require('lodash.isnan');
+var decimalFormatter = require('./decimalFormatter');
 
 module.exports = function () {
 	'use strict';
 
-	return utilities.priceFormatter;
+	function frontPad(value, digits) {
+		return ['000', Math.floor(value)].join('').substr(-1 * digits);
+	}
+
+	return function (fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
+		var format = void 0;
+
+		function getWholeNumberAsString(value) {
+			var val = Math.floor(value);
+
+			if (val === 0 && fractionSeparator === '') {
+				return '';
+			} else {
+				return val;
+			}
+		}
+
+		function formatDecimal(value, digits) {
+			return decimalFormatter(value, digits, thousandsSeparator, useParenthesis);
+		}
+
+		if (fractionSeparator === '.') {
+			format = function format(value, unitcode) {
+				switch (unitcode) {
+					case '2':
+						return formatDecimal(value, 3);
+					case '3':
+						return formatDecimal(value, 4);
+					case '4':
+						return formatDecimal(value, 5);
+					case '5':
+						return formatDecimal(value, 6);
+					case '6':
+						return formatDecimal(value, 7);
+					case '7':
+						return formatDecimal(value, 8);
+					case '8':
+						return formatDecimal(value, 0);
+					case '9':
+						return formatDecimal(value, 1);
+					case 'A':
+						return formatDecimal(value, 2);
+					case 'B':
+						return formatDecimal(value, 3);
+					case 'C':
+						return formatDecimal(value, 4);
+					case 'D':
+						return formatDecimal(value, 5);
+					case 'E':
+						return formatDecimal(value, 6);
+					default:
+						if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
+							return '';
+						} else {
+							return value;
+						}
+				}
+			};
+		} else {
+			format = function format(value, unitcode) {
+				if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
+					return '';
+				}
+
+				var originalValue = value;
+				var absoluteValue = Math.abs(value);
+
+				var negative = value < 0;
+
+				var prefix = void 0;
+				var suffix = void 0;
+
+				if (negative) {
+					if (useParenthesis === true) {
+						prefix = '(';
+						suffix = ')';
+					} else {
+						prefix = '-';
+						suffix = '';
+					}
+				} else {
+					prefix = '';
+					suffix = '';
+				}
+
+				switch (unitcode) {
+					case '2':
+						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 8, 1), suffix].join('');
+					case '3':
+						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 16, 2), suffix].join('');
+					case '4':
+						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 32, 2), suffix].join('');
+					case '5':
+						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad(Math.floor(((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 64)).toFixed(1)), specialFractions ? 3 : 2), suffix].join('');
+					case '6':
+						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad(Math.floor(((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 128)).toFixed(1)), 3), suffix].join('');
+					case '7':
+						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 256), 3), suffix].join('');
+					case '8':
+						return formatDecimal(originalValue, 0);
+					case '9':
+						return formatDecimal(originalValue, 1);
+					case 'A':
+						return formatDecimal(originalValue, 2);
+					case 'B':
+						return formatDecimal(originalValue, 3);
+					case 'C':
+						return formatDecimal(originalValue, 4);
+					case 'D':
+						return formatDecimal(originalValue, 5);
+					case 'E':
+						return formatDecimal(originalValue, 6);
+					default:
+						return originalValue;
+				}
+			};
+		}
+
+		return {
+			format: format
+		};
+	};
 }();
 
-},{"@barchart/marketdata-utilities-js":38}],32:[function(require,module,exports){
+},{"./decimalFormatter":29,"lodash.isnan":64}],34:[function(require,module,exports){
 'use strict';
 
 var axios = require('axios');
@@ -4897,1145 +5859,7 @@ module.exports = function () {
 	return retrieveSnapshots;
 }();
 
-},{"./../common/lang/array":2,"./convertBaseCodeToUnitCode":23,"./convertDateToDayCode":24,"./convertDayCodeToNumber":25,"axios":48}],33:[function(require,module,exports){
-'use strict';
-
-var axios = require('axios');
-
-module.exports = function () {
-	'use strict';
-
-	/**
-  * Promise-based utility for resolving symbol aliases (e.g. ES*1 is a reference
-  * to the front month for the ES contract -- not a concrete symbol). This
-  * implementation is for use in browser environments.
-  *
-  * @public
-  * @param {string} - The symbol to lookup (i.e. the alias).
-  * @returns {Promise<string>}
-  */
-
-	return function (symbol) {
-		return Promise.resolve().then(function () {
-			if (typeof symbol !== 'string') {
-				throw new Error('The "symbol" argument must be a string.');
-			}
-
-			if (symbol.length === 0) {
-				throw new Error('The "symbol" argument must be at least one character.');
-			}
-
-			var options = {
-				url: 'https://instruments-prod.aws.barchart.com/instruments/' + encodeURIComponent(symbol),
-				method: 'GET'
-			};
-
-			return Promise.resolve(axios(options)).then(function (response) {
-				if (!response.data || !response.data.instrument || !response.data.instrument.symbol) {
-					throw new Error('The server was unable to resolve symbol ' + symbol + '.');
-				}
-
-				return response.data.instrument.symbol;
-			});
-		});
-	};
-}();
-
-},{"axios":48}],34:[function(require,module,exports){
-'use strict';
-
-var utilities = require('@barchart/marketdata-utilities-js');
-
-module.exports = function () {
-	'use strict';
-
-	return utilities.timeFormatter;
-}();
-
-},{"@barchart/marketdata-utilities-js":38}],35:[function(require,module,exports){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var xmlDom = require('xmldom');
-
-module.exports = function () {
-    'use strict';
-
-    var XmlDomParser = function () {
-        function XmlDomParser() {
-            _classCallCheck(this, XmlDomParser);
-
-            this._xmlDomParser = new xmlDom.DOMParser();
-        }
-
-        _createClass(XmlDomParser, [{
-            key: 'parse',
-            value: function parse(textDocument) {
-                if (typeof textDocument !== 'string') {
-                    throw new Error('The "textDocument" argument must be a string.');
-                }
-
-                return this._xmlDomParser.parseFromString(textDocument, 'text/xml');
-            }
-        }, {
-            key: 'toString',
-            value: function toString() {
-                return '[XmlDomParser]';
-            }
-        }]);
-
-        return XmlDomParser;
-    }();
-
-    return XmlDomParser;
-}();
-
-},{"xmldom":76}],36:[function(require,module,exports){
-'use strict';
-
-module.exports = function () {
-	'use strict';
-
-	function convertDayNumberToDayCode(d) {
-		if (d >= 1 && d <= 9) {
-			return String.fromCharCode("1".charCodeAt(0) + d - 1);
-		} else if (d == 10) {
-			return '0';
-		} else {
-			return String.fromCharCode("A".charCodeAt(0) + d - 11);
-		}
-	}
-
-	return {
-		/**
-   * Converts a unit code into a base code.
-   *
-   * @public
-   * @param {String} baseCode
-   * @return {Number}
-   */
-		unitCodeToBaseCode: function unitCodeToBaseCode(unitCode) {
-			switch (unitCode) {
-				case '2':
-					return -1;
-				case '3':
-					return -2;
-				case '4':
-					return -3;
-				case '5':
-					return -4;
-				case '6':
-					return -5;
-				case '7':
-					return -6;
-				case '8':
-					return 0;
-				case '9':
-					return 1;
-				case 'A':
-					return 2;
-				case 'B':
-					return 3;
-				case 'C':
-					return 4;
-				case 'D':
-					return 5;
-				case 'E':
-					return 6;
-				case 'F':
-					return 7;
-				default:
-					return 0;
-			}
-		},
-
-		/**
-   * Converts a base code into a unit code.
-   *
-   * @public
-   * @param {Number} baseCode
-   * @return {String}
-   */
-		baseCodeToUnitCode: function baseCodeToUnitCode(baseCode) {
-			switch (baseCode) {
-				case -1:
-					return '2';
-				case -2:
-					return '3';
-				case -3:
-					return '4';
-				case -4:
-					return '5';
-				case -5:
-					return '6';
-				case -6:
-					return '7';
-				case 0:
-					return '8';
-				case 1:
-					return '9';
-				case 2:
-					return 'A';
-				case 3:
-					return 'B';
-				case 4:
-					return 'C';
-				case 5:
-					return 'D';
-				case 6:
-					return 'E';
-				case 7:
-					return 'F';
-				default:
-					return 0;
-			}
-		},
-
-		/**
-   * Converts a date instance to a day code.
-   *
-   * @public
-   * @param {Date} date
-   * @returns {String|null}
-   */
-		dateToDayCode: function dateToDayCode(date) {
-			if (date === null || date === undefined) {
-				return null;
-			}
-
-			return convertDayNumberToDayCode(date.getDate());
-		},
-
-		/**
-   * Converts a day code (e.g. "A" ) to a day number (e.g. 11).
-   *
-   * @public
-   * @param {String} dayCode
-   * @returns {Number|null}
-   */
-		dayCodeToNumber: function dayCodeToNumber(dayCode) {
-			if (dayCode === null || dayCode === undefined || dayCode === '') {
-				return null;
-			}
-
-			var d = parseInt(dayCode, 31);
-
-			if (d > 9) {
-				d++;
-			} else if (d === 0) {
-				d = 10;
-			}
-
-			return d;
-		},
-
-		/**
-   * Converts a day number (e.g. the 11th of the month) in o a day code (e.g. 'A').
-   *
-   * @public
-   * @param {Number=} dayNumber
-   * @returns {Number|null}
-   */
-		numberToDayCode: function numberToDayCode(dayNumber) {
-			if (dayNumber === null || dayNumber === undefined) {
-				return null;
-			}
-
-			return convertDayNumberToDayCode(dayNumber);
-		}
-	};
-}();
-
-},{}],37:[function(require,module,exports){
-'use strict';
-
-var lodashIsNaN = require('lodash.isnan');
-
-module.exports = function () {
-	'use strict';
-
-	return function (value, digits, thousandsSeparator, useParenthesis) {
-		if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
-			return '';
-		}
-
-		var applyParenthesis = value < 0 && useParenthesis === true;
-
-		if (applyParenthesis) {
-			value = 0 - value;
-		}
-
-		var returnRef = value.toFixed(digits);
-
-		if (thousandsSeparator && !(value > -1000 && value < 1000)) {
-			var length = returnRef.length;
-			var negative = value < 0;
-
-			var found = digits === 0;
-			var counter = 0;
-
-			var buffer = [];
-
-			for (var i = length - 1; !(i < 0); i--) {
-				if (counter === 3 && !(negative && i === 0)) {
-					buffer.unshift(thousandsSeparator);
-
-					counter = 0;
-				}
-
-				var character = returnRef.charAt(i);
-
-				buffer.unshift(character);
-
-				if (found) {
-					counter = counter + 1;
-				} else if (character === '.') {
-					found = true;
-				}
-			}
-
-			if (applyParenthesis) {
-				buffer.unshift('(');
-				buffer.push(')');
-			}
-
-			returnRef = buffer.join('');
-		} else if (applyParenthesis) {
-			returnRef = '(' + returnRef + ')';
-		}
-
-		return returnRef;
-	};
-}();
-
-},{"lodash.isnan":74}],38:[function(require,module,exports){
-'use strict';
-
-var convert = require('./convert'),
-    decimalFormatter = require('./decimalFormatter'),
-    messageParser = require('./messageParser'),
-    monthCodes = require('./monthCodes'),
-    priceFormatter = require('./priceFormatter'),
-    symbolFormatter = require('./symbolFormatter'),
-    symbolParser = require('./symbolParser'),
-    priceParser = require('./priceParser'),
-    stringToDecimalFormatter = require('./stringToDecimalFormatter'),
-    timeFormatter = require('./timeFormatter'),
-    timestampParser = require('./timestampParser');
-
-module.exports = function () {
-	'use strict';
-
-	return {
-		convert: convert,
-		decimalFormatter: decimalFormatter,
-		monthCodes: monthCodes,
-		messageParser: messageParser,
-		priceFormatter: priceFormatter,
-		symbolParser: symbolParser,
-		priceParser: priceParser,
-		stringToDecimalFormatter: stringToDecimalFormatter,
-		symbolFormatter: symbolFormatter,
-		timeFormatter: timeFormatter,
-		timestampParser: timestampParser
-	};
-}();
-
-},{"./convert":36,"./decimalFormatter":37,"./messageParser":39,"./monthCodes":40,"./priceFormatter":41,"./priceParser":42,"./stringToDecimalFormatter":43,"./symbolFormatter":44,"./symbolParser":45,"./timeFormatter":46,"./timestampParser":47}],39:[function(require,module,exports){
-'use strict';
-
-var parseValue = require('./priceParser'),
-    parseTimestamp = require('./timestampParser'),
-    XmlDomParser = require('./common/xml/XmlDomParser');
-
-module.exports = function () {
-	'use strict';
-
-	return function (msg) {
-		var message = {
-			message: msg,
-			type: null
-		};
-
-		switch (msg.substr(0, 1)) {
-			case '%':
-				{
-					// Jerq Refresh Messages
-					var xmlDocument = void 0;
-
-					try {
-						var xmlDomParser = new XmlDomParser();
-						xmlDocument = xmlDomParser.parse(msg.substring(1));
-					} catch (e) {
-						xmlDocument = undefined;
-					}
-
-					if (xmlDocument) {
-						var node = xmlDocument.firstChild;
-
-						switch (node.nodeName) {
-							case 'BOOK':
-								{
-									message.symbol = node.attributes.getNamedItem('symbol').value;
-									message.unitcode = node.attributes.getNamedItem('basecode').value;
-									message.askDepth = parseInt(node.attributes.getNamedItem('bidcount').value);
-									message.bidDepth = parseInt(node.attributes.getNamedItem('bidcount').value);
-									message.asks = [];
-									message.bids = [];
-
-									var ary1 = void 0,
-									    ary2 = void 0;
-
-									if (node.attributes.getNamedItem('askprices') && node.attributes.getNamedItem('asksizes')) {
-										ary1 = node.attributes.getNamedItem('askprices').value.split(',');
-										ary2 = node.attributes.getNamedItem('asksizes').value.split(',');
-
-										for (var i = 0; i < ary1.length; i++) {
-											message.asks.push({ "price": parseValue(ary1[i], message.unitcode), "size": parseInt(ary2[i]) });
-										}
-									}
-
-									if (node.attributes.getNamedItem('bidprices') && node.attributes.getNamedItem('bidsizes')) {
-										ary1 = node.attributes.getNamedItem('bidprices').value.split(',');
-										ary2 = node.attributes.getNamedItem('bidsizes').value.split(',');
-
-										for (var _i = 0; _i < ary1.length; _i++) {
-											message.bids.push({ "price": parseValue(ary1[_i], message.unitcode), "size": parseInt(ary2[_i]) });
-										}
-									}
-
-									message.type = 'BOOK';
-									break;
-								}
-							case 'QUOTE':
-								{
-									for (var _i2 = 0; _i2 < node.attributes.length; _i2++) {
-										switch (node.attributes[_i2].name) {
-											case 'symbol':
-												message.symbol = node.attributes[_i2].value;
-												break;
-											case 'name':
-												message.name = node.attributes[_i2].value;
-												break;
-											case 'exchange':
-												message.exchange = node.attributes[_i2].value;
-												break;
-											case 'basecode':
-												message.unitcode = node.attributes[_i2].value;
-												break;
-											case 'pointvalue':
-												message.pointValue = parseFloat(node.attributes[_i2].value);
-												break;
-											case 'tickincrement':
-												message.tickIncrement = parseInt(node.attributes[_i2].value);
-												break;
-											case 'flag':
-												message.flag = node.attributes[_i2].value;
-												break;
-											case 'lastupdate':
-												{
-													var v = node.attributes[_i2].value;
-													message.lastUpdate = new Date(parseInt(v.substr(0, 4)), parseInt(v.substr(4, 2)) - 1, parseInt(v.substr(6, 2)), parseInt(v.substr(8, 2)), parseInt(v.substr(10, 2)), parseInt(v.substr(12, 2)));
-													break;
-												}
-											case 'bid':
-												message.bidPrice = parseValue(node.attributes[_i2].value, message.unitcode);
-												break;
-											case 'bidsize':
-												message.bidSize = parseInt(node.attributes[_i2].value);
-												break;
-											case 'ask':
-												message.askPrice = parseValue(node.attributes[_i2].value, message.unitcode);
-												break;
-											case 'asksize':
-												message.askSize = parseInt(node.attributes[_i2].value);
-												break;
-											case 'mode':
-												message.mode = node.attributes[_i2].value;
-												break;
-										}
-									}
-
-									var sessions = {};
-
-									for (var j = 0; j < node.childNodes.length; j++) {
-										if (node.childNodes[j].nodeName == 'SESSION') {
-											var s = {};
-											var attributes = node.childNodes[j].attributes;
-
-											if (attributes.getNamedItem('id')) s.id = attributes.getNamedItem('id').value;
-											if (attributes.getNamedItem('day')) s.day = attributes.getNamedItem('day').value;
-											if (attributes.getNamedItem('last')) s.lastPrice = parseValue(attributes.getNamedItem('last').value, message.unitcode);
-											if (attributes.getNamedItem('previous')) s.previousPrice = parseValue(attributes.getNamedItem('previous').value, message.unitcode);
-											if (attributes.getNamedItem('open')) s.openPrice = parseValue(attributes.getNamedItem('open').value, message.unitcode);
-											if (attributes.getNamedItem('high')) s.highPrice = parseValue(attributes.getNamedItem('high').value, message.unitcode);
-											if (attributes.getNamedItem('low')) s.lowPrice = parseValue(attributes.getNamedItem('low').value, message.unitcode);
-											if (attributes.getNamedItem('tradesize')) s.tradeSize = parseInt(attributes.getNamedItem('tradesize').value);
-											if (attributes.getNamedItem('numtrades')) s.numberOfTrades = parseInt(attributes.getNamedItem('numtrades').value);
-											if (attributes.getNamedItem('settlement')) s.settlementPrice = parseValue(attributes.getNamedItem('settlement').value, message.unitcode);
-											if (attributes.getNamedItem('volume')) s.volume = parseInt(attributes.getNamedItem('volume').value);
-											if (attributes.getNamedItem('openinterest')) s.openInterest = parseInt(attributes.getNamedItem('openinterest').value);
-											if (attributes.getNamedItem('timestamp')) {
-												var _v = attributes.getNamedItem('timestamp').value;
-												s.timeStamp = new Date(parseInt(_v.substr(0, 4)), parseInt(_v.substr(4, 2)) - 1, parseInt(_v.substr(6, 2)), parseInt(_v.substr(8, 2)), parseInt(_v.substr(10, 2)), parseInt(_v.substr(12, 2)));
-											}
-											if (attributes.getNamedItem('tradetime')) {
-												var _v2 = attributes.getNamedItem('tradetime').value;
-												s.tradeTime = new Date(parseInt(_v2.substr(0, 4)), parseInt(_v2.substr(4, 2)) - 1, parseInt(_v2.substr(6, 2)), parseInt(_v2.substr(8, 2)), parseInt(_v2.substr(10, 2)), parseInt(_v2.substr(12, 2)));
-											}
-
-											if (s.id) sessions[s.id] = s;
-										}
-									}
-
-									var premarket = typeof sessions.combined.lastPrice === 'undefined';
-									var postmarket = !premarket && typeof sessions.combined.settlementPrice !== 'undefined';
-
-									var session = premarket ? sessions.previous : sessions.combined;
-
-									if (sessions.combined.previousPrice) {
-										message.previousPrice = sessions.combined.previousPrice;
-									} else {
-										message.previousPrice = sessions.previous.previousPrice;
-									}
-
-									if (session.lastPrice) message.lastPrice = session.lastPrice;
-									if (session.openPrice) message.openPrice = session.openPrice;
-									if (session.highPrice) message.highPrice = session.highPrice;
-									if (session.lowPrice) message.lowPrice = session.lowPrice;
-									if (session.tradeSize) message.tradeSize = session.tradeSize;
-									if (session.numberOfTrades) message.numberOfTrades = session.numberOfTrades;
-									if (session.settlementPrice) message.settlementPrice = session.settlementPrice;
-									if (session.volume) message.volume = session.volume;
-									if (session.openInterest) message.openInterest = session.openInterest;
-									if (session.id === 'combined' && sessions.previous.openInterest) message.openInterest = sessions.previous.openInterest;
-									if (session.timeStamp) message.timeStamp = session.timeStamp;
-									if (session.tradeTime) message.tradeTime = session.tradeTime;
-
-									// 2016/10/29, BRI. We have a problem where we don't "roll" quotes
-									// for futures. For example, LEZ16 doesn't "roll" the settlementPrice
-									// to the previous price -- so, we did this on the open message (2,0A).
-									// Eero has another idea. Perhaps we are setting the "day" improperly
-									// here. Perhaps we should base the day off of the actual session
-									// (i.e. "session" variable) -- instead of taking it from the "combined"
-									// session.
-
-									if (sessions.combined.day) message.day = session.day;
-									if (premarket && typeof message.flag === 'undefined') message.flag = 'p';
-
-									var p = sessions.previous;
-
-									message.previousPreviousPrice = p.previousPrice;
-									message.previousSettlementPrice = p.settlementPrice;
-									message.previousOpenPrice = p.openPrice;
-									message.previousHighPrice = p.highPrice;
-									message.previousLowPrice = p.lowPrice;
-									message.previousTimeStamp = p.timeStamp;
-
-									if (sessions.combined.day) {
-										var sessionFormT = 'session_' + sessions.combined.day + '_T';
-
-										if (sessions.hasOwnProperty(sessionFormT)) {
-											var t = sessions[sessionFormT];
-
-											var lastPriceT = t.lastPrice;
-
-											if (lastPriceT) {
-												var tradeTimeT = t.tradeTime;
-												var tradeSizeT = t.tradeSize;
-
-												var sessionIsEvening = void 0;
-
-												if (tradeTimeT) {
-													var noon = new Date(tradeTimeT.getFullYear(), tradeTimeT.getMonth(), tradeTimeT.getDate(), 12, 0, 0, 0);
-
-													sessionIsEvening = tradeTimeT.getTime() > noon.getTime();
-												} else {
-													sessionIsEvening = false;
-												}
-
-												message.sessionT = sessionIsEvening;
-
-												var sessionIsCurrent = premarket || sessionIsEvening;
-
-												if (sessionIsCurrent) {
-													message.lastPriceT = lastPriceT;
-												}
-
-												if (premarket || postmarket) {
-													message.session = 'T';
-
-													if (sessionIsCurrent) {
-														if (tradeTimeT) {
-															message.tradeTime = tradeTimeT;
-														}
-
-														if (tradeSizeT) {
-															message.tradeSize = tradeSizeT;
-														}
-													}
-
-													if (premarket) {
-														if (t.volume) {
-															message.volume = t.volume;
-														}
-
-														if (t.previousPrice) {
-															message.previousPrice = t.previousPrice;
-														}
-													}
-												}
-											}
-										}
-									}
-
-									message.type = 'REFRESH_QUOTE';
-									break;
-								}
-							case 'CV':
-								{
-									message.type = 'REFRESH_CUMULATIVE_VOLUME';
-									message.symbol = node.attributes.getNamedItem('symbol').value;
-									message.unitCode = node.attributes.getNamedItem('basecode').value;
-									message.tickIncrement = parseValue(node.attributes.getNamedItem('tickincrement').value, message.unitCode);
-
-									var dataAttribute = node.attributes.getNamedItem('data');
-
-									if (dataAttribute) {
-										var priceLevelsRaw = dataAttribute.value || '';
-										var priceLevels = priceLevelsRaw.split(':');
-
-										for (var _i3 = 0; _i3 < priceLevels.length; _i3++) {
-											var priceLevelRaw = priceLevels[_i3];
-											var priceLevelData = priceLevelRaw.split(',');
-
-											priceLevels[_i3] = {
-												price: parseValue(priceLevelData[0], message.unitCode),
-												volume: parseInt(priceLevelData[1])
-											};
-										}
-
-										priceLevels.sort(function (a, b) {
-											return a.price - b.price;
-										});
-
-										message.priceLevels = priceLevels;
-									} else {
-										message.priceLevels = [];
-									}
-
-									break;
-								}
-							default:
-								console.log(msg);
-								break;
-						}
-					}
-
-					break;
-				}
-			case '\x01':
-				{
-					// DDF Messages
-					switch (msg.substr(1, 1)) {
-						case '#':
-							{
-								// TO DO: Standardize the timezones for Daylight Savings
-								message.type = 'TIMESTAMP';
-								message.timestamp = new Date(parseInt(msg.substr(2, 4)), parseInt(msg.substr(6, 2)) - 1, parseInt(msg.substr(8, 2)), parseInt(msg.substr(10, 2)), parseInt(msg.substr(12, 2)), parseInt(msg.substr(14, 2)));
-								break;
-							}
-						case 'C':
-						case '2':
-							{
-								message.record = '2';
-								var pos = msg.indexOf(',', 0);
-								message.symbol = msg.substring(2, pos);
-								message.subrecord = msg.substr(pos + 1, 1);
-								message.unitcode = msg.substr(pos + 3, 1);
-								message.exchange = msg.substr(pos + 4, 1);
-								message.delay = parseInt(msg.substr(pos + 5, 2));
-								switch (message.subrecord) {
-									case '0':
-										{
-											// TO DO: Error Handling / Sanity Check
-											var pos2 = msg.indexOf(',', pos + 7);
-											message.value = parseValue(msg.substring(pos + 7, pos2), message.unitcode);
-											message.element = msg.substr(pos2 + 1, 1);
-											message.modifier = msg.substr(pos2 + 2, 1);
-
-											switch (message.element) {
-												case 'A':
-													message.type = 'OPEN';
-													break;
-												case 'C':
-													if (message.modifier == '1') message.type = 'OPEN_INTEREST';
-													break;
-												case 'D':
-												case 'd':
-													if (message.modifier == '0') message.type = 'SETTLEMENT';
-													break;
-												case 'V':
-													if (message.modifier == '0') message.type = 'VWAP';
-													break;
-												case '0':
-													{
-														if (message.modifier == '0') {
-															message.tradePrice = message.value;
-															message.type = 'TRADE';
-														}
-														break;
-													}
-												case '5':
-													message.type = 'HIGH';
-													break;
-												case '6':
-													message.type = 'LOW';
-													break;
-												case '7':
-													{
-														if (message.modifier == '1') message.type = 'VOLUME_YESTERDAY';else if (message.modifier == '6') message.type = 'VOLUME';
-														break;
-													}
-											}
-
-											message.day = msg.substr(pos2 + 3, 1);
-											message.session = msg.substr(pos2 + 4, 1);
-											message.time = parseTimestamp(msg.substr(msg.indexOf('\x03') + 1, 9));
-											break;
-										}
-									case '1':
-									case '2':
-									case '3':
-									case '4':
-										{
-											var ary = msg.substring(pos + 8).split(',');
-											message.openPrice = parseValue(ary[0], message.unitcode);
-											message.highPrice = parseValue(ary[1], message.unitcode);
-											message.lowPrice = parseValue(ary[2], message.unitcode);
-											message.lastPrice = parseValue(ary[3], message.unitcode);
-											message.bidPrice = parseValue(ary[4], message.unitcode);
-											message.askPrice = parseValue(ary[5], message.unitcode);
-											message.previousPrice = parseValue(ary[7], message.unitcode);
-											message.settlementPrice = parseValue(ary[10], message.unitcode);
-											message.volume = ary[13].length > 0 ? parseInt(ary[13]) : undefined;
-											message.openInterest = ary[12].length > 0 ? parseInt(ary[12]) : undefined;
-											message.day = ary[14].substr(0, 1);
-											message.session = ary[14].substr(1, 1);
-											message.time = parseTimestamp(msg.substr(msg.indexOf('\x03') + 1, 9));
-											message.type = 'REFRESH_DDF';
-											break;
-										}
-									case '7':
-										{
-											var _pos = msg.indexOf(',', pos + 7);
-											message.tradePrice = parseValue(msg.substring(pos + 7, _pos), message.unitcode);
-
-											pos = _pos + 1;
-											_pos = msg.indexOf(',', pos);
-											message.tradeSize = parseInt(msg.substring(pos, _pos));
-											pos = _pos + 1;
-											message.day = msg.substr(pos, 1);
-											message.session = msg.substr(pos + 1, 1);
-											message.time = parseTimestamp(msg.substr(msg.indexOf('\x03') + 1, 9));
-											message.type = 'TRADE';
-											break;
-										}
-									case '8':
-										{
-											var _pos2 = msg.indexOf(',', pos + 7);
-											message.bidPrice = parseValue(msg.substring(pos + 7, _pos2), message.unitcode);
-											pos = _pos2 + 1;
-											_pos2 = msg.indexOf(',', pos);
-											message.bidSize = parseInt(msg.substring(pos, _pos2));
-											pos = _pos2 + 1;
-											_pos2 = msg.indexOf(',', pos);
-											message.askPrice = parseValue(msg.substring(pos, _pos2), message.unitcode);
-											pos = _pos2 + 1;
-											_pos2 = msg.indexOf(',', pos);
-											message.askSize = parseInt(msg.substring(pos, _pos2));
-											pos = _pos2 + 1;
-											message.day = msg.substr(pos, 1);
-											message.session = msg.substr(pos + 1, 1);
-											message.time = parseTimestamp(msg.substr(msg.indexOf('\x03') + 1, 9));
-											message.type = 'TOB';
-											break;
-										}
-									case 'Z':
-										{
-											var _pos3 = msg.indexOf(',', pos + 7);
-											message.tradePrice = parseValue(msg.substring(pos + 7, _pos3), message.unitcode);
-
-											pos = _pos3 + 1;
-											_pos3 = msg.indexOf(',', pos);
-											message.tradeSize = parseInt(msg.substring(pos, _pos3));
-											pos = _pos3 + 1;
-											message.day = msg.substr(pos, 1);
-											message.session = msg.substr(pos + 1, 1);
-											message.time = parseTimestamp(msg.substr(msg.indexOf('\x03') + 1, 9));
-											message.type = 'TRADE_OUT_OF_SEQUENCE';
-											break;
-										}
-								}
-								break;
-							}
-						case '3':
-							{
-								var _pos4 = msg.indexOf(',', 0);
-								message.symbol = msg.substring(2, _pos4);
-								message.subrecord = msg.substr(_pos4 + 1, 1);
-								switch (message.subrecord) {
-									case 'B':
-										{
-											message.unitcode = msg.substr(_pos4 + 3, 1);
-											message.exchange = msg.substr(_pos4 + 4, 1);
-											message.bidDepth = msg.substr(_pos4 + 5, 1) == 'A' ? 10 : parseInt(msg.substr(_pos4 + 5, 1));
-											message.askDepth = msg.substr(_pos4 + 6, 1) == 'A' ? 10 : parseInt(msg.substr(_pos4 + 6, 1));
-											message.bids = [];
-											message.asks = [];
-											var _ary = msg.substring(_pos4 + 8).split(',');
-											for (var _i4 = 0; _i4 < _ary.length; _i4++) {
-												var _ary2 = _ary[_i4].split(/[A-Z]/);
-												var c = _ary[_i4].substr(_ary2[0].length, 1);
-												if (c <= 'J') message.asks.push({ "price": parseValue(_ary2[0], message.unitcode), "size": parseInt(_ary2[1]) });else message.bids.push({ "price": parseValue(_ary2[0], message.unitcode), "size": parseInt(_ary2[1]) });
-											}
-
-											message.type = 'BOOK';
-											break;
-										}
-									default:
-										break;
-								}
-
-								break;
-							}
-						default:
-							{
-								message.type = 'UNKNOWN';
-								break;
-							}
-					}
-				}
-		}
-
-		return message;
-	};
-}();
-
-},{"./common/xml/XmlDomParser":35,"./priceParser":42,"./timestampParser":47}],40:[function(require,module,exports){
-"use strict";
-
-module.exports = function () {
-	'use strict';
-
-	var monthMap = {};
-	var numberMap = {};
-
-	var addMonth = function addMonth(code, name, number) {
-		monthMap[code] = name;
-		numberMap[code] = number;
-	};
-
-	addMonth("F", "January", 1);
-	addMonth("G", "February", 2);
-	addMonth("H", "March", 3);
-	addMonth("J", "April", 4);
-	addMonth("K", "May", 5);
-	addMonth("M", "June", 6);
-	addMonth("N", "July", 7);
-	addMonth("Q", "August", 8);
-	addMonth("U", "September", 9);
-	addMonth("V", "October", 10);
-	addMonth("X", "November", 11);
-	addMonth("Z", "December", 12);
-	addMonth("Y", "Cash", 0);
-
-	return {
-		getCodeToNameMap: function getCodeToNameMap() {
-			return monthMap;
-		},
-
-		getCodeToNumberMap: function getCodeToNumberMap() {
-			return numberMap;
-		}
-	};
-}();
-
-},{}],41:[function(require,module,exports){
-'use strict';
-
-var lodashIsNaN = require('lodash.isnan');
-var decimalFormatter = require('./decimalFormatter');
-
-module.exports = function () {
-	'use strict';
-
-	function frontPad(value, digits) {
-		return ['000', Math.floor(value)].join('').substr(-1 * digits);
-	}
-
-	return function (fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
-		var format = void 0;
-
-		function getWholeNumberAsString(value) {
-			var val = Math.floor(value);
-
-			if (val === 0 && fractionSeparator === '') {
-				return '';
-			} else {
-				return val;
-			}
-		}
-
-		function formatDecimal(value, digits) {
-			return decimalFormatter(value, digits, thousandsSeparator, useParenthesis);
-		}
-
-		if (fractionSeparator === '.') {
-			format = function format(value, unitcode) {
-				switch (unitcode) {
-					case '2':
-						return formatDecimal(value, 3);
-					case '3':
-						return formatDecimal(value, 4);
-					case '4':
-						return formatDecimal(value, 5);
-					case '5':
-						return formatDecimal(value, 6);
-					case '6':
-						return formatDecimal(value, 7);
-					case '7':
-						return formatDecimal(value, 8);
-					case '8':
-						return formatDecimal(value, 0);
-					case '9':
-						return formatDecimal(value, 1);
-					case 'A':
-						return formatDecimal(value, 2);
-					case 'B':
-						return formatDecimal(value, 3);
-					case 'C':
-						return formatDecimal(value, 4);
-					case 'D':
-						return formatDecimal(value, 5);
-					case 'E':
-						return formatDecimal(value, 6);
-					default:
-						if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
-							return '';
-						} else {
-							return value;
-						}
-				}
-			};
-		} else {
-			format = function format(value, unitcode) {
-				if (value === '' || value === undefined || value === null || lodashIsNaN(value)) {
-					return '';
-				}
-
-				var originalValue = value;
-				var absoluteValue = Math.abs(value);
-
-				var negative = value < 0;
-
-				var prefix = void 0;
-				var suffix = void 0;
-
-				if (negative) {
-					if (useParenthesis === true) {
-						prefix = '(';
-						suffix = ')';
-					} else {
-						prefix = '-';
-						suffix = '';
-					}
-				} else {
-					prefix = '';
-					suffix = '';
-				}
-
-				switch (unitcode) {
-					case '2':
-						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 8, 1), suffix].join('');
-					case '3':
-						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 16, 2), suffix].join('');
-					case '4':
-						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 32, 2), suffix].join('');
-					case '5':
-						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad(Math.floor(((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 64)).toFixed(1)), specialFractions ? 3 : 2), suffix].join('');
-					case '6':
-						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad(Math.floor(((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 128)).toFixed(1)), 3), suffix].join('');
-					case '7':
-						return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 256), 3), suffix].join('');
-					case '8':
-						return formatDecimal(originalValue, 0);
-					case '9':
-						return formatDecimal(originalValue, 1);
-					case 'A':
-						return formatDecimal(originalValue, 2);
-					case 'B':
-						return formatDecimal(originalValue, 3);
-					case 'C':
-						return formatDecimal(originalValue, 4);
-					case 'D':
-						return formatDecimal(originalValue, 5);
-					case 'E':
-						return formatDecimal(originalValue, 6);
-					default:
-						return originalValue;
-				}
-			};
-		}
-
-		return {
-			format: format
-		};
-	};
-}();
-
-},{"./decimalFormatter":37,"lodash.isnan":74}],42:[function(require,module,exports){
-'use strict';
-
-module.exports = function () {
-	'use strict';
-
-	var replaceExpressions = {};
-
-	function getReplaceExpression(thousandsSeparator) {
-		if (!replaceExpressions.hasOwnProperty(thousandsSeparator)) {
-			replaceExpressions[thousandsSeparator] = new RegExp(thousandsSeparator, 'g');
-		}
-
-		return replaceExpressions[thousandsSeparator];
-	}
-
-	return function (str, unitcode, thousandsSeparator) {
-		if (str.length < 1) {
-			return undefined;
-		} else if (str === '-') {
-			return null;
-		}
-
-		if (thousandsSeparator) {
-			str = str.replace(getReplaceExpression(thousandsSeparator), '');
-		}
-
-		if (!(str.indexOf('.') < 0)) {
-			return parseFloat(str);
-		}
-
-		var sign = str.substr(0, 1) == '-' ? -1 : 1;
-
-		if (sign === -1) {
-			str = str.substr(1);
-		}
-
-		switch (unitcode) {
-			case '2':
-				// 8ths
-				return sign * ((str.length > 1 ? parseInt(str.substr(0, str.length - 1)) : 0) + parseInt(str.substr(-1)) / 8);
-			case '3':
-				// 16ths
-				return sign * ((str.length > 2 ? parseInt(str.substr(0, str.length - 2)) : 0) + parseInt(str.substr(-2)) / 16);
-			case '4':
-				// 32ths
-				return sign * ((str.length > 2 ? parseInt(str.substr(0, str.length - 2)) : 0) + parseInt(str.substr(-2)) / 32);
-			case '5':
-				// 64ths
-				return sign * ((str.length > 2 ? parseInt(str.substr(0, str.length - 2)) : 0) + parseInt(str.substr(-2)) / 64);
-			case '6':
-				// 128ths
-				return sign * ((str.length > 3 ? parseInt(str.substr(0, str.length - 3)) : 0) + parseInt(str.substr(-3)) / 128);
-			case '7':
-				// 256ths
-				return sign * ((str.length > 3 ? parseInt(str.substr(0, str.length - 3)) : 0) + parseInt(str.substr(-3)) / 256);
-			case '8':
-				return sign * parseInt(str);
-			case '9':
-				return sign * (parseInt(str) / 10);
-			case 'A':
-				return sign * (parseInt(str) / 100);
-			case 'B':
-				return sign * (parseInt(str) / 1000);
-			case 'C':
-				return sign * (parseInt(str) / 10000);
-			case 'D':
-				return sign * (parseInt(str) / 100000);
-			case 'E':
-				return sign * (parseInt(str) / 1000000);
-			default:
-				return sign * parseInt(str);
-		}
-	};
-}();
-
-},{}],43:[function(require,module,exports){
-'use strict';
-
-var Converter = require('./convert');
-
-module.exports = function () {
-	/**
-  * Adapted from legacy code: https://github.com/barchart/php-jscharts/blob/372deb9b4d9ee678f32b6f8c4268434249c1b4ac/chart_package/webroot/js/deps/ddfplus/com.ddfplus.js
-  */
-	return function (string, unitCode) {
-		var baseCode = Converter.unitCodeToBaseCode(unitCode);
-		var is_negative = false;
-
-		// Fix for 10-Yr T-Notes
-		if (baseCode === -4 && (string.length === 7 || string.length === 6 && string.charAt(0) !== '1')) {
-			baseCode -= 1;
-		}
-
-		if (baseCode >= 0) {
-			var ival = string * 1;
-			return Math.round(ival * Math.pow(10, baseCode)) / Math.pow(10, baseCode);
-		} else {
-			if (string.match(/^-/)) {
-				is_negative = true;
-				string = string.slice(1);
-			}
-
-			var has_dash = string.match(/-/);
-			var divisor = Math.pow(2, Math.abs(baseCode) + 2);
-			var fracsize = String(divisor).length;
-			var denomstart = string.length - fracsize;
-			var numerend = denomstart;
-			if (string.substring(numerend - 1, numerend) == '-') numerend--;
-			var numerator = string.substring(0, numerend) * 1;
-			var denominator = string.substring(denomstart, string.length) * 1;
-
-			if (baseCode === -5) {
-				divisor = has_dash ? 320 : 128;
-			}
-
-			return (numerator + denominator / divisor) * (is_negative ? -1 : 1);
-		}
-	};
-}();
-
-},{"./convert":36}],44:[function(require,module,exports){
-'use strict';
-
-module.exports = function () {
-	'use strict';
-
-	return {
-		format: function format(symbol) {
-			if (symbol !== null && typeof symbol === 'string') {
-				return symbol.toUpperCase();
-			} else {
-				return symbol;
-			}
-		}
-	};
-}();
-
-},{}],45:[function(require,module,exports){
+},{"./../common/lang/array":2,"./convertBaseCodeToUnitCode":25,"./convertDateToDayCode":26,"./convertDayCodeToNumber":27,"axios":38}],35:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -6572,7 +6396,51 @@ module.exports = function () {
 	return symbolParser;
 }();
 
-},{}],46:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
+'use strict';
+
+var axios = require('axios');
+
+module.exports = function () {
+	'use strict';
+
+	/**
+  * Promise-based utility for resolving symbol aliases (e.g. ES*1 is a reference
+  * to the front month for the ES contract -- not a concrete symbol). This
+  * implementation is for use in browser environments.
+  *
+  * @public
+  * @param {string} - The symbol to lookup (i.e. the alias).
+  * @returns {Promise<string>}
+  */
+
+	return function (symbol) {
+		return Promise.resolve().then(function () {
+			if (typeof symbol !== 'string') {
+				throw new Error('The "symbol" argument must be a string.');
+			}
+
+			if (symbol.length === 0) {
+				throw new Error('The "symbol" argument must be at least one character.');
+			}
+
+			var options = {
+				url: 'https://instruments-prod.aws.barchart.com/instruments/' + encodeURIComponent(symbol),
+				method: 'GET'
+			};
+
+			return Promise.resolve(axios(options)).then(function (response) {
+				if (!response.data || !response.data.instrument || !response.data.instrument.symbol) {
+					throw new Error('The server was unable to resolve symbol ' + symbol + '.');
+				}
+
+				return response.data.instrument.symbol;
+			});
+		});
+	};
+}();
+
+},{"axios":38}],37:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -6691,46 +6559,9 @@ module.exports = function () {
 	}
 }();
 
-},{}],47:[function(require,module,exports){
-'use strict';
-
-module.exports = function () {
-	'use strict';
-
-	return function (bytes) {
-		if (bytes.length !== 9) {
-			return null;
-		}
-
-		var year = bytes.charCodeAt(0) * 100 + bytes.charCodeAt(1) - 64;
-		var month = bytes.charCodeAt(2) - 64 - 1;
-		var day = bytes.charCodeAt(3) - 64;
-		var hour = bytes.charCodeAt(4) - 64;
-		var minute = bytes.charCodeAt(5) - 64;
-		var second = bytes.charCodeAt(6) - 64;
-		var ms = (0xFF & bytes.charCodeAt(7)) + ((0xFF & bytes.charCodeAt(8)) << 8);
-
-		// 2016/02/17. JERQ is providing us with date and time values that
-		// are meant to be interpreted in the exchange's local timezone.
-		//
-		// This is interesting because different time values (e.g. 14:30 and
-		// 13:30) can refer to the same moment (e.g. EST for US equities and
-		// CST for US futures).
-		//
-		// Furthermore, when we use the timezone-sensitive Date object, we
-		// create a problem. The represents (computer) local time. So, for
-		// server applications, it is recommended that we use UTC -- so
-		// that the values (hours) are not changed when JSON serialized
-		// to ISO-8601 format. Then, the issue is passed along to the
-		// consumer (which must ignore the timezone too).
-
-		return new Date(year, month, day, hour, minute, second, ms);
-	};
-}();
-
-},{}],48:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 module.exports = require('./lib/axios');
-},{"./lib/axios":50}],49:[function(require,module,exports){
+},{"./lib/axios":40}],39:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -6906,7 +6737,7 @@ module.exports = function xhrAdapter(config) {
   });
 };
 
-},{"../core/createError":56,"./../core/settle":60,"./../helpers/buildURL":64,"./../helpers/cookies":66,"./../helpers/isURLSameOrigin":68,"./../helpers/parseHeaders":70,"./../utils":72}],50:[function(require,module,exports){
+},{"../core/createError":46,"./../core/settle":50,"./../helpers/buildURL":54,"./../helpers/cookies":56,"./../helpers/isURLSameOrigin":58,"./../helpers/parseHeaders":60,"./../utils":62}],40:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -6961,7 +6792,7 @@ module.exports = axios;
 // Allow use of default import syntax in TypeScript
 module.exports.default = axios;
 
-},{"./cancel/Cancel":51,"./cancel/CancelToken":52,"./cancel/isCancel":53,"./core/Axios":54,"./core/mergeConfig":59,"./defaults":62,"./helpers/bind":63,"./helpers/spread":71,"./utils":72}],51:[function(require,module,exports){
+},{"./cancel/Cancel":41,"./cancel/CancelToken":42,"./cancel/isCancel":43,"./core/Axios":44,"./core/mergeConfig":49,"./defaults":52,"./helpers/bind":53,"./helpers/spread":61,"./utils":62}],41:[function(require,module,exports){
 'use strict';
 
 /**
@@ -6982,7 +6813,7 @@ Cancel.prototype.__CANCEL__ = true;
 
 module.exports = Cancel;
 
-},{}],52:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 'use strict';
 
 var Cancel = require('./Cancel');
@@ -7041,14 +6872,14 @@ CancelToken.source = function source() {
 
 module.exports = CancelToken;
 
-},{"./Cancel":51}],53:[function(require,module,exports){
+},{"./Cancel":41}],43:[function(require,module,exports){
 'use strict';
 
 module.exports = function isCancel(value) {
   return !!(value && value.__CANCEL__);
 };
 
-},{}],54:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7136,7 +6967,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = Axios;
 
-},{"../helpers/buildURL":64,"./../utils":72,"./InterceptorManager":55,"./dispatchRequest":57,"./mergeConfig":59}],55:[function(require,module,exports){
+},{"../helpers/buildURL":54,"./../utils":62,"./InterceptorManager":45,"./dispatchRequest":47,"./mergeConfig":49}],45:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7190,7 +7021,7 @@ InterceptorManager.prototype.forEach = function forEach(fn) {
 
 module.exports = InterceptorManager;
 
-},{"./../utils":72}],56:[function(require,module,exports){
+},{"./../utils":62}],46:[function(require,module,exports){
 'use strict';
 
 var enhanceError = require('./enhanceError');
@@ -7210,7 +7041,7 @@ module.exports = function createError(message, config, code, request, response) 
   return enhanceError(error, config, code, request, response);
 };
 
-},{"./enhanceError":58}],57:[function(require,module,exports){
+},{"./enhanceError":48}],47:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7298,7 +7129,7 @@ module.exports = function dispatchRequest(config) {
   });
 };
 
-},{"../cancel/isCancel":53,"../defaults":62,"./../helpers/combineURLs":65,"./../helpers/isAbsoluteURL":67,"./../utils":72,"./transformData":61}],58:[function(require,module,exports){
+},{"../cancel/isCancel":43,"../defaults":52,"./../helpers/combineURLs":55,"./../helpers/isAbsoluteURL":57,"./../utils":62,"./transformData":51}],48:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7342,7 +7173,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
   return error;
 };
 
-},{}],59:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -7395,7 +7226,7 @@ module.exports = function mergeConfig(config1, config2) {
   return config;
 };
 
-},{"../utils":72}],60:[function(require,module,exports){
+},{"../utils":62}],50:[function(require,module,exports){
 'use strict';
 
 var createError = require('./createError');
@@ -7422,7 +7253,7 @@ module.exports = function settle(resolve, reject, response) {
   }
 };
 
-},{"./createError":56}],61:[function(require,module,exports){
+},{"./createError":46}],51:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7444,7 +7275,7 @@ module.exports = function transformData(data, headers, fns) {
   return data;
 };
 
-},{"./../utils":72}],62:[function(require,module,exports){
+},{"./../utils":62}],52:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -7546,7 +7377,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 module.exports = defaults;
 
 }).call(this,require('_process'))
-},{"./adapters/http":49,"./adapters/xhr":49,"./helpers/normalizeHeaderName":69,"./utils":72,"_process":75}],63:[function(require,module,exports){
+},{"./adapters/http":39,"./adapters/xhr":39,"./helpers/normalizeHeaderName":59,"./utils":62,"_process":65}],53:[function(require,module,exports){
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -7559,7 +7390,7 @@ module.exports = function bind(fn, thisArg) {
   };
 };
 
-},{}],64:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7632,7 +7463,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
-},{"./../utils":72}],65:[function(require,module,exports){
+},{"./../utils":62}],55:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7648,7 +7479,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
     : baseURL;
 };
 
-},{}],66:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7703,7 +7534,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":72}],67:[function(require,module,exports){
+},{"./../utils":62}],57:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7719,7 +7550,7 @@ module.exports = function isAbsoluteURL(url) {
   return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
 };
 
-},{}],68:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7789,7 +7620,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":72}],69:[function(require,module,exports){
+},{"./../utils":62}],59:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -7803,7 +7634,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
   });
 };
 
-},{"../utils":72}],70:[function(require,module,exports){
+},{"../utils":62}],60:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7858,7 +7689,7 @@ module.exports = function parseHeaders(headers) {
   return parsed;
 };
 
-},{"./../utils":72}],71:[function(require,module,exports){
+},{"./../utils":62}],61:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7887,7 +7718,7 @@ module.exports = function spread(callback) {
   };
 };
 
-},{}],72:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 'use strict';
 
 var bind = require('./helpers/bind');
@@ -8223,7 +8054,7 @@ module.exports = {
   trim: trim
 };
 
-},{"./helpers/bind":63,"is-buffer":73}],73:[function(require,module,exports){
+},{"./helpers/bind":53,"is-buffer":63}],63:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -8236,7 +8067,7 @@ module.exports = function isBuffer (obj) {
     typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
 }
 
-},{}],74:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -8348,7 +8179,7 @@ function isNumber(value) {
 
 module.exports = isNaN;
 
-},{}],75:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -8534,7 +8365,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],76:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -8787,7 +8618,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":77,"./sax":78}],77:[function(require,module,exports){
+},{"./dom":67,"./sax":68}],67:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -10033,7 +9864,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],78:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -10668,4 +10499,4 @@ function split(source,start){
 exports.XMLReader = XMLReader;
 
 
-},{}]},{},[10,1]);
+},{}]},{},[11,1]);
