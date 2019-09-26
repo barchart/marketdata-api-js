@@ -1,4 +1,4 @@
-let parseValue = require('./../../../lib/messageParser/parseValue');
+let parseValue = require('./../../../../lib/ddf/parsers/parseValue');
 
 describe('when parsing prices', () => {
 	'use strict';
