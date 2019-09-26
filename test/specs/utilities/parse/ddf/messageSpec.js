@@ -1,4 +1,4 @@
-const parseMessage = require('./../../../../../lib/utilities/ddf/parse/message');
+const parseMessage = require('../../../../../lib/utilities/parse/ddf/message');
 
 describe('when parsing an XML refresh message', () => {
 	'use strict';
