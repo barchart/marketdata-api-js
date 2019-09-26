@@ -1,9 +1,8 @@
 {
   "name": "barchart-marketdata-api",
-  "version": "3.2.26",
+  "version": "4.0.0",
   "homepage": "https://github.com/barchart/marketdata-api-js",
   "description": "Barchart Market Data API for JavaScript",
-  "main": "dist/barchart-marketdata-api-3.1.js",
   "dependencies": {},
   "keywords": [
     "Barchart",
@@ -20,7 +19,7 @@
   "authors": [
     "Barchart"
   ],
-  "license": "BCL",
+  "license": "MIT",
   "private": false,
   "ignore": [
     "**/.*",
