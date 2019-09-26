@@ -1,22 +1,17 @@
 var gulp = require('gulp');
 
-var babelify = require('babelify');
 var browserify = require('browserify');
 var buffer = require('vinyl-buffer');
 var bump = require('gulp-bump');
 var git = require('gulp-git');
 var gitStatus = require('git-get-status');
 var glob = require('glob');
-var helpers = require('babelify-external-helpers');
 var jasmine = require('gulp-jasmine');
 var jsdoc = require('gulp-jsdoc3');
 var jshint = require('gulp-jshint');
-var rename = require('gulp-rename');
 var replace = require('gulp-replace');
 var runSequence = require('run-sequence');
 var source = require('vinyl-source-stream');
-var uglify = require('gulp-uglify');
-var util = require('gulp-util');
 
 var fs = require('fs');
 
@@ -38,7 +33,7 @@ gulp.task('ensure-clean-working-directory', function() {
 
 gulp.task('bump-version', function () {
     return gulp.src([ './package.json', './bower.json' ])
-        .pipe(bump({ type: 'patch' }).on('error', util.log))
+        .pipe(bump({ type: 'patch' })
         .pipe(gulp.dest('./'));
 });
 
