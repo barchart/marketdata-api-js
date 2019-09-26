@@ -1,19 +1,19 @@
-var gulp = require('gulp');
+const gulp = require('gulp');
 
-var browserify = require('browserify');
-var buffer = require('vinyl-buffer');
-var bump = require('gulp-bump');
-var git = require('gulp-git');
-var gitStatus = require('git-get-status');
-var glob = require('glob');
-var jasmine = require('gulp-jasmine');
-var jsdoc = require('gulp-jsdoc3');
-var jshint = require('gulp-jshint');
-var replace = require('gulp-replace');
-var runSequence = require('run-sequence');
-var source = require('vinyl-source-stream');
+const fs = require('fs');
 
-var fs = require('fs');
+const browserify = require('browserify'),
+	buffer = require('vinyl-buffer'),
+	bump = require('gulp-bump'),
+	git = require('gulp-git'),
+	gitStatus = require('git-get-status'),
+	glob = require('glob'),
+	jasmine = require('gulp-jasmine'),
+	jsdoc = require('gulp-jsdoc3'),
+	jshint = require('gulp-jshint'),
+	replace = require('gulp-replace'),
+	runSequence = require('run-sequence'),
+	source = require('vinyl-source-stream');
 
 function getVersionFromPackage() {
     return JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
@@ -23,7 +23,7 @@ function getVersionForComponent() {
     return getVersionFromPackage().split('.').slice(0, 2).join('.');
 }
 
-gulp.task('ensure-clean-working-directory', function() {
+gulp.task('ensure-clean-working-directory', () => {
     gitStatus(function(err, status) {
         if (err, !status.clean) {
             throw new Error('Unable to proceed, your working directory is not clean.');
@@ -38,7 +38,7 @@ gulp.task('bump-version', function () {
 });
 
 gulp.task('document', function (cb) {
-	config = {
+	const config = {
 		"opts": {
 			"destination": "./docs"
 		},
@@ -49,7 +49,7 @@ gulp.task('document', function (cb) {
 });
 
 gulp.task('embed-version', function () {
-	var version = getVersionFromPackage();
+	const version = getVersionFromPackage();
 
 	return gulp.src(['./lib/index.js'])
 		.pipe(replace(/(version:\s*')([0-9]+\.[0-9]+\.[0-9]+)(')/g, '$1' + version + '$3'))
@@ -67,7 +67,7 @@ gulp.task('push-changes', function (cb) {
 });
 
 gulp.task('create-tag', function (cb) {
-    var version = getVersionFromPackage();
+    const version = getVersionFromPackage();
 
     git.tag(version, 'Release ' + version, function (error) {
         if (error) {
@@ -86,10 +86,7 @@ gulp.task('build-example-bundle', function () {
 		.pipe(gulp.dest('./example/browser/'));
 });
 
-gulp.task('build-browser-components', [ 'build-connection', 'build-util', 'build-historical-data', 'build-market-state', 'build-message-parser' ]);
-
 gulp.task('build', [ 'build-example-bundle' ]);
-
 
 gulp.task('build-browser-tests', function () {
 	return browserify({ entries: glob.sync('test/specs/**/*.js') }).bundle()
@@ -108,9 +105,10 @@ gulp.task('execute-node-tests', function () {
 		.pipe(jasmine());
 });
 
-gulp.task('execute-tests', function (callback) {
+gulp.task('tests', function (callback) {
 	runSequence(
 		'build-browser-tests',
+		'execute-browser-tests',
 		'execute-node-tests',
 
 		function (error) {
@@ -121,8 +119,6 @@ gulp.task('execute-tests', function (callback) {
 			callback(error);
 		});
 });
-
-gulp.task('test', [ 'execute-tests' ]);
 
 gulp.task('release', function (callback) {
     runSequence(
@@ -147,7 +143,7 @@ gulp.task('release', function (callback) {
         });
 });
 
-gulp.task('lint', function() {
+gulp.task('lint', () => {
     return gulp.src([ './lib/**/*.js', './test/specs/**/*.js' ])
         .pipe(jshint({'esversion': 6}))
         .pipe(jshint.reporter('default'));
