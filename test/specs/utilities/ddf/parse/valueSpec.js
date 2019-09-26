@@ -1,4 +1,4 @@
-let parseValue = require('./../../../../lib/utilities/ddf/parseValue');
+let parseValue = require('./../../../../../lib/utilities/ddf/parse/value');
 
 describe('when parsing prices', () => {
 	'use strict';
