@@ -19,7 +19,6 @@
       "url": "http://www.barchart.com"
     }
   ],
-  "main": "./lib/index.js",
   "scripts": {
     "test": "gulp test",
     "version": "npm run build && git add -A dist && git push --follow-tags",
