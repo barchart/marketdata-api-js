@@ -32,7 +32,7 @@ gulp.task('ensure-clean-working-directory', () => {
 });
 
 gulp.task('bump-version', function () {
-    return gulp.src([ './package.json', './bower.json' ])
+    return gulp.src([ './package.json' ])
         .pipe(bump({ type: 'patch' }))
         .pipe(gulp.dest('./'));
 });
@@ -57,7 +57,7 @@ gulp.task('embed-version', function () {
 });
 
 gulp.task('commit-changes', function () {
-    return gulp.src([ './', './dist/', './test/', './package.json', './bower.json', './lib/info.js' ])
+    return gulp.src([ './', './dist/', './test/', './package.json', './lib/info.js' ])
         .pipe(git.add())
         .pipe(git.commit('Release. Bump version number'));
 });
