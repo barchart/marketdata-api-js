@@ -1,4 +1,4 @@
-const version = require('./../../../lib/index').version;
+const version = require('./../../../lib/info').version;
 
 const Connection = require('./../../../lib/connection/websocket/Connection'),
 	symbolResolver = require('./../../../lib/util/symbolResolver');

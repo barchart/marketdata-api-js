@@ -51,13 +51,13 @@ gulp.task('document', function (cb) {
 gulp.task('embed-version', function () {
 	const version = getVersionFromPackage();
 
-	return gulp.src(['./lib/index.js'])
+	return gulp.src(['./lib/info.js'])
 		.pipe(replace(/(version:\s*')([0-9]+\.[0-9]+\.[0-9]+)(')/g, '$1' + version + '$3'))
 		.pipe(gulp.dest('./lib/'));
 });
 
 gulp.task('commit-changes', function () {
-    return gulp.src([ './', './dist/', './test/', './package.json', './bower.json', './lib/index.js' ])
+    return gulp.src([ './', './dist/', './test/', './package.json', './bower.json', './lib/info.js' ])
         .pipe(git.add())
         .pipe(git.commit('Release. Bump version number'));
 });
@@ -79,7 +79,7 @@ gulp.task('create-tag', function (cb) {
 });
 
 gulp.task('build-example-bundle', function () {
-	return browserify(['./lib/index.js', './example/browser/js/startup.js'])
+	return browserify([ './example/browser/js/startup.js' ])
 		.bundle()
 		.pipe(source('example.js'))
 		.pipe(buffer())
@@ -101,7 +101,7 @@ gulp.task('execute-browser-tests', function () {
 });
 
 gulp.task('execute-node-tests', function () {
-	return gulp.src(['lib/index.js', 'test/specs/**/*.js'])
+	return gulp.src(['test/specs/**/*.js'])
 		.pipe(jasmine());
 });
 
