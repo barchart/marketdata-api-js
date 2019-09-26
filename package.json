@@ -21,8 +21,9 @@
   ],
   "main": "./lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "version": "npm run build && git add -A dist && git push --follow-tags"
+    "test": "gulp test",
+    "version": "npm run build && git add -A dist && git push --follow-tags",
+    "watch": "gulp watch"
   },
   "repository": {
     "type": "git",
@@ -48,7 +49,9 @@
     "xmldom": "0.1.27"
   },
   "devDependencies": {
-    "browserify": "~11.2.0",
+    "@babel/core": "^7.6.2",
+    "babelify": "^10.0.0",
+    "browserify": "^16.5.0",
     "git-get-status": "^1.0.5",
     "glob": "^6.0.1",
     "gulp": "~3.9.0",
@@ -58,6 +61,7 @@
     "gulp-jasmine": "^2.2.1",
     "gulp-jsdoc3": "^1.0.1",
     "gulp-jshint": "~1.11.2",
+    "gulp-nodemon": "^2.4.2",
     "gulp-replace": "^0.5.4",
     "gulp-sourcemaps": "^1.6.0",
     "run-sequence": "~1.1.4",
@@ -67,12 +71,7 @@
   "browserify": {
     "transform": [
       [
-        "babelify",
-        {
-          "presets": [
-            "es2015"
-          ]
-        }
+        "babelify"
       ]
     ]
   },

@@ -105,7 +105,7 @@ gulp.task('execute-node-tests', function () {
 		.pipe(jasmine());
 });
 
-gulp.task('tests', function (callback) {
+gulp.task('test', function (callback) {
 	runSequence(
 		'build-browser-tests',
 		'execute-browser-tests',
