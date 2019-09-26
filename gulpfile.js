@@ -143,6 +143,10 @@ gulp.task('release', function (callback) {
         });
 });
 
+gulp.task('watch', () => {
+	gulp.watch('./lib/**/*.js', [ 'build-example-bundle' ]);
+});
+
 gulp.task('lint', () => {
     return gulp.src([ './lib/**/*.js', './test/specs/**/*.js' ])
         .pipe(jshint({'esversion': 6}))
