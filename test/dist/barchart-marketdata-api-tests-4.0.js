@@ -1110,6 +1110,8 @@ module.exports = (() => {
 })();
 
 },{"./numberToDayCode":13}],12:[function(require,module,exports){
+const is = require('@barchart/common-js/lang/is');
+
 module.exports = (() => {
   'use strict';
   /**
@@ -1121,7 +1123,7 @@ module.exports = (() => {
    */
 
   function convertDayCodeToNumber(dayCode) {
-    if (dayCode === null || dayCode === undefined || dayCode === '') {
+    if (!is.string(dayCode) || dayCode === '') {
       return null;
     }
 
@@ -1139,7 +1141,7 @@ module.exports = (() => {
   return convertDayCodeToNumber;
 })();
 
-},{}],13:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":23}],13:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
