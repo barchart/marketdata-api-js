@@ -1669,7 +1669,7 @@ module.exports = (() => {
   * @return {String}
   */
 
-	function baseCodeToUnitCode(baseCode) {
+	function convertBaseCodeToUnitCode(baseCode) {
 		switch (baseCode) {
 			case -1:
 				return '2';
@@ -1704,11 +1704,11 @@ module.exports = (() => {
 		}
 	}
 
-	return baseCodeToUnitCode;
+	return convertBaseCodeToUnitCode;
 })();
 
 },{}],16:[function(require,module,exports){
-const dayNumberToDayCode = require('./dayNumberToDayCode');
+const convertNumberToDayCode = require('./numberToDayCode');
 
 module.exports = (() => {
 	'use strict';
@@ -1722,18 +1722,18 @@ module.exports = (() => {
   * @returns {String|null}
   */
 
-	function dateToDayCode(date) {
+	function convertDateToDayCode(date) {
 		if (date === null || date === undefined) {
 			return null;
 		}
 
-		return dayNumberToDayCode(date.getDate());
+		return convertNumberToDayCode(date.getDate());
 	}
 
-	return dateToDayCode;
+	return convertDateToDayCode;
 })();
 
-},{"./dayNumberToDayCode":18}],17:[function(require,module,exports){
+},{"./numberToDayCode":18}],17:[function(require,module,exports){
 module.exports = (() => {
 	'use strict';
 
@@ -1745,7 +1745,7 @@ module.exports = (() => {
   * @returns {Number|null}
   */
 
-	function dayCodeToNumber(dayCode) {
+	function convertDayCodeToNumber(dayCode) {
 		if (dayCode === null || dayCode === undefined || dayCode === '') {
 			return null;
 		}
@@ -1761,7 +1761,7 @@ module.exports = (() => {
 		return d;
 	}
 
-	return dayCodeToNumber;
+	return convertDayCodeToNumber;
 })();
 
 },{}],18:[function(require,module,exports){
@@ -1780,7 +1780,7 @@ module.exports = (() => {
   * @param {Number} d
   * @returns {String}
   */
-	function convertDayNumberToDayCode(d) {
+	function convertNumberToDayCode(d) {
 		if (d >= 1 && d <= 9) {
 			return String.fromCharCode(ASCII_ONE + d - 1);
 		} else if (d == 10) {
@@ -1790,7 +1790,7 @@ module.exports = (() => {
 		}
 	}
 
-	return convertDayNumberToDayCode;
+	return convertNumberToDayCode;
 })();
 
 },{}],19:[function(require,module,exports){
@@ -1805,7 +1805,7 @@ module.exports = (() => {
   * @return {Number}
   */
 
-	function unitCodeToBaseCode(unitCode) {
+	function convertUnitCodeToBaseCode(unitCode) {
 		switch (unitCode) {
 			case '2':
 				return -1;
@@ -1840,7 +1840,7 @@ module.exports = (() => {
 		}
 	}
 
-	return unitCodeToBaseCode;
+	return convertUnitCodeToBaseCode;
 })();
 
 },{}],20:[function(require,module,exports){
@@ -7686,647 +7686,647 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 });
 
 },{"./../../../lib/util/timeFormatter":14}],36:[function(require,module,exports){
-const baseCodeToUnitCode = require('./../../../../lib/utilities/convert/baseCodeToUnitCode');
+const convertBaseCodeToUnitCode = require('./../../../../lib/utilities/convert/baseCodeToUnitCode');
 
 describe('When converting a baseCode to a unitCode', () => {
 	it('-1 should translate to "2"', () => {
-		expect(baseCodeToUnitCode(-1)).toEqual('2');
+		expect(convertBaseCodeToUnitCode(-1)).toEqual('2');
 	});
 
 	it('-2 should translate to "3"', () => {
-		expect(baseCodeToUnitCode(-2)).toEqual('3');
+		expect(convertBaseCodeToUnitCode(-2)).toEqual('3');
 	});
 
 	it('-3 should translate to "4"', () => {
-		expect(baseCodeToUnitCode(-3)).toEqual('4');
+		expect(convertBaseCodeToUnitCode(-3)).toEqual('4');
 	});
 
 	it('-4 should translate to "5"', () => {
-		expect(baseCodeToUnitCode(-4)).toEqual('5');
+		expect(convertBaseCodeToUnitCode(-4)).toEqual('5');
 	});
 
 	it('-5 should translate to "6"', () => {
-		expect(baseCodeToUnitCode(-5)).toEqual('6');
+		expect(convertBaseCodeToUnitCode(-5)).toEqual('6');
 	});
 
 	it('-6 should translate to "7"', () => {
-		expect(baseCodeToUnitCode(-6)).toEqual('7');
+		expect(convertBaseCodeToUnitCode(-6)).toEqual('7');
 	});
 
 	it('0 should translate to "8"', () => {
-		expect(baseCodeToUnitCode(0)).toEqual('8');
+		expect(convertBaseCodeToUnitCode(0)).toEqual('8');
 	});
 
 	it('1 should translate to "9"', () => {
-		expect(baseCodeToUnitCode(1)).toEqual('9');
+		expect(convertBaseCodeToUnitCode(1)).toEqual('9');
 	});
 
 	it('2 should translate to "A"', () => {
-		expect(baseCodeToUnitCode(2)).toEqual('A');
+		expect(convertBaseCodeToUnitCode(2)).toEqual('A');
 	});
 
 	it('3 should translate to "B"', () => {
-		expect(baseCodeToUnitCode(3)).toEqual('B');
+		expect(convertBaseCodeToUnitCode(3)).toEqual('B');
 	});
 
 	it('4 should translate to "C"', () => {
-		expect(baseCodeToUnitCode(4)).toEqual('C');
+		expect(convertBaseCodeToUnitCode(4)).toEqual('C');
 	});
 
 	it('5 should translate to "D"', () => {
-		expect(baseCodeToUnitCode(5)).toEqual('D');
+		expect(convertBaseCodeToUnitCode(5)).toEqual('D');
 	});
 
 	it('6 should translate to "E"', () => {
-		expect(baseCodeToUnitCode(6)).toEqual('E');
+		expect(convertBaseCodeToUnitCode(6)).toEqual('E');
 	});
 
 	it('7 should translate to "F"', () => {
-		expect(baseCodeToUnitCode(7)).toEqual('F');
+		expect(convertBaseCodeToUnitCode(7)).toEqual('F');
 	});
 
 	it('"-1" should translate to 0', () => {
-		expect(baseCodeToUnitCode("-1")).toEqual(0);
+		expect(convertBaseCodeToUnitCode("-1")).toEqual(0);
 	});
 
 	it('A null value should translate to 0', () => {
-		expect(baseCodeToUnitCode(null)).toEqual(0);
+		expect(convertBaseCodeToUnitCode(null)).toEqual(0);
 	});
 
 	it('An undefined value should translate to 0', () => {
-		expect(baseCodeToUnitCode(undefined)).toEqual(0);
+		expect(convertBaseCodeToUnitCode(undefined)).toEqual(0);
 	});
 });
 
 },{"./../../../../lib/utilities/convert/baseCodeToUnitCode":15}],37:[function(require,module,exports){
-const dateToDayCode = require('./../../../../lib/utilities/convert/dateToDayCode');
+const convertDateToDayCode = require('./../../../../lib/utilities/convert/dateToDayCode');
 
 describe('When converting a date instance to a day code', () => {
 	it('"Jan 1, 2016" should translate to 1', () => {
-		expect(dateToDayCode(new Date(2016, 0, 1))).toEqual('1');
+		expect(convertDateToDayCode(new Date(2016, 0, 1))).toEqual('1');
 	});
 
 	it('"Jan 2, 2016" should translate to 2', () => {
-		expect(dateToDayCode(new Date(2016, 0, 2))).toEqual('2');
+		expect(convertDateToDayCode(new Date(2016, 0, 2))).toEqual('2');
 	});
 
 	it('"Jan 3, 2016" should translate to 3', () => {
-		expect(dateToDayCode(new Date(2016, 0, 3))).toEqual('3');
+		expect(convertDateToDayCode(new Date(2016, 0, 3))).toEqual('3');
 	});
 
 	it('"Jan 4, 2016" should translate to 4', () => {
-		expect(dateToDayCode(new Date(2016, 0, 4))).toEqual('4');
+		expect(convertDateToDayCode(new Date(2016, 0, 4))).toEqual('4');
 	});
 
 	it('"Jan 5, 2016" should translate to 5', () => {
-		expect(dateToDayCode(new Date(2016, 0, 5))).toEqual('5');
+		expect(convertDateToDayCode(new Date(2016, 0, 5))).toEqual('5');
 	});
 
 	it('"Jan 6, 2016" should translate to 6', () => {
-		expect(dateToDayCode(new Date(2016, 0, 6))).toEqual('6');
+		expect(convertDateToDayCode(new Date(2016, 0, 6))).toEqual('6');
 	});
 
 	it('"Jan 7, 2016" should translate to 7', () => {
-		expect(dateToDayCode(new Date(2016, 0, 7))).toEqual('7');
+		expect(convertDateToDayCode(new Date(2016, 0, 7))).toEqual('7');
 	});
 
 	it('"Jan 8, 2016" should translate to 8', () => {
-		expect(dateToDayCode(new Date(2016, 0, 8))).toEqual('8');
+		expect(convertDateToDayCode(new Date(2016, 0, 8))).toEqual('8');
 	});
 
 	it('"Jan 9, 2016" should translate to 9', () => {
-		expect(dateToDayCode(new Date(2016, 0, 9))).toEqual('9');
+		expect(convertDateToDayCode(new Date(2016, 0, 9))).toEqual('9');
 	});
 
 	it('"Jan 10, 2016" should translate to 0', () => {
-		expect(dateToDayCode(new Date(2016, 0, 10))).toEqual('0');
+		expect(convertDateToDayCode(new Date(2016, 0, 10))).toEqual('0');
 	});
 
 	it('"Jan 11, 2016" should translate to A', () => {
-		expect(dateToDayCode(new Date(2016, 0, 11))).toEqual('A');
+		expect(convertDateToDayCode(new Date(2016, 0, 11))).toEqual('A');
 	});
 
 	it('"Jan 12, 2016" should translate to B', () => {
-		expect(dateToDayCode(new Date(2016, 0, 12))).toEqual('B');
+		expect(convertDateToDayCode(new Date(2016, 0, 12))).toEqual('B');
 	});
 
 	it('"Jan 13, 2016" should translate to C', () => {
-		expect(dateToDayCode(new Date(2016, 0, 13))).toEqual('C');
+		expect(convertDateToDayCode(new Date(2016, 0, 13))).toEqual('C');
 	});
 
 	it('"Jan 14, 2016" should translate to D', () => {
-		expect(dateToDayCode(new Date(2016, 0, 14))).toEqual('D');
+		expect(convertDateToDayCode(new Date(2016, 0, 14))).toEqual('D');
 	});
 
 	it('"Jan 15, 2016" should translate to E', () => {
-		expect(dateToDayCode(new Date(2016, 0, 15))).toEqual('E');
+		expect(convertDateToDayCode(new Date(2016, 0, 15))).toEqual('E');
 	});
 
 	it('"Jan 16, 2016" should translate to F', () => {
-		expect(dateToDayCode(new Date(2016, 0, 16))).toEqual('F');
+		expect(convertDateToDayCode(new Date(2016, 0, 16))).toEqual('F');
 	});
 
 	it('"Jan 17, 2016" should translate to G', () => {
-		expect(dateToDayCode(new Date(2016, 0, 17))).toEqual('G');
+		expect(convertDateToDayCode(new Date(2016, 0, 17))).toEqual('G');
 	});
 
 	it('"Jan 18, 2016" should translate to H', () => {
-		expect(dateToDayCode(new Date(2016, 0, 18))).toEqual('H');
+		expect(convertDateToDayCode(new Date(2016, 0, 18))).toEqual('H');
 	});
 
 	it('"Jan 19, 2016" should translate to I', () => {
-		expect(dateToDayCode(new Date(2016, 0, 19))).toEqual('I');
+		expect(convertDateToDayCode(new Date(2016, 0, 19))).toEqual('I');
 	});
 
 	it('"Jan 20, 2016" should translate to J', () => {
-		expect(dateToDayCode(new Date(2016, 0, 20))).toEqual('J');
+		expect(convertDateToDayCode(new Date(2016, 0, 20))).toEqual('J');
 	});
 
 	it('"Jan 21, 2016" should translate to K', () => {
-		expect(dateToDayCode(new Date(2016, 0, 21))).toEqual('K');
+		expect(convertDateToDayCode(new Date(2016, 0, 21))).toEqual('K');
 	});
 
 	it('"Jan 22, 2016" should translate to L', () => {
-		expect(dateToDayCode(new Date(2016, 0, 22))).toEqual('L');
+		expect(convertDateToDayCode(new Date(2016, 0, 22))).toEqual('L');
 	});
 
 	it('"Jan 23, 2016" should translate to M', () => {
-		expect(dateToDayCode(new Date(2016, 0, 23))).toEqual('M');
+		expect(convertDateToDayCode(new Date(2016, 0, 23))).toEqual('M');
 	});
 
 	it('"Jan 24, 2016" should translate to N', () => {
-		expect(dateToDayCode(new Date(2016, 0, 24))).toEqual('N');
+		expect(convertDateToDayCode(new Date(2016, 0, 24))).toEqual('N');
 	});
 
 	it('"Jan 25, 2016" should translate to O', () => {
-		expect(dateToDayCode(new Date(2016, 0, 25))).toEqual('O');
+		expect(convertDateToDayCode(new Date(2016, 0, 25))).toEqual('O');
 	});
 
 	it('"Jan 26, 2016" should translate to P', () => {
-		expect(dateToDayCode(new Date(2016, 0, 26))).toEqual('P');
+		expect(convertDateToDayCode(new Date(2016, 0, 26))).toEqual('P');
 	});
 
 	it('"Jan 27, 2016" should translate to Q', () => {
-		expect(dateToDayCode(new Date(2016, 0, 27))).toEqual('Q');
+		expect(convertDateToDayCode(new Date(2016, 0, 27))).toEqual('Q');
 	});
 
 	it('"Jan 28, 2016" should translate to R', () => {
-		expect(dateToDayCode(new Date(2016, 0, 28))).toEqual('R');
+		expect(convertDateToDayCode(new Date(2016, 0, 28))).toEqual('R');
 	});
 
 	it('"Jan 29, 2016" should translate to S', () => {
-		expect(dateToDayCode(new Date(2016, 0, 29))).toEqual('S');
+		expect(convertDateToDayCode(new Date(2016, 0, 29))).toEqual('S');
 	});
 
 	it('"Jan 30, 2016" should translate to T', () => {
-		expect(dateToDayCode(new Date(2016, 0, 30))).toEqual('T');
+		expect(convertDateToDayCode(new Date(2016, 0, 30))).toEqual('T');
 	});
 
 	it('"Jan 31, 2016" should translate to U', () => {
-		expect(dateToDayCode(new Date(2016, 0, 31))).toEqual('U');
+		expect(convertDateToDayCode(new Date(2016, 0, 31))).toEqual('U');
 	});
 
 	it('A null value should translate to a null value', () => {
-		expect(dateToDayCode(null)).toEqual(null);
+		expect(convertDateToDayCode(null)).toEqual(null);
 	});
 
 	it('A undefined value should translate to a null value', () => {
-		expect(dateToDayCode(null)).toEqual(null);
+		expect(convertDateToDayCode(null)).toEqual(null);
 	});
 });
 
 },{"./../../../../lib/utilities/convert/dateToDayCode":16}],38:[function(require,module,exports){
-const dayCodeToNumber = require('./../../../../lib/utilities/convert/dayCodeToNumber');
+const convertDayCodeToNumber = require('./../../../../lib/utilities/convert/dayCodeToNumber');
 
 describe('When converting a dayCode to number', () => {
 	it('"1" should translate to 1', () => {
-		expect(dayCodeToNumber("1")).toEqual(1);
+		expect(convertDayCodeToNumber("1")).toEqual(1);
 	});
 
 	it('"2" should translate to 2', () => {
-		expect(dayCodeToNumber("2")).toEqual(2);
+		expect(convertDayCodeToNumber("2")).toEqual(2);
 	});
 
 	it('"3" should translate to 3', () => {
-		expect(dayCodeToNumber("3")).toEqual(3);
+		expect(convertDayCodeToNumber("3")).toEqual(3);
 	});
 
 	it('"4" should translate to 4', () => {
-		expect(dayCodeToNumber("4")).toEqual(4);
+		expect(convertDayCodeToNumber("4")).toEqual(4);
 	});
 
 	it('"5" should translate to 5', () => {
-		expect(dayCodeToNumber("5")).toEqual(5);
+		expect(convertDayCodeToNumber("5")).toEqual(5);
 	});
 
 	it('"6" should translate to 6', () => {
-		expect(dayCodeToNumber("6")).toEqual(6);
+		expect(convertDayCodeToNumber("6")).toEqual(6);
 	});
 
 	it('"7" should translate to 7', () => {
-		expect(dayCodeToNumber("7")).toEqual(7);
+		expect(convertDayCodeToNumber("7")).toEqual(7);
 	});
 
 	it('"8" should translate to 8', () => {
-		expect(dayCodeToNumber("8")).toEqual(8);
+		expect(convertDayCodeToNumber("8")).toEqual(8);
 	});
 
 	it('"9" should translate to 9', () => {
-		expect(dayCodeToNumber("9")).toEqual(9);
+		expect(convertDayCodeToNumber("9")).toEqual(9);
 	});
 
 	it('"0" should translate to 10', () => {
-		expect(dayCodeToNumber("0")).toEqual(10);
+		expect(convertDayCodeToNumber("0")).toEqual(10);
 	});
 
 	it('"A" should translate to 11', () => {
-		expect(dayCodeToNumber("A")).toEqual(11);
+		expect(convertDayCodeToNumber("A")).toEqual(11);
 	});
 
 	it('"a" should translate to 11', () => {
-		expect(dayCodeToNumber("a")).toEqual(11);
+		expect(convertDayCodeToNumber("a")).toEqual(11);
 	});
 
 	it('"B" should translate to 12', () => {
-		expect(dayCodeToNumber("B")).toEqual(12);
+		expect(convertDayCodeToNumber("B")).toEqual(12);
 	});
 
 	it('"b" should translate to 12', () => {
-		expect(dayCodeToNumber("b")).toEqual(12);
+		expect(convertDayCodeToNumber("b")).toEqual(12);
 	});
 
 	it('"C" should translate to 13', () => {
-		expect(dayCodeToNumber("C")).toEqual(13);
+		expect(convertDayCodeToNumber("C")).toEqual(13);
 	});
 
 	it('"c" should translate to 13', () => {
-		expect(dayCodeToNumber("c")).toEqual(13);
+		expect(convertDayCodeToNumber("c")).toEqual(13);
 	});
 
 	it('"D" should translate to 14', () => {
-		expect(dayCodeToNumber("D")).toEqual(14);
+		expect(convertDayCodeToNumber("D")).toEqual(14);
 	});
 
 	it('"d" should translate to 14', () => {
-		expect(dayCodeToNumber("d")).toEqual(14);
+		expect(convertDayCodeToNumber("d")).toEqual(14);
 	});
 
 	it('"E" should translate to 15', () => {
-		expect(dayCodeToNumber("E")).toEqual(15);
+		expect(convertDayCodeToNumber("E")).toEqual(15);
 	});
 
 	it('"e" should translate to 15', () => {
-		expect(dayCodeToNumber("e")).toEqual(15);
+		expect(convertDayCodeToNumber("e")).toEqual(15);
 	});
 
 	it('"F" should translate to 16', () => {
-		expect(dayCodeToNumber("F")).toEqual(16);
+		expect(convertDayCodeToNumber("F")).toEqual(16);
 	});
 
 	it('"f" should translate to 16', () => {
-		expect(dayCodeToNumber("f")).toEqual(16);
+		expect(convertDayCodeToNumber("f")).toEqual(16);
 	});
 
 	it('"G" should translate to 17', () => {
-		expect(dayCodeToNumber("G")).toEqual(17);
+		expect(convertDayCodeToNumber("G")).toEqual(17);
 	});
 
 	it('"g" should translate to 17', () => {
-		expect(dayCodeToNumber("g")).toEqual(17);
+		expect(convertDayCodeToNumber("g")).toEqual(17);
 	});
 
 	it('"H" should translate to 18', () => {
-		expect(dayCodeToNumber("H")).toEqual(18);
+		expect(convertDayCodeToNumber("H")).toEqual(18);
 	});
 
 	it('"h" should translate to 18', () => {
-		expect(dayCodeToNumber("h")).toEqual(18);
+		expect(convertDayCodeToNumber("h")).toEqual(18);
 	});
 
 	it('"I" should translate to 19', () => {
-		expect(dayCodeToNumber("I")).toEqual(19);
+		expect(convertDayCodeToNumber("I")).toEqual(19);
 	});
 
 	it('"i" should translate to 19', () => {
-		expect(dayCodeToNumber("i")).toEqual(19);
+		expect(convertDayCodeToNumber("i")).toEqual(19);
 	});
 
 	it('"J" should translate to 20', () => {
-		expect(dayCodeToNumber("J")).toEqual(20);
+		expect(convertDayCodeToNumber("J")).toEqual(20);
 	});
 
 	it('"j" should translate to 20', () => {
-		expect(dayCodeToNumber("j")).toEqual(20);
+		expect(convertDayCodeToNumber("j")).toEqual(20);
 	});
 
 	it('"K" should translate to 21', () => {
-		expect(dayCodeToNumber("K")).toEqual(21);
+		expect(convertDayCodeToNumber("K")).toEqual(21);
 	});
 
 	it('"k" should translate to 21', () => {
-		expect(dayCodeToNumber("k")).toEqual(21);
+		expect(convertDayCodeToNumber("k")).toEqual(21);
 	});
 
 	it('"L" should translate to 22', () => {
-		expect(dayCodeToNumber("L")).toEqual(22);
+		expect(convertDayCodeToNumber("L")).toEqual(22);
 	});
 
 	it('"l" should translate to 22', () => {
-		expect(dayCodeToNumber("l")).toEqual(22);
+		expect(convertDayCodeToNumber("l")).toEqual(22);
 	});
 
 	it('"M" should translate to 23', () => {
-		expect(dayCodeToNumber("M")).toEqual(23);
+		expect(convertDayCodeToNumber("M")).toEqual(23);
 	});
 
 	it('"m" should translate to 23', () => {
-		expect(dayCodeToNumber("m")).toEqual(23);
+		expect(convertDayCodeToNumber("m")).toEqual(23);
 	});
 
 	it('"N" should translate to 24', () => {
-		expect(dayCodeToNumber("N")).toEqual(24);
+		expect(convertDayCodeToNumber("N")).toEqual(24);
 	});
 
 	it('"n" should translate to 24', () => {
-		expect(dayCodeToNumber("n")).toEqual(24);
+		expect(convertDayCodeToNumber("n")).toEqual(24);
 	});
 
 	it('"O" should translate to 25', () => {
-		expect(dayCodeToNumber("O")).toEqual(25);
+		expect(convertDayCodeToNumber("O")).toEqual(25);
 	});
 
 	it('"o" should translate to 25', () => {
-		expect(dayCodeToNumber("o")).toEqual(25);
+		expect(convertDayCodeToNumber("o")).toEqual(25);
 	});
 
 	it('"P" should translate to 26', () => {
-		expect(dayCodeToNumber("P")).toEqual(26);
+		expect(convertDayCodeToNumber("P")).toEqual(26);
 	});
 
 	it('"p" should translate to 26', () => {
-		expect(dayCodeToNumber("p")).toEqual(26);
+		expect(convertDayCodeToNumber("p")).toEqual(26);
 	});
 
 	it('"Q" should translate to 27', () => {
-		expect(dayCodeToNumber("Q")).toEqual(27);
+		expect(convertDayCodeToNumber("Q")).toEqual(27);
 	});
 
 	it('"q" should translate to 27', () => {
-		expect(dayCodeToNumber("q")).toEqual(27);
+		expect(convertDayCodeToNumber("q")).toEqual(27);
 	});
 
 	it('"R" should translate to 28', () => {
-		expect(dayCodeToNumber("R")).toEqual(28);
+		expect(convertDayCodeToNumber("R")).toEqual(28);
 	});
 
 	it('"r" should translate to 28', () => {
-		expect(dayCodeToNumber("r")).toEqual(28);
+		expect(convertDayCodeToNumber("r")).toEqual(28);
 	});
 
 	it('"S" should translate to 29', () => {
-		expect(dayCodeToNumber("S")).toEqual(29);
+		expect(convertDayCodeToNumber("S")).toEqual(29);
 	});
 
 	it('"s" should translate to 29', () => {
-		expect(dayCodeToNumber("s")).toEqual(29);
+		expect(convertDayCodeToNumber("s")).toEqual(29);
 	});
 
 	it('"T" should translate to 30', () => {
-		expect(dayCodeToNumber("T")).toEqual(30);
+		expect(convertDayCodeToNumber("T")).toEqual(30);
 	});
 
 	it('"t" should translate to 30', () => {
-		expect(dayCodeToNumber("t")).toEqual(30);
+		expect(convertDayCodeToNumber("t")).toEqual(30);
 	});
 
 	it('"U" should translate to 31', () => {
-		expect(dayCodeToNumber("U")).toEqual(31);
+		expect(convertDayCodeToNumber("U")).toEqual(31);
 	});
 
 	it('"u" should translate to 31', () => {
-		expect(dayCodeToNumber("u")).toEqual(31);
+		expect(convertDayCodeToNumber("u")).toEqual(31);
 	});
 
 	it('A null value should translate to a null value', () => {
-		expect(dayCodeToNumber(null)).toEqual(null);
+		expect(convertDayCodeToNumber(null)).toEqual(null);
 	});
 
 	it('A undefined value should translate to a null value', () => {
-		expect(dayCodeToNumber(null)).toEqual(null);
+		expect(convertDayCodeToNumber(null)).toEqual(null);
 	});
 
 	it('A zero-length string should translate to a null value', () => {
-		expect(dayCodeToNumber('')).toEqual(null);
+		expect(convertDayCodeToNumber('')).toEqual(null);
 	});
 });
 
 },{"./../../../../lib/utilities/convert/dayCodeToNumber":17}],39:[function(require,module,exports){
-const dayNumberToDayCode = require('./../../../../lib/utilities/convert/dayNumberToDayCode');
+const convertNumberToDayCode = require('./../../../../lib/utilities/convert/numberToDayCode');
 
 describe('When converting a day number to a dayCode', () => {
 	it('1 should translate to "1"', () => {
-		expect(dayNumberToDayCode(1)).toEqual("1");
+		expect(convertNumberToDayCode(1)).toEqual("1");
 	});
 
 	it('2 should translate to "2"', () => {
-		expect(dayNumberToDayCode(2)).toEqual("2");
+		expect(convertNumberToDayCode(2)).toEqual("2");
 	});
 
 	it('3 should translate to "3"', () => {
-		expect(dayNumberToDayCode(3)).toEqual("3");
+		expect(convertNumberToDayCode(3)).toEqual("3");
 	});
 
 	it('4 should translate to "4"', () => {
-		expect(dayNumberToDayCode(4)).toEqual("4");
+		expect(convertNumberToDayCode(4)).toEqual("4");
 	});
 
 	it('5 should translate to "5"', () => {
-		expect(dayNumberToDayCode(5)).toEqual("5");
+		expect(convertNumberToDayCode(5)).toEqual("5");
 	});
 
 	it('6 should translate to "6"', () => {
-		expect(dayNumberToDayCode(6)).toEqual("6");
+		expect(convertNumberToDayCode(6)).toEqual("6");
 	});
 
 	it('7 should translate to "7"', () => {
-		expect(dayNumberToDayCode(7)).toEqual("7");
+		expect(convertNumberToDayCode(7)).toEqual("7");
 	});
 
 	it('8 should translate to "8"', () => {
-		expect(dayNumberToDayCode(8)).toEqual("8");
+		expect(convertNumberToDayCode(8)).toEqual("8");
 	});
 
 	it('9 should translate to "9"', () => {
-		expect(dayNumberToDayCode(9)).toEqual("9");
+		expect(convertNumberToDayCode(9)).toEqual("9");
 	});
 
 	it('0 should translate to "0"', () => {
-		expect(dayNumberToDayCode(10)).toEqual("0");
+		expect(convertNumberToDayCode(10)).toEqual("0");
 	});
 
 	it('11 should translate to "A"', () => {
-		expect(dayNumberToDayCode(11)).toEqual("A");
+		expect(convertNumberToDayCode(11)).toEqual("A");
 	});
 
 	it('12 should translate to "B"', () => {
-		expect(dayNumberToDayCode(12)).toEqual("B");
+		expect(convertNumberToDayCode(12)).toEqual("B");
 	});
 
 	it('13 should translate to "C"', () => {
-		expect(dayNumberToDayCode(13)).toEqual("C");
+		expect(convertNumberToDayCode(13)).toEqual("C");
 	});
 
 	it('14 should translate to "D"', () => {
-		expect(dayNumberToDayCode(14)).toEqual("D");
+		expect(convertNumberToDayCode(14)).toEqual("D");
 	});
 
 	it('15 should translate to "E"', () => {
-		expect(dayNumberToDayCode(15)).toEqual("E");
+		expect(convertNumberToDayCode(15)).toEqual("E");
 	});
 
 	it('16 should translate to "F"', () => {
-		expect(dayNumberToDayCode(16)).toEqual("F");
+		expect(convertNumberToDayCode(16)).toEqual("F");
 	});
 
 	it('17 should translate to "G"', () => {
-		expect(dayNumberToDayCode(17)).toEqual("G");
+		expect(convertNumberToDayCode(17)).toEqual("G");
 	});
 
 	it('18 should translate to "H"', () => {
-		expect(dayNumberToDayCode(18)).toEqual("H");
+		expect(convertNumberToDayCode(18)).toEqual("H");
 	});
 
 	it('19 should translate to "I"', () => {
-		expect(dayNumberToDayCode(19)).toEqual("I");
+		expect(convertNumberToDayCode(19)).toEqual("I");
 	});
 
 	it('20 should translate to "J"', () => {
-		expect(dayNumberToDayCode(20)).toEqual("J");
+		expect(convertNumberToDayCode(20)).toEqual("J");
 	});
 
 	it('21 should translate to "K"', () => {
-		expect(dayNumberToDayCode(21)).toEqual("K");
+		expect(convertNumberToDayCode(21)).toEqual("K");
 	});
 
 	it('22 should translate to "L"', () => {
-		expect(dayNumberToDayCode(22)).toEqual("L");
+		expect(convertNumberToDayCode(22)).toEqual("L");
 	});
 
 	it('23 should translate to "M"', () => {
-		expect(dayNumberToDayCode(23)).toEqual("M");
+		expect(convertNumberToDayCode(23)).toEqual("M");
 	});
 
 	it('24 should translate to "N"', () => {
-		expect(dayNumberToDayCode(24)).toEqual("N");
+		expect(convertNumberToDayCode(24)).toEqual("N");
 	});
 
 	it('25 should translate to "O"', () => {
-		expect(dayNumberToDayCode(25)).toEqual("O");
+		expect(convertNumberToDayCode(25)).toEqual("O");
 	});
 
 	it('26 should translate to "P"', () => {
-		expect(dayNumberToDayCode(26)).toEqual("P");
+		expect(convertNumberToDayCode(26)).toEqual("P");
 	});
 
 	it('27 should translate to "Q"', () => {
-		expect(dayNumberToDayCode(27)).toEqual("Q");
+		expect(convertNumberToDayCode(27)).toEqual("Q");
 	});
 
 	it('28 should translate to "R"', () => {
-		expect(dayNumberToDayCode(28)).toEqual("R");
+		expect(convertNumberToDayCode(28)).toEqual("R");
 	});
 
 	it('29 should translate to "S"', () => {
-		expect(dayNumberToDayCode(29)).toEqual("S");
+		expect(convertNumberToDayCode(29)).toEqual("S");
 	});
 
 	it('30 should translate to "T"', () => {
-		expect(dayNumberToDayCode(30)).toEqual("T");
+		expect(convertNumberToDayCode(30)).toEqual("T");
 	});
 
 	it('31 should translate to "U"', () => {
-		expect(dayNumberToDayCode(31)).toEqual("U");
+		expect(convertNumberToDayCode(31)).toEqual("U");
 	});
 
 	it('A null value should translate to a null value', () => {
-		expect(dayNumberToDayCode(null)).toEqual(null);
+		expect(convertNumberToDayCode(null)).toEqual(null);
 	});
 
 	it('A undefined value should translate to a null value', () => {
-		expect(dayNumberToDayCode(null)).toEqual(null);
+		expect(convertNumberToDayCode(null)).toEqual(null);
 	});
 });
 
-},{"./../../../../lib/utilities/convert/dayNumberToDayCode":18}],40:[function(require,module,exports){
-const unitCodeToBaseCode = require('./../../../../lib/utilities/convert/unitCodeToBaseCode');
+},{"./../../../../lib/utilities/convert/numberToDayCode":18}],40:[function(require,module,exports){
+const convertUnitCodeToBaseCode = require('./../../../../lib/utilities/convert/unitCodeToBaseCode');
 
 describe('When converting a unitCode to a baseCode', () => {
 	it('"2" should translate to -1', () => {
-		expect(unitCodeToBaseCode("2")).toEqual(-1);
+		expect(convertUnitCodeToBaseCode("2")).toEqual(-1);
 	});
 
 	it('"3" should translate to -2', () => {
-		expect(unitCodeToBaseCode("3")).toEqual(-2);
+		expect(convertUnitCodeToBaseCode("3")).toEqual(-2);
 	});
 
 	it('"4" should translate to -3', () => {
-		expect(unitCodeToBaseCode("4")).toEqual(-3);
+		expect(convertUnitCodeToBaseCode("4")).toEqual(-3);
 	});
 
 	it('"5" should translate to -4', () => {
-		expect(unitCodeToBaseCode("5")).toEqual(-4);
+		expect(convertUnitCodeToBaseCode("5")).toEqual(-4);
 	});
 
 	it('"6" should translate to -5', () => {
-		expect(unitCodeToBaseCode("6")).toEqual(-5);
+		expect(convertUnitCodeToBaseCode("6")).toEqual(-5);
 	});
 
 	it('"7" should translate to -6', () => {
-		expect(unitCodeToBaseCode("7")).toEqual(-6);
+		expect(convertUnitCodeToBaseCode("7")).toEqual(-6);
 	});
 
 	it('"8" should translate to 0', () => {
-		expect(unitCodeToBaseCode("8")).toEqual(0);
+		expect(convertUnitCodeToBaseCode("8")).toEqual(0);
 	});
 
 	it('"9" should translate to 1', () => {
-		expect(unitCodeToBaseCode("9")).toEqual(1);
+		expect(convertUnitCodeToBaseCode("9")).toEqual(1);
 	});
 
 	it('"A" should translate to 1', () => {
-		expect(unitCodeToBaseCode("A")).toEqual(2);
+		expect(convertUnitCodeToBaseCode("A")).toEqual(2);
 	});
 
 	it('"B" should translate to 3', () => {
-		expect(unitCodeToBaseCode("B")).toEqual(3);
+		expect(convertUnitCodeToBaseCode("B")).toEqual(3);
 	});
 
 	it('"C" should translate to 4', () => {
-		expect(unitCodeToBaseCode("C")).toEqual(4);
+		expect(convertUnitCodeToBaseCode("C")).toEqual(4);
 	});
 
 	it('"D" should translate to 5', () => {
-		expect(unitCodeToBaseCode("D")).toEqual(5);
+		expect(convertUnitCodeToBaseCode("D")).toEqual(5);
 	});
 
 	it('"E" should translate to 6', () => {
-		expect(unitCodeToBaseCode("E")).toEqual(6);
+		expect(convertUnitCodeToBaseCode("E")).toEqual(6);
 	});
 
 	it('"F" should translate to 6', () => {
-		expect(unitCodeToBaseCode("F")).toEqual(7);
+		expect(convertUnitCodeToBaseCode("F")).toEqual(7);
 	});
 
 	it('2 should translate to ', () => {
-		expect(unitCodeToBaseCode(2)).toEqual(0);
+		expect(convertUnitCodeToBaseCode(2)).toEqual(0);
 	});
 
 	it('A null value should translate to 0', () => {
-		expect(unitCodeToBaseCode(null)).toEqual(0);
+		expect(convertUnitCodeToBaseCode(null)).toEqual(0);
 	});
 
 	it('An undefined value should translate to 0', () => {
-		expect(unitCodeToBaseCode(undefined)).toEqual(0);
+		expect(convertUnitCodeToBaseCode(undefined)).toEqual(0);
 	});
 });
 
