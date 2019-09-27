@@ -12,7 +12,6 @@ const browserify = require('browserify'),
 	jsdoc = require('gulp-jsdoc3'),
 	jshint = require('gulp-jshint'),
 	replace = require('gulp-replace'),
-	runSequence = require('run-sequence'),
 	source = require('vinyl-source-stream');
 
 function getVersionFromPackage() {
@@ -23,15 +22,17 @@ function getVersionForComponent() {
     return getVersionFromPackage().split('.').slice(0, 2).join('.');
 }
 
-gulp.task('ensure-clean-working-directory', () => {
-    gitStatus(function(err, status) {
+gulp.task('ensure-clean-working-directory', (cb) => {
+    gitStatus((err, status) => {
         if (err, !status.clean) {
             throw new Error('Unable to proceed, your working directory is not clean.');
         }
+
+        cb();
     });
 });
 
-gulp.task('bump-version', function () {
+gulp.task('bump-version', () => {
     return gulp.src([ './package.json' ])
         .pipe(bump({ type: 'patch' }))
         .pipe(gulp.dest('./'));
@@ -105,43 +106,23 @@ gulp.task('execute-node-tests', function () {
 		.pipe(jasmine());
 });
 
-gulp.task('test', function (callback) {
-	runSequence(
-		'build-browser-tests',
-		'execute-browser-tests',
-		'execute-node-tests',
+gulp.task('test', gulp.series(
+	'build-browser-tests',
+	'execute-browser-tests',
+	'execute-node-tests'
+));
 
-		function (error) {
-			if (error) {
-				console.log(error.message);
-			}
-
-			callback(error);
-		});
-});
-
-gulp.task('release', function (callback) {
-    runSequence(
-        'ensure-clean-working-directory',
-		'bump-version',
-		'embed-version',
-        'build',
-        'build-browser-tests',
-		'document',
-        'commit-changes',
-        'push-changes',
-        'create-tag',
-
-        function (error) {
-            if (error) {
-                console.log(error.message);
-            } else {
-                console.log('Release complete');
-            }
-
-            callback(error);
-        });
-});
+gulp.task('release', gulp.series(
+	'ensure-clean-working-directory',
+	'bump-version',
+	'embed-version',
+	'build',
+	'build-browser-tests',
+	'document',
+	'commit-changes',
+	'push-changes',
+	'create-tag'
+));
 
 gulp.task('watch', () => {
 	gulp.watch('./lib/**/*.js', [ 'build-example-bundle' ]);
