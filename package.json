@@ -52,7 +52,7 @@
     "browserify": "^16.5.0",
     "git-get-status": "^1.0.5",
     "glob": "^6.0.1",
-    "gulp": "~3.9.1",
+    "gulp": "^4.0.2",
     "gulp-bump": "~1.0.0",
     "gulp-git": "^2.5.1",
     "gulp-jasmine": "^2.2.1",

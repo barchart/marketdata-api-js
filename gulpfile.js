@@ -86,7 +86,7 @@ gulp.task('build-example-bundle', function () {
 		.pipe(gulp.dest('./example/browser/'));
 });
 
-gulp.task('build', [ 'build-example-bundle' ]);
+gulp.task('build', gulp.series('build-example-bundle'));
 
 gulp.task('build-browser-tests', function () {
 	return browserify({ entries: glob.sync('test/specs/**/*.js') }).bundle()
@@ -153,4 +153,4 @@ gulp.task('lint', () => {
         .pipe(jshint.reporter('default'));
 });
 
-gulp.task('default', [ 'lint' ]);
+gulp.task('default', gulp.series('lint' ));
