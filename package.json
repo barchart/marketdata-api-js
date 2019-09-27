@@ -41,8 +41,8 @@
     "HTML5"
   ],
   "dependencies": {
+    "@barchart/common-js": "~3.3.50",
     "axios": "^0.19.0",
-    "lodash.isnan": "3.0.2",
     "ws": "7.0.1",
     "xmldom": "0.1.27"
   },
@@ -61,7 +61,7 @@
     "gulp-jshint": "~1.11.2",
     "gulp-replace": "^0.5.4",
     "gulp-sourcemaps": "^1.6.0",
-	"log4js": "^4.4.0",
+    "log4js": "^4.4.0",
     "run-sequence": "~1.1.4",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
