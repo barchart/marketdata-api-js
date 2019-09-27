@@ -818,7 +818,7 @@ module.exports = (() => {
 	return symbolParser.parseInstrumentType;
 })();
 
-},{"./symbolParser":13}],10:[function(require,module,exports){
+},{"./symbolParser":12}],10:[function(require,module,exports){
 const lodashIsNaN = require('lodash.isnan');
 const decimalFormatter = require('./decimalFormatter');
 
@@ -992,22 +992,7 @@ module.exports = (() => {
 	};
 })();
 
-},{"./../utilities/convert/unitCodeToBaseCode":19}],12:[function(require,module,exports){
-module.exports = (() => {
-	'use strict';
-
-	return {
-		format: symbol => {
-			if (symbol !== null && typeof symbol === 'string') {
-				return symbol.toUpperCase();
-			} else {
-				return symbol;
-			}
-		}
-	};
-})();
-
-},{}],13:[function(require,module,exports){
+},{"./../utilities/convert/unitCodeToBaseCode":18}],12:[function(require,module,exports){
 module.exports = (() => {
 	'use strict';
 
@@ -1540,7 +1525,7 @@ module.exports = (() => {
 	return symbolParser;
 })();
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 module.exports = (() => {
 	'use strict';
 
@@ -1657,7 +1642,7 @@ module.exports = (() => {
 	};
 })();
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = (() => {
 	'use strict';
 
@@ -1707,7 +1692,7 @@ module.exports = (() => {
 	return convertBaseCodeToUnitCode;
 })();
 
-},{}],16:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 const convertNumberToDayCode = require('./numberToDayCode');
 
 module.exports = (() => {
@@ -1733,7 +1718,7 @@ module.exports = (() => {
 	return convertDateToDayCode;
 })();
 
-},{"./numberToDayCode":18}],17:[function(require,module,exports){
+},{"./numberToDayCode":17}],16:[function(require,module,exports){
 module.exports = (() => {
 	'use strict';
 
@@ -1764,7 +1749,7 @@ module.exports = (() => {
 	return convertDayCodeToNumber;
 })();
 
-},{}],18:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 module.exports = (() => {
 	'use strict';
 
@@ -1793,7 +1778,7 @@ module.exports = (() => {
 	return convertNumberToDayCode;
 })();
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 module.exports = (() => {
 	'use strict';
 
@@ -1841,6 +1826,30 @@ module.exports = (() => {
 	}
 
 	return convertUnitCodeToBaseCode;
+})();
+
+},{}],19:[function(require,module,exports){
+module.exports = (() => {
+	'use strict';
+
+	/**
+  * Formats a string (by capitalizing it). If anything other than a string
+  * is passed, the argument is returned without modification.
+  * 
+  * @function
+  * @param {String|*} symbol
+  * @returns {String|*}
+  */
+
+	function formatSymbol(symbol) {
+		if (symbol !== null && typeof symbol === 'string') {
+			return symbol.toUpperCase();
+		} else {
+			return symbol;
+		}
+	}
+
+	return formatSymbol;
 })();
 
 },{}],20:[function(require,module,exports){
@@ -5992,117 +6001,6 @@ describe('when parsing prices', () => {
 });
 
 },{"./../../../lib/util/stringToDecimalFormatter":11}],33:[function(require,module,exports){
-let symbolFormatter = require('./../../../lib/util/symbolFormatter');
-
-describe('When a lowercase string is formatted as a symbol', () => {
-	let originalSymbol;
-	let formattedSymbol;
-
-	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = 'aapl');
-	});
-
-	it('The result should only contain uppercase letters', () => {
-		expect(formattedSymbol).toEqual('AAPL');
-	});
-});
-
-describe('When an uppercase string is formatted as a symbol', () => {
-	let originalSymbol;
-	let formattedSymbol;
-
-	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = 'AAPL');
-	});
-
-	it('The result should only contain uppercase letters', () => {
-		expect(formattedSymbol).toEqual('AAPL');
-	});
-});
-
-describe('When a mixed case string is formatted as a symbol', () => {
-	let originalSymbol;
-	let formattedSymbol;
-
-	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = 'aApL');
-	});
-
-	it('The result should only contain uppercase letters', () => {
-		expect(formattedSymbol).toEqual('AAPL');
-	});
-});
-
-describe('When a zero-length string is formatted as a symbol', () => {
-	let originalSymbol;
-	let formattedSymbol;
-
-	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = '');
-	});
-
-	it('The result should be the original, zero-length string', () => {
-		expect(formattedSymbol).toEqual(originalSymbol);
-	});
-});
-
-describe('When a string with numbers is formatted as a symbol', () => {
-	let originalSymbol;
-	let formattedSymbol;
-
-	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = 'esm16');
-	});
-
-	it('The result should only contain uppercase letters', () => {
-		expect(formattedSymbol).toEqual('ESM16');
-	});
-});
-
-describe('When a number is formatted as a symbol', () => {
-	let originalSymbol;
-	let formattedSymbol;
-
-	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = 1);
-	});
-
-	it('The result should be a number', () => {
-		expect(typeof formattedSymbol).toEqual('number');
-	});
-
-	it('The result should the original, unformatted string', () => {
-		expect(formattedSymbol).toEqual(originalSymbol);
-	});
-});
-
-describe('When an undefined value is formatted as a symbol', () => {
-	let originalSymbol;
-	let formattedSymbol;
-
-	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = undefined);
-	});
-
-	it('The result should be a undefined', () => {
-		expect(typeof formattedSymbol).toEqual('undefined');
-	});
-});
-
-describe('When an null value is formatted', () => {
-	let originalSymbol;
-	let formattedSymbol;
-
-	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = null);
-	});
-
-	it('The result should be null', () => {
-		expect(formattedSymbol).toEqual(null);
-	});
-});
-
-},{"./../../../lib/util/symbolFormatter":12}],34:[function(require,module,exports){
 let symbolParser = require('./../../../lib/util/symbolParser');
 
 describe('When parsing a symbol for instrument type', () => {
@@ -7133,7 +7031,7 @@ describe('When getting a producer symbol', () => {
 	});
 });
 
-},{"./../../../lib/util/symbolParser":13}],35:[function(require,module,exports){
+},{"./../../../lib/util/symbolParser":12}],34:[function(require,module,exports){
 let timeFormatter = require('./../../../lib/util/timeFormatter');
 
 describe('When a time formatter is created (without specifying the clock)', () => {
@@ -7685,7 +7583,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 	});
 });
 
-},{"./../../../lib/util/timeFormatter":14}],36:[function(require,module,exports){
+},{"./../../../lib/util/timeFormatter":13}],35:[function(require,module,exports){
 const convertBaseCodeToUnitCode = require('./../../../../lib/utilities/convert/baseCodeToUnitCode');
 
 describe('When converting a baseCode to a unitCode', () => {
@@ -7758,7 +7656,7 @@ describe('When converting a baseCode to a unitCode', () => {
 	});
 });
 
-},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":15}],37:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":14}],36:[function(require,module,exports){
 const convertDateToDayCode = require('./../../../../lib/utilities/convert/dateToDayCode');
 
 describe('When converting a date instance to a day code', () => {
@@ -7895,7 +7793,7 @@ describe('When converting a date instance to a day code', () => {
 	});
 });
 
-},{"./../../../../lib/utilities/convert/dateToDayCode":16}],38:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dateToDayCode":15}],37:[function(require,module,exports){
 const convertDayCodeToNumber = require('./../../../../lib/utilities/convert/dayCodeToNumber');
 
 describe('When converting a dayCode to number', () => {
@@ -8120,7 +8018,7 @@ describe('When converting a dayCode to number', () => {
 	});
 });
 
-},{"./../../../../lib/utilities/convert/dayCodeToNumber":17}],39:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dayCodeToNumber":16}],38:[function(require,module,exports){
 const convertNumberToDayCode = require('./../../../../lib/utilities/convert/numberToDayCode');
 
 describe('When converting a day number to a dayCode', () => {
@@ -8257,7 +8155,7 @@ describe('When converting a day number to a dayCode', () => {
 	});
 });
 
-},{"./../../../../lib/utilities/convert/numberToDayCode":18}],40:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/numberToDayCode":17}],39:[function(require,module,exports){
 const convertUnitCodeToBaseCode = require('./../../../../lib/utilities/convert/unitCodeToBaseCode');
 
 describe('When converting a unitCode to a baseCode', () => {
@@ -8330,7 +8228,118 @@ describe('When converting a unitCode to a baseCode', () => {
 	});
 });
 
-},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":19}],41:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":18}],40:[function(require,module,exports){
+let formatSymbol = require('./../../../../lib/utilities/format/symbol');
+
+describe('When a lowercase string is formatted as a symbol', () => {
+	let originalSymbol;
+	let formattedSymbol;
+
+	beforeEach(() => {
+		formattedSymbol = formatSymbol(originalSymbol = 'aapl');
+	});
+
+	it('The result should only contain uppercase letters', () => {
+		expect(formattedSymbol).toEqual('AAPL');
+	});
+});
+
+describe('When an uppercase string is formatted as a symbol', () => {
+	let originalSymbol;
+	let formattedSymbol;
+
+	beforeEach(() => {
+		formattedSymbol = formatSymbol(originalSymbol = 'AAPL');
+	});
+
+	it('The result should only contain uppercase letters', () => {
+		expect(formattedSymbol).toEqual('AAPL');
+	});
+});
+
+describe('When a mixed case string is formatted as a symbol', () => {
+	let originalSymbol;
+	let formattedSymbol;
+
+	beforeEach(() => {
+		formattedSymbol = formatSymbol(originalSymbol = 'aApL');
+	});
+
+	it('The result should only contain uppercase letters', () => {
+		expect(formattedSymbol).toEqual('AAPL');
+	});
+});
+
+describe('When a zero-length string is formatted as a symbol', () => {
+	let originalSymbol;
+	let formattedSymbol;
+
+	beforeEach(() => {
+		formattedSymbol = formatSymbol(originalSymbol = '');
+	});
+
+	it('The result should be the original zero-length string', () => {
+		expect(formattedSymbol).toEqual(originalSymbol);
+	});
+});
+
+describe('When a string with numbers is formatted as a symbol', () => {
+	let originalSymbol;
+	let formattedSymbol;
+
+	beforeEach(() => {
+		formattedSymbol = formatSymbol(originalSymbol = 'esm16');
+	});
+
+	it('The result should only contain uppercase letters', () => {
+		expect(formattedSymbol).toEqual('ESM16');
+	});
+});
+
+describe('When a number is formatted as a symbol', () => {
+	let originalSymbol;
+	let formattedSymbol;
+
+	beforeEach(() => {
+		formattedSymbol = formatSymbol(originalSymbol = 1);
+	});
+
+	it('The result should be a number', () => {
+		expect(typeof formattedSymbol).toEqual('number');
+	});
+
+	it('The result should the original number', () => {
+		expect(formattedSymbol).toEqual(originalSymbol);
+	});
+});
+
+describe('When an undefined value is formatted as a symbol', () => {
+	let originalSymbol;
+	let formattedSymbol;
+
+	beforeEach(() => {
+		formattedSymbol = formatSymbol(originalSymbol = undefined);
+	});
+
+	it('The result should be a undefined', () => {
+		expect(typeof formattedSymbol).toEqual('undefined');
+	});
+});
+
+describe('When an null value is formatted', () => {
+	let originalSymbol;
+	let formattedSymbol;
+
+	beforeEach(() => {
+		formattedSymbol = formatSymbol(originalSymbol = null);
+	});
+
+	it('The result should be null', () => {
+		expect(formattedSymbol).toEqual(null);
+	});
+});
+
+},{"./../../../../lib/utilities/format/symbol":19}],41:[function(require,module,exports){
 const parseMessage = require('../../../../../lib/utilities/parse/ddf/message');
 
 describe('when parsing an XML refresh message', () => {

@@ -1,11 +1,11 @@
-let symbolFormatter = require('./../../../lib/util/symbolFormatter');
+let formatSymbol = require('./../../../../lib/utilities/format/symbol');
 
 describe('When a lowercase string is formatted as a symbol', () => {
 	let originalSymbol;
 	let formattedSymbol;
 
 	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = 'aapl');
+		formattedSymbol = formatSymbol(originalSymbol = 'aapl');
 	});
 
 	it('The result should only contain uppercase letters', () => {
@@ -18,7 +18,7 @@ describe('When an uppercase string is formatted as a symbol', () => {
 	let formattedSymbol;
 
 	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = 'AAPL');
+		formattedSymbol = formatSymbol(originalSymbol = 'AAPL');
 	});
 
 	it('The result should only contain uppercase letters', () => {
@@ -31,7 +31,7 @@ describe('When a mixed case string is formatted as a symbol', () => {
 	let formattedSymbol;
 
 	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = 'aApL');
+		formattedSymbol = formatSymbol(originalSymbol = 'aApL');
 	});
 
 	it('The result should only contain uppercase letters', () => {
@@ -44,10 +44,10 @@ describe('When a zero-length string is formatted as a symbol', () => {
 	let formattedSymbol;
 
 	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = '');
+		formattedSymbol = formatSymbol(originalSymbol = '');
 	});
 
-	it('The result should be the original, zero-length string', () => {
+	it('The result should be the original zero-length string', () => {
 		expect(formattedSymbol).toEqual(originalSymbol);
 	});
 });
@@ -57,7 +57,7 @@ describe('When a string with numbers is formatted as a symbol', () => {
 	let formattedSymbol;
 
 	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = 'esm16');
+		formattedSymbol = formatSymbol(originalSymbol = 'esm16');
 	});
 
 	it('The result should only contain uppercase letters', () => {
@@ -70,14 +70,14 @@ describe('When a number is formatted as a symbol', () => {
 	let formattedSymbol;
 
 	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = 1);
+		formattedSymbol = formatSymbol(originalSymbol = 1);
 	});
 
 	it('The result should be a number', () => {
 		expect(typeof formattedSymbol).toEqual('number');
 	});
 
-	it('The result should the original, unformatted string', () => {
+	it('The result should the original number', () => {
 		expect(formattedSymbol).toEqual(originalSymbol);
 	});
 });
@@ -87,7 +87,7 @@ describe('When an undefined value is formatted as a symbol', () => {
 	let formattedSymbol;
 
 	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = undefined);
+		formattedSymbol = formatSymbol(originalSymbol = undefined);
 	});
 
 	it('The result should be a undefined', () => {
@@ -100,7 +100,7 @@ describe('When an null value is formatted', () => {
 	let formattedSymbol;
 
 	beforeEach(() => {
-		formattedSymbol = symbolFormatter.format(originalSymbol = null);
+		formattedSymbol = formatSymbol(originalSymbol = null);
 	});
 
 	it('The result should be null', () => {
