@@ -1,7 +1,7 @@
 const version = require('./../../../lib/info').version;
 
 const Connection = require('./../../../lib/connection/websocket/Connection'),
-	symbolResolver = require('./../../../lib/util/symbolResolver');
+	symbolResolver = require('../../../lib/connection/snapshots/symbolResolver');
 
 module.exports = (() => {
 	'use strict';

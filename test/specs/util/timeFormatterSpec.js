@@ -1,4 +1,4 @@
-let timeFormatter = require('./../../../lib/util/timeFormatter');
+let timeFormatter = require('../../../lib/utilities/formatters/timeFormatter');
 
 describe('When a time formatter is created (without specifying the clock)', () => {
 	let tf;

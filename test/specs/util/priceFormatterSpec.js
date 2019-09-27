@@ -1,4 +1,4 @@
-let PriceFormatter = require('./../../../lib/util/priceFormatter');
+let PriceFormatter = require('../../../lib/utilities/formatters/priceFormatter');
 
 describe('When a price formatter is created', () => {
 	let priceFormatter;
