@@ -1140,6 +1140,8 @@ module.exports = (() => {
 })();
 
 },{}],13:[function(require,module,exports){
+const is = require('@barchart/common-js/lang/is');
+
 module.exports = (() => {
   'use strict';
 
@@ -1156,6 +1158,10 @@ module.exports = (() => {
    */
 
   function convertNumberToDayCode(d) {
+    if (!is.integer(d)) {
+      return null;
+    }
+
     if (d >= 1 && d <= 9) {
       return String.fromCharCode(ASCII_ONE + d - 1);
     } else if (d == 10) {
@@ -1168,7 +1174,7 @@ module.exports = (() => {
   return convertNumberToDayCode;
 })();
 
-},{}],14:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":23}],14:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -7238,7 +7244,7 @@ describe('When converting a dayCode to number', () => {
 },{"./../../../../lib/utilities/convert/dayCodeToNumber":12}],37:[function(require,module,exports){
 const convertNumberToDayCode = require('./../../../../lib/utilities/convert/numberToDayCode');
 
-describe('When converting a day number to a dayCode', () => {
+describe('When converting a number to a dayCode', () => {
   it('1 should translate to "1"', () => {
     expect(convertNumberToDayCode(1)).toEqual("1");
   });
@@ -7336,7 +7342,7 @@ describe('When converting a day number to a dayCode', () => {
     expect(convertNumberToDayCode(null)).toEqual(null);
   });
   it('A undefined value should translate to a null value', () => {
-    expect(convertNumberToDayCode(null)).toEqual(null);
+    expect(convertNumberToDayCode()).toEqual(null);
   });
 });
 

@@ -1,6 +1,6 @@
 const convertNumberToDayCode = require('./../../../../lib/utilities/convert/numberToDayCode');
 
-describe('When converting a day number to a dayCode', () => {
+describe('When converting a number to a dayCode', () => {
 	it('1 should translate to "1"', () => {
 		expect(convertNumberToDayCode(1)).toEqual("1");
 	});
@@ -130,6 +130,6 @@ describe('When converting a day number to a dayCode', () => {
 	});
 
 	it('A undefined value should translate to a null value', () => {
-		expect(convertNumberToDayCode(null)).toEqual(null);
+		expect(convertNumberToDayCode()).toEqual(null);
 	});
 });
