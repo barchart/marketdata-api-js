@@ -41,7 +41,7 @@
     "HTML5"
   ],
   "dependencies": {
-    "@barchart/common-js": "~3.3.50",
+    "@barchart/common-js": "~3.3.51",
     "axios": "^0.19.0",
     "ws": "7.0.1",
     "xmldom": "0.1.27"
@@ -53,14 +53,13 @@
     "git-get-status": "^1.0.5",
     "glob": "^6.0.1",
     "gulp": "~3.9.0",
-    "gulp-browserify": "^0.5.1",
     "gulp-bump": "~1.0.0",
     "gulp-git": "^2.5.1",
     "gulp-jasmine": "^2.2.1",
     "gulp-jsdoc3": "^1.0.1",
-    "gulp-jshint": "~1.11.2",
+    "gulp-jshint": "~2.1.0",
     "gulp-replace": "^0.5.4",
-    "gulp-sourcemaps": "^1.6.0",
+    "jshint": "2.9.5",
     "log4js": "^4.4.0",
     "run-sequence": "~1.1.4",
     "vinyl-buffer": "^1.0.0",
