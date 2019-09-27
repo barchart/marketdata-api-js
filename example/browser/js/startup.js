@@ -1,7 +1,7 @@
 const version = require('./../../../lib/info').version;
 
 const Connection = require('./../../../lib/connection/websocket/Connection'),
-	symbolResolver = require('../../../lib/connection/snapshots/symbolResolver');
+	retrieveConcreteSymbol = require('./../../../lib/connection/snapshots/symbols/retrieveConcrete');
 
 module.exports = (() => {
 	'use strict';
@@ -202,7 +202,7 @@ module.exports = (() => {
 
 			that.showProfile(null);
 
-			symbolResolver(symbol)
+			retrieveConcreteSymbol(symbol)
 				.then(function(resolvedSymbol) {
 					return connection.getMarketState().getProfile(resolvedSymbol)
 						.then(function(profile) {
