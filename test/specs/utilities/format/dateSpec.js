@@ -1,4 +1,4 @@
-let formatDate = require('./../../../../lib/utilities/format/date');
+const formatDate = require('./../../../../lib/utilities/format/date');
 
 describe('when using the date formatter', () => {
 	it('A date set to 2019-09-30 23:59:59 should return "09/30/19"', () => {
