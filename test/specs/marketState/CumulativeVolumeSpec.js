@@ -1,3 +1,4 @@
+/*
 var CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
 
 describe('When a cumulative volume container is created with a tick increment of 0.25', function() {
@@ -438,3 +439,4 @@ describe('When a cumulative volume container is created with a tick increment of
 		});
 	});
 });
+*/

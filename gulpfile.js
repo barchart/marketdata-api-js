@@ -38,7 +38,7 @@ gulp.task('bump-version', () => {
         .pipe(gulp.dest('./'));
 });
 
-gulp.task('document', function (cb) {
+gulp.task('document', (cb) => {
 	const config = {
 		"opts": {
 			"destination": "./docs"
@@ -49,7 +49,7 @@ gulp.task('document', function (cb) {
 		.pipe(jsdoc(config, cb));
 });
 
-gulp.task('embed-version', function () {
+gulp.task('embed-version', () => {
 	const version = getVersionFromPackage();
 
 	return gulp.src(['./lib/info.js'])
@@ -57,20 +57,20 @@ gulp.task('embed-version', function () {
 		.pipe(gulp.dest('./lib/'));
 });
 
-gulp.task('commit-changes', function () {
+gulp.task('commit-changes', () => {
     return gulp.src([ './', './dist/', './test/', './package.json', './lib/info.js' ])
         .pipe(git.add())
         .pipe(git.commit('Release. Bump version number'));
 });
 
-gulp.task('push-changes', function (cb) {
+gulp.task('push-changes', (cb) => {
     git.push('origin', 'master', cb);
 });
 
-gulp.task('create-tag', function (cb) {
+gulp.task('create-tag', (cb) => {
     const version = getVersionFromPackage();
 
-    git.tag(version, 'Release ' + version, function (error) {
+    git.tag(version, 'Release ' + version, (error) => {
         if (error) {
             return cb(error);
         }
@@ -79,7 +79,7 @@ gulp.task('create-tag', function (cb) {
     });
 });
 
-gulp.task('build-example-bundle', function () {
+gulp.task('build-example-bundle', () => {
 	return browserify([ './example/browser/js/startup.js' ])
 		.bundle()
 		.pipe(source('example.js'))
@@ -89,19 +89,19 @@ gulp.task('build-example-bundle', function () {
 
 gulp.task('build', gulp.series('build-example-bundle'));
 
-gulp.task('build-browser-tests', function () {
+gulp.task('build-browser-tests', () => {
 	return browserify({ entries: glob.sync('test/specs/**/*.js') }).bundle()
 		.pipe(source('barchart-marketdata-api-tests-' + getVersionForComponent() + '.js'))
 		.pipe(buffer())
 		.pipe(gulp.dest('test/dist'));
 });
 
-gulp.task('execute-browser-tests', function () {
+gulp.task('execute-browser-tests', () => {
 	return gulp.src('test/dist/barchart-marketdata-api-tests-' + getVersionForComponent() + '.js')
 		.pipe(jasmine());
 });
 
-gulp.task('execute-node-tests', function () {
+gulp.task('execute-node-tests', () => {
 	return gulp.src(['test/specs/**/*.js'])
 		.pipe(jasmine());
 });

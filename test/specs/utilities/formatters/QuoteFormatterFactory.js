@@ -1,10 +1,10 @@
-let timeFormatter = require('../../../lib/utilities/formatters/timeFormatter');
+const QuoteFormatterFactory = require('./../../../../lib/utilities/formatters/QuoteFormatterFactory');
 
 describe('When a time formatter is created (without specifying the clock)', () => {
-	let tf;
+	let qf;
 
 	beforeEach(() => {
-		tf = timeFormatter();
+		qf = QuoteFormatterFactory.build();
 	});
 
 	describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
@@ -22,7 +22,7 @@ describe('When a time formatter is created (without specifying the clock)', () =
 			});
 
 			it('the formatter outputs "00:00:00"', () => {
-				expect(tf.format(quote)).toEqual('00:00:00');
+				expect(qf(quote)).toEqual('00:00:00');
 			});
 		});
 
@@ -32,7 +32,7 @@ describe('When a time formatter is created (without specifying the clock)', () =
 			});
 
 			it('the formatter outputs "12:00:00"', () => {
-				expect(tf.format(quote)).toEqual('12:00:00');
+				expect(qf(quote)).toEqual('12:00:00');
 			});
 		});
 
@@ -42,7 +42,7 @@ describe('When a time formatter is created (without specifying the clock)', () =
 			});
 
 			it('the formatter outputs "07:08:09"', () => {
-				expect(tf.format(quote)).toEqual('07:08:09');
+				expect(qf(quote)).toEqual('07:08:09');
 			});
 		});
 
@@ -52,7 +52,7 @@ describe('When a time formatter is created (without specifying the clock)', () =
 			});
 
 			it('the formatter outputs "13:08:09"', () => {
-				expect(tf.format(quote)).toEqual('13:08:09');
+				expect(qf(quote)).toEqual('13:08:09');
 			});
 		});
 
@@ -63,7 +63,7 @@ describe('When a time formatter is created (without specifying the clock)', () =
 			});
 
 			it('the formatter outputs "13:08:09"', () => {
-				expect(tf.format(quote)).toEqual('13:08:09 CST');
+				expect(qf(quote)).toEqual('13:08:09 CST');
 			});
 		});
 	});
@@ -84,7 +84,7 @@ describe('When a time formatter is created (without specifying the clock)', () =
 			});
 
 			it('the formatter outputs "05/03/16"', () => {
-				expect(tf.format(quote)).toEqual('05/03/16');
+				expect(qf(quote)).toEqual('05/03/16');
 			});
 		});
 
@@ -94,7 +94,7 @@ describe('When a time formatter is created (without specifying the clock)', () =
 			});
 
 			it('the formatter outputs "05/03/16"', () => {
-				expect(tf.format(quote)).toEqual('05/03/16');
+				expect(qf(quote)).toEqual('05/03/16');
 			});
 		});
 	});
@@ -115,7 +115,7 @@ describe('When a time formatter is created (without specifying the clock)', () =
 			});
 
 			it('the formatter outputs "05/03/16"', () => {
-				expect(tf.format(quote)).toEqual('05/03/16');
+				expect(qf(quote)).toEqual('05/03/16');
 			});
 		});
 
@@ -125,17 +125,17 @@ describe('When a time formatter is created (without specifying the clock)', () =
 			});
 
 			it('the formatter outputs "05/03/16"', () => {
-				expect(tf.format(quote)).toEqual('05/03/16');
+				expect(qf(quote)).toEqual('05/03/16');
 			});
 		});
 	});
 });
 
 describe('When a time formatter is created (and a 24-hour clock is specified)', () => {
-	let tf;
+	let qf;
 
 	beforeEach(() => {
-		tf = timeFormatter(false);
+		qf = QuoteFormatterFactory.build(false);
 	});
 
 	describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
@@ -153,7 +153,7 @@ describe('When a time formatter is created (and a 24-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "00:00:00"', () => {
-				expect(tf.format(quote)).toEqual('00:00:00');
+				expect(qf(quote)).toEqual('00:00:00');
 			});
 		});
 
@@ -163,7 +163,7 @@ describe('When a time formatter is created (and a 24-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "12:00:00"', () => {
-				expect(tf.format(quote)).toEqual('12:00:00');
+				expect(qf(quote)).toEqual('12:00:00');
 			});
 		});
 
@@ -173,7 +173,7 @@ describe('When a time formatter is created (and a 24-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "07:08:09"', () => {
-				expect(tf.format(quote)).toEqual('07:08:09');
+				expect(qf(quote)).toEqual('07:08:09');
 			});
 		});
 
@@ -183,7 +183,7 @@ describe('When a time formatter is created (and a 24-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "13:08:09"', () => {
-				expect(tf.format(quote)).toEqual('13:08:09');
+				expect(qf(quote)).toEqual('13:08:09');
 			});
 		});
 
@@ -194,7 +194,7 @@ describe('When a time formatter is created (and a 24-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "13:08:09"', () => {
-				expect(tf.format(quote)).toEqual('13:08:09 EDT');
+				expect(qf(quote)).toEqual('13:08:09 EDT');
 			});
 		});
 	});
@@ -215,7 +215,7 @@ describe('When a time formatter is created (and a 24-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "05/03/16"', () => {
-				expect(tf.format(quote)).toEqual('05/03/16');
+				expect(qf(quote)).toEqual('05/03/16');
 			});
 		});
 
@@ -225,17 +225,17 @@ describe('When a time formatter is created (and a 24-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "05/03/16"', () => {
-				expect(tf.format(quote)).toEqual('05/03/16');
+				expect(qf(quote)).toEqual('05/03/16');
 			});
 		});
 	});
 });
 
 describe('When a time formatter is created (and a "short" 24-hour clock is specified)', () => {
-	let tf;
+	let qf;
 
 	beforeEach(() => {
-		tf = timeFormatter(false, true);
+		qf = QuoteFormatterFactory.build(false, true);
 	});
 
 	describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
@@ -253,7 +253,7 @@ describe('When a time formatter is created (and a "short" 24-hour clock is speci
 			});
 
 			it('the formatter outputs "00:00"', () => {
-				expect(tf.format(quote)).toEqual('00:00');
+				expect(qf(quote)).toEqual('00:00');
 			});
 		});
 
@@ -263,7 +263,7 @@ describe('When a time formatter is created (and a "short" 24-hour clock is speci
 			});
 
 			it('the formatter outputs "12:00"', () => {
-				expect(tf.format(quote)).toEqual('12:00');
+				expect(qf(quote)).toEqual('12:00');
 			});
 		});
 
@@ -273,7 +273,7 @@ describe('When a time formatter is created (and a "short" 24-hour clock is speci
 			});
 
 			it('the formatter outputs "07:08"', () => {
-				expect(tf.format(quote)).toEqual('07:08');
+				expect(qf(quote)).toEqual('07:08');
 			});
 		});
 
@@ -283,7 +283,7 @@ describe('When a time formatter is created (and a "short" 24-hour clock is speci
 			});
 
 			it('the formatter outputs "13:08"', () => {
-				expect(tf.format(quote)).toEqual('13:08');
+				expect(qf(quote)).toEqual('13:08');
 			});
 		});
 
@@ -294,7 +294,7 @@ describe('When a time formatter is created (and a "short" 24-hour clock is speci
 			});
 
 			it('the formatter outputs "13:08"', () => {
-				expect(tf.format(quote)).toEqual('13:08 EDT');
+				expect(qf(quote)).toEqual('13:08 EDT');
 			});
 		});
 	});
@@ -315,7 +315,7 @@ describe('When a time formatter is created (and a "short" 24-hour clock is speci
 			});
 
 			it('the formatter outputs "05/03/16"', () => {
-				expect(tf.format(quote)).toEqual('05/03/16');
+				expect(qf(quote)).toEqual('05/03/16');
 			});
 		});
 
@@ -325,17 +325,17 @@ describe('When a time formatter is created (and a "short" 24-hour clock is speci
 			});
 
 			it('the formatter outputs "05/03/16"', () => {
-				expect(tf.format(quote)).toEqual('05/03/16');
+				expect(qf(quote)).toEqual('05/03/16');
 			});
 		});
 	});
 });
 
 describe('When a time formatter is created (and a 12-hour clock is specified)', () => {
-	let tf;
+	let qf;
 
 	beforeEach(() => {
-		tf = timeFormatter(true);
+		qf = QuoteFormatterFactory.build(true);
 	});
 
 	describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
@@ -353,7 +353,7 @@ describe('When a time formatter is created (and a 12-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "12:00:00 AM"', () => {
-				expect(tf.format(quote)).toEqual('12:00:00 AM');
+				expect(qf(quote)).toEqual('12:00:00 AM');
 			});
 		});
 
@@ -363,7 +363,7 @@ describe('When a time formatter is created (and a 12-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "12:05:00 AM"', () => {
-				expect(tf.format(quote)).toEqual('12:05:00 AM');
+				expect(qf(quote)).toEqual('12:05:00 AM');
 			});
 		});
 
@@ -373,7 +373,7 @@ describe('When a time formatter is created (and a 12-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "12:00:00 PM"', () => {
-				expect(tf.format(quote)).toEqual('12:00:00 PM');
+				expect(qf(quote)).toEqual('12:00:00 PM');
 			});
 		});
 
@@ -383,7 +383,7 @@ describe('When a time formatter is created (and a 12-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "12:10:00 PM"', () => {
-				expect(tf.format(quote)).toEqual('12:10:00 PM');
+				expect(qf(quote)).toEqual('12:10:00 PM');
 			});
 		});
 
@@ -393,7 +393,7 @@ describe('When a time formatter is created (and a 12-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "07:08:09 AM"', () => {
-				expect(tf.format(quote)).toEqual('07:08:09 AM');
+				expect(qf(quote)).toEqual('07:08:09 AM');
 			});
 		});
 
@@ -403,7 +403,7 @@ describe('When a time formatter is created (and a 12-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "01:08:09 PM"', () => {
-				expect(tf.format(quote)).toEqual('01:08:09 PM');
+				expect(qf(quote)).toEqual('01:08:09 PM');
 			});
 		});
 	});
@@ -424,7 +424,7 @@ describe('When a time formatter is created (and a 12-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "05/03/16"', () => {
-				expect(tf.format(quote)).toEqual('05/03/16');
+				expect(qf(quote)).toEqual('05/03/16');
 			});
 		});
 
@@ -434,17 +434,17 @@ describe('When a time formatter is created (and a 12-hour clock is specified)', 
 			});
 
 			it('the formatter outputs "05/03/16"', () => {
-				expect(tf.format(quote)).toEqual('05/03/16');
+				expect(qf(quote)).toEqual('05/03/16');
 			});
 		});
 	});
 });
 
 describe('When a time formatter is created (and a "short" 12-hour clock is specified)', () => {
-	let tf;
+	let qf;
 
 	beforeEach(() => {
-		tf = timeFormatter(true, true);
+		qf = QuoteFormatterFactory.build(true, true);
 	});
 
 	describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
@@ -462,7 +462,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 			});
 
 			it('the formatter outputs "12:00A"', () => {
-				expect(tf.format(quote)).toEqual('12:00A');
+				expect(qf(quote)).toEqual('12:00A');
 			});
 		});
 
@@ -472,7 +472,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 			});
 
 			it('the formatter outputs "12:05A"', () => {
-				expect(tf.format(quote)).toEqual('12:05A');
+				expect(qf(quote)).toEqual('12:05A');
 			});
 		});
 
@@ -482,7 +482,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 			});
 
 			it('the formatter outputs "12:00P"', () => {
-				expect(tf.format(quote)).toEqual('12:00P');
+				expect(qf(quote)).toEqual('12:00P');
 			});
 		});
 
@@ -492,7 +492,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 			});
 
 			it('the formatter outputs "12:10P"', () => {
-				expect(tf.format(quote)).toEqual('12:10P');
+				expect(qf(quote)).toEqual('12:10P');
 			});
 		});
 
@@ -502,7 +502,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 			});
 
 			it('the formatter outputs "07:08A"', () => {
-				expect(tf.format(quote)).toEqual('07:08A');
+				expect(qf(quote)).toEqual('07:08A');
 			});
 		});
 
@@ -512,7 +512,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 			});
 
 			it('the formatter outputs "01:08P"', () => {
-				expect(tf.format(quote)).toEqual('01:08P');
+				expect(qf(quote)).toEqual('01:08P');
 			});
 		});
 	});
@@ -533,7 +533,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 			});
 
 			it('the formatter outputs "05/03/16"', () => {
-				expect(tf.format(quote)).toEqual('05/03/16');
+				expect(qf(quote)).toEqual('05/03/16');
 			});
 		});
 
@@ -543,7 +543,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 			});
 
 			it('the formatter outputs "05/03/16"', () => {
-				expect(tf.format(quote)).toEqual('05/03/16');
+				expect(qf(quote)).toEqual('05/03/16');
 			});
 		});
 	});
