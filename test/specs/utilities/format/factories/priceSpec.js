@@ -1,11 +1,11 @@
-const PriceFormatterFactory = require('./../../../../lib/utilities/formatters/PriceFormatterFactory');
+const buildPriceFormatter = require('./../../../../../lib/utilities/format/factories/price');
 
 describe('When a price formatter is created', () => {
 	let formatPrice;
 
 	describe('with a decimal separator', () => {
 		beforeEach(() => {
-			formatPrice = PriceFormatterFactory.build('.');
+			formatPrice = buildPriceFormatter('.');
 		});
 
 		it('formats 377 (with unit code 2) as "377.000"', () => {
@@ -71,7 +71,7 @@ describe('When a price formatter is created', () => {
 
 	describe('with a decimal separator, no special fractions, and a thousands separator', () => {
 		beforeEach(() => {
-			formatPrice = PriceFormatterFactory.build('.', false, ',');
+			formatPrice = buildPriceFormatter('.', false, ',');
 		});
 
 		it('formats 377 (with unit code 2) as "377.000"', () => {
@@ -141,7 +141,7 @@ describe('When a price formatter is created', () => {
 
 	describe('with a dash separator and no special fractions', () => {
 		beforeEach(() => {
-			formatPrice = PriceFormatterFactory.build('-', false);
+			formatPrice = buildPriceFormatter('-', false);
 		});
 
 		it('formats 123 (with unit code 2) as "123-0"', () => {
@@ -199,7 +199,7 @@ describe('When a price formatter is created', () => {
 
 	describe('with a dash separator and special fractions', () => {
 		beforeEach(() => {
-			formatPrice = PriceFormatterFactory.build('-', true);
+			formatPrice = buildPriceFormatter('-', true);
 		});
 
 		it('formats 123.625 (with unit code 5) as "123-200"', () => {
@@ -245,7 +245,7 @@ describe('When a price formatter is created', () => {
 
 	describe('with a tick separator and no special fractions', () => {
 		beforeEach(() => {
-			formatPrice = PriceFormatterFactory.build('\'', false);
+			formatPrice = buildPriceFormatter('\'', false);
 		});
 
 		it('formats 123 (with unit code 2) as "123\'0"', () => {
@@ -291,7 +291,7 @@ describe('When a price formatter is created', () => {
 
 	describe('with no separator and no special fractions', () => {
 		beforeEach(() => {
-			formatPrice = PriceFormatterFactory.build('', false);
+			formatPrice = buildPriceFormatter('', false);
 		});
 
 		it('formats 123 (with unit code 2) as "1230"', () => {
@@ -330,7 +330,7 @@ describe('When a price formatter is created', () => {
 	describe('with parenthetical negatives', () => {
 		describe('and a decimal separator, no special fractions, and no thousands separator', () => {
 			beforeEach(() => {
-				formatPrice = PriceFormatterFactory.build('.', false, '', true);
+				formatPrice = buildPriceFormatter('.', false, '', true);
 			});
 
 			it('formats 3770.75 (with unit code 2) as "3770.750"', () => {
@@ -348,7 +348,7 @@ describe('When a price formatter is created', () => {
 
 		describe('with a decimal separator, no special fractions, and a thousands separator', () => {
 			beforeEach(function () {
-				formatPrice = PriceFormatterFactory.build('.', false, ',', true);
+				formatPrice = buildPriceFormatter('.', false, ',', true);
 			});
 
 			it('formats 3770.75 (with unit code 2) as "3,770.750"', () => {
@@ -366,7 +366,7 @@ describe('When a price formatter is created', () => {
 
 		describe('with a dash separator and no special fractions', () => {
 			beforeEach(function () {
-				formatPrice = PriceFormatterFactory.build('-', false, '', true);
+				formatPrice = buildPriceFormatter('-', false, '', true);
 			});
 
 			it('formats 123 (with unit code 2) as "123-0"', function () {
@@ -400,7 +400,7 @@ describe('When a price formatter is created', () => {
 
 		describe('with a dash separator and special fractions', () => {
 			beforeEach(() => {
-				formatPrice = PriceFormatterFactory.build('-', true, '', true);
+				formatPrice = buildPriceFormatter('-', true, '', true);
 			});
 
 			it('formats 123.625 (with unit code 5) as "123-200"', () => {
@@ -422,7 +422,7 @@ describe('When a price formatter is created', () => {
 
 		describe('with a tick separator and no special fractions', () => {
 			beforeEach(function () {
-				formatPrice = PriceFormatterFactory.build('\'', false, '', true);
+				formatPrice = buildPriceFormatter('\'', false, '', true);
 			});
 
 			it('formats 123.5 (with unit code 2) as "123\'4"', function () {
@@ -448,7 +448,7 @@ describe('When a price formatter is created', () => {
 
 		describe('with no separator and no special fractions', () => {
 			beforeEach(function () {
-				formatPrice = PriceFormatterFactory.build('', false, '', true);
+				formatPrice = buildPriceFormatter('', false, '', true);
 			});
 
 			it('formats 0.5 (with unit code 2) as "4"', function () {

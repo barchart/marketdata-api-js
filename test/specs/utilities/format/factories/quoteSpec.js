@@ -1,10 +1,10 @@
-const QuoteFormatterFactory = require('./../../../../lib/utilities/formatters/QuoteFormatterFactory');
+const buildQuoteFormatter = require('./../../../../../lib/utilities/format/factories/quote');
 
 describe('When a time formatter is created (without specifying the clock)', () => {
 	let qf;
 
 	beforeEach(() => {
-		qf = QuoteFormatterFactory.build();
+		qf = buildQuoteFormatter();
 	});
 
 	describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
@@ -135,7 +135,7 @@ describe('When a time formatter is created (and a 24-hour clock is specified)', 
 	let qf;
 
 	beforeEach(() => {
-		qf = QuoteFormatterFactory.build(false);
+		qf = buildQuoteFormatter(false);
 	});
 
 	describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
@@ -235,7 +235,7 @@ describe('When a time formatter is created (and a "short" 24-hour clock is speci
 	let qf;
 
 	beforeEach(() => {
-		qf = QuoteFormatterFactory.build(false, true);
+		qf = buildQuoteFormatter(false, true);
 	});
 
 	describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
@@ -335,7 +335,7 @@ describe('When a time formatter is created (and a 12-hour clock is specified)', 
 	let qf;
 
 	beforeEach(() => {
-		qf = QuoteFormatterFactory.build(true);
+		qf = buildQuoteFormatter(true);
 	});
 
 	describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
@@ -444,7 +444,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 	let qf;
 
 	beforeEach(() => {
-		qf = QuoteFormatterFactory.build(true, true);
+		qf = buildQuoteFormatter(true, true);
 	});
 
 	describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
