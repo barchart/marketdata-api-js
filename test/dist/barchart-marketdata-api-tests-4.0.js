@@ -550,15 +550,15 @@ module.exports = (() => {
   return CumulativeVolume;
 })();
 
-},{"./../logging/LoggerFactory":2,"@barchart/common-js/lang//object":24}],5:[function(require,module,exports){
+},{"./../logging/LoggerFactory":2,"@barchart/common-js/lang//object":28}],5:[function(require,module,exports){
 const SymbolParser = require('./../utilities/parsers/SymbolParser'),
-      priceFormatter = require('./../util/priceFormatter');
+      buildPriceFormatter = require('../utilities/format/factories/price');
 
 module.exports = (() => {
   'use strict';
 
   let profiles = {};
-  let formatter = priceFormatter('-', true, ',').format;
+  let formatter = buildPriceFormatter('-', true, ',');
   /**
    * Describes an instrument.
    *
@@ -648,7 +648,7 @@ module.exports = (() => {
 
 
     static setPriceFormatter(fractionSeparator, specialFractions, thousandsSeparator) {
-      formatter = priceFormatter(fractionSeparator, specialFractions, thousandsSeparator).format;
+      formatter = buildPriceFormatter(fractionSeparator, specialFractions, thousandsSeparator);
     }
     /**
      * Alias for {@link Profile.setPriceFormatter} function.
@@ -677,7 +677,7 @@ module.exports = (() => {
   return Profile;
 })();
 
-},{"./../util/priceFormatter":7,"./../utilities/parsers/SymbolParser":20}],6:[function(require,module,exports){
+},{"../utilities/format/factories/price":15,"./../utilities/parsers/SymbolParser":24}],6:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -713,315 +713,6 @@ module.exports = (() => {
 })();
 
 },{}],7:[function(require,module,exports){
-const is = require('@barchart/common-js/lang/is');
-
-const formatDecimal = require('../utilities/format/decimal');
-
-module.exports = (() => {
-  'use strict';
-
-  function frontPad(value, digits) {
-    return ['000', Math.floor(value)].join('').substr(-1 * digits);
-  }
-
-  return function (fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
-    let format;
-
-    function getWholeNumberAsString(value) {
-      const val = Math.floor(value);
-
-      if (val === 0 && fractionSeparator === '') {
-        return '';
-      } else {
-        return val;
-      }
-    }
-
-    if (fractionSeparator === '.') {
-      format = (value, unitcode) => {
-        switch (unitcode) {
-          case '2':
-            return formatDecimal(value, 3, thousandsSeparator, useParenthesis);
-
-          case '3':
-            return formatDecimal(value, 4, thousandsSeparator, useParenthesis);
-
-          case '4':
-            return formatDecimal(value, 5, thousandsSeparator, useParenthesis);
-
-          case '5':
-            return formatDecimal(value, 6, thousandsSeparator, useParenthesis);
-
-          case '6':
-            return formatDecimal(value, 7, thousandsSeparator, useParenthesis);
-
-          case '7':
-            return formatDecimal(value, 8, thousandsSeparator, useParenthesis);
-
-          case '8':
-            return formatDecimal(value, 0, thousandsSeparator, useParenthesis);
-
-          case '9':
-            return formatDecimal(value, 1, thousandsSeparator, useParenthesis);
-
-          case 'A':
-            return formatDecimal(value, 2, thousandsSeparator, useParenthesis);
-
-          case 'B':
-            return formatDecimal(value, 3, thousandsSeparator, useParenthesis);
-
-          case 'C':
-            return formatDecimal(value, 4, thousandsSeparator, useParenthesis);
-
-          case 'D':
-            return formatDecimal(value, 5, thousandsSeparator, useParenthesis);
-
-          case 'E':
-            return formatDecimal(value, 6, thousandsSeparator, useParenthesis);
-
-          default:
-            if (value === '' || value === undefined || value === null || is.nan(value)) {
-              return '';
-            } else {
-              return value;
-            }
-
-        }
-      };
-    } else {
-      format = (value, unitcode) => {
-        if (value === '' || value === undefined || value === null || is.nan(value)) {
-          return '';
-        }
-
-        const originalValue = value;
-        const absoluteValue = Math.abs(value);
-        const negative = value < 0;
-        let prefix;
-        let suffix;
-
-        if (negative) {
-          if (useParenthesis === true) {
-            prefix = '(';
-            suffix = ')';
-          } else {
-            prefix = '-';
-            suffix = '';
-          }
-        } else {
-          prefix = '';
-          suffix = '';
-        }
-
-        switch (unitcode) {
-          case '2':
-            return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 8, 1), suffix].join('');
-
-          case '3':
-            return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 16, 2), suffix].join('');
-
-          case '4':
-            return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 32, 2), suffix].join('');
-
-          case '5':
-            return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad(Math.floor(((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 64)).toFixed(1)), specialFractions ? 3 : 2), suffix].join('');
-
-          case '6':
-            return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad(Math.floor(((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 128)).toFixed(1)), 3), suffix].join('');
-
-          case '7':
-            return [prefix, getWholeNumberAsString(absoluteValue), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 256), 3), suffix].join('');
-
-          case '8':
-            return formatDecimal(originalValue, 0, thousandsSeparator, useParenthesis);
-
-          case '9':
-            return formatDecimal(originalValue, 1, thousandsSeparator, useParenthesis);
-
-          case 'A':
-            return formatDecimal(originalValue, 2, thousandsSeparator, useParenthesis);
-
-          case 'B':
-            return formatDecimal(originalValue, 3, thousandsSeparator, useParenthesis);
-
-          case 'C':
-            return formatDecimal(originalValue, 4, thousandsSeparator, useParenthesis);
-
-          case 'D':
-            return formatDecimal(originalValue, 5, thousandsSeparator, useParenthesis);
-
-          case 'E':
-            return formatDecimal(originalValue, 6, thousandsSeparator, useParenthesis);
-
-          default:
-            return originalValue;
-        }
-      };
-    }
-
-    return {
-      format: format
-    };
-  };
-})();
-
-},{"../utilities/format/decimal":15,"@barchart/common-js/lang/is":23}],8:[function(require,module,exports){
-const convertUnitCodeToBaseCode = require('./../utilities/convert/unitCodeToBaseCode');
-
-module.exports = (() => {
-  /**
-   * Adapted from legacy code: https://github.com/barchart/php-jscharts/blob/372deb9b4d9ee678f32b6f8c4268434249c1b4ac/chart_package/webroot/js/deps/ddfplus/com.ddfplus.js
-   */
-  return (string, unitCode) => {
-    let baseCode = convertUnitCodeToBaseCode(unitCode);
-    let is_negative = false; // Fix for 10-Yr T-Notes
-
-    if (baseCode === -4 && (string.length === 7 || string.length === 6 && string.charAt(0) !== '1')) {
-      baseCode -= 1;
-    }
-
-    if (baseCode >= 0) {
-      const ival = string * 1;
-      return Math.round(ival * Math.pow(10, baseCode)) / Math.pow(10, baseCode);
-    } else {
-      if (string.match(/^-/)) {
-        is_negative = true;
-        string = string.slice(1);
-      }
-
-      const has_dash = string.match(/-/);
-      let divisor = Math.pow(2, Math.abs(baseCode) + 2);
-      const fracsize = String(divisor).length;
-      const denomstart = string.length - fracsize;
-      let numerend = denomstart;
-      if (string.substring(numerend - 1, numerend) == '-') numerend--;
-      const numerator = string.substring(0, numerend) * 1;
-      const denominator = string.substring(denomstart, string.length) * 1;
-
-      if (baseCode === -5) {
-        divisor = has_dash ? 320 : 128;
-      }
-
-      return (numerator + denominator / divisor) * (is_negative ? -1 : 1);
-    }
-  };
-})();
-
-},{"./../utilities/convert/unitCodeToBaseCode":14}],9:[function(require,module,exports){
-module.exports = (() => {
-  'use strict';
-
-  function formatTwelveHourTime(t) {
-    let hours = t.getHours();
-    let period;
-
-    if (hours === 0) {
-      hours = 12;
-      period = 'AM';
-    } else if (hours === 12) {
-      hours = hours;
-      period = 'PM';
-    } else if (hours > 12) {
-      hours = hours - 12;
-      period = 'PM';
-    } else {
-      hours = hours;
-      period = 'AM';
-    }
-
-    return leftPad(hours) + ':' + leftPad(t.getMinutes()) + ':' + leftPad(t.getSeconds()) + ' ' + period;
-  }
-
-  function formatTwelveHourTimeShort(t) {
-    let hours = t.getHours();
-    let period;
-
-    if (hours === 0) {
-      hours = 12;
-      period = 'A';
-    } else if (hours === 12) {
-      hours = hours;
-      period = 'P';
-    } else if (hours > 12) {
-      hours = hours - 12;
-      period = 'P';
-    } else {
-      hours = hours;
-      period = 'A';
-    }
-
-    return leftPad(hours) + ':' + leftPad(t.getMinutes()) + period;
-  }
-
-  function formatTwentyFourHourTime(t) {
-    return leftPad(t.getHours()) + ':' + leftPad(t.getMinutes()) + ':' + leftPad(t.getSeconds());
-  }
-
-  function formatTwentyFourHourTimeShort(t) {
-    return leftPad(t.getHours()) + ':' + leftPad(t.getMinutes());
-  }
-
-  function leftPad(value) {
-    return ('00' + value).substr(-2);
-  }
-
-  return (useTwelveHourClock, short) => {
-    let formatTime;
-
-    if (useTwelveHourClock) {
-      if (short) {
-        formatTime = formatTwelveHourTimeShort;
-      } else {
-        formatTime = formatTwelveHourTime;
-      }
-    } else {
-      if (short) {
-        formatTime = formatTwentyFourHourTimeShort;
-      } else {
-        formatTime = formatTwentyFourHourTime;
-      }
-    }
-
-    const formatters = {
-      format: q => {
-        const t = q.time;
-
-        if (!t) {
-          return '';
-        } else if (!q.lastPrice || q.flag || q.sessionT) {
-          return formatters.formatDate(t);
-        } else {
-          return formatters.formatTime(t, q.timezone);
-        }
-      },
-      formatTime: (date, timezone) => {
-        let returnRef;
-
-        if (date) {
-          returnRef = formatTime(date);
-
-          if (timezone) {
-            returnRef = returnRef + ' ' + timezone;
-          }
-        } else {
-          returnRef = '';
-        }
-
-        return returnRef;
-      },
-      formatDate: date => {
-        if (date) {
-          return leftPad(date.getMonth() + 1) + '/' + leftPad(date.getDate()) + '/' + leftPad(date.getFullYear());
-        } else {
-          return '';
-        }
-      }
-    };
-    return formatters;
-  };
-})();
-
-},{}],10:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -1084,7 +775,7 @@ module.exports = (() => {
   return convertBaseCodeToUnitCode;
 })();
 
-},{}],11:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 const convertNumberToDayCode = require('./numberToDayCode');
 
 module.exports = (() => {
@@ -1109,7 +800,7 @@ module.exports = (() => {
   return convertDateToDayCode;
 })();
 
-},{"./numberToDayCode":13}],12:[function(require,module,exports){
+},{"./numberToDayCode":10}],9:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -1141,7 +832,7 @@ module.exports = (() => {
   return convertDayCodeToNumber;
 })();
 
-},{"@barchart/common-js/lang/is":23}],13:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":27}],10:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -1176,7 +867,62 @@ module.exports = (() => {
   return convertNumberToDayCode;
 })();
 
-},{"@barchart/common-js/lang/is":23}],14:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":27}],11:[function(require,module,exports){
+const convertUnitCodeToBaseCode = require('./unitCodeToBaseCode');
+
+module.exports = (() => {
+  'use strict'; // Adapted from legacy code at https://github.com/barchart/php-jscharts/blob/372deb9b4d9ee678f32b6f8c4268434249c1b4ac/chart_package/webroot/js/deps/ddfplus/com.ddfplus.js
+
+  /**
+   * Converts a unit code into a base code.
+   *
+   * @function
+   * @param {String} value
+   * @param {String} unitcode
+   * @return {Number}
+   */
+
+  return (value, unitcode) => {
+    let baseCode = convertUnitCodeToBaseCode(unitcode);
+    let is_negative = false;
+
+    if (value.match(/^-/)) {
+      is_negative = true;
+      value = value.slice(1);
+    } // Fix for 10-Yr T-Notes
+
+
+    if (baseCode === -4 && (value.length === 7 || value.length === 6 && value.charAt(0) !== '1')) {
+      baseCode -= 1;
+    }
+
+    if (baseCode >= 0) {
+      const ival = value * 1;
+      return Math.round(ival * Math.pow(10, baseCode)) / Math.pow(10, baseCode);
+    } else {
+      const has_dash = value.match(/-/);
+      let divisor = Math.pow(2, Math.abs(baseCode) + 2);
+      const fracsize = String(divisor).length;
+      const denomstart = value.length - fracsize;
+      let numerend = denomstart;
+
+      if (value.substring(numerend - 1, numerend) === '-') {
+        numerend--;
+      }
+
+      const numerator = value.substring(0, numerend) * 1;
+      const denominator = value.substring(denomstart, value.length) * 1;
+
+      if (baseCode === -5) {
+        divisor = has_dash ? 320 : 128;
+      }
+
+      return (numerator + denominator / divisor) * (is_negative ? -1 : 1);
+    }
+  };
+})();
+
+},{"./unitCodeToBaseCode":12}],12:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -1239,14 +985,41 @@ module.exports = (() => {
   return convertUnitCodeToBaseCode;
 })();
 
-},{}],15:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
+module.exports = (() => {
+  'use strict';
+
+  function leftPad(value) {
+    return ('00' + value).substr(-2);
+  }
+  /**
+   * Formats a {@link Date} instance as a string (using a MM/DD/YY pattern).
+   *
+   * @public
+   * @param {Date=} date
+   * @returns {String}
+   */
+
+
+  function formatDate(date) {
+    if (date) {
+      return `${leftPad(date.getMonth() + 1)}/${leftPad(date.getDate())}/${leftPad(date.getFullYear())}`;
+    } else {
+      return '';
+    }
+  }
+
+  return formatDate;
+})();
+
+},{}],14:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
   'use strict';
   /**
    * Formats a number as a string.
-   * 
+   *
    * @function
    * @param {Number} value
    * @param {Number} digits
@@ -1307,7 +1080,260 @@ module.exports = (() => {
   return formatDecimal;
 })();
 
-},{"@barchart/common-js/lang/is":23}],16:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":27}],15:[function(require,module,exports){
+const formatPrice = require('./../price');
+
+module.exports = (() => {
+  'use strict';
+  /**
+   * Returns a {@link PriceFormatterFactory~formatPrice} which uses
+   * the configuration supplied to this function as parameters.
+   *
+   * @function
+   * @param {String=} fractionSeparator
+   * @param {Boolean=} specialFractions
+   * @param {String=} thousandsSeparator
+   * @param {Boolean=} useParenthesis
+   * @returns {PriceFormatterFactory~formatPrice}
+   */
+
+  function buildPriceFormatter(fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
+    return (value, unitcode) => formatPrice(value, unitcode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis);
+  }
+  /**
+   * Accepts a numeric value and a unit code, and returns a formatted
+   * price as a string.
+   *
+   * @public
+   * @callback PriceFormatterFactory~formatPrice
+   * @param {Number} value
+   * @param {String} unitcode
+   * @returns {String}
+   */
+
+
+  return buildPriceFormatter;
+})();
+
+},{"./../price":17}],16:[function(require,module,exports){
+const formatQuote = require('./../quote');
+
+module.exports = (() => {
+  'use strict';
+  /**
+   * Returns a {@link QuoteFormatterFactory~formatQuote} which uses
+   * the configuration supplied to this function as parameters.
+   *
+   * @function
+   * @param {Boolean=} useTwelveHourClock
+   * @param {Boolean=} short
+   * @returns {QuoteFormatterFactory~formatQuote}
+   */
+
+  function buildQuoteFormatter(useTwelveHourClock, short) {
+    return quote => formatQuote(quote, useTwelveHourClock, short);
+  }
+  /**
+   * Accepts a {@link Quote} instance and returns the appropriate human-readable
+   * date (or time) as a string.
+   *
+   * @public
+   * @callback QuoteFormatterFactory~formatQuote
+   * @param {Quote} value
+   * @returns {String}
+   */
+
+
+  return buildQuoteFormatter;
+})();
+
+},{"./../quote":18}],17:[function(require,module,exports){
+const is = require('@barchart/common-js/lang/is');
+
+const formatDecimal = require('./decimal');
+
+module.exports = (() => {
+  'use strict';
+
+  function frontPad(value, digits) {
+    return ['000', Math.floor(value)].join('').substr(-1 * digits);
+  }
+
+  function getWholeNumberAsString(value, fractionSeparator) {
+    const floor = Math.floor(value);
+
+    if (floor === 0 && fractionSeparator === '') {
+      return '';
+    } else {
+      return floor;
+    }
+  }
+  /**
+   * Formats a number as a string.
+   *
+   * @function
+   * @param {Number} value
+   * @param {String} unitcode
+   * @param {String=} fractionSeparator
+   * @param {Boolean=} specialFractions
+   * @param {String=} thousandsSeparator
+   * @param {Boolean=} useParenthesis
+   * @returns {String}
+   */
+
+
+  function formatPrice(value, unitcode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
+    if (value === undefined || value === null || is.nan(value) || value === '') {
+      return '';
+    }
+
+    if (fractionSeparator === '.') {
+      switch (unitcode) {
+        case '2':
+          return formatDecimal(value, 3, thousandsSeparator, useParenthesis);
+
+        case '3':
+          return formatDecimal(value, 4, thousandsSeparator, useParenthesis);
+
+        case '4':
+          return formatDecimal(value, 5, thousandsSeparator, useParenthesis);
+
+        case '5':
+          return formatDecimal(value, 6, thousandsSeparator, useParenthesis);
+
+        case '6':
+          return formatDecimal(value, 7, thousandsSeparator, useParenthesis);
+
+        case '7':
+          return formatDecimal(value, 8, thousandsSeparator, useParenthesis);
+
+        case '8':
+          return formatDecimal(value, 0, thousandsSeparator, useParenthesis);
+
+        case '9':
+          return formatDecimal(value, 1, thousandsSeparator, useParenthesis);
+
+        case 'A':
+          return formatDecimal(value, 2, thousandsSeparator, useParenthesis);
+
+        case 'B':
+          return formatDecimal(value, 3, thousandsSeparator, useParenthesis);
+
+        case 'C':
+          return formatDecimal(value, 4, thousandsSeparator, useParenthesis);
+
+        case 'D':
+          return formatDecimal(value, 5, thousandsSeparator, useParenthesis);
+
+        case 'E':
+          return formatDecimal(value, 6, thousandsSeparator, useParenthesis);
+
+        default:
+          return value;
+      }
+    } else {
+      const originalValue = value;
+      const absoluteValue = Math.abs(value);
+      const negative = value < 0;
+      let prefix;
+      let suffix;
+
+      if (negative) {
+        if (useParenthesis === true) {
+          prefix = '(';
+          suffix = ')';
+        } else {
+          prefix = '-';
+          suffix = '';
+        }
+      } else {
+        prefix = '';
+        suffix = '';
+      }
+
+      switch (unitcode) {
+        case '2':
+          return [prefix, getWholeNumberAsString(absoluteValue, fractionSeparator), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 8, 1), suffix].join('');
+
+        case '3':
+          return [prefix, getWholeNumberAsString(absoluteValue, fractionSeparator), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 16, 2), suffix].join('');
+
+        case '4':
+          return [prefix, getWholeNumberAsString(absoluteValue, fractionSeparator), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 32, 2), suffix].join('');
+
+        case '5':
+          return [prefix, getWholeNumberAsString(absoluteValue, fractionSeparator), fractionSeparator, frontPad(Math.floor(((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 64)).toFixed(1)), specialFractions ? 3 : 2), suffix].join('');
+
+        case '6':
+          return [prefix, getWholeNumberAsString(absoluteValue, fractionSeparator), fractionSeparator, frontPad(Math.floor(((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 128)).toFixed(1)), 3), suffix].join('');
+
+        case '7':
+          return [prefix, getWholeNumberAsString(absoluteValue, fractionSeparator), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 256), 3), suffix].join('');
+
+        case '8':
+          return formatDecimal(originalValue, 0, thousandsSeparator, useParenthesis);
+
+        case '9':
+          return formatDecimal(originalValue, 1, thousandsSeparator, useParenthesis);
+
+        case 'A':
+          return formatDecimal(originalValue, 2, thousandsSeparator, useParenthesis);
+
+        case 'B':
+          return formatDecimal(originalValue, 3, thousandsSeparator, useParenthesis);
+
+        case 'C':
+          return formatDecimal(originalValue, 4, thousandsSeparator, useParenthesis);
+
+        case 'D':
+          return formatDecimal(originalValue, 5, thousandsSeparator, useParenthesis);
+
+        case 'E':
+          return formatDecimal(originalValue, 6, thousandsSeparator, useParenthesis);
+
+        default:
+          return originalValue;
+      }
+    }
+  }
+
+  return formatPrice;
+})();
+
+},{"./decimal":14,"@barchart/common-js/lang/is":27}],18:[function(require,module,exports){
+const formatDate = require('./date'),
+      formatTime = require('./time');
+
+module.exports = (() => {
+  'use strict';
+  /**
+   * Returns a string-formatted date (or time), based on a {@link Quote} instance's
+   * state. If the market is open, and a trade has occurred, then the formatted time
+   * is returned. Otherwise, the formatted date is returned.
+   *
+   * @public
+   * @param {Quote} quote
+   * @param {Boolean=} useTwelveHourClock
+   * @param {Boolean=} short
+   * @returns {String}
+   */
+
+  function formatQuoteDateTime(quote, useTwelveHourClock, short) {
+    const t = quote.time;
+
+    if (!t) {
+      return '';
+    } else if (!quote.lastPrice || quote.flag || quote.sessionT) {
+      return formatDate(t);
+    } else {
+      return formatTime(t, quote.timezone, useTwelveHourClock, short);
+    }
+  }
+
+  return formatQuoteDateTime;
+})();
+
+},{"./date":13,"./time":20}],19:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -1330,7 +1356,109 @@ module.exports = (() => {
   return formatSymbol;
 })();
 
-},{}],17:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
+module.exports = (() => {
+  'use strict';
+
+  function leftPad(value) {
+    return ('00' + value).substr(-2);
+  }
+
+  function formatTwelveHourTime(t) {
+    let hours = t.getHours();
+    let period;
+
+    if (hours === 0) {
+      hours = 12;
+      period = 'AM';
+    } else if (hours === 12) {
+      hours = hours;
+      period = 'PM';
+    } else if (hours > 12) {
+      hours = hours - 12;
+      period = 'PM';
+    } else {
+      hours = hours;
+      period = 'AM';
+    }
+
+    return `${leftPad(hours)}:${leftPad(t.getMinutes())}:${leftPad(t.getSeconds())} ${period}`;
+  }
+
+  function formatTwelveHourTimeShort(t) {
+    let hours = t.getHours();
+    let period;
+
+    if (hours === 0) {
+      hours = 12;
+      period = 'A';
+    } else if (hours === 12) {
+      hours = hours;
+      period = 'P';
+    } else if (hours > 12) {
+      hours = hours - 12;
+      period = 'P';
+    } else {
+      hours = hours;
+      period = 'A';
+    }
+
+    return `${leftPad(hours)}:${leftPad(t.getMinutes())}${period}`;
+  }
+
+  function formatTwentyFourHourTime(t) {
+    return `${leftPad(t.getHours())}:${leftPad(t.getMinutes())}:${leftPad(t.getSeconds())}`;
+  }
+
+  function formatTwentyFourHourTimeShort(t) {
+    return `${leftPad(t.getHours())}:${leftPad(t.getMinutes())}`;
+  }
+  /**
+   * Formats a {@link Date} instance's time component as a string.
+   *
+   * @function
+   * @param {Date} date
+   * @param {String=} timezone
+   * @param {Boolean=} useTwelveHourClock
+   * @param {Boolean=} short
+   * @returns {String}
+   */
+
+
+  function formatTime(date, timezone, useTwelveHourClock, short) {
+    if (!date) {
+      return '';
+    }
+
+    let ft;
+
+    if (useTwelveHourClock) {
+      if (short) {
+        ft = formatTwelveHourTimeShort;
+      } else {
+        ft = formatTwelveHourTime;
+      }
+    } else {
+      if (short) {
+        ft = formatTwentyFourHourTimeShort;
+      } else {
+        ft = formatTwentyFourHourTime;
+      }
+    }
+
+    let formatted = ft(date);
+
+    if (timezone) {
+      formatted = `${formatted} ${timezone}`;
+    }
+
+    return formatted;
+  }
+
+  return formatTime;
+})();
+
+},{}],21:[function(require,module,exports){
 const xmlDom = require('xmldom');
 
 const parseValue = require('./value'),
@@ -1887,7 +2015,7 @@ module.exports = (() => {
   return parseMessage;
 })();
 
-},{"./timestamp":18,"./value":19,"xmldom":25}],18:[function(require,module,exports){
+},{"./timestamp":22,"./value":23,"xmldom":29}],22:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -1940,7 +2068,7 @@ module.exports = (() => {
   return parseTimestamp;
 })();
 
-},{}],19:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -2039,7 +2167,9 @@ module.exports = (() => {
   return parseValue;
 })();
 
-},{}],20:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
+const is = require('@barchart/common-js/lang/is');
+
 module.exports = (() => {
   'use strict';
 
@@ -2309,7 +2439,7 @@ module.exports = (() => {
 
 
     static parseInstrumentType(symbol) {
-      if (typeof symbol !== 'string') {
+      if (!is.string(symbol)) {
         return null;
       }
 
@@ -2323,7 +2453,7 @@ module.exports = (() => {
       return definition;
     }
     /**
-     * Translates a symbol into a form suitable for use with JERQ (i.e. our quote "producer").
+     * Translates a symbol into a form suitable for use with JERQ (i.e. the quote "producer").
      *
      * @public
      * @static
@@ -2333,7 +2463,7 @@ module.exports = (() => {
 
 
     static getProducerSymbol(symbol) {
-      if (typeof symbol !== 'string') {
+      if (!is.string(symbol)) {
         return null;
       }
 
@@ -2380,10 +2510,10 @@ module.exports = (() => {
 
 
     static getIsConcrete(symbol) {
-      return typeof symbol === 'string' && !types.futures.alias.test(symbol);
+      return is.string(symbol) && !types.futures.alias.test(symbol);
     }
     /**
-     * Returns true if the symbol is an alias for another symbol; otherwise false.
+     * Returns true if the symbol is an alias for another symbol; false otherwise.
      *
      * @public
      * @static
@@ -2393,7 +2523,7 @@ module.exports = (() => {
 
 
     static getIsReference(symbol) {
-      return typeof symbol === 'string' && types.futures.alias.test(symbol);
+      return is.string(symbol) && types.futures.alias.test(symbol);
     }
     /**
      * Returns true if the symbol represents futures contract; false otherwise.
@@ -2406,7 +2536,7 @@ module.exports = (() => {
 
 
     static getIsFuture(symbol) {
-      return typeof symbol === 'string' && (types.futures.concrete.test(symbol) || types.futures.alias.test(symbol));
+      return is.string(symbol) && (types.futures.concrete.test(symbol) || types.futures.alias.test(symbol));
     }
     /**
      * Returns true if the symbol represents futures spread; false otherwise.
@@ -2419,7 +2549,7 @@ module.exports = (() => {
 
 
     static getIsFutureSpread(symbol) {
-      return typeof symbol === 'string' && types.futures.spread.test(symbol);
+      return is.string(symbol) && types.futures.spread.test(symbol);
     }
     /**
      * Returns true if the symbol represents an option on a futures contract; false
@@ -2433,7 +2563,7 @@ module.exports = (() => {
 
 
     static getIsFutureOption(symbol) {
-      return typeof symbol === 'string' && (types.futures.options.short.test(symbol) || types.futures.options.long.test(symbol) || types.futures.options.historical.test(symbol));
+      return is.string(symbol) && (types.futures.options.short.test(symbol) || types.futures.options.long.test(symbol) || types.futures.options.historical.test(symbol));
     }
     /**
      * Returns true if the symbol represents a foreign exchange currency pair;
@@ -2447,7 +2577,7 @@ module.exports = (() => {
 
 
     static getIsForex(symbol) {
-      return typeof symbol === 'string' && types.forex.test(symbol);
+      return is.string(symbol) && types.forex.test(symbol);
     }
     /**
      * Returns true if the symbol represents an external index (e.g. Dow Jones
@@ -2461,7 +2591,7 @@ module.exports = (() => {
 
 
     static getIsIndex(symbol) {
-      return typeof symbol === 'string' && types.indicies.external.test(symbol);
+      return is.string(symbol) && types.indicies.external.test(symbol);
     }
     /**
      * Returns true if the symbol represents an internally-calculated sector
@@ -2475,7 +2605,7 @@ module.exports = (() => {
 
 
     static getIsSector(symbol) {
-      return typeof symbol === 'string' && types.indicies.sector.test(symbol);
+      return is.string(symbol) && types.indicies.sector.test(symbol);
     }
     /**
      * Returns true if the symbol represents an internally-calculated, cmdty-branded
@@ -2489,7 +2619,7 @@ module.exports = (() => {
 
 
     static getIsCmdty(symbol) {
-      return typeof symbol === 'string' && types.indicies.cmdty.test(symbol);
+      return is.string(symbol) && types.indicies.cmdty.test(symbol);
     }
     /**
      * Returns true if the symbol is listed on the BATS exchange; false otherwise.
@@ -2502,7 +2632,7 @@ module.exports = (() => {
 
 
     static getIsBats(symbol) {
-      return typeof symbol === 'string' && predicates.bats.test(symbol);
+      return is.string(symbol) && predicates.bats.test(symbol);
     }
     /**
      * Returns true if the symbol has an expiration and the symbol appears
@@ -2548,7 +2678,7 @@ module.exports = (() => {
 
 
     static displayUsingPercent(symbol) {
-      return typeof symbol === 'string' && predicates.percent.test(symbol);
+      return is.string(symbol) && predicates.percent.test(symbol);
     }
 
     toString() {
@@ -2560,7 +2690,7 @@ module.exports = (() => {
   return SymbolParser;
 })();
 
-},{}],21:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":27}],25:[function(require,module,exports){
 const assert = require('./assert'),
       is = require('./is');
 
@@ -3015,7 +3145,7 @@ module.exports = (() => {
   }
 })();
 
-},{"./assert":22,"./is":23}],22:[function(require,module,exports){
+},{"./assert":26,"./is":27}],26:[function(require,module,exports){
 const is = require('./is');
 
 module.exports = (() => {
@@ -3160,7 +3290,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./is":23}],23:[function(require,module,exports){
+},{"./is":27}],27:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -3355,7 +3485,7 @@ module.exports = (() => {
   };
 })();
 
-},{}],24:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 const array = require('./array'),
       is = require('./is');
 
@@ -3515,7 +3645,7 @@ module.exports = (() => {
   return object;
 })();
 
-},{"./array":21,"./is":23}],25:[function(require,module,exports){
+},{"./array":25,"./is":27}],29:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -3768,7 +3898,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":26,"./sax":27}],26:[function(require,module,exports){
+},{"./dom":30,"./sax":31}],30:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -5014,7 +5144,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],27:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -5649,337 +5779,337 @@ function split(source,start){
 exports.XMLReader = XMLReader;
 
 
-},{}],28:[function(require,module,exports){
-var CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
+},{}],32:[function(require,module,exports){
+const CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
 
-describe('When a cumulative volume container is created with a tick increment of 0.25', function () {
+describe('When a cumulative volume container is created with a tick increment of 0.25', () => {
   'use strict';
 
   var cv;
   var symbol;
   var tickIncrement;
-  beforeEach(function () {
+  beforeEach(() => {
     cv = new CumulativeVolume(symbol = 'ESZ6', tickIncrement = 0.25);
   });
-  it('the symbol should be the same value as assigned during construction', function () {
+  it('the symbol should be the same value as assigned during construction', () => {
     expect(cv.symbol).toEqual(symbol);
   });
-  it('the price level array should contain zero items', function () {
+  it('the price level array should contain zero items', () => {
     expect(cv.toArray().length).toEqual(0);
   });
-  describe('and 50 contracts are traded at 2172.50', function () {
-    beforeEach(function () {
+  describe('and 50 contracts are traded at 2172.50', () => {
+    beforeEach(() => {
       cv.incrementVolume(2172.5, 50);
     });
-    it('should report zero contracts traded at 2172.25', function () {
+    it('should report zero contracts traded at 2172.25', () => {
       expect(cv.getVolume(2172.25)).toEqual(0);
     });
-    it('should report 50 contracts traded at 2172.50', function () {
+    it('should report 50 contracts traded at 2172.50', () => {
       expect(cv.getVolume(2172.5)).toEqual(50);
     });
-    it('should report zero contracts traded at 2172.75', function () {
+    it('should report zero contracts traded at 2172.75', () => {
       expect(cv.getVolume(2172.75)).toEqual(0);
     });
-    describe('and the price level array is retrieved', function () {
+    describe('and the price level array is retrieved', () => {
       var priceLevels;
-      beforeEach(function () {
+      beforeEach(() => {
         priceLevels = cv.toArray();
       });
-      it('the price level array should contain one item', function () {
+      it('the price level array should contain one item', () => {
         expect(priceLevels.length).toEqual(1);
       });
-      it('the first price level item should be for 50 contracts', function () {
+      it('the first price level item should be for 50 contracts', () => {
         expect(priceLevels[0].volume).toEqual(50);
       });
-      it('the first price level item should be priced at 2172.50', function () {
+      it('the first price level item should be priced at 2172.50', () => {
         expect(priceLevels[0].price).toEqual(2172.5);
       });
     });
-    describe('and another 50 contracts are traded at 2172.50', function () {
-      beforeEach(function () {
+    describe('and another 50 contracts are traded at 2172.50', () => {
+      beforeEach(() => {
         cv.incrementVolume(2172.5, 50);
       });
-      it('should report zero contracts traded at 2172.25', function () {
+      it('should report zero contracts traded at 2172.25', () => {
         expect(cv.getVolume(2172.25)).toEqual(0);
       });
-      it('should report 50 contracts traded at 2172.50', function () {
+      it('should report 50 contracts traded at 2172.50', () => {
         expect(cv.getVolume(2172.5)).toEqual(100);
       });
-      it('should report zero contracts traded at 2172.75', function () {
+      it('should report zero contracts traded at 2172.75', () => {
         expect(cv.getVolume(2172.75)).toEqual(0);
       });
-      describe('and the price level array is retrieved', function () {
+      describe('and the price level array is retrieved', () => {
         var priceLevels;
-        beforeEach(function () {
+        beforeEach(() => {
           priceLevels = cv.toArray();
         });
-        it('the price level array should contain one item', function () {
+        it('the price level array should contain one item', () => {
           expect(priceLevels.length).toEqual(1);
         });
-        it('the first price level item should be for 100 contracts', function () {
+        it('the first price level item should be for 100 contracts', () => {
           expect(priceLevels[0].volume).toEqual(100);
         });
-        it('the first price level item should be priced at 2172.50', function () {
+        it('the first price level item should be priced at 2172.50', () => {
           expect(priceLevels[0].price).toEqual(2172.5);
         });
       });
     });
-    describe('and 200 contracts are traded at 2172.25', function () {
-      beforeEach(function () {
+    describe('and 200 contracts are traded at 2172.25', () => {
+      beforeEach(() => {
         cv.incrementVolume(2172.25, 200);
       });
-      it('should report 200 contracts traded at 2172.25', function () {
+      it('should report 200 contracts traded at 2172.25', () => {
         expect(cv.getVolume(2172.25)).toEqual(200);
       });
-      it('should report 50 contracts traded at 2172.50', function () {
+      it('should report 50 contracts traded at 2172.50', () => {
         expect(cv.getVolume(2172.5)).toEqual(50);
       });
-      it('should report zero contracts traded at 2172.75', function () {
+      it('should report zero contracts traded at 2172.75', () => {
         expect(cv.getVolume(2172.75)).toEqual(0);
       });
-      describe('and the price level array is retrieved', function () {
+      describe('and the price level array is retrieved', () => {
         var priceLevels;
-        beforeEach(function () {
+        beforeEach(() => {
           priceLevels = cv.toArray();
         });
-        it('the price level array should contain two items', function () {
+        it('the price level array should contain two items', () => {
           expect(priceLevels.length).toEqual(2);
         });
-        it('the first price level item should be for 200 contracts', function () {
+        it('the first price level item should be for 200 contracts', () => {
           expect(priceLevels[0].volume).toEqual(200);
         });
-        it('the first price level item should be priced at 2172.25', function () {
+        it('the first price level item should be priced at 2172.25', () => {
           expect(priceLevels[0].price).toEqual(2172.25);
         });
-        it('the second price level item should be for 50 contracts', function () {
+        it('the second price level item should be for 50 contracts', () => {
           expect(priceLevels[1].volume).toEqual(50);
         });
-        it('the second price level item should be priced at 2172.50', function () {
+        it('the second price level item should be priced at 2172.50', () => {
           expect(priceLevels[1].price).toEqual(2172.5);
         });
       });
     });
-    describe('and 3 contracts are traded at 2173.50', function () {
-      beforeEach(function () {
+    describe('and 3 contracts are traded at 2173.50', () => {
+      beforeEach(() => {
         cv.incrementVolume(2173.50, 3);
       });
-      it('should report 50 contracts traded at 2172.50', function () {
+      it('should report 50 contracts traded at 2172.50', () => {
         expect(cv.getVolume(2172.5)).toEqual(50);
       });
-      it('should report zero contracts traded at 2172.75', function () {
+      it('should report zero contracts traded at 2172.75', () => {
         expect(cv.getVolume(2172.75)).toEqual(0);
       });
-      it('should report zero contracts traded at 2173', function () {
+      it('should report zero contracts traded at 2173', () => {
         expect(cv.getVolume(2173)).toEqual(0);
       });
-      it('should report zero contracts traded at 2173.25', function () {
+      it('should report zero contracts traded at 2173.25', () => {
         expect(cv.getVolume(2173.25)).toEqual(0);
       });
-      it('should report 3 contracts traded at 2173.50', function () {
+      it('should report 3 contracts traded at 2173.50', () => {
         expect(cv.getVolume(2173.50)).toEqual(3);
       });
-      describe('and the price level array is retrieved', function () {
+      describe('and the price level array is retrieved', () => {
         var priceLevels;
-        beforeEach(function () {
+        beforeEach(() => {
           priceLevels = cv.toArray();
         });
-        it('the price level array should contain five items', function () {
+        it('the price level array should contain five items', () => {
           expect(priceLevels.length).toEqual(5);
         });
-        it('the first price level item should be for 50 contracts', function () {
+        it('the first price level item should be for 50 contracts', () => {
           expect(priceLevels[0].volume).toEqual(50);
         });
-        it('the first price level item should be priced at 2172.50', function () {
+        it('the first price level item should be priced at 2172.50', () => {
           expect(priceLevels[0].price).toEqual(2172.5);
         });
-        it('the second price level item should be for zero contracts', function () {
+        it('the second price level item should be for zero contracts', () => {
           expect(priceLevels[1].volume).toEqual(0);
         });
-        it('the second price level item should be priced at 2172.75', function () {
+        it('the second price level item should be priced at 2172.75', () => {
           expect(priceLevels[1].price).toEqual(2172.75);
         });
-        it('the third price level item should be for zero contracts', function () {
+        it('the third price level item should be for zero contracts', () => {
           expect(priceLevels[2].volume).toEqual(0);
         });
-        it('the third price level item should be priced at 2173.00', function () {
+        it('the third price level item should be priced at 2173.00', () => {
           expect(priceLevels[2].price).toEqual(2173);
         });
-        it('the fourth price level item should be for zero contracts', function () {
+        it('the fourth price level item should be for zero contracts', () => {
           expect(priceLevels[3].volume).toEqual(0);
         });
-        it('the fourth price level item should be priced at 2173.25', function () {
+        it('the fourth price level item should be priced at 2173.25', () => {
           expect(priceLevels[3].price).toEqual(2173.25);
         });
-        it('the fifth price level item should be for 3 contracts', function () {
+        it('the fifth price level item should be for 3 contracts', () => {
           expect(priceLevels[4].volume).toEqual(3);
         });
-        it('the fifth price level item should be priced at 2173.50', function () {
+        it('the fifth price level item should be priced at 2173.50', () => {
           expect(priceLevels[4].price).toEqual(2173.5);
         });
       });
     });
-    describe('and 99 contracts are traded at 2172.00', function () {
-      beforeEach(function () {
+    describe('and 99 contracts are traded at 2172.00', () => {
+      beforeEach(() => {
         cv.incrementVolume(2172.00, 99);
       });
-      it('should report 99 contracts traded at 2172.00', function () {
+      it('should report 99 contracts traded at 2172.00', () => {
         expect(cv.getVolume(2172.00)).toEqual(99);
       });
-      it('should report zero contracts traded at 2172.25', function () {
+      it('should report zero contracts traded at 2172.25', () => {
         expect(cv.getVolume(2172.25)).toEqual(0);
       });
-      it('should report 50 contracts traded at 2172.50', function () {
+      it('should report 50 contracts traded at 2172.50', () => {
         expect(cv.getVolume(2172.50)).toEqual(50);
       });
-      describe('and the price level array is retrieved', function () {
+      describe('and the price level array is retrieved', () => {
         var priceLevels;
-        beforeEach(function () {
+        beforeEach(() => {
           priceLevels = cv.toArray();
         });
-        it('the price level array should contain three items', function () {
+        it('the price level array should contain three items', () => {
           expect(priceLevels.length).toEqual(3);
         });
-        it('the first price level item should be for 99 contracts', function () {
+        it('the first price level item should be for 99 contracts', () => {
           expect(priceLevels[0].volume).toEqual(99);
         });
-        it('the first price level item should be priced at 2172.00', function () {
+        it('the first price level item should be priced at 2172.00', () => {
           expect(priceLevels[0].price).toEqual(2172);
         });
-        it('the second price level item should be for zero contracts', function () {
+        it('the second price level item should be for zero contracts', () => {
           expect(priceLevels[1].volume).toEqual(0);
         });
-        it('the second price level item should be priced at 2172.25', function () {
+        it('the second price level item should be priced at 2172.25', () => {
           expect(priceLevels[1].price).toEqual(2172.25);
         });
-        it('the third price level item should be for 50 contracts', function () {
+        it('the third price level item should be for 50 contracts', () => {
           expect(priceLevels[2].volume).toEqual(50);
         });
-        it('the third price level item should be priced at 2172.50', function () {
+        it('the third price level item should be priced at 2172.50', () => {
           expect(priceLevels[2].price).toEqual(2172.50);
         });
       });
     });
-    describe('and the container is reset', function () {
-      beforeEach(function () {
+    describe('and the container is reset', () => {
+      beforeEach(() => {
         cv.reset();
       });
-      describe('and the price level array is retrieved', function () {
+      describe('and the price level array is retrieved', () => {
         var priceLevels;
-        beforeEach(function () {
+        beforeEach(() => {
           priceLevels = cv.toArray();
         });
-        it('the price level array should contain zero items', function () {
+        it('the price level array should contain zero items', () => {
           expect(priceLevels.length).toEqual(0);
         });
       });
     });
   });
-  describe('and an observer is added to the container', function () {
+  describe('and an observer is added to the container', () => {
     var spyOne;
-    beforeEach(function () {
+    beforeEach(() => {
       cv.on('events', spyOne = jasmine.createSpy('spyOne'));
     });
-    describe('and 50 contracts are traded at 2172.50', function () {
+    describe('and 50 contracts are traded at 2172.50', () => {
       beforeEach(function () {
         cv.incrementVolume(2172.5, 50);
       });
-      it('the observer should be called once', function () {
+      it('the observer should be called once', () => {
         expect(spyOne).toHaveBeenCalledTimes(1);
       });
-      it('the arguments should refer to the container', function () {
+      it('the arguments should refer to the container', () => {
         expect(spyOne.calls.mostRecent().args[0].container).toBe(cv);
       });
-      it('the arguments should specify an event type of "update"', function () {
+      it('the arguments should specify an event type of "update"', () => {
         expect(spyOne.calls.mostRecent().args[0].event).toEqual('update');
       });
-      it('the arguments should specify a price of 2172.5', function () {
+      it('the arguments should specify a price of 2172.5', () => {
         expect(spyOne.calls.mostRecent().args[0].price).toEqual(2172.5);
       });
-      it('the arguments should specify a volume of 50', function () {
+      it('the arguments should specify a volume of 50', () => {
         expect(spyOne.calls.mostRecent().args[0].volume).toEqual(50);
       });
-      describe('and another 50 contracts are traded at 2172.50', function () {
+      describe('and another 50 contracts are traded at 2172.50', () => {
         beforeEach(function () {
           cv.incrementVolume(2172.5, 50);
         });
-        it('the observer should be called once more', function () {
+        it('the observer should be called once more', () => {
           expect(spyOne).toHaveBeenCalledTimes(2);
         });
-        it('the arguments should refer to the container', function () {
+        it('the arguments should refer to the container', () => {
           expect(spyOne.calls.mostRecent().args[0].container).toBe(cv);
         });
-        it('the arguments should specify an event type of "update"', function () {
+        it('the arguments should specify an event type of "update"', () => {
           expect(spyOne.calls.mostRecent().args[0].event).toEqual('update');
         });
-        it('the arguments should specify a price of 2172.5', function () {
+        it('the arguments should specify a price of 2172.5', () => {
           expect(spyOne.calls.mostRecent().args[0].price).toEqual(2172.5);
         });
-        it('the arguments should specify a volume of 100', function () {
+        it('the arguments should specify a volume of 100', () => {
           expect(spyOne.calls.mostRecent().args[0].volume).toEqual(100);
         });
       });
-      describe('and 99 contracts are traded at 2171.75', function () {
+      describe('and 99 contracts are traded at 2171.75', () => {
         var spyTwo;
         beforeEach(function () {
           cv.incrementVolume(2171.75, 99);
         });
-        it('the observer should be called three more times', function () {
+        it('the observer should be called three more times', () => {
           expect(spyOne).toHaveBeenCalledTimes(4);
         });
-        it('the arguments (for the first call) should specify a price of 2172.25', function () {
+        it('the arguments (for the first call) should specify a price of 2172.25', () => {
           expect(spyOne.calls.argsFor(1)[0].price).toEqual(2172.25);
         });
-        it('the arguments (for the first call) should specify a volume of zero', function () {
+        it('the arguments (for the first call) should specify a volume of zero', () => {
           expect(spyOne.calls.argsFor(1)[0].volume).toEqual(0);
         });
-        it('the arguments (for the second call) should specify a price of 2172.00', function () {
+        it('the arguments (for the second call) should specify a price of 2172.00', () => {
           expect(spyOne.calls.argsFor(2)[0].price).toEqual(2172);
         });
-        it('the arguments (for the second call) should specify a volume of zero', function () {
+        it('the arguments (for the second call) should specify a volume of zero', () => {
           expect(spyOne.calls.argsFor(2)[0].volume).toEqual(0);
         });
-        it('the arguments (for the third call) should specify a price of 2171.75', function () {
+        it('the arguments (for the third call) should specify a price of 2171.75', () => {
           expect(spyOne.calls.argsFor(3)[0].price).toEqual(2171.75);
         });
-        it('the arguments (for the third call) should specify a volume of 99', function () {
+        it('the arguments (for the third call) should specify a volume of 99', () => {
           expect(spyOne.calls.argsFor(3)[0].volume).toEqual(99);
         });
       });
-      describe('and 555 contracts are traded at 2173.25', function () {
+      describe('and 555 contracts are traded at 2173.25', () => {
         beforeEach(function () {
           cv.incrementVolume(2173.25, 555);
         });
-        it('the observer should be called three more times', function () {
+        it('the observer should be called three more times', () => {
           expect(spyOne).toHaveBeenCalledTimes(4);
         });
-        it('the arguments (for the first call) should specify a price of 2172.75', function () {
+        it('the arguments (for the first call) should specify a price of 2172.75', () => {
           expect(spyOne.calls.argsFor(1)[0].price).toEqual(2172.75);
         });
-        it('the arguments (for the first call) should specify a volume of zero', function () {
+        it('the arguments (for the first call) should specify a volume of zero', () => {
           expect(spyOne.calls.argsFor(1)[0].volume).toEqual(0);
         });
-        it('the arguments (for the second call) should specify a price of 2173.00', function () {
+        it('the arguments (for the second call) should specify a price of 2173.00', () => {
           expect(spyOne.calls.argsFor(2)[0].price).toEqual(2173);
         });
-        it('the arguments (for the second call) should specify a volume of zero', function () {
+        it('the arguments (for the second call) should specify a volume of zero', () => {
           expect(spyOne.calls.argsFor(2)[0].volume).toEqual(0);
         });
-        it('the arguments (for the third call) should specify a price of 2173.25', function () {
+        it('the arguments (for the third call) should specify a price of 2173.25', () => {
           expect(spyOne.calls.argsFor(3)[0].price).toEqual(2173.25);
         });
-        it('the arguments (for the third call) should specify a volume of 555', function () {
+        it('the arguments (for the third call) should specify a volume of 555', () => {
           expect(spyOne.calls.argsFor(3)[0].volume).toEqual(555);
         });
       });
-      describe('and the observer is removed from the container', function () {
+      describe('and the observer is removed from the container', () => {
         beforeEach(function () {
           cv.off('events', spyOne);
         });
-        describe('and another 50 contracts are traded at 2172.50', function () {
+        describe('and another 50 contracts are traded at 2172.50', () => {
           beforeEach(function () {
             cv.incrementVolume(2172.5, 50);
           });
-          it('the observer should be called once', function () {
+          it('the observer should be called once', () => {
             expect(spyOne).toHaveBeenCalledTimes(1);
           });
         });
@@ -5988,22 +6118,22 @@ describe('When a cumulative volume container is created with a tick increment of
   });
 });
 
-},{"../../../lib/marketState/CumulativeVolume":4}],29:[function(require,module,exports){
-var Profile = require('../../../lib/marketState/Profile');
+},{"../../../lib/marketState/CumulativeVolume":4}],33:[function(require,module,exports){
+const Profile = require('../../../lib/marketState/Profile');
 
-describe('When a Profile is created (for a symbol with unitCode "2")', function () {
+describe('When a Profile is created (for a symbol with unitCode "2")', () => {
   'use strict';
 
   var p;
-  beforeEach(function () {
+  beforeEach(() => {
     p = new Profile('ZCZ17', 'Corn', 'CME', '2');
   });
-  it('formats 123.5 (with unit code 2) as "123-4"', function () {
+  it('formats 123.5 (with unit code 2) as "123-4"', () => {
     expect(p.formatPrice(123.5)).toEqual('123-4');
   });
 });
 
-},{"../../../lib/marketState/Profile":5}],30:[function(require,module,exports){
+},{"../../../lib/marketState/Profile":5}],34:[function(require,module,exports){
 let monthCodes = require('./../../../lib/util/monthCodes');
 
 describe('When looking up a month name by code', () => {
@@ -6091,826 +6221,7 @@ describe('When looking up a month number by code', () => {
   });
 });
 
-},{"./../../../lib/util/monthCodes":6}],31:[function(require,module,exports){
-let PriceFormatter = require('./../../../lib/util/priceFormatter');
-
-describe('When a price formatter is created', () => {
-  let priceFormatter;
-  describe('with a decimal separator', () => {
-    beforeEach(() => {
-      priceFormatter = new PriceFormatter('.');
-    });
-    it('formats 377 (with unit code 2) as "377.000"', () => {
-      expect(priceFormatter.format(377, '2')).toEqual('377.000');
-    });
-    it('formats -377 (with unit code 2) as "-377.000"', () => {
-      expect(priceFormatter.format(-377, '2')).toEqual('-377.000');
-    });
-    it('formats 377.5 (with unit code 2) as "377.500"', () => {
-      expect(priceFormatter.format(377.5, '2')).toEqual('377.500');
-    });
-    it('formats 377.75 (with unit code 2) as "377.750"', () => {
-      expect(priceFormatter.format(377.75, '2')).toEqual('377.750');
-    });
-    it('formats 3770.75 (with unit code 2) as "3770.750"', () => {
-      expect(priceFormatter.format(3770.75, '2')).toEqual('3770.750');
-    });
-    it('formats 37700.75 (with unit code 2) as "37700.750"', () => {
-      expect(priceFormatter.format(37700.75, '2')).toEqual('37700.750');
-    });
-    it('formats 377000.75 (with unit code 2) as "377000.750"', () => {
-      expect(priceFormatter.format(377000.75, '2')).toEqual('377000.750');
-    });
-    it('formats 3770000.75 (with unit code 2) as "3770000.750"', () => {
-      expect(priceFormatter.format(3770000.75, '2')).toEqual('3770000.750');
-    });
-    it('formats 3770000 (with unit code 2) as "3770000.000"', () => {
-      expect(priceFormatter.format(3770000, '2')).toEqual('3770000.000');
-    });
-    it('formats 0 (with unit code 2) as "0.000"', () => {
-      expect(priceFormatter.format(0, '2')).toEqual('0.000');
-    });
-    it('formats undefined (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(undefined, '2')).toEqual('');
-    });
-    it('formats null (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(null, '2')).toEqual('');
-    });
-    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(Number.NaN, '2')).toEqual('');
-    });
-    it('formats 0 (with unit code 8) as "0"', () => {
-      expect(priceFormatter.format(0, '8')).toEqual('0');
-    });
-    it('formats 1000 (with unit code 8) as "1000"', () => {
-      expect(priceFormatter.format(1000, '8')).toEqual('1000');
-    });
-  });
-  describe('with a decimal separator, no special fractions, and a thousands separator', () => {
-    beforeEach(() => {
-      priceFormatter = new PriceFormatter('.', false, ',');
-    });
-    it('formats 377 (with unit code 2) as "377.000"', () => {
-      expect(priceFormatter.format(377, '2')).toEqual('377.000');
-    });
-    it('formats -377 (with unit code 2) as "-377.000"', () => {
-      expect(priceFormatter.format(-377, '2')).toEqual('-377.000');
-    });
-    it('formats 377.5 (with unit code 2) as "377.500"', () => {
-      expect(priceFormatter.format(377.5, '2')).toEqual('377.500');
-    });
-    it('formats 377.75 (with unit code 2) as "377.750"', () => {
-      expect(priceFormatter.format(377.75, '2')).toEqual('377.750');
-    });
-    it('formats 3770.75 (with unit code 2) as "3,770.750"', () => {
-      expect(priceFormatter.format(3770.75, '2')).toEqual('3,770.750');
-    });
-    it('formats 37700.75 (with unit code 2) as "37,700.750"', () => {
-      expect(priceFormatter.format(37700.75, '2')).toEqual('37,700.750');
-    });
-    it('formats 377000.75 (with unit code 2) as "377,000.750"', () => {
-      expect(priceFormatter.format(377000.75, '2')).toEqual('377,000.750');
-    });
-    it('formats -377000.75 (with unit code 2) as "-377,000.750"', () => {
-      expect(priceFormatter.format(-377000.75, '2')).toEqual('-377,000.750');
-    });
-    it('formats 3770000.75 (with unit code 2) as "3,770,000.750"', () => {
-      expect(priceFormatter.format(3770000.75, '2')).toEqual('3,770,000.750');
-    });
-    it('formats 3770000 (with unit code 2) as "3,770,000.000"', () => {
-      expect(priceFormatter.format(3770000, '2')).toEqual('3,770,000.000');
-    });
-    it('formats 0 (with unit code 2) as "0.000"', () => {
-      expect(priceFormatter.format(0, '2')).toEqual('0.000');
-    });
-    it('formats undefined (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(undefined, '2')).toEqual('');
-    });
-    it('formats null (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(null, '2')).toEqual('');
-    });
-    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(Number.NaN, '2')).toEqual('');
-    });
-    it('formats 0 (with unit code 8) as "0"', () => {
-      expect(priceFormatter.format(0, '8')).toEqual('0');
-    });
-    it('formats 1000 (with unit code 8) as "1,000"', () => {
-      expect(priceFormatter.format(1000, '8')).toEqual('1,000');
-    });
-  });
-  describe('with a dash separator and no special fractions', () => {
-    beforeEach(() => {
-      priceFormatter = new PriceFormatter('-', false);
-    });
-    it('formats 123 (with unit code 2) as "123-0"', () => {
-      expect(priceFormatter.format(123, '2')).toEqual('123-0');
-    });
-    it('formats -123 (with unit code 2) as "-123-0"', () => {
-      expect(priceFormatter.format(-123, '2')).toEqual('-123-0');
-    });
-    it('formats 123.5 (with unit code 2) as "123-4"', () => {
-      expect(priceFormatter.format(123.5, '2')).toEqual('123-4');
-    });
-    it('formats -123.5 (with unit code 2) as "-123-4"', () => {
-      expect(priceFormatter.format(-123.5, '2')).toEqual('-123-4');
-    });
-    it('formats 0.5 (with unit code 2) as "0-4"', () => {
-      expect(priceFormatter.format(0.5, '2')).toEqual('0-4');
-    });
-    it('formats 0 (with unit code 2) as "0-0"', () => {
-      expect(priceFormatter.format(0, '2')).toEqual('0-0');
-    });
-    it('formats zero-length string (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format('', '2')).toEqual('');
-    });
-    it('formats undefined (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(undefined, '2')).toEqual('');
-    });
-    it('formats null (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(null, '2')).toEqual('');
-    });
-    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(Number.NaN, '2')).toEqual('');
-    });
-    it('formats 123 (with unit code A) as "123.00"', () => {
-      expect(priceFormatter.format(123, 'A')).toEqual('123.00');
-    });
-    it('formats 123.5 (with unit code A) as "123.50"', () => {
-      expect(priceFormatter.format(123.5, 'A')).toEqual('123.50');
-    });
-    it('formats 123.555 (with unit code A) as "123.56"', () => {
-      expect(priceFormatter.format(123.555, 'A')).toEqual('123.56');
-    });
-  });
-  describe('with a dash separator and special fractions', () => {
-    beforeEach(() => {
-      priceFormatter = new PriceFormatter('-', true);
-    });
-    it('formats 123.625 (with unit code 5) as "123-200"', () => {
-      expect(priceFormatter.format(123.625, '5')).toEqual('123-200');
-    });
-    it('formats -123.625 (with unit code 5) as "-123-200"', () => {
-      expect(priceFormatter.format(-123.625, '5')).toEqual('-123-200');
-    });
-    it('formats 123.640625 (with unit code 5) as "123-205"', () => {
-      expect(priceFormatter.format(123.640625, '5')).toEqual('123-205');
-    });
-    it('formats -123.640625 (with unit code 5) as "-123-205"', () => {
-      expect(priceFormatter.format(-123.640625, '5')).toEqual('-123-205');
-    });
-    it('formats 114.5156 (with unit code 6) as "114-165"', () => {
-      expect(priceFormatter.format(114.5156, '6')).toEqual('114-165');
-    });
-    it('formats 114.7891 (with unit code 6) as "114-252"', () => {
-      expect(priceFormatter.format(114.7891, '6')).toEqual('114-252');
-    });
-    it('formats 114.8438 (with unit code 6) as "114-270"', () => {
-      expect(priceFormatter.format(114.8438, '6')).toEqual('114-270');
-    });
-    it('formats 114.75 (with unit code 6) as "114-240"', () => {
-      expect(priceFormatter.format(114.75, '6')).toEqual('114-240');
-    });
-    it('formats 122.7031 (with unit code 5) as "122-225"', () => {
-      expect(priceFormatter.format(122.7031, '5')).toEqual('122-225');
-    });
-    it('formats 0 (with unit code 2) as "0"', function () {
-      expect(priceFormatter.format(0, '2')).toEqual('0-0');
-    });
-  });
-  describe('with a tick separator and no special fractions', () => {
-    beforeEach(() => {
-      priceFormatter = new PriceFormatter('\'', false);
-    });
-    it('formats 123 (with unit code 2) as "123\'0"', () => {
-      expect(priceFormatter.format(123, '2')).toEqual('123\'0');
-    });
-    it('formats 123.5 (with unit code 2) as "123\'4"', () => {
-      expect(priceFormatter.format(123.5, '2')).toEqual('123\'4');
-    });
-    it('formats -123.5 (with unit code 2) as "-123\'4"', () => {
-      expect(priceFormatter.format(-123.5, '2')).toEqual('-123\'4');
-    });
-    it('formats 0.5 (with unit code 2) as "0\'4"', () => {
-      expect(priceFormatter.format(0.5, '2')).toEqual('0\'4');
-    });
-    it('formats -0.5 (with unit code 2) as "-0\'4"', () => {
-      expect(priceFormatter.format(-0.5, '2')).toEqual('-0\'4');
-    });
-    it('formats 0 (with unit code 2) as "0\'0"', () => {
-      expect(priceFormatter.format(0, '2')).toEqual('0\'0');
-    });
-    it('formats zero-length string (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format('', '2')).toEqual('');
-    });
-    it('formats undefined (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(undefined, '2')).toEqual('');
-    });
-    it('formats null (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(null, '2')).toEqual('');
-    });
-    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(Number.NaN, '2')).toEqual('');
-    });
-  });
-  describe('with no separator and no special fractions', () => {
-    beforeEach(() => {
-      priceFormatter = new PriceFormatter('', false);
-    });
-    it('formats 123 (with unit code 2) as "1230"', () => {
-      expect(priceFormatter.format(123, '2')).toEqual('1230');
-    });
-    it('formats 123.5 (with unit code 2) as "1234"', () => {
-      expect(priceFormatter.format(123.5, '2')).toEqual('1234');
-    });
-    it('formats 0.5 (with unit code 2) as "4"', () => {
-      expect(priceFormatter.format(0.5, '2')).toEqual('4');
-    });
-    it('formats 0 (with unit code 2) as "0"', () => {
-      expect(priceFormatter.format(0, '2')).toEqual('0');
-    });
-    it('formats zero-length string (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format('', '2')).toEqual('');
-    });
-    it('formats undefined (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(undefined, '2')).toEqual('');
-    });
-    it('formats null (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(null, '2')).toEqual('');
-    });
-    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-      expect(priceFormatter.format(Number.NaN, '2')).toEqual('');
-    });
-  });
-  describe('with parenthetical negatives', () => {
-    describe('and a decimal separator, no special fractions, and no thousands separator', () => {
-      beforeEach(() => {
-        priceFormatter = new PriceFormatter('.', false, '', true);
-      });
-      it('formats 3770.75 (with unit code 2) as "3770.750"', () => {
-        expect(priceFormatter.format(3770.75, '2')).toEqual('3770.750');
-      });
-      it('formats -3770.75 (with unit code 2) as "(3770.750)"', () => {
-        expect(priceFormatter.format(-3770.75, '2')).toEqual('(3770.750)');
-      });
-      it('formats 0 (with unit code 2) as "0.000"', () => {
-        expect(priceFormatter.format(0, '2')).toEqual('0.000');
-      });
-    });
-    describe('with a decimal separator, no special fractions, and a thousands separator', () => {
-      beforeEach(function () {
-        priceFormatter = new PriceFormatter('.', false, ',', true);
-      });
-      it('formats 3770.75 (with unit code 2) as "3,770.750"', () => {
-        expect(priceFormatter.format(3770.75, '2')).toEqual('3,770.750');
-      });
-      it('formats -3770.75 (with unit code 2) as "(3,770.750)"', () => {
-        expect(priceFormatter.format(-3770.75, '2')).toEqual('(3,770.750)');
-      });
-      it('formats 0 (with unit code 2) as "0.000"', () => {
-        expect(priceFormatter.format(0, '2')).toEqual('0.000');
-      });
-    });
-    describe('with a dash separator and no special fractions', () => {
-      beforeEach(function () {
-        priceFormatter = new PriceFormatter('-', false, '', true);
-      });
-      it('formats 123 (with unit code 2) as "123-0"', function () {
-        expect(priceFormatter.format(123, '2')).toEqual('123-0');
-      });
-      it('formats -123 (with unit code 2) as "(123-0)"', function () {
-        expect(priceFormatter.format(-123, '2')).toEqual('(123-0)');
-      });
-      it('formats 123.5 (with unit code 2) as "123-4"', function () {
-        expect(priceFormatter.format(123.5, '2')).toEqual('123-4');
-      });
-      it('formats -123.5 (with unit code 2) as "(123-4)"', function () {
-        expect(priceFormatter.format(-123.5, '2')).toEqual('(123-4)');
-      });
-      it('formats 0.5 (with unit code 2) as "0-4"', () => {
-        expect(priceFormatter.format(0.5, '2')).toEqual('0-4');
-      });
-      it('formats -0.5 (with unit code 2) as "(0-4)"', () => {
-        expect(priceFormatter.format(-0.5, '2')).toEqual('(0-4)');
-      });
-      it('formats 0 (with unit code 2) as "0"', function () {
-        expect(priceFormatter.format(0, '2')).toEqual('0-0');
-      });
-    });
-    describe('with a dash separator and special fractions', () => {
-      beforeEach(() => {
-        priceFormatter = new PriceFormatter('-', true, '', true);
-      });
-      it('formats 123.625 (with unit code 5) as "123-200"', () => {
-        expect(priceFormatter.format(123.625, '5')).toEqual('123-200');
-      });
-      it('formats -123.625 (with unit code 5) as "(123-200)"', () => {
-        expect(priceFormatter.format(-123.625, '5')).toEqual('(123-200)');
-      });
-      it('formats 123.640625 (with unit code 5) as "123-205"', () => {
-        expect(priceFormatter.format(123.640625, '5')).toEqual('123-205');
-      });
-      it('formats -123.640625 (with unit code 5) as "(123-205)"', () => {
-        expect(priceFormatter.format(-123.640625, '5')).toEqual('(123-205)');
-      });
-    });
-    describe('with a tick separator and no special fractions', () => {
-      beforeEach(function () {
-        priceFormatter = new PriceFormatter('\'', false, '', true);
-      });
-      it('formats 123.5 (with unit code 2) as "123\'4"', function () {
-        expect(priceFormatter.format(123.5, '2')).toEqual('123\'4');
-      });
-      it('formats -123.5 (with unit code 2) as "(123\'4)"', function () {
-        expect(priceFormatter.format(-123.5, '2')).toEqual('(123\'4)');
-      });
-      it('formats 0.5 (with unit code 2) as "0\'4"', () => {
-        expect(priceFormatter.format(0.5, '2')).toEqual('0\'4');
-      });
-      it('formats -0.5 (with unit code 2) as "(0\'4)"', () => {
-        expect(priceFormatter.format(-0.5, '2')).toEqual('(0\'4)');
-      });
-      it('formats 0 (with unit code 2) as "0\'0"', () => {
-        expect(priceFormatter.format(0, '2')).toEqual('0\'0');
-      });
-    });
-    describe('with no separator and no special fractions', () => {
-      beforeEach(function () {
-        priceFormatter = new PriceFormatter('', false, '', true);
-      });
-      it('formats 0.5 (with unit code 2) as "4"', function () {
-        expect(priceFormatter.format(0.5, '2')).toEqual('4');
-      });
-      it('formats -0.5 (with unit code 2) as "(4)"', function () {
-        expect(priceFormatter.format(-0.5, '2')).toEqual('(4)');
-      });
-      it('formats 0 (with unit code 2) as "0"', function () {
-        expect(priceFormatter.format(0, '2')).toEqual('0');
-      });
-    });
-  });
-});
-
-},{"./../../../lib/util/priceFormatter":7}],32:[function(require,module,exports){
-let stringToDecimalFormatterSpec = require('./../../../lib/util/stringToDecimalFormatter');
-
-describe('when parsing prices', () => {
-  'use strict';
-
-  describe('with a fractional separator', () => {
-    it('returns 125.625 (with unit code 2) when parsing "125-5"', () => {
-      expect(stringToDecimalFormatterSpec('125-5', '2')).toEqual(125.625);
-    });
-    it('returns 125.625 (with unit code 5) when parsing "125-240"', () => {
-      expect(stringToDecimalFormatterSpec('125-240', '5')).toEqual(125.75);
-    });
-  });
-});
-
-},{"./../../../lib/util/stringToDecimalFormatter":8}],33:[function(require,module,exports){
-let timeFormatter = require('./../../../lib/util/timeFormatter');
-
-describe('When a time formatter is created (without specifying the clock)', () => {
-  let tf;
-  beforeEach(() => {
-    tf = timeFormatter();
-  });
-  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
-    let quote;
-    beforeEach(() => {
-      quote = {
-        lastPrice: 123.456
-      };
-    });
-    describe('and the quote time is midnight on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 0, 0, 0);
-      });
-      it('the formatter outputs "00:00:00"', () => {
-        expect(tf.format(quote)).toEqual('00:00:00');
-      });
-    });
-    describe('and the quote time is noon on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 12, 0, 0);
-      });
-      it('the formatter outputs "12:00:00"', () => {
-        expect(tf.format(quote)).toEqual('12:00:00');
-      });
-    });
-    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 7, 8, 9);
-      });
-      it('the formatter outputs "07:08:09"', () => {
-        expect(tf.format(quote)).toEqual('07:08:09');
-      });
-    });
-    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 13, 8, 9);
-      });
-      it('the formatter outputs "13:08:09"', () => {
-        expect(tf.format(quote)).toEqual('13:08:09');
-      });
-    });
-    describe('and the quote time is 1:08:09 PM and timezone is present', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 13, 8, 9);
-        quote.timezone = 'CST';
-      });
-      it('the formatter outputs "13:08:09"', () => {
-        expect(tf.format(quote)).toEqual('13:08:09 CST');
-      });
-    });
-  });
-  describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
-    let quote;
-    beforeEach(() => {
-      quote = {
-        lastPrice: 123.456,
-        flag: 'p'
-      };
-    });
-    describe('and the quote time is midnight on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 0, 0, 0);
-      });
-      it('the formatter outputs "05/03/16"', () => {
-        expect(tf.format(quote)).toEqual('05/03/16');
-      });
-    });
-    describe('and the quote time is noon on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 12, 0, 0);
-      });
-      it('the formatter outputs "05/03/16"', () => {
-        expect(tf.format(quote)).toEqual('05/03/16');
-      });
-    });
-  });
-  describe('and a quote is formatted (with with no "flag" and a "lastPrice" value and a "sessionT" indicator)', () => {
-    let quote;
-    beforeEach(() => {
-      quote = {
-        lastPrice: 123.456,
-        sessionT: true
-      };
-    });
-    describe('and the quote time is midnight on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 0, 0, 0);
-      });
-      it('the formatter outputs "05/03/16"', () => {
-        expect(tf.format(quote)).toEqual('05/03/16');
-      });
-    });
-    describe('and the quote time is noon on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 12, 0, 0);
-      });
-      it('the formatter outputs "05/03/16"', () => {
-        expect(tf.format(quote)).toEqual('05/03/16');
-      });
-    });
-  });
-});
-describe('When a time formatter is created (and a 24-hour clock is specified)', () => {
-  let tf;
-  beforeEach(() => {
-    tf = timeFormatter(false);
-  });
-  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
-    let quote;
-    beforeEach(() => {
-      quote = {
-        lastPrice: 123.456
-      };
-    });
-    describe('and the quote time is midnight on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 0, 0, 0);
-      });
-      it('the formatter outputs "00:00:00"', () => {
-        expect(tf.format(quote)).toEqual('00:00:00');
-      });
-    });
-    describe('and the quote time is noon on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 12, 0, 0);
-      });
-      it('the formatter outputs "12:00:00"', () => {
-        expect(tf.format(quote)).toEqual('12:00:00');
-      });
-    });
-    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 7, 8, 9);
-      });
-      it('the formatter outputs "07:08:09"', () => {
-        expect(tf.format(quote)).toEqual('07:08:09');
-      });
-    });
-    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 13, 8, 9);
-      });
-      it('the formatter outputs "13:08:09"', () => {
-        expect(tf.format(quote)).toEqual('13:08:09');
-      });
-    });
-    describe('and the quote time is 1:08:09 PM and a timezone is present', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 13, 8, 9);
-        quote.timezone = 'EDT';
-      });
-      it('the formatter outputs "13:08:09"', () => {
-        expect(tf.format(quote)).toEqual('13:08:09 EDT');
-      });
-    });
-  });
-  describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
-    let quote;
-    beforeEach(() => {
-      quote = {
-        lastPrice: 123.456,
-        flag: 'p'
-      };
-    });
-    describe('and the quote time is midnight on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 0, 0, 0);
-      });
-      it('the formatter outputs "05/03/16"', () => {
-        expect(tf.format(quote)).toEqual('05/03/16');
-      });
-    });
-    describe('and the quote time is noon on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 12, 0, 0);
-      });
-      it('the formatter outputs "05/03/16"', () => {
-        expect(tf.format(quote)).toEqual('05/03/16');
-      });
-    });
-  });
-});
-describe('When a time formatter is created (and a "short" 24-hour clock is specified)', () => {
-  let tf;
-  beforeEach(() => {
-    tf = timeFormatter(false, true);
-  });
-  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
-    let quote;
-    beforeEach(() => {
-      quote = {
-        lastPrice: 123.456
-      };
-    });
-    describe('and the quote time is midnight on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 0, 0, 0);
-      });
-      it('the formatter outputs "00:00"', () => {
-        expect(tf.format(quote)).toEqual('00:00');
-      });
-    });
-    describe('and the quote time is noon on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 12, 0, 0);
-      });
-      it('the formatter outputs "12:00"', () => {
-        expect(tf.format(quote)).toEqual('12:00');
-      });
-    });
-    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 7, 8, 9);
-      });
-      it('the formatter outputs "07:08"', () => {
-        expect(tf.format(quote)).toEqual('07:08');
-      });
-    });
-    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 13, 8, 9);
-      });
-      it('the formatter outputs "13:08"', () => {
-        expect(tf.format(quote)).toEqual('13:08');
-      });
-    });
-    describe('and the quote time is 1:08:09 PM and a timezone is present', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 13, 8, 9);
-        quote.timezone = 'EDT';
-      });
-      it('the formatter outputs "13:08"', () => {
-        expect(tf.format(quote)).toEqual('13:08 EDT');
-      });
-    });
-  });
-  describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
-    let quote;
-    beforeEach(() => {
-      quote = {
-        lastPrice: 123.456,
-        flag: 'p'
-      };
-    });
-    describe('and the quote time is midnight on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 0, 0, 0);
-      });
-      it('the formatter outputs "05/03/16"', () => {
-        expect(tf.format(quote)).toEqual('05/03/16');
-      });
-    });
-    describe('and the quote time is noon on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 12, 0, 0);
-      });
-      it('the formatter outputs "05/03/16"', () => {
-        expect(tf.format(quote)).toEqual('05/03/16');
-      });
-    });
-  });
-});
-describe('When a time formatter is created (and a 12-hour clock is specified)', () => {
-  let tf;
-  beforeEach(() => {
-    tf = timeFormatter(true);
-  });
-  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
-    let quote;
-    beforeEach(() => {
-      quote = {
-        lastPrice: 123.456
-      };
-    });
-    describe('and the quote time is midnight on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 0, 0, 0);
-      });
-      it('the formatter outputs "12:00:00 AM"', () => {
-        expect(tf.format(quote)).toEqual('12:00:00 AM');
-      });
-    });
-    describe('and the quote time is five after midnight on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 0, 5, 0);
-      });
-      it('the formatter outputs "12:05:00 AM"', () => {
-        expect(tf.format(quote)).toEqual('12:05:00 AM');
-      });
-    });
-    describe('and the quote time is noon on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 12, 0, 0);
-      });
-      it('the formatter outputs "12:00:00 PM"', () => {
-        expect(tf.format(quote)).toEqual('12:00:00 PM');
-      });
-    });
-    describe('and the quote time is ten after noon on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 12, 10, 0);
-      });
-      it('the formatter outputs "12:10:00 PM"', () => {
-        expect(tf.format(quote)).toEqual('12:10:00 PM');
-      });
-    });
-    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 7, 8, 9);
-      });
-      it('the formatter outputs "07:08:09 AM"', () => {
-        expect(tf.format(quote)).toEqual('07:08:09 AM');
-      });
-    });
-    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 13, 8, 9);
-      });
-      it('the formatter outputs "01:08:09 PM"', () => {
-        expect(tf.format(quote)).toEqual('01:08:09 PM');
-      });
-    });
-  });
-  describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
-    let quote;
-    beforeEach(() => {
-      quote = {
-        lastPrice: 123.456,
-        flag: 'p'
-      };
-    });
-    describe('and the quote time is midnight on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 0, 0, 0);
-      });
-      it('the formatter outputs "05/03/16"', () => {
-        expect(tf.format(quote)).toEqual('05/03/16');
-      });
-    });
-    describe('and the quote time is noon on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 12, 0, 0);
-      });
-      it('the formatter outputs "05/03/16"', () => {
-        expect(tf.format(quote)).toEqual('05/03/16');
-      });
-    });
-  });
-});
-describe('When a time formatter is created (and a "short" 12-hour clock is specified)', () => {
-  let tf;
-  beforeEach(() => {
-    tf = timeFormatter(true, true);
-  });
-  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
-    let quote;
-    beforeEach(() => {
-      quote = {
-        lastPrice: 123.456
-      };
-    });
-    describe('and the quote time is midnight on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 0, 0, 0);
-      });
-      it('the formatter outputs "12:00A"', () => {
-        expect(tf.format(quote)).toEqual('12:00A');
-      });
-    });
-    describe('and the quote time is five after midnight on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 0, 5, 0);
-      });
-      it('the formatter outputs "12:05A"', () => {
-        expect(tf.format(quote)).toEqual('12:05A');
-      });
-    });
-    describe('and the quote time is noon on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 12, 0, 0);
-      });
-      it('the formatter outputs "12:00P"', () => {
-        expect(tf.format(quote)).toEqual('12:00P');
-      });
-    });
-    describe('and the quote time is ten after noon on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 12, 10, 0);
-      });
-      it('the formatter outputs "12:10P"', () => {
-        expect(tf.format(quote)).toEqual('12:10P');
-      });
-    });
-    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 7, 8, 9);
-      });
-      it('the formatter outputs "07:08A"', () => {
-        expect(tf.format(quote)).toEqual('07:08A');
-      });
-    });
-    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 13, 8, 9);
-      });
-      it('the formatter outputs "01:08P"', () => {
-        expect(tf.format(quote)).toEqual('01:08P');
-      });
-    });
-  });
-  describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
-    let quote;
-    beforeEach(() => {
-      quote = {
-        lastPrice: 123.456,
-        flag: 'p'
-      };
-    });
-    describe('and the quote time is midnight on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 0, 0, 0);
-      });
-      it('the formatter outputs "05/03/16"', () => {
-        expect(tf.format(quote)).toEqual('05/03/16');
-      });
-    });
-    describe('and the quote time is noon on May 3, 2016', () => {
-      beforeEach(() => {
-        quote.time = new Date(2016, 4, 3, 12, 0, 0);
-      });
-      it('the formatter outputs "05/03/16"', () => {
-        expect(tf.format(quote)).toEqual('05/03/16');
-      });
-    });
-  });
-});
-
-},{"./../../../lib/util/timeFormatter":9}],34:[function(require,module,exports){
+},{"./../../../lib/util/monthCodes":6}],35:[function(require,module,exports){
 const convertBaseCodeToUnitCode = require('./../../../../lib/utilities/convert/baseCodeToUnitCode');
 
 describe('When converting a baseCode to a unitCode', () => {
@@ -6967,7 +6278,7 @@ describe('When converting a baseCode to a unitCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":10}],35:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":7}],36:[function(require,module,exports){
 const convertDateToDayCode = require('./../../../../lib/utilities/convert/dateToDayCode');
 
 describe('When converting a date instance to a day code', () => {
@@ -7072,7 +6383,7 @@ describe('When converting a date instance to a day code', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dateToDayCode":11}],36:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dateToDayCode":8}],37:[function(require,module,exports){
 const convertDayCodeToNumber = require('./../../../../lib/utilities/convert/dayCodeToNumber');
 
 describe('When converting a dayCode to number', () => {
@@ -7243,7 +6554,7 @@ describe('When converting a dayCode to number', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dayCodeToNumber":12}],37:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dayCodeToNumber":9}],38:[function(require,module,exports){
 const convertNumberToDayCode = require('./../../../../lib/utilities/convert/numberToDayCode');
 
 describe('When converting a number to a dayCode', () => {
@@ -7348,7 +6659,29 @@ describe('When converting a number to a dayCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/numberToDayCode":13}],38:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/numberToDayCode":10}],39:[function(require,module,exports){
+const convertStringToDecimal = require('./../../../../lib/utilities/convert/stringToDecimal');
+
+describe('when parsing prices', () => {
+  'use strict';
+
+  describe('with a fractional separator', () => {
+    it('returns 125.625 (with unit code 2) when parsing "125-5"', () => {
+      expect(convertStringToDecimal('125-5', '2')).toEqual(125.625);
+    });
+    it('returns -125.625 (with unit code 2) when parsing "-125-5"', () => {
+      expect(convertStringToDecimal('-125-5', '2')).toEqual(-125.625);
+    });
+    it('returns 125.625 (with unit code 5) when parsing "125-240"', () => {
+      expect(convertStringToDecimal('125-240', '5')).toEqual(125.75);
+    });
+    it('returns -125.625 (with unit code 5) when parsing "-125-240"', () => {
+      expect(convertStringToDecimal('-125-240', '5')).toEqual(-125.75);
+    });
+  });
+});
+
+},{"./../../../../lib/utilities/convert/stringToDecimal":11}],40:[function(require,module,exports){
 const convertUnitCodeToBaseCode = require('./../../../../lib/utilities/convert/unitCodeToBaseCode');
 
 describe('When converting a unitCode to a baseCode', () => {
@@ -7405,8 +6738,20 @@ describe('When converting a unitCode to a baseCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":14}],39:[function(require,module,exports){
-let formatDecimal = require('./../../../../lib/utilities/format/decimal');
+},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":12}],41:[function(require,module,exports){
+const formatDate = require('./../../../../lib/utilities/format/date');
+
+describe('when using the date formatter', () => {
+  it('A date set to 2019-09-30 23:59:59 should return "09/30/19"', () => {
+    expect(formatDate(new Date(2019, 8, 30, 23, 59, 59))).toEqual('09/30/19');
+  });
+  it('A date set to 2019-09-30 00:00:00 should return "09/30/19"', () => {
+    expect(formatDate(new Date(2019, 8, 30, 0, 0, 0))).toEqual('09/30/19');
+  });
+});
+
+},{"./../../../../lib/utilities/format/date":13}],42:[function(require,module,exports){
+const formatDecimal = require('./../../../../lib/utilities/format/decimal');
 
 describe('when formatting invalid values', () => {
   it('formats a null value as a zero-length string', () => {
@@ -7543,8 +6888,1557 @@ describe('when formatting decimal values to format with parenthesis and no thous
   });
 });
 
-},{"./../../../../lib/utilities/format/decimal":15}],40:[function(require,module,exports){
-let formatSymbol = require('./../../../../lib/utilities/format/symbol');
+},{"./../../../../lib/utilities/format/decimal":14}],43:[function(require,module,exports){
+const buildPriceFormatter = require('./../../../../../lib/utilities/format/factories/price');
+
+describe('When a price formatter is created', () => {
+  let formatPrice;
+  describe('with a decimal separator', () => {
+    beforeEach(() => {
+      formatPrice = buildPriceFormatter('.');
+    });
+    it('formats 377 (with unit code 2) as "377.000"', () => {
+      expect(formatPrice(377, '2')).toEqual('377.000');
+    });
+    it('formats -377 (with unit code 2) as "-377.000"', () => {
+      expect(formatPrice(-377, '2')).toEqual('-377.000');
+    });
+    it('formats 377.5 (with unit code 2) as "377.500"', () => {
+      expect(formatPrice(377.5, '2')).toEqual('377.500');
+    });
+    it('formats 377.75 (with unit code 2) as "377.750"', () => {
+      expect(formatPrice(377.75, '2')).toEqual('377.750');
+    });
+    it('formats 3770.75 (with unit code 2) as "3770.750"', () => {
+      expect(formatPrice(3770.75, '2')).toEqual('3770.750');
+    });
+    it('formats 37700.75 (with unit code 2) as "37700.750"', () => {
+      expect(formatPrice(37700.75, '2')).toEqual('37700.750');
+    });
+    it('formats 377000.75 (with unit code 2) as "377000.750"', () => {
+      expect(formatPrice(377000.75, '2')).toEqual('377000.750');
+    });
+    it('formats 3770000.75 (with unit code 2) as "3770000.750"', () => {
+      expect(formatPrice(3770000.75, '2')).toEqual('3770000.750');
+    });
+    it('formats 3770000 (with unit code 2) as "3770000.000"', () => {
+      expect(formatPrice(3770000, '2')).toEqual('3770000.000');
+    });
+    it('formats 0 (with unit code 2) as "0.000"', () => {
+      expect(formatPrice(0, '2')).toEqual('0.000');
+    });
+    it('formats undefined (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(undefined, '2')).toEqual('');
+    });
+    it('formats null (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(null, '2')).toEqual('');
+    });
+    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(Number.NaN, '2')).toEqual('');
+    });
+    it('formats 0 (with unit code 8) as "0"', () => {
+      expect(formatPrice(0, '8')).toEqual('0');
+    });
+    it('formats 1000 (with unit code 8) as "1000"', () => {
+      expect(formatPrice(1000, '8')).toEqual('1000');
+    });
+  });
+  describe('with a decimal separator, no special fractions, and a thousands separator', () => {
+    beforeEach(() => {
+      formatPrice = buildPriceFormatter('.', false, ',');
+    });
+    it('formats 377 (with unit code 2) as "377.000"', () => {
+      expect(formatPrice(377, '2')).toEqual('377.000');
+    });
+    it('formats -377 (with unit code 2) as "-377.000"', () => {
+      expect(formatPrice(-377, '2')).toEqual('-377.000');
+    });
+    it('formats 377.5 (with unit code 2) as "377.500"', () => {
+      expect(formatPrice(377.5, '2')).toEqual('377.500');
+    });
+    it('formats 377.75 (with unit code 2) as "377.750"', () => {
+      expect(formatPrice(377.75, '2')).toEqual('377.750');
+    });
+    it('formats 3770.75 (with unit code 2) as "3,770.750"', () => {
+      expect(formatPrice(3770.75, '2')).toEqual('3,770.750');
+    });
+    it('formats 37700.75 (with unit code 2) as "37,700.750"', () => {
+      expect(formatPrice(37700.75, '2')).toEqual('37,700.750');
+    });
+    it('formats 377000.75 (with unit code 2) as "377,000.750"', () => {
+      expect(formatPrice(377000.75, '2')).toEqual('377,000.750');
+    });
+    it('formats -377000.75 (with unit code 2) as "-377,000.750"', () => {
+      expect(formatPrice(-377000.75, '2')).toEqual('-377,000.750');
+    });
+    it('formats 3770000.75 (with unit code 2) as "3,770,000.750"', () => {
+      expect(formatPrice(3770000.75, '2')).toEqual('3,770,000.750');
+    });
+    it('formats 3770000 (with unit code 2) as "3,770,000.000"', () => {
+      expect(formatPrice(3770000, '2')).toEqual('3,770,000.000');
+    });
+    it('formats 0 (with unit code 2) as "0.000"', () => {
+      expect(formatPrice(0, '2')).toEqual('0.000');
+    });
+    it('formats undefined (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(undefined, '2')).toEqual('');
+    });
+    it('formats null (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(null, '2')).toEqual('');
+    });
+    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(Number.NaN, '2')).toEqual('');
+    });
+    it('formats 0 (with unit code 8) as "0"', () => {
+      expect(formatPrice(0, '8')).toEqual('0');
+    });
+    it('formats 1000 (with unit code 8) as "1,000"', () => {
+      expect(formatPrice(1000, '8')).toEqual('1,000');
+    });
+  });
+  describe('with a dash separator and no special fractions', () => {
+    beforeEach(() => {
+      formatPrice = buildPriceFormatter('-', false);
+    });
+    it('formats 123 (with unit code 2) as "123-0"', () => {
+      expect(formatPrice(123, '2')).toEqual('123-0');
+    });
+    it('formats -123 (with unit code 2) as "-123-0"', () => {
+      expect(formatPrice(-123, '2')).toEqual('-123-0');
+    });
+    it('formats 123.5 (with unit code 2) as "123-4"', () => {
+      expect(formatPrice(123.5, '2')).toEqual('123-4');
+    });
+    it('formats -123.5 (with unit code 2) as "-123-4"', () => {
+      expect(formatPrice(-123.5, '2')).toEqual('-123-4');
+    });
+    it('formats 0.5 (with unit code 2) as "0-4"', () => {
+      expect(formatPrice(0.5, '2')).toEqual('0-4');
+    });
+    it('formats 0 (with unit code 2) as "0-0"', () => {
+      expect(formatPrice(0, '2')).toEqual('0-0');
+    });
+    it('formats zero-length string (with unit code 2) as zero-length string', () => {
+      expect(formatPrice('', '2')).toEqual('');
+    });
+    it('formats undefined (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(undefined, '2')).toEqual('');
+    });
+    it('formats null (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(null, '2')).toEqual('');
+    });
+    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(Number.NaN, '2')).toEqual('');
+    });
+    it('formats 123 (with unit code A) as "123.00"', () => {
+      expect(formatPrice(123, 'A')).toEqual('123.00');
+    });
+    it('formats 123.5 (with unit code A) as "123.50"', () => {
+      expect(formatPrice(123.5, 'A')).toEqual('123.50');
+    });
+    it('formats 123.555 (with unit code A) as "123.56"', () => {
+      expect(formatPrice(123.555, 'A')).toEqual('123.56');
+    });
+  });
+  describe('with a dash separator and special fractions', () => {
+    beforeEach(() => {
+      formatPrice = buildPriceFormatter('-', true);
+    });
+    it('formats 123.625 (with unit code 5) as "123-200"', () => {
+      expect(formatPrice(123.625, '5')).toEqual('123-200');
+    });
+    it('formats -123.625 (with unit code 5) as "-123-200"', () => {
+      expect(formatPrice(-123.625, '5')).toEqual('-123-200');
+    });
+    it('formats 123.640625 (with unit code 5) as "123-205"', () => {
+      expect(formatPrice(123.640625, '5')).toEqual('123-205');
+    });
+    it('formats -123.640625 (with unit code 5) as "-123-205"', () => {
+      expect(formatPrice(-123.640625, '5')).toEqual('-123-205');
+    });
+    it('formats 114.5156 (with unit code 6) as "114-165"', () => {
+      expect(formatPrice(114.5156, '6')).toEqual('114-165');
+    });
+    it('formats 114.7891 (with unit code 6) as "114-252"', () => {
+      expect(formatPrice(114.7891, '6')).toEqual('114-252');
+    });
+    it('formats 114.8438 (with unit code 6) as "114-270"', () => {
+      expect(formatPrice(114.8438, '6')).toEqual('114-270');
+    });
+    it('formats 114.75 (with unit code 6) as "114-240"', () => {
+      expect(formatPrice(114.75, '6')).toEqual('114-240');
+    });
+    it('formats 122.7031 (with unit code 5) as "122-225"', () => {
+      expect(formatPrice(122.7031, '5')).toEqual('122-225');
+    });
+    it('formats 0 (with unit code 2) as "0"', function () {
+      expect(formatPrice(0, '2')).toEqual('0-0');
+    });
+  });
+  describe('with a tick separator and no special fractions', () => {
+    beforeEach(() => {
+      formatPrice = buildPriceFormatter('\'', false);
+    });
+    it('formats 123 (with unit code 2) as "123\'0"', () => {
+      expect(formatPrice(123, '2')).toEqual('123\'0');
+    });
+    it('formats 123.5 (with unit code 2) as "123\'4"', () => {
+      expect(formatPrice(123.5, '2')).toEqual('123\'4');
+    });
+    it('formats -123.5 (with unit code 2) as "-123\'4"', () => {
+      expect(formatPrice(-123.5, '2')).toEqual('-123\'4');
+    });
+    it('formats 0.5 (with unit code 2) as "0\'4"', () => {
+      expect(formatPrice(0.5, '2')).toEqual('0\'4');
+    });
+    it('formats -0.5 (with unit code 2) as "-0\'4"', () => {
+      expect(formatPrice(-0.5, '2')).toEqual('-0\'4');
+    });
+    it('formats 0 (with unit code 2) as "0\'0"', () => {
+      expect(formatPrice(0, '2')).toEqual('0\'0');
+    });
+    it('formats zero-length string (with unit code 2) as zero-length string', () => {
+      expect(formatPrice('', '2')).toEqual('');
+    });
+    it('formats undefined (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(undefined, '2')).toEqual('');
+    });
+    it('formats null (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(null, '2')).toEqual('');
+    });
+    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(Number.NaN, '2')).toEqual('');
+    });
+  });
+  describe('with no separator and no special fractions', () => {
+    beforeEach(() => {
+      formatPrice = buildPriceFormatter('', false);
+    });
+    it('formats 123 (with unit code 2) as "1230"', () => {
+      expect(formatPrice(123, '2')).toEqual('1230');
+    });
+    it('formats 123.5 (with unit code 2) as "1234"', () => {
+      expect(formatPrice(123.5, '2')).toEqual('1234');
+    });
+    it('formats 0.5 (with unit code 2) as "4"', () => {
+      expect(formatPrice(0.5, '2')).toEqual('4');
+    });
+    it('formats 0 (with unit code 2) as "0"', () => {
+      expect(formatPrice(0, '2')).toEqual('0');
+    });
+    it('formats zero-length string (with unit code 2) as zero-length string', () => {
+      expect(formatPrice('', '2')).toEqual('');
+    });
+    it('formats undefined (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(undefined, '2')).toEqual('');
+    });
+    it('formats null (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(null, '2')).toEqual('');
+    });
+    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(Number.NaN, '2')).toEqual('');
+    });
+  });
+  describe('with parenthetical negatives', () => {
+    describe('and a decimal separator, no special fractions, and no thousands separator', () => {
+      beforeEach(() => {
+        formatPrice = buildPriceFormatter('.', false, '', true);
+      });
+      it('formats 3770.75 (with unit code 2) as "3770.750"', () => {
+        expect(formatPrice(3770.75, '2')).toEqual('3770.750');
+      });
+      it('formats -3770.75 (with unit code 2) as "(3770.750)"', () => {
+        expect(formatPrice(-3770.75, '2')).toEqual('(3770.750)');
+      });
+      it('formats 0 (with unit code 2) as "0.000"', () => {
+        expect(formatPrice(0, '2')).toEqual('0.000');
+      });
+    });
+    describe('with a decimal separator, no special fractions, and a thousands separator', () => {
+      beforeEach(function () {
+        formatPrice = buildPriceFormatter('.', false, ',', true);
+      });
+      it('formats 3770.75 (with unit code 2) as "3,770.750"', () => {
+        expect(formatPrice(3770.75, '2')).toEqual('3,770.750');
+      });
+      it('formats -3770.75 (with unit code 2) as "(3,770.750)"', () => {
+        expect(formatPrice(-3770.75, '2')).toEqual('(3,770.750)');
+      });
+      it('formats 0 (with unit code 2) as "0.000"', () => {
+        expect(formatPrice(0, '2')).toEqual('0.000');
+      });
+    });
+    describe('with a dash separator and no special fractions', () => {
+      beforeEach(function () {
+        formatPrice = buildPriceFormatter('-', false, '', true);
+      });
+      it('formats 123 (with unit code 2) as "123-0"', function () {
+        expect(formatPrice(123, '2')).toEqual('123-0');
+      });
+      it('formats -123 (with unit code 2) as "(123-0)"', function () {
+        expect(formatPrice(-123, '2')).toEqual('(123-0)');
+      });
+      it('formats 123.5 (with unit code 2) as "123-4"', function () {
+        expect(formatPrice(123.5, '2')).toEqual('123-4');
+      });
+      it('formats -123.5 (with unit code 2) as "(123-4)"', function () {
+        expect(formatPrice(-123.5, '2')).toEqual('(123-4)');
+      });
+      it('formats 0.5 (with unit code 2) as "0-4"', () => {
+        expect(formatPrice(0.5, '2')).toEqual('0-4');
+      });
+      it('formats -0.5 (with unit code 2) as "(0-4)"', () => {
+        expect(formatPrice(-0.5, '2')).toEqual('(0-4)');
+      });
+      it('formats 0 (with unit code 2) as "0"', function () {
+        expect(formatPrice(0, '2')).toEqual('0-0');
+      });
+    });
+    describe('with a dash separator and special fractions', () => {
+      beforeEach(() => {
+        formatPrice = buildPriceFormatter('-', true, '', true);
+      });
+      it('formats 123.625 (with unit code 5) as "123-200"', () => {
+        expect(formatPrice(123.625, '5')).toEqual('123-200');
+      });
+      it('formats -123.625 (with unit code 5) as "(123-200)"', () => {
+        expect(formatPrice(-123.625, '5')).toEqual('(123-200)');
+      });
+      it('formats 123.640625 (with unit code 5) as "123-205"', () => {
+        expect(formatPrice(123.640625, '5')).toEqual('123-205');
+      });
+      it('formats -123.640625 (with unit code 5) as "(123-205)"', () => {
+        expect(formatPrice(-123.640625, '5')).toEqual('(123-205)');
+      });
+    });
+    describe('with a tick separator and no special fractions', () => {
+      beforeEach(function () {
+        formatPrice = buildPriceFormatter('\'', false, '', true);
+      });
+      it('formats 123.5 (with unit code 2) as "123\'4"', function () {
+        expect(formatPrice(123.5, '2')).toEqual('123\'4');
+      });
+      it('formats -123.5 (with unit code 2) as "(123\'4)"', function () {
+        expect(formatPrice(-123.5, '2')).toEqual('(123\'4)');
+      });
+      it('formats 0.5 (with unit code 2) as "0\'4"', () => {
+        expect(formatPrice(0.5, '2')).toEqual('0\'4');
+      });
+      it('formats -0.5 (with unit code 2) as "(0\'4)"', () => {
+        expect(formatPrice(-0.5, '2')).toEqual('(0\'4)');
+      });
+      it('formats 0 (with unit code 2) as "0\'0"', () => {
+        expect(formatPrice(0, '2')).toEqual('0\'0');
+      });
+    });
+    describe('with no separator and no special fractions', () => {
+      beforeEach(function () {
+        formatPrice = buildPriceFormatter('', false, '', true);
+      });
+      it('formats 0.5 (with unit code 2) as "4"', function () {
+        expect(formatPrice(0.5, '2')).toEqual('4');
+      });
+      it('formats -0.5 (with unit code 2) as "(4)"', function () {
+        expect(formatPrice(-0.5, '2')).toEqual('(4)');
+      });
+      it('formats 0 (with unit code 2) as "0"', function () {
+        expect(formatPrice(0, '2')).toEqual('0');
+      });
+    });
+  });
+});
+
+},{"./../../../../../lib/utilities/format/factories/price":15}],44:[function(require,module,exports){
+const buildQuoteFormatter = require('./../../../../../lib/utilities/format/factories/quote');
+
+describe('When a time formatter is created (without specifying the clock)', () => {
+  let qf;
+  beforeEach(() => {
+    qf = buildQuoteFormatter();
+  });
+  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "00:00:00"', () => {
+        expect(qf(quote)).toEqual('00:00:00');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "12:00:00"', () => {
+        expect(qf(quote)).toEqual('12:00:00');
+      });
+    });
+    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 7, 8, 9);
+      });
+      it('the formatter outputs "07:08:09"', () => {
+        expect(qf(quote)).toEqual('07:08:09');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+      });
+      it('the formatter outputs "13:08:09"', () => {
+        expect(qf(quote)).toEqual('13:08:09');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM and timezone is present', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+        quote.timezone = 'CST';
+      });
+      it('the formatter outputs "13:08:09"', () => {
+        expect(qf(quote)).toEqual('13:08:09 CST');
+      });
+    });
+  });
+  describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456,
+        flag: 'p'
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(qf(quote)).toEqual('05/03/16');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(qf(quote)).toEqual('05/03/16');
+      });
+    });
+  });
+  describe('and a quote is formatted (with with no "flag" and a "lastPrice" value and a "sessionT" indicator)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456,
+        sessionT: true
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(qf(quote)).toEqual('05/03/16');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(qf(quote)).toEqual('05/03/16');
+      });
+    });
+  });
+});
+describe('When a time formatter is created (and a 24-hour clock is specified)', () => {
+  let qf;
+  beforeEach(() => {
+    qf = buildQuoteFormatter(false);
+  });
+  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "00:00:00"', () => {
+        expect(qf(quote)).toEqual('00:00:00');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "12:00:00"', () => {
+        expect(qf(quote)).toEqual('12:00:00');
+      });
+    });
+    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 7, 8, 9);
+      });
+      it('the formatter outputs "07:08:09"', () => {
+        expect(qf(quote)).toEqual('07:08:09');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+      });
+      it('the formatter outputs "13:08:09"', () => {
+        expect(qf(quote)).toEqual('13:08:09');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM and a timezone is present', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+        quote.timezone = 'EDT';
+      });
+      it('the formatter outputs "13:08:09"', () => {
+        expect(qf(quote)).toEqual('13:08:09 EDT');
+      });
+    });
+  });
+  describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456,
+        flag: 'p'
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(qf(quote)).toEqual('05/03/16');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(qf(quote)).toEqual('05/03/16');
+      });
+    });
+  });
+});
+describe('When a time formatter is created (and a "short" 24-hour clock is specified)', () => {
+  let qf;
+  beforeEach(() => {
+    qf = buildQuoteFormatter(false, true);
+  });
+  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "00:00"', () => {
+        expect(qf(quote)).toEqual('00:00');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "12:00"', () => {
+        expect(qf(quote)).toEqual('12:00');
+      });
+    });
+    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 7, 8, 9);
+      });
+      it('the formatter outputs "07:08"', () => {
+        expect(qf(quote)).toEqual('07:08');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+      });
+      it('the formatter outputs "13:08"', () => {
+        expect(qf(quote)).toEqual('13:08');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM and a timezone is present', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+        quote.timezone = 'EDT';
+      });
+      it('the formatter outputs "13:08"', () => {
+        expect(qf(quote)).toEqual('13:08 EDT');
+      });
+    });
+  });
+  describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456,
+        flag: 'p'
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(qf(quote)).toEqual('05/03/16');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(qf(quote)).toEqual('05/03/16');
+      });
+    });
+  });
+});
+describe('When a time formatter is created (and a 12-hour clock is specified)', () => {
+  let qf;
+  beforeEach(() => {
+    qf = buildQuoteFormatter(true);
+  });
+  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "12:00:00 AM"', () => {
+        expect(qf(quote)).toEqual('12:00:00 AM');
+      });
+    });
+    describe('and the quote time is five after midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 5, 0);
+      });
+      it('the formatter outputs "12:05:00 AM"', () => {
+        expect(qf(quote)).toEqual('12:05:00 AM');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "12:00:00 PM"', () => {
+        expect(qf(quote)).toEqual('12:00:00 PM');
+      });
+    });
+    describe('and the quote time is ten after noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 10, 0);
+      });
+      it('the formatter outputs "12:10:00 PM"', () => {
+        expect(qf(quote)).toEqual('12:10:00 PM');
+      });
+    });
+    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 7, 8, 9);
+      });
+      it('the formatter outputs "07:08:09 AM"', () => {
+        expect(qf(quote)).toEqual('07:08:09 AM');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+      });
+      it('the formatter outputs "01:08:09 PM"', () => {
+        expect(qf(quote)).toEqual('01:08:09 PM');
+      });
+    });
+  });
+  describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456,
+        flag: 'p'
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(qf(quote)).toEqual('05/03/16');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(qf(quote)).toEqual('05/03/16');
+      });
+    });
+  });
+});
+describe('When a time formatter is created (and a "short" 12-hour clock is specified)', () => {
+  let qf;
+  beforeEach(() => {
+    qf = buildQuoteFormatter(true, true);
+  });
+  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "12:00A"', () => {
+        expect(qf(quote)).toEqual('12:00A');
+      });
+    });
+    describe('and the quote time is five after midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 5, 0);
+      });
+      it('the formatter outputs "12:05A"', () => {
+        expect(qf(quote)).toEqual('12:05A');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "12:00P"', () => {
+        expect(qf(quote)).toEqual('12:00P');
+      });
+    });
+    describe('and the quote time is ten after noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 10, 0);
+      });
+      it('the formatter outputs "12:10P"', () => {
+        expect(qf(quote)).toEqual('12:10P');
+      });
+    });
+    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 7, 8, 9);
+      });
+      it('the formatter outputs "07:08A"', () => {
+        expect(qf(quote)).toEqual('07:08A');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+      });
+      it('the formatter outputs "01:08P"', () => {
+        expect(qf(quote)).toEqual('01:08P');
+      });
+    });
+  });
+  describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456,
+        flag: 'p'
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(qf(quote)).toEqual('05/03/16');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(qf(quote)).toEqual('05/03/16');
+      });
+    });
+  });
+});
+
+},{"./../../../../../lib/utilities/format/factories/quote":16}],45:[function(require,module,exports){
+const formatPrice = require('./../../../../lib/utilities/format/price');
+
+describe('When a price formatter is created', () => {
+  describe('with a decimal fraction separator', () => {
+    it('formats 377 (with unit code 2) as "377.000"', () => {
+      expect(formatPrice(377, '2', '.')).toEqual('377.000');
+    });
+    it('formats -377 (with unit code 2) as "-377.000"', () => {
+      expect(formatPrice(-377, '2', '.')).toEqual('-377.000');
+    });
+    it('formats 377.5 (with unit code 2) as "377.500"', () => {
+      expect(formatPrice(377.5, '2', '.')).toEqual('377.500');
+    });
+    it('formats 377.75 (with unit code 2) as "377.750"', () => {
+      expect(formatPrice(377.75, '2', '.')).toEqual('377.750');
+    });
+    it('formats 3770.75 (with unit code 2) as "3770.750"', () => {
+      expect(formatPrice(3770.75, '2', '.')).toEqual('3770.750');
+    });
+    it('formats 37700.75 (with unit code 2) as "37700.750"', () => {
+      expect(formatPrice(37700.75, '2', '.')).toEqual('37700.750');
+    });
+    it('formats 377000.75 (with unit code 2) as "377000.750"', () => {
+      expect(formatPrice(377000.75, '2', '.')).toEqual('377000.750');
+    });
+    it('formats 3770000.75 (with unit code 2) as "3770000.750"', () => {
+      expect(formatPrice(3770000.75, '2', '.')).toEqual('3770000.750');
+    });
+    it('formats 3770000 (with unit code 2) as "3770000.000"', () => {
+      expect(formatPrice(3770000, '2', '.')).toEqual('3770000.000');
+    });
+    it('formats 0 (with unit code 2) as "0.000"', () => {
+      expect(formatPrice(0, '2', '.')).toEqual('0.000');
+    });
+    it('formats undefined (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(undefined, '2', '.')).toEqual('');
+    });
+    it('formats null (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(null, '2', '.')).toEqual('');
+    });
+    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(Number.NaN, '2', '.')).toEqual('');
+    });
+    it('formats 0 (with unit code 8) as "0"', () => {
+      expect(formatPrice(0, '8', '.')).toEqual('0');
+    });
+    it('formats 1000 (with unit code 8) as "1000"', () => {
+      expect(formatPrice(1000, '8', '.')).toEqual('1000');
+    });
+  });
+  describe('with a decimal separator, no special fractions, and a thousands separator', () => {
+    it('formats 377 (with unit code 2) as "377.000"', () => {
+      expect(formatPrice(377, '2', '.', false, ',')).toEqual('377.000');
+    });
+    it('formats -377 (with unit code 2) as "-377.000"', () => {
+      expect(formatPrice(-377, '2', '.', false, ',')).toEqual('-377.000');
+    });
+    it('formats 377.5 (with unit code 2) as "377.500"', () => {
+      expect(formatPrice(377.5, '2', '.', false, ',')).toEqual('377.500');
+    });
+    it('formats 377.75 (with unit code 2) as "377.750"', () => {
+      expect(formatPrice(377.75, '2', '.', false, ',')).toEqual('377.750');
+    });
+    it('formats 3770.75 (with unit code 2) as "3,770.750"', () => {
+      expect(formatPrice(3770.75, '2', '.', false, ',')).toEqual('3,770.750');
+    });
+    it('formats 37700.75 (with unit code 2) as "37,700.750"', () => {
+      expect(formatPrice(37700.75, '2', '.', false, ',')).toEqual('37,700.750');
+    });
+    it('formats 377000.75 (with unit code 2) as "377,000.750"', () => {
+      expect(formatPrice(377000.75, '2', '.', false, ',')).toEqual('377,000.750');
+    });
+    it('formats -377000.75 (with unit code 2) as "-377,000.750"', () => {
+      expect(formatPrice(-377000.75, '2', '.', false, ',')).toEqual('-377,000.750');
+    });
+    it('formats 3770000.75 (with unit code 2) as "3,770,000.750"', () => {
+      expect(formatPrice(3770000.75, '2', '.', false, ',')).toEqual('3,770,000.750');
+    });
+    it('formats 3770000 (with unit code 2) as "3,770,000.000"', () => {
+      expect(formatPrice(3770000, '2', '.', false, ',')).toEqual('3,770,000.000');
+    });
+    it('formats 0 (with unit code 2) as "0.000"', () => {
+      expect(formatPrice(0, '2', '.', false, ',')).toEqual('0.000');
+    });
+    it('formats undefined (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(undefined, '2', '.', false, ',')).toEqual('');
+    });
+    it('formats null (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(null, '2', '.', false, ',')).toEqual('');
+    });
+    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(Number.NaN, '2', '.', false, ',')).toEqual('');
+    });
+    it('formats 0 (with unit code 8) as "0"', () => {
+      expect(formatPrice(0, '8', '.', false, ',')).toEqual('0');
+    });
+    it('formats 1000 (with unit code 8) as "1,000"', () => {
+      expect(formatPrice(1000, '8', '.', false, ',')).toEqual('1,000');
+    });
+  });
+  describe('with a dash separator and no special fractions', () => {
+    it('formats 123 (with unit code 2) as "123-0"', () => {
+      expect(formatPrice(123, '2', '-', false)).toEqual('123-0');
+    });
+    it('formats -123 (with unit code 2) as "-123-0"', () => {
+      expect(formatPrice(-123, '2', '-', false)).toEqual('-123-0');
+    });
+    it('formats 123.5 (with unit code 2) as "123-4"', () => {
+      expect(formatPrice(123.5, '2', '-', false)).toEqual('123-4');
+    });
+    it('formats -123.5 (with unit code 2) as "-123-4"', () => {
+      expect(formatPrice(-123.5, '2', '-', false)).toEqual('-123-4');
+    });
+    it('formats 0.5 (with unit code 2) as "0-4"', () => {
+      expect(formatPrice(0.5, '2', '-', false)).toEqual('0-4');
+    });
+    it('formats 0 (with unit code 2) as "0-0"', () => {
+      expect(formatPrice(0, '2', '-', false)).toEqual('0-0');
+    });
+    it('formats zero-length string (with unit code 2) as zero-length string', () => {
+      expect(formatPrice('', '2', '-', false)).toEqual('');
+    });
+    it('formats undefined (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(undefined, '2', '-', false)).toEqual('');
+    });
+    it('formats null (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(null, '2', '-', false)).toEqual('');
+    });
+    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(Number.NaN, '2', '-', false)).toEqual('');
+    });
+    it('formats 123 (with unit code A) as "123.00"', () => {
+      expect(formatPrice(123, 'A', '-', false)).toEqual('123.00');
+    });
+    it('formats 123.5 (with unit code A) as "123.50"', () => {
+      expect(formatPrice(123.5, 'A', '-', false)).toEqual('123.50');
+    });
+    it('formats 123.555 (with unit code A) as "123.56"', () => {
+      expect(formatPrice(123.555, 'A', '-', false)).toEqual('123.56');
+    });
+  });
+  describe('with a dash separator and special fractions', () => {
+    it('formats 123.625 (with unit code 5) as "123-200"', () => {
+      expect(formatPrice(123.625, '5', '-', true)).toEqual('123-200');
+    });
+    it('formats -123.625 (with unit code 5) as "-123-200"', () => {
+      expect(formatPrice(-123.625, '5', '-', true)).toEqual('-123-200');
+    });
+    it('formats 123.640625 (with unit code 5) as "123-205"', () => {
+      expect(formatPrice(123.640625, '5', '-', true)).toEqual('123-205');
+    });
+    it('formats -123.640625 (with unit code 5) as "-123-205"', () => {
+      expect(formatPrice(-123.640625, '5', '-', true)).toEqual('-123-205');
+    });
+    it('formats 114.5156 (with unit code 6) as "114-165"', () => {
+      expect(formatPrice(114.5156, '6', '-', true)).toEqual('114-165');
+    });
+    it('formats 114.7891 (with unit code 6) as "114-252"', () => {
+      expect(formatPrice(114.7891, '6', '-', true)).toEqual('114-252');
+    });
+    it('formats 114.8438 (with unit code 6) as "114-270"', () => {
+      expect(formatPrice(114.8438, '6', '-', true)).toEqual('114-270');
+    });
+    it('formats 114.75 (with unit code 6) as "114-240"', () => {
+      expect(formatPrice(114.75, '6', '-', true)).toEqual('114-240');
+    });
+    it('formats 122.7031 (with unit code 5) as "122-225"', () => {
+      expect(formatPrice(122.7031, '5', '-', true)).toEqual('122-225');
+    });
+    it('formats 0 (with unit code 2) as "0"', function () {
+      expect(formatPrice(0, '2', '-', true)).toEqual('0-0');
+    });
+  });
+  describe('with a tick separator and no special fractions', () => {
+    it('formats 123 (with unit code 2) as "123\'0"', () => {
+      expect(formatPrice(123, '2', '\'', false)).toEqual('123\'0');
+    });
+    it('formats 123.5 (with unit code 2) as "123\'4"', () => {
+      expect(formatPrice(123.5, '2', '\'', false)).toEqual('123\'4');
+    });
+    it('formats -123.5 (with unit code 2) as "-123\'4"', () => {
+      expect(formatPrice(-123.5, '2', '\'', false)).toEqual('-123\'4');
+    });
+    it('formats 0.5 (with unit code 2) as "0\'4"', () => {
+      expect(formatPrice(0.5, '2', '\'', false)).toEqual('0\'4');
+    });
+    it('formats -0.5 (with unit code 2) as "-0\'4"', () => {
+      expect(formatPrice(-0.5, '2', '\'', false)).toEqual('-0\'4');
+    });
+    it('formats 0 (with unit code 2) as "0\'0"', () => {
+      expect(formatPrice(0, '2', '\'', false)).toEqual('0\'0');
+    });
+    it('formats zero-length string (with unit code 2) as zero-length string', () => {
+      expect(formatPrice('', '2', '\'', false)).toEqual('');
+    });
+    it('formats undefined (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(undefined, '2', '\'', false)).toEqual('');
+    });
+    it('formats null (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(null, '2', '\'', false)).toEqual('');
+    });
+    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(Number.NaN, '2', '\'', false)).toEqual('');
+    });
+  });
+  describe('with no separator and no special fractions', () => {
+    it('formats 123 (with unit code 2) as "1230"', () => {
+      expect(formatPrice(123, '2', '', false)).toEqual('1230');
+    });
+    it('formats 123.5 (with unit code 2) as "1234"', () => {
+      expect(formatPrice(123.5, '2', '', false)).toEqual('1234');
+    });
+    it('formats 0.5 (with unit code 2) as "4"', () => {
+      expect(formatPrice(0.5, '2', '', false)).toEqual('4');
+    });
+    it('formats 0 (with unit code 2) as "0"', () => {
+      expect(formatPrice(0, '2', '', false)).toEqual('0');
+    });
+    it('formats zero-length string (with unit code 2) as zero-length string', () => {
+      expect(formatPrice('', '2', '', false)).toEqual('');
+    });
+    it('formats undefined (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(undefined, '2', '', false)).toEqual('');
+    });
+    it('formats null (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(null, '2', '', false)).toEqual('');
+    });
+    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
+      expect(formatPrice(Number.NaN, '2', '', false)).toEqual('');
+    });
+  });
+  describe('with parenthetical negatives', () => {
+    describe('and a decimal separator, no special fractions, and no thousands separator', () => {
+      it('formats 3770.75 (with unit code 2) as "3770.750"', () => {
+        expect(formatPrice(3770.75, '2', '.', false, '', true)).toEqual('3770.750');
+      });
+      it('formats -3770.75 (with unit code 2) as "(3770.750)"', () => {
+        expect(formatPrice(-3770.75, '2', '.', false, '', true)).toEqual('(3770.750)');
+      });
+      it('formats 0 (with unit code 2) as "0.000"', () => {
+        expect(formatPrice(0, '2', '.', false, '', true)).toEqual('0.000');
+      });
+    });
+    describe('with a decimal separator, no special fractions, and a thousands separator', () => {
+      it('formats 3770.75 (with unit code 2) as "3,770.750"', () => {
+        expect(formatPrice(3770.75, '2', '.', false, ',', true)).toEqual('3,770.750');
+      });
+      it('formats -3770.75 (with unit code 2) as "(3,770.750)"', () => {
+        expect(formatPrice(-3770.75, '2', '.', false, ',', true)).toEqual('(3,770.750)');
+      });
+      it('formats 0 (with unit code 2) as "0.000"', () => {
+        expect(formatPrice(0, '2', '.', false, ',', true)).toEqual('0.000');
+      });
+    });
+    describe('with a dash separator and no special fractions', () => {
+      it('formats 123 (with unit code 2) as "123-0"', function () {
+        expect(formatPrice(123, '2', '-', false, '', true)).toEqual('123-0');
+      });
+      it('formats -123 (with unit code 2) as "(123-0)"', function () {
+        expect(formatPrice(-123, '2', '-', false, '', true)).toEqual('(123-0)');
+      });
+      it('formats 123.5 (with unit code 2) as "123-4"', function () {
+        expect(formatPrice(123.5, '2', '-', false, '', true)).toEqual('123-4');
+      });
+      it('formats -123.5 (with unit code 2) as "(123-4)"', function () {
+        expect(formatPrice(-123.5, '2', '-', false, '', true)).toEqual('(123-4)');
+      });
+      it('formats 0.5 (with unit code 2) as "0-4"', () => {
+        expect(formatPrice(0.5, '2', '-', false, '', true)).toEqual('0-4');
+      });
+      it('formats -0.5 (with unit code 2) as "(0-4)"', () => {
+        expect(formatPrice(-0.5, '2', '-', false, '', true)).toEqual('(0-4)');
+      });
+      it('formats 0 (with unit code 2) as "0"', function () {
+        expect(formatPrice(0, '2', '-', false, '', true)).toEqual('0-0');
+      });
+    });
+    describe('with a dash separator and special fractions', () => {
+      it('formats 123.625 (with unit code 5) as "123-200"', () => {
+        expect(formatPrice(123.625, '5', '-', true, '', true)).toEqual('123-200');
+      });
+      it('formats -123.625 (with unit code 5) as "(123-200)"', () => {
+        expect(formatPrice(-123.625, '5', '-', true, '', true)).toEqual('(123-200)');
+      });
+      it('formats 123.640625 (with unit code 5) as "123-205"', () => {
+        expect(formatPrice(123.640625, '5', '-', true, '', true)).toEqual('123-205');
+      });
+      it('formats -123.640625 (with unit code 5) as "(123-205)"', () => {
+        expect(formatPrice(-123.640625, '5', '-', true, '', true)).toEqual('(123-205)');
+      });
+    });
+    describe('with a tick separator and no special fractions', () => {
+      it('formats 123.5 (with unit code 2) as "123\'4"', function () {
+        expect(formatPrice(123.5, '2', '\'', false, '', true)).toEqual('123\'4');
+      });
+      it('formats -123.5 (with unit code 2) as "(123\'4)"', function () {
+        expect(formatPrice(-123.5, '2', '\'', false, '', true)).toEqual('(123\'4)');
+      });
+      it('formats 0.5 (with unit code 2) as "0\'4"', () => {
+        expect(formatPrice(0.5, '2', '\'', false, '', true)).toEqual('0\'4');
+      });
+      it('formats -0.5 (with unit code 2) as "(0\'4)"', () => {
+        expect(formatPrice(-0.5, '2', '\'', false, '', true)).toEqual('(0\'4)');
+      });
+      it('formats 0 (with unit code 2) as "0\'0"', () => {
+        expect(formatPrice(0, '2', '\'', false, '', true)).toEqual('0\'0');
+      });
+    });
+    describe('with no separator and no special fractions', () => {
+      it('formats 0.5 (with unit code 2) as "4"', function () {
+        expect(formatPrice(0.5, '2', '', false, '', true)).toEqual('4');
+      });
+      it('formats -0.5 (with unit code 2) as "(4)"', function () {
+        expect(formatPrice(-0.5, '2', '', false, '', true)).toEqual('(4)');
+      });
+      it('formats 0 (with unit code 2) as "0"', function () {
+        expect(formatPrice(0, '2', '', false, '', true)).toEqual('0');
+      });
+    });
+  });
+});
+
+},{"./../../../../lib/utilities/format/price":17}],46:[function(require,module,exports){
+const formatQuote = require('./../../../../lib/utilities/format/quote');
+
+describe('When a quote formatter is used (without specifying the clock)', () => {
+  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "00:00:00"', () => {
+        expect(formatQuote(quote)).toEqual('00:00:00');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "12:00:00"', () => {
+        expect(formatQuote(quote)).toEqual('12:00:00');
+      });
+    });
+    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 7, 8, 9);
+      });
+      it('the formatter outputs "07:08:09"', () => {
+        expect(formatQuote(quote)).toEqual('07:08:09');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+      });
+      it('the formatter outputs "13:08:09"', () => {
+        expect(formatQuote(quote)).toEqual('13:08:09');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM and timezone is present', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+        quote.timezone = 'CST';
+      });
+      it('the formatter outputs "13:08:09"', () => {
+        expect(formatQuote(quote)).toEqual('13:08:09 CST');
+      });
+    });
+  });
+  describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456,
+        flag: 'p'
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(formatQuote(quote)).toEqual('05/03/16');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(formatQuote(quote)).toEqual('05/03/16');
+      });
+    });
+  });
+  describe('and a quote is formatted (with with no "flag" and a "lastPrice" value and a "sessionT" indicator)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456,
+        sessionT: true
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(formatQuote(quote)).toEqual('05/03/16');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(formatQuote(quote)).toEqual('05/03/16');
+      });
+    });
+  });
+});
+describe('When a quote formatter is used (and a 24-hour clock is specified)', () => {
+  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "00:00:00"', () => {
+        expect(formatQuote(quote, false)).toEqual('00:00:00');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "12:00:00"', () => {
+        expect(formatQuote(quote, false)).toEqual('12:00:00');
+      });
+    });
+    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 7, 8, 9);
+      });
+      it('the formatter outputs "07:08:09"', () => {
+        expect(formatQuote(quote, false)).toEqual('07:08:09');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+      });
+      it('the formatter outputs "13:08:09"', () => {
+        expect(formatQuote(quote, false)).toEqual('13:08:09');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM and a timezone is present', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+        quote.timezone = 'EDT';
+      });
+      it('the formatter outputs "13:08:09"', () => {
+        expect(formatQuote(quote, false)).toEqual('13:08:09 EDT');
+      });
+    });
+  });
+  describe('and a quote formatter is used (with with a "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456,
+        flag: 'p'
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(formatQuote(quote, false)).toEqual('05/03/16');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(formatQuote(quote, false)).toEqual('05/03/16');
+      });
+    });
+  });
+});
+describe('When a time formatter is used (and a "short" 24-hour clock is specified)', () => {
+  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "00:00"', () => {
+        expect(formatQuote(quote, false, true)).toEqual('00:00');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "12:00"', () => {
+        expect(formatQuote(quote, false, true)).toEqual('12:00');
+      });
+    });
+    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 7, 8, 9);
+      });
+      it('the formatter outputs "07:08"', () => {
+        expect(formatQuote(quote, false, true)).toEqual('07:08');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+      });
+      it('the formatter outputs "13:08"', () => {
+        expect(formatQuote(quote, false, true)).toEqual('13:08');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM and a timezone is present', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+        quote.timezone = 'EDT';
+      });
+      it('the formatter outputs "13:08"', () => {
+        expect(formatQuote(quote, false, true)).toEqual('13:08 EDT');
+      });
+    });
+  });
+  describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456,
+        flag: 'p'
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(formatQuote(quote, false, true)).toEqual('05/03/16');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(formatQuote(quote, false, true)).toEqual('05/03/16');
+      });
+    });
+  });
+});
+describe('When a time formatter is created (and a 12-hour clock is specified)', () => {
+  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "12:00:00 AM"', () => {
+        expect(formatQuote(quote, true)).toEqual('12:00:00 AM');
+      });
+    });
+    describe('and the quote time is five after midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 5, 0);
+      });
+      it('the formatter outputs "12:05:00 AM"', () => {
+        expect(formatQuote(quote, true)).toEqual('12:05:00 AM');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "12:00:00 PM"', () => {
+        expect(formatQuote(quote, true)).toEqual('12:00:00 PM');
+      });
+    });
+    describe('and the quote time is ten after noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 10, 0);
+      });
+      it('the formatter outputs "12:10:00 PM"', () => {
+        expect(formatQuote(quote, true)).toEqual('12:10:00 PM');
+      });
+    });
+    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 7, 8, 9);
+      });
+      it('the formatter outputs "07:08:09 AM"', () => {
+        expect(formatQuote(quote, true)).toEqual('07:08:09 AM');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+      });
+      it('the formatter outputs "01:08:09 PM"', () => {
+        expect(formatQuote(quote, true)).toEqual('01:08:09 PM');
+      });
+    });
+  });
+  describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456,
+        flag: 'p'
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(formatQuote(quote, true)).toEqual('05/03/16');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(formatQuote(quote, true)).toEqual('05/03/16');
+      });
+    });
+  });
+});
+describe('When a time formatter is created (and a "short" 12-hour clock is specified)', () => {
+  describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "12:00A"', () => {
+        expect(formatQuote(quote, true, true)).toEqual('12:00A');
+      });
+    });
+    describe('and the quote time is five after midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 5, 0);
+      });
+      it('the formatter outputs "12:05A"', () => {
+        expect(formatQuote(quote, true, true)).toEqual('12:05A');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "12:00P"', () => {
+        expect(formatQuote(quote, true, true)).toEqual('12:00P');
+      });
+    });
+    describe('and the quote time is ten after noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 10, 0);
+      });
+      it('the formatter outputs "12:10P"', () => {
+        expect(formatQuote(quote, true, true)).toEqual('12:10P');
+      });
+    });
+    describe('and the quote time is 7:08:09 AM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 7, 8, 9);
+      });
+      it('the formatter outputs "07:08A"', () => {
+        expect(formatQuote(quote, true, true)).toEqual('07:08A');
+      });
+    });
+    describe('and the quote time is 1:08:09 PM on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 13, 8, 9);
+      });
+      it('the formatter outputs "01:08P"', () => {
+        expect(formatQuote(quote, true, true)).toEqual('01:08P');
+      });
+    });
+  });
+  describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
+    let quote;
+    beforeEach(() => {
+      quote = {
+        lastPrice: 123.456,
+        flag: 'p'
+      };
+    });
+    describe('and the quote time is midnight on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 0, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(formatQuote(quote, true, true)).toEqual('05/03/16');
+      });
+    });
+    describe('and the quote time is noon on May 3, 2016', () => {
+      beforeEach(() => {
+        quote.time = new Date(2016, 4, 3, 12, 0, 0);
+      });
+      it('the formatter outputs "05/03/16"', () => {
+        expect(formatQuote(quote, true, true)).toEqual('05/03/16');
+      });
+    });
+  });
+});
+
+},{"./../../../../lib/utilities/format/quote":18}],47:[function(require,module,exports){
+const formatSymbol = require('./../../../../lib/utilities/format/symbol');
 
 describe('When a lowercase string is formatted as a symbol', () => {
   let originalSymbol;
@@ -7630,7 +8524,9 @@ describe('When an null value is formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/symbol":16}],41:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/symbol":19}],48:[function(require,module,exports){
+
+},{}],49:[function(require,module,exports){
 const parseMessage = require('../../../../../lib/utilities/parse/ddf/message');
 
 describe('when parsing an XML refresh message', () => {
@@ -7837,7 +8733,7 @@ describe('when parsing a DDF message', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/message":17}],42:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/message":21}],50:[function(require,module,exports){
 const parseValue = require('../../../../../lib/utilities/parse/ddf/value');
 
 describe('when parsing prices', () => {
@@ -7940,8 +8836,8 @@ describe('when parsing prices', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/value":19}],43:[function(require,module,exports){
-let SymbolParser = require('../../../../lib/utilities/parsers/SymbolParser');
+},{"../../../../../lib/utilities/parse/ddf/value":23}],51:[function(require,module,exports){
+const SymbolParser = require('../../../../lib/utilities/parsers/SymbolParser');
 
 describe('When parsing a symbol for instrument type', () => {
   describe('and the symbol is IBM', () => {
@@ -8723,4 +9619,4 @@ describe('When getting a producer symbol', () => {
   });
 });
 
-},{"../../../../lib/utilities/parsers/SymbolParser":20}]},{},[28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43]);
+},{"../../../../lib/utilities/parsers/SymbolParser":24}]},{},[32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51]);
