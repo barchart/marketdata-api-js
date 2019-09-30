@@ -1,6 +1,6 @@
 const process = require('process');
 
-const version = require('./../../lib/index').version;
+const version = require('./../../lib/meta').version;
 
 const Connection = require('./../../lib/connection/websocket/Connection'),
 	SubscriptionType = require('./../../lib/connection/SubscriptionType'),

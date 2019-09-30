@@ -1,4 +1,4 @@
-const version = require('./../../../lib/info').version;
+const version = require('./../../../lib/meta').version;
 
 const Connection = require('./../../../lib/connection/websocket/Connection'),
 	retrieveConcreteSymbol = require('./../../../lib/connection/snapshots/symbols/retrieveConcrete');
