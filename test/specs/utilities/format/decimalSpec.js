@@ -1,4 +1,4 @@
-let formatDecimal = require('./../../../../lib/utilities/format/decimal');
+const formatDecimal = require('./../../../../lib/utilities/format/decimal');
 
 describe('when formatting invalid values', () => {
 	it('formats a null value as a zero-length string', () => {

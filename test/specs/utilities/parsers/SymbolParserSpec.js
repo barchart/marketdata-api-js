@@ -1,4 +1,4 @@
-let SymbolParser = require('../../../../lib/utilities/parsers/SymbolParser');
+const SymbolParser = require('../../../../lib/utilities/parsers/SymbolParser');
 
 describe('When parsing a symbol for instrument type', () => {
 	describe('and the symbol is IBM', () => {

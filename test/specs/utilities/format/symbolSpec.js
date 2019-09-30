@@ -1,4 +1,4 @@
-let formatSymbol = require('./../../../../lib/utilities/format/symbol');
+const formatSymbol = require('./../../../../lib/utilities/format/symbol');
 
 describe('When a lowercase string is formatted as a symbol', () => {
 	let originalSymbol;
