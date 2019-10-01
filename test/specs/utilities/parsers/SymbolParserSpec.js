@@ -185,6 +185,38 @@ describe('When parsing a symbol for instrument type', () => {
 		});
 	});
 
+	describe('and the symbol is NG*13', () => {
+		let instrumentType;
+
+		beforeEach(() => {
+			instrumentType = SymbolParser.parseInstrumentType('NG*13');
+		});
+
+		it('the result should not be null', () => {
+			expect(instrumentType).not.toBe(null);
+		});
+
+		it('the "symbol" should be "NG*13"', () => {
+			expect(instrumentType.symbol).toEqual('NG*13');
+		});
+
+		it('the "type" should be "future"', () => {
+			expect(instrumentType.type).toEqual('future');
+		});
+
+		it('the "dynamic" property should be true', () => {
+			expect(instrumentType.dynamic).toEqual(true);
+		});
+
+		it('the "root" should be "NG"', () => {
+			expect(instrumentType.root).toEqual('NG');
+		});
+
+		it('the "dynamicCode" property should be "13"', () => {
+			expect(instrumentType.dynamicCode).toEqual('13');
+		});
+	});
+
 	describe('and the symbol is CLF0', () => {
 		let instrumentType;
 		
@@ -415,6 +447,10 @@ describe('When parsing a symbol for instrument type', () => {
 });
 
 describe('When checking to see if a symbol is a future', () => {
+	it('the symbol "ES*1" should return true', () => {
+		expect(SymbolParser.getIsFuture('ES*1')).toEqual(true);
+	});
+
 	it('the symbol "ESZ6" should return true', () => {
 		expect(SymbolParser.getIsFuture('ESZ6')).toEqual(true);
 	});
@@ -512,6 +548,10 @@ describe('When checking to see if a symbol is a "concrete" future', () => {
 	it('the symbol "ES*1" should return false', () => {
 		expect(SymbolParser.getIsConcrete('ES*1')).toEqual(false);
 	});
+
+	it('the symbol "NG*13" should return false', () => {
+		expect(SymbolParser.getIsConcrete('NG*13')).toEqual(false);
+	});
 });
 
 describe('When checking to see if a symbol is a "reference" future', () => {
@@ -534,9 +574,21 @@ describe('When checking to see if a symbol is a "reference" future', () => {
 	it('the symbol "ES*1" should return true', () => {
 		expect(SymbolParser.getIsReference('ES*1')).toEqual(true);
 	});
+
+	it('the symbol "NG*13" should return true', () => {
+		expect(SymbolParser.getIsReference('NG*13')).toEqual(true);
+	});
 });
 
 describe('When checking to see if a symbol is sector', () => {
+	it('the symbol "ES*1" should return false', () => {
+		expect(SymbolParser.getIsSector('ES*1')).toEqual(false);
+	});
+
+	it('the symbol "NG*13" should return false', () => {
+		expect(SymbolParser.getIsSector('NG*13')).toEqual(false);
+	});
+
 	it('the symbol "ESZ6" should return false', () => {
 		expect(SymbolParser.getIsSector('ESZ6')).toEqual(false);
 	});
@@ -615,6 +667,14 @@ describe('When checking to see if a symbol is sector', () => {
 });
 
 describe('When checking to see if a symbol is forex', () => {
+	it('the symbol "ES*1" should return false', () => {
+		expect(SymbolParser.getIsForex('ES*1')).toEqual(false);
+	});
+
+	it('the symbol "NG*13" should return false', () => {
+		expect(SymbolParser.getIsForex('NG*13')).toEqual(false);
+	});
+
 	it('the symbol "ESZ6" should return false', () => {
 		expect(SymbolParser.getIsForex('ESZ6')).toEqual(false);
 	});
@@ -697,6 +757,14 @@ describe('When checking to see if a symbol is forex', () => {
 });
 
 describe('When checking to see if a symbol is a future spread', () => {
+	it('the symbol "ES*1" should return false', () => {
+		expect(SymbolParser.getIsFutureSpread('ES*1')).toEqual(false);
+	});
+
+	it('the symbol "NG*13" should return false', () => {
+		expect(SymbolParser.getIsFutureSpread('NG*13')).toEqual(false);
+	});
+
 	it('the symbol "ESZ6" should return false', () => {
 		expect(SymbolParser.getIsFutureSpread('ESZ6')).toEqual(false);
 	});
@@ -779,6 +847,14 @@ describe('When checking to see if a symbol is a future spread', () => {
 });
 
 describe('When checking to see if a symbol is a future option', () => {
+	it('the symbol "ES*1" should return false', () => {
+		expect(SymbolParser.getIsFutureOption('ES*1')).toEqual(false);
+	});
+
+	it('the symbol "NG*13" should return false', () => {
+		expect(SymbolParser.getIsFutureOption('NG*13')).toEqual(false);
+	});
+
 	it('the symbol "ESZ6" should return false', () => {
 		expect(SymbolParser.getIsFutureOption('ESZ6')).toEqual(false);
 	});
@@ -861,6 +937,14 @@ describe('When checking to see if a symbol is a future option', () => {
 });
 
 describe('When checking to see if a symbol is a cmdty index option', () => {
+	it('the symbol "ES*1" should return false', () => {
+		expect(SymbolParser.getIsCmdty('ES*1')).toEqual(false);
+	});
+
+	it('the symbol "NG*13" should return false', () => {
+		expect(SymbolParser.getIsCmdty('NG*13')).toEqual(false);
+	});
+
 	it('the symbol "ESZ6" should return false', () => {
 		expect(SymbolParser.getIsCmdty('ESZ6')).toEqual(false);
 	});
@@ -985,6 +1069,10 @@ describe('When getting a producer symbol', () => {
 
 	it('ES*0 should map to ES*0', () => {
 		expect(SymbolParser.getProducerSymbol('ES*0')).toEqual('ES*0');
+	});
+
+	it('NG*13 should map to NG*13', () => {
+		expect(SymbolParser.getProducerSymbol('NG*13')).toEqual('NG*13');
 	});
 
 	it('$DOWI should map to $DOWI', () => {
