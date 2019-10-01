@@ -23,8 +23,8 @@
             <th class="left col-md-2">Bid Price</th>
             <th class="left col-md-2">Ask Price</th>
             <th class="left col-md-2">Last Price</th>
-            <th class="left col-md-2">Volume</th>
             <th class="left col-md-2">Trades</th>
+			<th class="left col-md-2">Time</th>
             </thead>
             <tbody data-bind="template: { name: 'grid-item-template', foreach: rows }"></tbody>
         </table>
@@ -44,8 +44,8 @@
             <td class="left col-md-2" data-bind="text: bidPrice"></td>
             <td class="left col-md-2" data-bind="text: askPrice"></td>
             <td class="left col-md-2" data-bind="text: lastPrice"></td>
-            <td class="left col-md-2" data-bind="text: volume"></td>
             <td class="left col-md-2" data-bind="text: numberOfTrades"></td>
+			<td class="left col-md-2" data-bind="text: $parent.displayTime"></td>
             <!-- /ko -->
             <!-- /ko -->
             <!-- ko if: quote() === null -->
@@ -53,7 +53,7 @@
             <td class="left col-md-2"></td>
             <td class="left col-md-2"></td>
             <td class="left col-md-2"></td>
-            <td class="left col-md-2"></td>
+			<td class="left col-md-2"></td>
             <!-- /ko -->
         </tr>
     </script>

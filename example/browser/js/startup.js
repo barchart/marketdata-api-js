@@ -3,6 +3,8 @@ const version = require('./../../../lib/meta').version;
 const Connection = require('./../../../lib/connection/Connection'),
 	retrieveConcreteSymbol = require('./../../../lib/connection/snapshots/symbols/retrieveConcrete');
 
+const formatTime = require('./../../../lib/utilities/format/time');
+
 module.exports = (() => {
 	'use strict';
 
@@ -362,6 +364,16 @@ module.exports = (() => {
 		that.priceLevelLast = ko.observable(null);
 
 		that.cumulativeVolumeReady = ko.observable(false);
+
+		that.displayTime = ko.computed(function() {
+			if (that.quote() === null) {
+				return '';
+			} else {
+				console.log(formatTime(that.quote().time, null, true));
+
+				return formatTime(that.quote().time, null, true);
+			}
+		});
 
 		that.handlers = { };
 
