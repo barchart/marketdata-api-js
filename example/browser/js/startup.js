@@ -369,8 +369,6 @@ module.exports = (() => {
 			if (that.quote() === null) {
 				return '';
 			} else {
-				console.log(formatTime(that.quote().time, null, true));
-
 				return formatTime(that.quote().time, null, true);
 			}
 		});
