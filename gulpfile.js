@@ -52,7 +52,7 @@ gulp.task('document', (cb) => {
 gulp.task('embed-version', () => {
 	const version = getVersionFromPackage();
 
-	return gulp.src(['./lib/info.js'])
+	return gulp.src(['./lib/meta.js'])
 		.pipe(replace(/(version:\s*')([0-9]+\.[0-9]+\.[0-9]+)(')/g, '$1' + version + '$3'))
 		.pipe(gulp.dest('./lib/'));
 });
