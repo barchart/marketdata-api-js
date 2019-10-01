@@ -42,7 +42,7 @@ gulp.task('document', (cb) => {
 	const config = {
 		"opts": {
 			"destination": "./docs"
-		},
+		}
 	};
 
 	gulp.src(['README.md', './lib/**/*.js' ], {read: false})
