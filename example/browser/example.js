@@ -329,7 +329,6 @@ module.exports = (() => {
       if (that.quote() === null) {
         return '';
       } else {
-        console.log(formatTime(that.quote().time, null, true));
         return formatTime(that.quote().time, null, true);
       }
     });
@@ -4169,7 +4168,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.3'
+    version: '4.0.4'
   };
 })();
 
@@ -5432,7 +5431,7 @@ module.exports = (() => {
   types.futures = {};
   types.futures.spread = /^_S_/i;
   types.futures.concrete = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z]{1})([0-9]{4}|[0-9]{1,2})$/i;
-  types.futures.alias = /^([A-Z][A-Z0-9\$\-!\.]{0,2})(\*{1})([0-9]{1})$/i;
+  types.futures.alias = /^([A-Z][A-Z0-9\$\-!\.]{0,2})(\*{1})([0-9]{1,2})$/i;
   types.futures.options = {};
   types.futures.options.short = /^([A-Z][A-Z0-9\$\-!\.]?)([A-Z])([0-9]{1,4})([A-Z])$/i;
   types.futures.options.long = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i;
