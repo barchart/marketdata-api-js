@@ -1,6 +1,6 @@
 {
   "name": "@barchart/marketdata-api-js",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Barchart client library for streaming market data from JERQ servers using JavaScript",
   "author": {
     "name": "Eero Pikat",

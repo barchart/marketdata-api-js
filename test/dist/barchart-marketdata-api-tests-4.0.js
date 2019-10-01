@@ -517,6 +517,10 @@ module.exports = (() => {
       return clone;
     }
 
+    toString() {
+      return '[CumulativeVolume]';
+    }
+
   }
 
   const sendPriceVolumeUpdate = (container, handler, priceLevel) => {
@@ -672,47 +676,16 @@ module.exports = (() => {
       return profiles;
     }
 
+    toString() {
+      return '[Profile]';
+    }
+
   }
 
   return Profile;
 })();
 
 },{"../utilities/format/factories/price":15,"./../utilities/parsers/SymbolParser":24}],6:[function(require,module,exports){
-module.exports = (() => {
-  'use strict';
-
-  const monthMap = {};
-  const numberMap = {};
-
-  function addMonth(code, name, number) {
-    monthMap[code] = name;
-    numberMap[code] = number;
-  }
-
-  addMonth("F", "January", 1);
-  addMonth("G", "February", 2);
-  addMonth("H", "March", 3);
-  addMonth("J", "April", 4);
-  addMonth("K", "May", 5);
-  addMonth("M", "June", 6);
-  addMonth("N", "July", 7);
-  addMonth("Q", "August", 8);
-  addMonth("U", "September", 9);
-  addMonth("V", "October", 10);
-  addMonth("X", "November", 11);
-  addMonth("Z", "December", 12);
-  addMonth("Y", "Cash", 0);
-  return {
-    getCodeToNameMap: () => {
-      return monthMap;
-    },
-    getCodeToNumberMap: () => {
-      return numberMap;
-    }
-  };
-})();
-
-},{}],7:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -775,7 +748,7 @@ module.exports = (() => {
   return convertBaseCodeToUnitCode;
 })();
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 const convertNumberToDayCode = require('./numberToDayCode');
 
 module.exports = (() => {
@@ -800,7 +773,7 @@ module.exports = (() => {
   return convertDateToDayCode;
 })();
 
-},{"./numberToDayCode":10}],9:[function(require,module,exports){
+},{"./numberToDayCode":9}],8:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -832,7 +805,7 @@ module.exports = (() => {
   return convertDayCodeToNumber;
 })();
 
-},{"@barchart/common-js/lang/is":27}],10:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":27}],9:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -867,7 +840,7 @@ module.exports = (() => {
   return convertNumberToDayCode;
 })();
 
-},{"@barchart/common-js/lang/is":27}],11:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":27}],10:[function(require,module,exports){
 const convertUnitCodeToBaseCode = require('./unitCodeToBaseCode');
 
 module.exports = (() => {
@@ -882,7 +855,7 @@ module.exports = (() => {
    * @return {Number}
    */
 
-  return (value, unitcode) => {
+  function convertStringToDecimal(value, unitcode) {
     let baseCode = convertUnitCodeToBaseCode(unitcode);
     let is_negative = false;
 
@@ -919,10 +892,12 @@ module.exports = (() => {
 
       return (numerator + denominator / divisor) * (is_negative ? -1 : 1);
     }
-  };
+  }
+
+  return convertStringToDecimal;
 })();
 
-},{"./unitCodeToBaseCode":12}],12:[function(require,module,exports){
+},{"./unitCodeToBaseCode":11}],11:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -985,6 +960,41 @@ module.exports = (() => {
   return convertUnitCodeToBaseCode;
 })();
 
+},{}],12:[function(require,module,exports){
+module.exports = (() => {
+  'use strict';
+
+  const monthMap = {};
+  const numberMap = {};
+
+  function addMonth(code, name, number) {
+    monthMap[code] = name;
+    numberMap[code] = number;
+  }
+
+  addMonth("F", "January", 1);
+  addMonth("G", "February", 2);
+  addMonth("H", "March", 3);
+  addMonth("J", "April", 4);
+  addMonth("K", "May", 5);
+  addMonth("M", "June", 6);
+  addMonth("N", "July", 7);
+  addMonth("Q", "August", 8);
+  addMonth("U", "September", 9);
+  addMonth("V", "October", 10);
+  addMonth("X", "November", 11);
+  addMonth("Z", "December", 12);
+  addMonth("Y", "Cash", 0);
+  return {
+    getCodeToNameMap: () => {
+      return monthMap;
+    },
+    getCodeToNumberMap: () => {
+      return numberMap;
+    }
+  };
+})();
+
 },{}],13:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
@@ -995,7 +1005,7 @@ module.exports = (() => {
   /**
    * Formats a {@link Date} instance as a string (using a MM/DD/YY pattern).
    *
-   * @public
+   * @function
    * @param {Date=} date
    * @returns {String}
    */
@@ -1311,7 +1321,7 @@ module.exports = (() => {
    * state. If the market is open, and a trade has occurred, then the formatted time
    * is returned. Otherwise, the formatted date is returned.
    *
-   * @public
+   * @function
    * @param {Quote} quote
    * @param {Boolean=} useTwelveHourClock
    * @param {Boolean=} short
@@ -1466,11 +1476,6 @@ const parseValue = require('./value'),
 
 module.exports = (() => {
   'use strict';
-  /**
-   * Utility for parsing XML.
-   *
-   * @public
-   */
 
   class XmlDomParser {
     constructor() {
@@ -1502,7 +1507,7 @@ module.exports = (() => {
    * Parses a DDF message, returning a JavaScript object representing the
    * content of the message.
    *
-   * @public
+   * @function
    * @param {String} msg
    * @returns {Object}
    */
@@ -2032,7 +2037,7 @@ module.exports = (() => {
    * a quote for IBM, having a date of September 26 at 13:15 refers to September 26
    * at 13:15 in America/New_York not America/Belize or Asia/Tokyo.
    *
-   * @public
+   * @function
    * @param {String} bytes
    * @returns {Date}
    */
@@ -2084,7 +2089,7 @@ module.exports = (() => {
   /**
    * Parses DDF price.
    *
-   * @public
+   * @function
    * @param {String} bytes
    * @param {String} unitcode
    * @param {String=} thousandsSeparator
@@ -2423,6 +2428,12 @@ module.exports = (() => {
       return null;
     }
   }
+  /**
+   * Static utilities for parsing symbols.
+   *
+   * @public
+   */
+
 
   class SymbolParser {
     constructor() {}
@@ -6134,94 +6145,6 @@ describe('When a Profile is created (for a symbol with unitCode "2")', () => {
 });
 
 },{"../../../lib/marketState/Profile":5}],34:[function(require,module,exports){
-let monthCodes = require('./../../../lib/util/monthCodes');
-
-describe('When looking up a month name by code', () => {
-  let map;
-  beforeEach(() => {
-    map = monthCodes.getCodeToNameMap();
-  });
-  it('"F" should map to "January"', () => {
-    expect(map.F).toEqual("January");
-  });
-  it('"G" should map to "February"', () => {
-    expect(map.G).toEqual("February");
-  });
-  it('"H" should map to "March"', () => {
-    expect(map.H).toEqual("March");
-  });
-  it('"J" should map to "April"', () => {
-    expect(map.J).toEqual("April");
-  });
-  it('"K" should map to "May"', () => {
-    expect(map.K).toEqual("May");
-  });
-  it('"M" should map to "June"', () => {
-    expect(map.M).toEqual("June");
-  });
-  it('"N" should map to "July"', () => {
-    expect(map.N).toEqual("July");
-  });
-  it('"Q" should map to "August"', () => {
-    expect(map.Q).toEqual("August");
-  });
-  it('"U" should map to "September"', () => {
-    expect(map.U).toEqual("September");
-  });
-  it('"V" should map to "October"', () => {
-    expect(map.V).toEqual("October");
-  });
-  it('"X" should map to "November"', () => {
-    expect(map.X).toEqual("November");
-  });
-  it('"Z" should map to "December"', () => {
-    expect(map.Z).toEqual("December");
-  });
-});
-describe('When looking up a month number by code', () => {
-  let map;
-  beforeEach(() => {
-    map = monthCodes.getCodeToNumberMap();
-  });
-  it('"F" should map to 1', () => {
-    expect(map.F).toEqual(1);
-  });
-  it('"G" should map to 2', () => {
-    expect(map.G).toEqual(2);
-  });
-  it('"H" should map to 3', () => {
-    expect(map.H).toEqual(3);
-  });
-  it('"J" should map to 4', () => {
-    expect(map.J).toEqual(4);
-  });
-  it('"K" should map to 5', () => {
-    expect(map.K).toEqual(5);
-  });
-  it('"M" should map to 6', () => {
-    expect(map.M).toEqual(6);
-  });
-  it('"N" should map to 7', () => {
-    expect(map.N).toEqual(7);
-  });
-  it('"Q" should map to 8', () => {
-    expect(map.Q).toEqual(8);
-  });
-  it('"U" should map to 9', () => {
-    expect(map.U).toEqual(9);
-  });
-  it('"V" should map to 10', () => {
-    expect(map.V).toEqual(10);
-  });
-  it('"X" should map to 11', () => {
-    expect(map.X).toEqual(11);
-  });
-  it('"Z" should map to 12', () => {
-    expect(map.Z).toEqual(12);
-  });
-});
-
-},{"./../../../lib/util/monthCodes":6}],35:[function(require,module,exports){
 const convertBaseCodeToUnitCode = require('./../../../../lib/utilities/convert/baseCodeToUnitCode');
 
 describe('When converting a baseCode to a unitCode', () => {
@@ -6278,7 +6201,7 @@ describe('When converting a baseCode to a unitCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":7}],36:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":6}],35:[function(require,module,exports){
 const convertDateToDayCode = require('./../../../../lib/utilities/convert/dateToDayCode');
 
 describe('When converting a date instance to a day code', () => {
@@ -6383,7 +6306,7 @@ describe('When converting a date instance to a day code', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dateToDayCode":8}],37:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dateToDayCode":7}],36:[function(require,module,exports){
 const convertDayCodeToNumber = require('./../../../../lib/utilities/convert/dayCodeToNumber');
 
 describe('When converting a dayCode to number', () => {
@@ -6554,7 +6477,7 @@ describe('When converting a dayCode to number', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dayCodeToNumber":9}],38:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dayCodeToNumber":8}],37:[function(require,module,exports){
 const convertNumberToDayCode = require('./../../../../lib/utilities/convert/numberToDayCode');
 
 describe('When converting a number to a dayCode', () => {
@@ -6659,7 +6582,7 @@ describe('When converting a number to a dayCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/numberToDayCode":10}],39:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/numberToDayCode":9}],38:[function(require,module,exports){
 const convertStringToDecimal = require('./../../../../lib/utilities/convert/stringToDecimal');
 
 describe('when parsing prices', () => {
@@ -6681,7 +6604,7 @@ describe('when parsing prices', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/stringToDecimal":11}],40:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/stringToDecimal":10}],39:[function(require,module,exports){
 const convertUnitCodeToBaseCode = require('./../../../../lib/utilities/convert/unitCodeToBaseCode');
 
 describe('When converting a unitCode to a baseCode', () => {
@@ -6738,7 +6661,95 @@ describe('When converting a unitCode to a baseCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":12}],41:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":11}],40:[function(require,module,exports){
+const monthCodes = require('../../../../lib/utilities/data/monthCodes');
+
+describe('When looking up a month name by code', () => {
+  let map;
+  beforeEach(() => {
+    map = monthCodes.getCodeToNameMap();
+  });
+  it('"F" should map to "January"', () => {
+    expect(map.F).toEqual("January");
+  });
+  it('"G" should map to "February"', () => {
+    expect(map.G).toEqual("February");
+  });
+  it('"H" should map to "March"', () => {
+    expect(map.H).toEqual("March");
+  });
+  it('"J" should map to "April"', () => {
+    expect(map.J).toEqual("April");
+  });
+  it('"K" should map to "May"', () => {
+    expect(map.K).toEqual("May");
+  });
+  it('"M" should map to "June"', () => {
+    expect(map.M).toEqual("June");
+  });
+  it('"N" should map to "July"', () => {
+    expect(map.N).toEqual("July");
+  });
+  it('"Q" should map to "August"', () => {
+    expect(map.Q).toEqual("August");
+  });
+  it('"U" should map to "September"', () => {
+    expect(map.U).toEqual("September");
+  });
+  it('"V" should map to "October"', () => {
+    expect(map.V).toEqual("October");
+  });
+  it('"X" should map to "November"', () => {
+    expect(map.X).toEqual("November");
+  });
+  it('"Z" should map to "December"', () => {
+    expect(map.Z).toEqual("December");
+  });
+});
+describe('When looking up a month number by code', () => {
+  let map;
+  beforeEach(() => {
+    map = monthCodes.getCodeToNumberMap();
+  });
+  it('"F" should map to 1', () => {
+    expect(map.F).toEqual(1);
+  });
+  it('"G" should map to 2', () => {
+    expect(map.G).toEqual(2);
+  });
+  it('"H" should map to 3', () => {
+    expect(map.H).toEqual(3);
+  });
+  it('"J" should map to 4', () => {
+    expect(map.J).toEqual(4);
+  });
+  it('"K" should map to 5', () => {
+    expect(map.K).toEqual(5);
+  });
+  it('"M" should map to 6', () => {
+    expect(map.M).toEqual(6);
+  });
+  it('"N" should map to 7', () => {
+    expect(map.N).toEqual(7);
+  });
+  it('"Q" should map to 8', () => {
+    expect(map.Q).toEqual(8);
+  });
+  it('"U" should map to 9', () => {
+    expect(map.U).toEqual(9);
+  });
+  it('"V" should map to 10', () => {
+    expect(map.V).toEqual(10);
+  });
+  it('"X" should map to 11', () => {
+    expect(map.X).toEqual(11);
+  });
+  it('"Z" should map to 12', () => {
+    expect(map.Z).toEqual(12);
+  });
+});
+
+},{"../../../../lib/utilities/data/monthCodes":12}],41:[function(require,module,exports){
 const formatDate = require('./../../../../lib/utilities/format/date');
 
 describe('when using the date formatter', () => {
