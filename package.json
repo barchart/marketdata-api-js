@@ -35,10 +35,7 @@
     "Realtime",
     "Stocks",
     "Futures",
-    "Forex",
-    "Price",
-    "Formatter",
-    "HTML5"
+    "Forex"
   ],
   "dependencies": {
     "@barchart/common-js": "~3.3.51",
