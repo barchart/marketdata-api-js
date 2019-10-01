@@ -4,6 +4,8 @@ const version = require('./../../../lib/meta').version;
 const Connection = require('./../../../lib/connection/Connection'),
       retrieveConcreteSymbol = require('./../../../lib/connection/snapshots/symbols/retrieveConcrete');
 
+const formatTime = require('./../../../lib/utilities/format/time');
+
 module.exports = (() => {
   'use strict';
 
@@ -323,6 +325,14 @@ module.exports = (() => {
     that.priceLevels = ko.observableArray();
     that.priceLevelLast = ko.observable(null);
     that.cumulativeVolumeReady = ko.observable(false);
+    that.displayTime = ko.computed(function () {
+      if (that.quote() === null) {
+        return '';
+      } else {
+        console.log(formatTime(that.quote().time, null, true));
+        return formatTime(that.quote().time, null, true);
+      }
+    });
     that.handlers = {};
 
     that.setMarketUpdateHandler = function (handler) {
@@ -361,7 +371,7 @@ module.exports = (() => {
   });
 })();
 
-},{"./../../../lib/connection/Connection":2,"./../../../lib/connection/snapshots/symbols/retrieveConcrete":8,"./../../../lib/meta":16}],2:[function(require,module,exports){
+},{"./../../../lib/connection/Connection":2,"./../../../lib/connection/snapshots/symbols/retrieveConcrete":8,"./../../../lib/meta":16,"./../../../lib/utilities/format/time":24}],2:[function(require,module,exports){
 const array = require('@barchart/common-js/lang/array'),
       object = require('@barchart/common-js/lang/object');
 
@@ -1892,7 +1902,7 @@ module.exports = (() => {
   return Connection;
 })();
 
-},{"./../logging/LoggerFactory":10,"./../utilities/parse/ddf/message":24,"./../utilities/parsers/SymbolParser":27,"./ConnectionBase":3,"./adapter/WebSocketAdapterFactory":5,"./adapter/WebSocketAdapterFactoryForBrowsers":6,"./snapshots/quotes/retrieveSnapshots":7,"@barchart/common-js/lang/array":28,"@barchart/common-js/lang/object":31}],3:[function(require,module,exports){
+},{"./../logging/LoggerFactory":10,"./../utilities/parse/ddf/message":25,"./../utilities/parsers/SymbolParser":28,"./ConnectionBase":3,"./adapter/WebSocketAdapterFactory":5,"./adapter/WebSocketAdapterFactoryForBrowsers":6,"./snapshots/quotes/retrieveSnapshots":7,"@barchart/common-js/lang/array":29,"@barchart/common-js/lang/object":32}],3:[function(require,module,exports){
 const MarketState = require('./../marketState/MarketState');
 
 module.exports = (() => {
@@ -2680,7 +2690,7 @@ module.exports = (() => {
   return retrieveSnapshots;
 })();
 
-},{"../../../utilities/convert/baseCodeToUnitCode":17,"../../../utilities/convert/dateToDayCode":18,"../../../utilities/convert/dayCodeToNumber":19,"@barchart/common-js/lang/array":28,"@barchart/common-js/lang/is":30,"axios":32}],8:[function(require,module,exports){
+},{"../../../utilities/convert/baseCodeToUnitCode":17,"../../../utilities/convert/dateToDayCode":18,"../../../utilities/convert/dayCodeToNumber":19,"@barchart/common-js/lang/array":29,"@barchart/common-js/lang/is":31,"axios":33}],8:[function(require,module,exports){
 const axios = require('axios');
 
 const is = require('@barchart/common-js/lang/is');
@@ -2723,7 +2733,7 @@ module.exports = (() => {
   return retrieveConcreteSymbol;
 })();
 
-},{"@barchart/common-js/lang/is":30,"axios":32}],9:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":31,"axios":33}],9:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -3279,7 +3289,7 @@ module.exports = (() => {
   return CumulativeVolume;
 })();
 
-},{"./../logging/LoggerFactory":10,"@barchart/common-js/lang//object":31}],13:[function(require,module,exports){
+},{"./../logging/LoggerFactory":10,"@barchart/common-js/lang//object":32}],13:[function(require,module,exports){
 const CumulativeVolume = require('./CumulativeVolume'),
       Profile = require('./Profile'),
       Quote = require('./Quote');
@@ -3904,7 +3914,7 @@ module.exports = (() => {
   return MarketState;
 })();
 
-},{"../utilities/parsers/SymbolParser":27,"./../logging/LoggerFactory":10,"./../utilities/convert/dayCodeToNumber":19,"./CumulativeVolume":12,"./Profile":14,"./Quote":15}],14:[function(require,module,exports){
+},{"../utilities/parsers/SymbolParser":28,"./../logging/LoggerFactory":10,"./../utilities/convert/dayCodeToNumber":19,"./CumulativeVolume":12,"./Profile":14,"./Quote":15}],14:[function(require,module,exports){
 const SymbolParser = require('./../utilities/parsers/SymbolParser'),
       buildPriceFormatter = require('../utilities/format/factories/price');
 
@@ -4035,7 +4045,7 @@ module.exports = (() => {
   return Profile;
 })();
 
-},{"../utilities/format/factories/price":22,"./../utilities/parsers/SymbolParser":27}],15:[function(require,module,exports){
+},{"../utilities/format/factories/price":22,"./../utilities/parsers/SymbolParser":28}],15:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -4159,7 +4169,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.2'
+    version: '4.0.3'
   };
 })();
 
@@ -4283,7 +4293,7 @@ module.exports = (() => {
   return convertDayCodeToNumber;
 })();
 
-},{"@barchart/common-js/lang/is":30}],20:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":31}],20:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -4318,7 +4328,7 @@ module.exports = (() => {
   return convertNumberToDayCode;
 })();
 
-},{"@barchart/common-js/lang/is":30}],21:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":31}],21:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -4386,7 +4396,7 @@ module.exports = (() => {
   return formatDecimal;
 })();
 
-},{"@barchart/common-js/lang/is":30}],22:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":31}],22:[function(require,module,exports){
 const formatPrice = require('./../price');
 
 module.exports = (() => {
@@ -4574,7 +4584,109 @@ module.exports = (() => {
   return formatPrice;
 })();
 
-},{"./decimal":21,"@barchart/common-js/lang/is":30}],24:[function(require,module,exports){
+},{"./decimal":21,"@barchart/common-js/lang/is":31}],24:[function(require,module,exports){
+module.exports = (() => {
+  'use strict';
+
+  function leftPad(value) {
+    return ('00' + value).substr(-2);
+  }
+
+  function formatTwelveHourTime(t) {
+    let hours = t.getHours();
+    let period;
+
+    if (hours === 0) {
+      hours = 12;
+      period = 'AM';
+    } else if (hours === 12) {
+      hours = hours;
+      period = 'PM';
+    } else if (hours > 12) {
+      hours = hours - 12;
+      period = 'PM';
+    } else {
+      hours = hours;
+      period = 'AM';
+    }
+
+    return `${leftPad(hours)}:${leftPad(t.getMinutes())}:${leftPad(t.getSeconds())} ${period}`;
+  }
+
+  function formatTwelveHourTimeShort(t) {
+    let hours = t.getHours();
+    let period;
+
+    if (hours === 0) {
+      hours = 12;
+      period = 'A';
+    } else if (hours === 12) {
+      hours = hours;
+      period = 'P';
+    } else if (hours > 12) {
+      hours = hours - 12;
+      period = 'P';
+    } else {
+      hours = hours;
+      period = 'A';
+    }
+
+    return `${leftPad(hours)}:${leftPad(t.getMinutes())}${period}`;
+  }
+
+  function formatTwentyFourHourTime(t) {
+    return `${leftPad(t.getHours())}:${leftPad(t.getMinutes())}:${leftPad(t.getSeconds())}`;
+  }
+
+  function formatTwentyFourHourTimeShort(t) {
+    return `${leftPad(t.getHours())}:${leftPad(t.getMinutes())}`;
+  }
+  /**
+   * Formats a {@link Date} instance's time component as a string.
+   *
+   * @function
+   * @param {Date} date
+   * @param {String=} timezone
+   * @param {Boolean=} useTwelveHourClock
+   * @param {Boolean=} short
+   * @returns {String}
+   */
+
+
+  function formatTime(date, timezone, useTwelveHourClock, short) {
+    if (!date) {
+      return '';
+    }
+
+    let ft;
+
+    if (useTwelveHourClock) {
+      if (short) {
+        ft = formatTwelveHourTimeShort;
+      } else {
+        ft = formatTwelveHourTime;
+      }
+    } else {
+      if (short) {
+        ft = formatTwentyFourHourTimeShort;
+      } else {
+        ft = formatTwentyFourHourTime;
+      }
+    }
+
+    let formatted = ft(date);
+
+    if (timezone) {
+      formatted = `${formatted} ${timezone}`;
+    }
+
+    return formatted;
+  }
+
+  return formatTime;
+})();
+
+},{}],25:[function(require,module,exports){
 const xmlDom = require('xmldom');
 
 const parseValue = require('./value'),
@@ -5126,7 +5238,7 @@ module.exports = (() => {
   return parseMessage;
 })();
 
-},{"./timestamp":25,"./value":26,"xmldom":59}],25:[function(require,module,exports){
+},{"./timestamp":26,"./value":27,"xmldom":60}],26:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -5179,7 +5291,7 @@ module.exports = (() => {
   return parseTimestamp;
 })();
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -5278,7 +5390,7 @@ module.exports = (() => {
   return parseValue;
 })();
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -5807,7 +5919,7 @@ module.exports = (() => {
   return SymbolParser;
 })();
 
-},{"@barchart/common-js/lang/is":30}],28:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":31}],29:[function(require,module,exports){
 const assert = require('./assert'),
       is = require('./is');
 
@@ -6262,7 +6374,7 @@ module.exports = (() => {
   }
 })();
 
-},{"./assert":29,"./is":30}],29:[function(require,module,exports){
+},{"./assert":30,"./is":31}],30:[function(require,module,exports){
 const is = require('./is');
 
 module.exports = (() => {
@@ -6407,7 +6519,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./is":30}],30:[function(require,module,exports){
+},{"./is":31}],31:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -6602,7 +6714,7 @@ module.exports = (() => {
   };
 })();
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 const array = require('./array'),
       is = require('./is');
 
@@ -6762,9 +6874,9 @@ module.exports = (() => {
   return object;
 })();
 
-},{"./array":28,"./is":30}],32:[function(require,module,exports){
+},{"./array":29,"./is":31}],33:[function(require,module,exports){
 module.exports = require('./lib/axios');
-},{"./lib/axios":34}],33:[function(require,module,exports){
+},{"./lib/axios":35}],34:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -6940,7 +7052,7 @@ module.exports = function xhrAdapter(config) {
   });
 };
 
-},{"../core/createError":40,"./../core/settle":44,"./../helpers/buildURL":48,"./../helpers/cookies":50,"./../helpers/isURLSameOrigin":52,"./../helpers/parseHeaders":54,"./../utils":56}],34:[function(require,module,exports){
+},{"../core/createError":41,"./../core/settle":45,"./../helpers/buildURL":49,"./../helpers/cookies":51,"./../helpers/isURLSameOrigin":53,"./../helpers/parseHeaders":55,"./../utils":57}],35:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -6995,7 +7107,7 @@ module.exports = axios;
 // Allow use of default import syntax in TypeScript
 module.exports.default = axios;
 
-},{"./cancel/Cancel":35,"./cancel/CancelToken":36,"./cancel/isCancel":37,"./core/Axios":38,"./core/mergeConfig":43,"./defaults":46,"./helpers/bind":47,"./helpers/spread":55,"./utils":56}],35:[function(require,module,exports){
+},{"./cancel/Cancel":36,"./cancel/CancelToken":37,"./cancel/isCancel":38,"./core/Axios":39,"./core/mergeConfig":44,"./defaults":47,"./helpers/bind":48,"./helpers/spread":56,"./utils":57}],36:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7016,7 +7128,7 @@ Cancel.prototype.__CANCEL__ = true;
 
 module.exports = Cancel;
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 var Cancel = require('./Cancel');
@@ -7075,14 +7187,14 @@ CancelToken.source = function source() {
 
 module.exports = CancelToken;
 
-},{"./Cancel":35}],37:[function(require,module,exports){
+},{"./Cancel":36}],38:[function(require,module,exports){
 'use strict';
 
 module.exports = function isCancel(value) {
   return !!(value && value.__CANCEL__);
 };
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7170,7 +7282,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = Axios;
 
-},{"../helpers/buildURL":48,"./../utils":56,"./InterceptorManager":39,"./dispatchRequest":41,"./mergeConfig":43}],39:[function(require,module,exports){
+},{"../helpers/buildURL":49,"./../utils":57,"./InterceptorManager":40,"./dispatchRequest":42,"./mergeConfig":44}],40:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7224,7 +7336,7 @@ InterceptorManager.prototype.forEach = function forEach(fn) {
 
 module.exports = InterceptorManager;
 
-},{"./../utils":56}],40:[function(require,module,exports){
+},{"./../utils":57}],41:[function(require,module,exports){
 'use strict';
 
 var enhanceError = require('./enhanceError');
@@ -7244,7 +7356,7 @@ module.exports = function createError(message, config, code, request, response) 
   return enhanceError(error, config, code, request, response);
 };
 
-},{"./enhanceError":42}],41:[function(require,module,exports){
+},{"./enhanceError":43}],42:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7332,7 +7444,7 @@ module.exports = function dispatchRequest(config) {
   });
 };
 
-},{"../cancel/isCancel":37,"../defaults":46,"./../helpers/combineURLs":49,"./../helpers/isAbsoluteURL":51,"./../utils":56,"./transformData":45}],42:[function(require,module,exports){
+},{"../cancel/isCancel":38,"../defaults":47,"./../helpers/combineURLs":50,"./../helpers/isAbsoluteURL":52,"./../utils":57,"./transformData":46}],43:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7376,7 +7488,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
   return error;
 };
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -7429,7 +7541,7 @@ module.exports = function mergeConfig(config1, config2) {
   return config;
 };
 
-},{"../utils":56}],44:[function(require,module,exports){
+},{"../utils":57}],45:[function(require,module,exports){
 'use strict';
 
 var createError = require('./createError');
@@ -7456,7 +7568,7 @@ module.exports = function settle(resolve, reject, response) {
   }
 };
 
-},{"./createError":40}],45:[function(require,module,exports){
+},{"./createError":41}],46:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7478,7 +7590,7 @@ module.exports = function transformData(data, headers, fns) {
   return data;
 };
 
-},{"./../utils":56}],46:[function(require,module,exports){
+},{"./../utils":57}],47:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -7580,7 +7692,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 module.exports = defaults;
 
 }).call(this,require('_process'))
-},{"./adapters/http":33,"./adapters/xhr":33,"./helpers/normalizeHeaderName":53,"./utils":56,"_process":57}],47:[function(require,module,exports){
+},{"./adapters/http":34,"./adapters/xhr":34,"./helpers/normalizeHeaderName":54,"./utils":57,"_process":58}],48:[function(require,module,exports){
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -7593,7 +7705,7 @@ module.exports = function bind(fn, thisArg) {
   };
 };
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7666,7 +7778,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
-},{"./../utils":56}],49:[function(require,module,exports){
+},{"./../utils":57}],50:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7682,7 +7794,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
     : baseURL;
 };
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7737,7 +7849,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":56}],51:[function(require,module,exports){
+},{"./../utils":57}],52:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7753,7 +7865,7 @@ module.exports = function isAbsoluteURL(url) {
   return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
 };
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7823,7 +7935,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":56}],53:[function(require,module,exports){
+},{"./../utils":57}],54:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -7837,7 +7949,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
   });
 };
 
-},{"../utils":56}],54:[function(require,module,exports){
+},{"../utils":57}],55:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7892,7 +8004,7 @@ module.exports = function parseHeaders(headers) {
   return parsed;
 };
 
-},{"./../utils":56}],55:[function(require,module,exports){
+},{"./../utils":57}],56:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7921,7 +8033,7 @@ module.exports = function spread(callback) {
   };
 };
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 'use strict';
 
 var bind = require('./helpers/bind');
@@ -8257,7 +8369,7 @@ module.exports = {
   trim: trim
 };
 
-},{"./helpers/bind":47,"is-buffer":58}],57:[function(require,module,exports){
+},{"./helpers/bind":48,"is-buffer":59}],58:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -8443,7 +8555,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -8456,7 +8568,7 @@ module.exports = function isBuffer (obj) {
     typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
 }
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -8709,7 +8821,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":60,"./sax":61}],60:[function(require,module,exports){
+},{"./dom":61,"./sax":62}],61:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -9955,7 +10067,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
