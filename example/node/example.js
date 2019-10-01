@@ -2,9 +2,9 @@ const process = require('process');
 
 const version = require('./../../lib/meta').version;
 
-const Connection = require('./../../lib/connection/websocket/Connection'),
+const Connection = require('./../../lib/connection/Connection'),
 	SubscriptionType = require('./../../lib/connection/SubscriptionType'),
-	WebSocketAdapterFactoryForNode = require('./../../lib/connection/websocket/adapter/WebSocketAdapterFactoryForNode');
+	WebSocketAdapterFactoryForNode = require('./../../lib/connection/adapter/WebSocketAdapterFactoryForNode');
 
 const CustomLoggingProvider = require('./logging/CustomLoggingProvider');
 

@@ -1,6 +1,6 @@
 const version = require('./../../../lib/meta').version;
 
-const Connection = require('./../../../lib/connection/websocket/Connection'),
+const Connection = require('./../../../lib/connection/Connection'),
 	retrieveConcreteSymbol = require('./../../../lib/connection/snapshots/symbols/retrieveConcrete');
 
 module.exports = (() => {
