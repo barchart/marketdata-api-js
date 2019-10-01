@@ -22,16 +22,6 @@ function getVersionForComponent() {
     return getVersionFromPackage().split('.').slice(0, 2).join('.');
 }
 
-gulp.task('ensure-clean-working-directory', (cb) => {
-    gitStatus((err, status) => {
-        if (err, !status.clean) {
-            throw new Error('Unable to proceed, your working directory is not clean.');
-        }
-
-        cb();
-    });
-});
-
 gulp.task('document', (cb) => {
 	const config = {
 		"opts": {
@@ -41,6 +31,16 @@ gulp.task('document', (cb) => {
 
 	gulp.src(['README.md', './lib/**/*.js' ], {read: false})
 	.pipe(jsdoc(config, cb));
+});
+
+gulp.task('ensure-clean-working-directory', (cb) => {
+    gitStatus((err, status) => {
+        if (err, !status.clean) {
+            throw new Error('Unable to proceed, your working directory is not clean.');
+        }
+
+        cb();
+    });
 });
 
 gulp.task('bump-version', () => {
