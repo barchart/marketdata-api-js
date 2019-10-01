@@ -1,4 +1,4 @@
-let monthCodes = require('./../../../lib/util/monthCodes');
+let monthCodes = require('../../../lib/utilities/data/monthCodes');
 
 describe('When looking up a month name by code', () => {
 	let map;
