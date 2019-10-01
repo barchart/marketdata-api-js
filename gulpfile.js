@@ -32,12 +32,6 @@ gulp.task('ensure-clean-working-directory', (cb) => {
     });
 });
 
-gulp.task('bump-version', () => {
-    return gulp.src([ './package.json' ])
-        .pipe(bump({ type: 'patch' }))
-        .pipe(gulp.dest('./'));
-});
-
 gulp.task('document', (cb) => {
 	const config = {
 		"opts": {
@@ -46,7 +40,13 @@ gulp.task('document', (cb) => {
 	};
 
 	gulp.src(['README.md', './lib/**/*.js' ], {read: false})
-		.pipe(jsdoc(config, cb));
+	.pipe(jsdoc(config, cb));
+});
+
+gulp.task('bump-version', () => {
+    return gulp.src([ './package.json' ])
+        .pipe(bump({ type: 'patch' }))
+        .pipe(gulp.dest('./'));
 });
 
 gulp.task('embed-version', () => {
