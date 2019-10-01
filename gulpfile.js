@@ -30,7 +30,7 @@ gulp.task('document', (cb) => {
 	};
 
 	gulp.src(['README.md', './lib/**/*.js' ], {read: false})
-	.pipe(jsdoc(config, cb));
+		.pipe(jsdoc(config, cb));
 });
 
 gulp.task('ensure-clean-working-directory', (cb) => {
