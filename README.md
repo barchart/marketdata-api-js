@@ -40,7 +40,7 @@ Ensure you're running a recent version of Node.js (e.g. v10.16.0) and execute th
 
 	> gulp document
 
-### Development
+## Development
 
 If you want, a gulp task exists which watches the source code an automatically rebuilds the example page bundle, as you make changes to the cofe:
 
