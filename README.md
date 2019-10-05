@@ -7,7 +7,7 @@ All you need is a username/password from Barchart and your app can be live withi
 
 ## Supported Environments
 
-* *Browsers* - Your target browser must support WebSockets (which all modern Browsers do). Also, the source code is written using ES6, so transpilation (with appropriate polyfills) is recommended before distribution.
+* *Browsers* - Your target browser must support WebSockets (which all modern browsers do). Also, the source code is written using ES6, so transpilation (with appropriate polyfills) is recommended before distribution.
 * *Node.js* - Node.js does not natively support WebSockets. Instead, a third-party library called [WS](https://github.com/websockets/ws) is responsible for maintaining the WebSocket connection to Barchart's servers.
 
 ## Examples
@@ -39,3 +39,9 @@ Ensure you're running a recent version of Node.js (e.g. v10.16.0) and execute th
 [JSDoc](http://usejsdoc.org/) is used to document the source code. HTML documentation can be generated (into a "docs" folder), as follows:
 
 	> gulp document
+
+### Development
+
+If you want, a gulp task exists which watches the source code an automatically rebuilds the example page bundle, as you make changes to the cofe:
+
+    > gulp watch
