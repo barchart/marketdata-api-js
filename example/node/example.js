@@ -37,6 +37,20 @@ const startup = (() => {
 		process.exit();
 	});
 
+	process.on('unhandledRejection', (error) => {
+		__logger.error('Unhandled Promise Rejection');
+		__logger.trace();
+
+		startServer(true);
+	});
+
+	process.on('uncaughtException', (error) => {
+		__logger.error('Unhandled Error', error);
+		__logger.trace();
+
+		startServer(true);
+	});
+
 	const host = process.argv[2];
 	const username = process.argv[3];
 	const password = process.argv[4];

@@ -58,6 +58,10 @@ module.exports = (() => {
 			this._logger.trace.apply(this._logger, arguments);
 		}
 
+		debug() {
+			this._logger.debug.apply(this._logger, arguments);
+		}
+
 		info() {
 			this._logger.info.apply(this._logger, arguments);
 		}
