@@ -40,15 +40,11 @@ const startup = (() => {
 	process.on('unhandledRejection', (error) => {
 		__logger.error('Unhandled Promise Rejection');
 		__logger.trace();
-
-		startServer(true);
 	});
 
 	process.on('uncaughtException', (error) => {
 		__logger.error('Unhandled Error', error);
 		__logger.trace();
-
-		startServer(true);
 	});
 
 	const host = process.argv[2];
