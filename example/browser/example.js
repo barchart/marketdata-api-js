@@ -385,6 +385,8 @@ const WebSocketAdapterFactory = require('./adapter/WebSocketAdapterFactory'),
 
 const LoggerFactory = require('./../logging/LoggerFactory');
 
+const version = require('./../meta').version;
+
 module.exports = (() => {
   'use strict';
 
@@ -430,9 +432,10 @@ module.exports = (() => {
   regex.c3.alias = /^(C3:)$/i;
   regex.other = /:/i;
 
-  function ConnectionInternal(marketState) {
+  function ConnectionInternal(marketState, instance) {
     const __logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
 
+    const __instance = instance;
     const __marketState = marketState;
     let __connectionFactory = null;
     let __connection = null;
@@ -479,11 +482,11 @@ module.exports = (() => {
       }
 
       if (pollingFrequency === null || pollingFrequency === undefined) {
-        __logger.log('Connection: Switching to streaming mode.');
+        __logger.log(`Connection [ ${__instance} ]: Switching to streaming mode.`);
 
         __pollingFrequency = null;
       } else if (typeof pollingFrequency === 'number' && !isNaN(pollingFrequency) && !(pollingFrequency < 1000)) {
-        __logger.log('Connection: Switching to polling mode.');
+        __logger.log(`Connection [ ${__instance} ]: Switching to polling mode.`);
 
         __pollingFrequency = pollingFrequency;
       }
@@ -559,12 +562,12 @@ module.exports = (() => {
       }
 
       if (__connection !== null) {
-        __logger.warn('Connection: Unable to connect, a connection already exists.');
+        __logger.warn(`Connection [ ${__instance} ]: Unable to connect, a connection already exists.`);
 
         return;
       }
 
-      __logger.log('Connection: Initializing.');
+      __logger.log(`Connection [ ${__instance} ]: Initializing. Version [ ${version} ]`);
 
       __loginInfo.username = username;
       __loginInfo.password = password;
@@ -575,11 +578,11 @@ module.exports = (() => {
       __decoder = __connection.getDecoder();
 
       __connection.onopen = () => {
-        __logger.log('Connection: Open event received.');
+        __logger.log(`Connection [ ${__instance} ]: Open event received.`);
       };
 
       __connection.onclose = () => {
-        __logger.log('Connection: Close event received.');
+        __logger.log(`Connection [ ${__instance} ]: Close event received.`);
 
         __connectionState = state.disconnected;
         stopWatchdog();
@@ -600,20 +603,20 @@ module.exports = (() => {
         __outboundMessages = [];
 
         if (loginFailed) {
-          __logger.warn('Connection: Connection closed before login was processed.');
+          __logger.warn(`Connection [ ${__instance} ]: Connection closed before login was processed.`);
 
           broadcastEvent('events', {
             event: 'login fail'
           });
         } else {
-          __logger.warn('Connection: Connection dropped.');
+          __logger.warn(`Connection [ ${__instance} ]: Connection dropped.`);
 
           broadcastEvent('events', {
             event: 'disconnect'
           });
 
           if (__reconnectAllowed) {
-            __logger.log('Connection: Scheduling reconnect attempt.');
+            __logger.log(`Connection [ ${__instance} ]: Scheduling reconnect attempt.`);
 
             const reconnectAction = () => connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
 
@@ -650,7 +653,7 @@ module.exports = (() => {
 
 
     function disconnect() {
-      __logger.warn('Connection: Disconnecting.');
+      __logger.warn(`Connection [ ${__instance} ]: Disconnecting.`);
 
       __connectionState = state.disconnected;
       stopWatchdog();
@@ -661,11 +664,11 @@ module.exports = (() => {
             __connection.send('LOGOUT\r\n');
           }
 
-          __logger.warn('Connection: Closing connection.');
+          __logger.warn(`Connection [ ${__instance} ]: Closing connection.`);
 
           __connection.close();
         } catch (e) {
-          __logger.warn('Connection: Unable to close connection.');
+          __logger.warn(`Connection [ ${__instance} ]: Unable to close connection.`);
         }
       }
 
@@ -677,12 +680,12 @@ module.exports = (() => {
 
     function pause() {
       if (__paused) {
-        __logger.warn('Connection: Unable to pause, feed is already paused.');
+        __logger.warn(`Connection [ ${__instance} ]: Unable to pause, feed is already paused.`);
 
         return;
       }
 
-      __logger.log('Connection: Pausing feed.');
+      __logger.log(`Connection [ ${__instance} ]: Pausing feed.`);
 
       if (__pollingFrequency === null) {
         enqueueStopTasks();
@@ -697,12 +700,12 @@ module.exports = (() => {
 
     function resume() {
       if (!__paused) {
-        __logger.warn('Connection: Unable to resume, feed is not paused.');
+        __logger.warn(`Connection [ ${__instance} ]: Unable to resume, feed is not paused.`);
 
         return;
       }
 
-      __logger.log('Connection: Resuming feed.');
+      __logger.log(`Connection [ ${__instance} ]: Resuming feed.`);
 
       __paused = false;
 
@@ -724,11 +727,11 @@ module.exports = (() => {
     function startWatchdog() {
       stopWatchdog();
 
-      __logger.log('Connection: Watchdog started.');
+      __logger.log(`Connection [ ${__instance} ]: Watchdog started.`);
 
       const watchdogAction = () => {
         if (__watchdogAwake) {
-          __logger.log('Connection: Watchdog triggered, connection silent for too long. Triggering disconnect.');
+          __logger.log(`Connection [ ${__instance} ]: Watchdog triggered, connection silent for too long. Triggering disconnect.`);
 
           stopWatchdog();
           disconnect();
@@ -749,7 +752,7 @@ module.exports = (() => {
 
     function stopWatchdog() {
       if (__watchdogToken !== null) {
-        __logger.log('Connection: Watchdog stopped.');
+        __logger.log(`Connection [ ${__instance} ]: Watchdog stopped.`);
 
         clearInterval(__watchdogToken);
       }
@@ -781,7 +784,7 @@ module.exports = (() => {
       }
 
       if (!eventTypes.hasOwnProperty(eventType)) {
-        __logger.log('Consumer: Unable to process "on" event, event type is not recognized.');
+        __logger.log(`Consumer [ ${__instance} ]: Unable to process "on" event, event type is not recognized.`);
 
         return;
       }
@@ -796,7 +799,7 @@ module.exports = (() => {
         symbol = symbol.toUpperCase().trim();
 
         if (!symbol || !(symbol.indexOf(' ') < 0)) {
-          __logger.log('Consumer: Unable to process "on" command, the "symbol" argument is invalid.');
+          __logger.log(`Consumer [ ${__instance} ]: Unable to process "on" command, the "symbol" argument is invalid.`);
 
           __logger.trace();
 
@@ -826,7 +829,7 @@ module.exports = (() => {
         const producerSymbol = SymbolParser.getProducerSymbol(consumerSymbol);
 
         if (SymbolParser.getIsExpired(consumerSymbol)) {
-          __logger.warn(`Connection: Ignoring subscription for expired symbol [ ${consumerSymbol} ]`);
+          __logger.warn(`Connection [ ${__instance} ]: Ignoring subscription for expired symbol [ ${consumerSymbol} ].`);
 
           return false;
         }
@@ -890,9 +893,9 @@ module.exports = (() => {
       }
     }
     /**
-     * Drops a subscription to an event for a specific handler callback. If other
+     * Drops a subscription to an event for a specific handler (callback). If other
      * subscriptions to the same event (as determined by strict equality of the
-     * handler) the subscription will continue to operate for other handlers.
+     * handler) exist, the subscription will continue to operate for other handlers.
      *
      * @private
      * @param {Subscription.EventType} eventType
@@ -911,7 +914,7 @@ module.exports = (() => {
       }
 
       if (!eventTypes.hasOwnProperty(eventType)) {
-        __logger.log(`Consumer: Unable to process "off" command, event type is not supported [ ${eventType} ].`);
+        __logger.log(`Consumer [ ${__instance} ]: Unable to process "off" command, event type is not supported [ ${eventType} ].`);
 
         __logger.trace();
 
@@ -928,7 +931,7 @@ module.exports = (() => {
         symbol = symbol.toUpperCase().trim();
 
         if (!symbol || !(symbol.indexOf(' ') < 0)) {
-          __logger.log('Consumer: Unable to process "off" command, the "symbol" argument is empty.');
+          __logger.log(`Consumer [ ${__instance} ]: Unable to process "off" command, the "symbol" argument is empty.`);
 
           __logger.trace();
 
@@ -1009,7 +1012,7 @@ module.exports = (() => {
       const consumerSymbol = symbol.toUpperCase().trim();
 
       if (!consumerSymbol || !(consumerSymbol.indexOf(' ') < 0)) {
-        __logger.log('Consumer: Unable to process profile request, the "symbol" argument is empty.');
+        __logger.log(`Consumer [ ${__instance} ]: Unable to process profile request, the "symbol" argument is empty.`);
 
         __logger.trace();
 
@@ -1127,7 +1130,7 @@ module.exports = (() => {
         if (lines.some(line => line == '+++')) {
           __connectionState = state.authenticating;
 
-          __logger.log('Connection: Sending credentials.');
+          __logger.log(`Connection [ ${__instance} ]: Sending credentials.`);
 
           __connection.send(`LOGIN ${__loginInfo.username}:${__loginInfo.password} VERSION=${_API_VERSION}\r\n`);
         }
@@ -1137,24 +1140,24 @@ module.exports = (() => {
         if (firstCharacter === '+') {
           __connectionState = state.authenticated;
 
-          __logger.log('Connection: Login accepted.');
+          __logger.log(`Connection [ ${__instance} ]: Login accepted.`);
 
           broadcastEvent('events', {
             event: 'login success'
           });
 
           if (__paused) {
-            __logger.log('Connection: Establishing heartbeat only -- feed is paused.');
+            __logger.log(`Connection [ ${__instance} ]: Establishing heartbeat only -- feed is paused.`);
 
             enqueueHeartbeat();
           } else {
-            __logger.log('Connection: Establishing subscriptions for heartbeat and existing symbols.');
+            __logger.log(`Connection [ ${__instance} ]: Establishing subscriptions for heartbeat and existing symbols.`);
 
             enqueueHeartbeat();
             enqueueGoTasks();
           }
         } else if (firstCharacter === '-') {
-          __logger.log('Connection: Login failed.');
+          __logger.log(`Connection [ ${__instance} ]: Login failed.`);
 
           broadcastEvent('events', {
             event: 'login fail'
@@ -1181,7 +1184,7 @@ module.exports = (() => {
           processInboundMessage(__inboundMessages.shift());
         }
       } catch (e) {
-        __logger.warn('Pump Inbound: An error occurred during inbound message queue processing. Disconnecting.', e);
+        __logger.warn(`Pump Inbound [ ${__instance} ]: An error occurred during inbound message queue processing. Disconnecting.`, e);
 
         disconnect();
       }
@@ -1214,7 +1217,7 @@ module.exports = (() => {
       } else if (eventType === 'timestamp') {
         listeners = __listeners.timestamp;
       } else {
-        __logger.warn(`Broadcast: Unable to notify subscribers of [ ${eventType} ] event.`);
+        __logger.warn(`Broadcast [ ${__instance} ]: Unable to notify subscribers of [ ${eventType} ] event.`);
 
         listeners = null;
       }
@@ -1224,7 +1227,7 @@ module.exports = (() => {
           try {
             listener(message);
           } catch (e) {
-            __logger.warn(`Broadcast: A consumer-supplied listener for [ ${eventType} ] events threw an error. Continuing.,`, e);
+            __logger.warn(`Broadcast [ ${__instance} ]:: A consumer-supplied listener for [ ${eventType} ] events threw an error. Continuing.`, e);
           }
         });
       }
@@ -1446,9 +1449,7 @@ module.exports = (() => {
         return;
       }
 
-      while (__pendingTasks.length > 0) {
-        const task = __pendingTasks.shift();
-
+      const processTask = task => {
         if (task.callback) {
           task.callback();
         } else if (task.id) {
@@ -1498,9 +1499,9 @@ module.exports = (() => {
           }
 
           if (command === null) {
-            __logger.warn('Pump Tasks: An unsupported task was found in the tasks queue.');
+            __logger.warn(`Pump Tasks [ ${__instance} ]: An unsupported task was found in the tasks queue.`);
 
-            continue;
+            return;
           }
 
           if (suffix === null) {
@@ -1518,10 +1519,12 @@ module.exports = (() => {
             const symbolsStreaming = symbolsUnique.filter(getIsStreamingSymbol);
             const symbolsSnapshot = symbolsUnique.filter(getIsSnapshotSymbol);
 
-            while (symbolsStreaming.length > 0) {
-              const batch = symbolsStreaming.splice(0, batchSize);
-
+            const pushOutboundTask = batch => {
               __outboundMessages.push(`${command} ${batch.map(s => `${s}=${suffix}`).join(',')}`);
+            };
+
+            while (symbolsStreaming.length > 0) {
+              pushOutboundTask(symbolsStreaming.splice(0, batchSize));
             }
 
             if (task.id === 'MU_GO' || task.id === 'MU_REFRESH') {
@@ -1532,6 +1535,10 @@ module.exports = (() => {
             }
           }
         }
+      };
+
+      while (__pendingTasks.length > 0) {
+        processTask(__pendingTasks.shift());
       }
     }
     /**
@@ -1568,7 +1575,7 @@ module.exports = (() => {
         try {
           pumpDelegate();
         } catch (e) {
-          __logger.warn('Pump Tasks: An error occurred during task queue processing. Disconnecting.', e);
+          __logger.warn(`Pump Tasks [ ${__instance} ]: An error occurred during task queue processing. Disconnecting.`, e);
 
           disconnect();
         }
@@ -1594,11 +1601,11 @@ module.exports = (() => {
           try {
             const message = __outboundMessages.shift();
 
-            __logger.log(message);
+            __logger.log(`Pump Outbound [ ${__instance} ]: ${message}`);
 
             __connection.send(message);
           } catch (e) {
-            __logger.warn('Pump Outbound: An error occurred during outbound message queue processing. Disconnecting.', e);
+            __logger.warn(`Pump Outbound [ ${__instance} ]: An error occurred during outbound message queue processing. Disconnecting.`, e);
 
             disconnect();
             break;
@@ -1630,7 +1637,7 @@ module.exports = (() => {
       retrieveSnapshots(symbols, __loginInfo.username, __loginInfo.password).then(quotes => {
         quotes.forEach(message => processMarketMessage(message));
       }).catch(e => {
-        __logger.log('Snapshots: Out-of-band snapshot request failed for [ ${symbols.join()} ]', e);
+        __logger.log(`Snapshots [ ${__instance} ]: Out-of-band snapshot request failed for [ ${symbols.join()} ].`, e);
       });
     }
     /**
@@ -1649,7 +1656,7 @@ module.exports = (() => {
             processSnapshots(batch);
           });
         } catch (e) {
-          __logger.warn('Snapshots: An error occurred during refresh processing. Ignoring.', e);
+          __logger.warn(`Snapshots [ ${__instance} ]: An error occurred during refresh processing. Ignoring.`, e);
         }
       }
 
@@ -1843,7 +1850,7 @@ module.exports = (() => {
     };
   }
   /**
-   * Entry point for library. This implementation is intended for browser environments and uses built-in Websocket support.
+   * Object used to connect to Barchart servers and subscribe to market data.
    *
    * @public
    * @extends {ConnectionBase}
@@ -1853,7 +1860,7 @@ module.exports = (() => {
   class Connection extends ConnectionBase {
     constructor() {
       super();
-      this._internal = ConnectionInternal(this.getMarketState());
+      this._internal = ConnectionInternal(this.getMarketState(), this._getInstance());
     }
 
     _connect(webSocketAdapterFactory) {
@@ -1893,7 +1900,7 @@ module.exports = (() => {
     }
 
     toString() {
-      return '[WebsocketConnection]';
+      return `[Connection (instance=${this._getInstance()})]`;
     }
 
   }
@@ -1901,11 +1908,13 @@ module.exports = (() => {
   return Connection;
 })();
 
-},{"./../logging/LoggerFactory":10,"./../utilities/parse/ddf/message":25,"./../utilities/parsers/SymbolParser":28,"./ConnectionBase":3,"./adapter/WebSocketAdapterFactory":5,"./adapter/WebSocketAdapterFactoryForBrowsers":6,"./snapshots/quotes/retrieveSnapshots":7,"@barchart/common-js/lang/array":29,"@barchart/common-js/lang/object":32}],3:[function(require,module,exports){
+},{"./../logging/LoggerFactory":10,"./../meta":16,"./../utilities/parse/ddf/message":25,"./../utilities/parsers/SymbolParser":28,"./ConnectionBase":3,"./adapter/WebSocketAdapterFactory":5,"./adapter/WebSocketAdapterFactoryForBrowsers":6,"./snapshots/quotes/retrieveSnapshots":7,"@barchart/common-js/lang/array":29,"@barchart/common-js/lang/object":32}],3:[function(require,module,exports){
 const MarketState = require('./../marketState/MarketState');
 
 module.exports = (() => {
   'use strict';
+
+  let instance = 0;
   /**
    * Contract for communicating with remove market data servers and
    * querying current market state.
@@ -1921,6 +1930,7 @@ module.exports = (() => {
       this._password = null;
       this._marketState = new MarketState(symbol => this._handleProfileRequest(symbol));
       this._pollingFrequency = null;
+      this._instance = ++instance;
     }
     /**
      * Connects to the given server with username and password.
@@ -2070,7 +2080,7 @@ module.exports = (() => {
      * objects. A null value indicates streaming updates (default).
      *
      * @public
-     * @return {number|null}
+     * @returns {number|null}
      */
 
 
@@ -2116,9 +2126,10 @@ module.exports = (() => {
       return;
     }
     /**
-     * Returns the {@link MarketState} singleton, which can be used to access {@link Quote}, {@link Profile}, and {@link CumulativeVolume} objects.
+     * Returns the {@link MarketState} singleton, used to access {@link Quote}, 
+     * {@link Profile}, and {@link CumulativeVolume} objects.
      *
-     * @return {MarketState}
+     * @returns {MarketState}
      */
 
 
@@ -2152,9 +2163,20 @@ module.exports = (() => {
     getUsername() {
       return this._username;
     }
+    /**
+     * Get an unique identifier for the current instance.
+     *
+     * @protected
+     * @returns {Number}
+     */
+
+
+    _getInstance() {
+      return this._instance;
+    }
 
     toString() {
-      return '[ConnectionBase]';
+      return `[ConnectionBase (instance=${this._instance}]`;
     }
 
   }
@@ -2698,7 +2720,7 @@ module.exports = (() => {
   'use strict';
   /**
    * Promise-based utility for resolving symbol aliases (e.g. ES*1 is a reference
-   * to the front month for the ES contract -- not a concrete symbol).
+   * to the front month for the ES contract -- e.g. ESZ19 -- not a concrete symbol).
    *
    * @function
    * @param {String} symbol - The symbol to lookup (i.e. the alias).
@@ -2752,6 +2774,16 @@ module.exports = (() => {
 
 
     log() {
+      return;
+    }
+    /**
+     * Writes a log message, at "trace" level.
+     *
+     * @public
+     */
+
+
+    trace() {
       return;
     }
     /**
@@ -2909,23 +2941,39 @@ module.exports = (() => {
     }
 
     log() {
-      console.log.apply(console, arguments);
+      try {
+        console.log.apply(console, arguments);
+      } catch (e) {}
     }
 
     trace() {
-      console.trace.apply(console, arguments);
+      try {
+        console.trace.apply(console, arguments);
+      } catch (e) {}
+    }
+
+    debug() {
+      try {
+        console.debug.apply(console, arguments);
+      } catch (e) {}
     }
 
     info() {
-      console.info.apply(console, arguments);
+      try {
+        console.info.apply(console, arguments);
+      } catch (e) {}
     }
 
     warn() {
-      console.warn.apply(console, arguments);
+      try {
+        console.warn.apply(console, arguments);
+      } catch (e) {}
     }
 
     error() {
-      console.error.apply(console, arguments);
+      try {
+        console.error.apply(console, arguments);
+      } catch (e) {}
     }
 
     toString() {
@@ -2965,6 +3013,10 @@ module.exports = (() => {
     }
 
     trace() {
+      return;
+    }
+
+    debug() {
       return;
     }
 
@@ -3064,13 +3116,11 @@ module.exports = (() => {
       this._logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
     }
     /**
-     * <p>Registers an event handler for a given event.</p>
-     * <p>The following events are supported:
-     * <ul>
-     *   <li>update -- when a new price level is added, or an existing price level mutates.</li>
-     *   <li>reset -- when all price levels are cleared.</li>
-     * </ul>
-     * </p>
+     * Registers an event handler for a given event. The following events are
+     * supported:
+     *
+     * update -- when a new price level is added, or an existing price level mutates.
+     * reset -- when all price levels are cleared.
      *
      * @ignore
      * @param {string} eventType
@@ -3804,11 +3854,12 @@ module.exports = (() => {
    */
 
   /**
-   * <p>Repository for current market state. This repository will only contain
+   * Repository for current market state. This repository will only contain
    * data for an instrument after a subscription has been established using
-   * the {@link Connection#on} function.</p>
-   * <p>Access the singleton instance using the {@link ConnectionBase#getMarketState}
-   * function.</p>
+   * the {@link Connection#on} function.
+   *
+   * Access the singleton instance using the {@link ConnectionBase#getMarketState}
+   * function.
    *
    * @public
    */
@@ -3821,7 +3872,28 @@ module.exports = (() => {
     /**
      * @public
      * @param {string} symbol
-     * @return {Book}
+     * @param {function=} callback - invoked when the {@link Profile} instance becomes available
+     * @returns {Promise<Profile>} The {@link Profile} instance, as a promise.
+     */
+
+
+    getProfile(symbol, callback) {
+      return this._internal.getProfile(symbol, callback);
+    }
+    /**
+     * @public
+     * @param {string} symbol
+     * @returns {Quote}
+     */
+
+
+    getQuote(symbol) {
+      return this._internal.getQuote(symbol);
+    }
+    /**
+     * @public
+     * @param {string} symbol
+     * @returns {Book}
      */
 
 
@@ -3832,7 +3904,7 @@ module.exports = (() => {
      * @public
      * @param {string} symbol
      * @param {function=} callback - invoked when the {@link CumulativeVolume} instance becomes available
-     * @returns {Promise} The {@link CumulativeVolume} instance, as a promise
+     * @returns {Promise<CumulativeVolume>} The {@link CumulativeVolume} instance, as a promise
      */
 
 
@@ -3840,31 +3912,10 @@ module.exports = (() => {
       return this._internal.getCumulativeVolume(symbol, callback);
     }
     /**
-     * @public
-     * @param {string} symbol
-     * @param {function=} callback - invoked when the {@link Profile} instance becomes available
-     * @returns {Promise} The {@link Profile} instance, as a promise.
-     */
-
-
-    getProfile(symbol, callback) {
-      return this._internal.getProfile(symbol, callback);
-    }
-    /**
-     * @public
-     * @param {string} symbol
-     * @return {Quote}
-     */
-
-
-    getQuote(symbol) {
-      return this._internal.getQuote(symbol);
-    }
-    /**
      * Returns the time the most recent market data message was received.
      *
      * @public
-     * @return {Date}
+     * @returns {Date}
      */
 
 
@@ -4082,6 +4133,10 @@ module.exports = (() => {
 
       this.dayNum = 0;
       this.session = null;
+      /**
+       * @property {Date|null} lastUpdate
+       */
+
       this.lastUpdate = null;
       /**
        * @property {number} bidPrice - top-of-book price on the buy side
@@ -4144,7 +4199,16 @@ module.exports = (() => {
 
       this.previousPrice = null;
       this.profile = null;
+      /**
+       * @property {Date|null} time - The most recent trade, quote, or refresh. This date instance stores the hours and minutes for the exchange time (without proper timezone adjustment). Use caution.
+       */
+
       this.time = null;
+      /**
+       * @property {Date|null} timeUtc - The most recent trade, quote, or refresh. This instance properly uses a UTC timezone.
+       */
+
+      this.timeUtc = null;
       this.ticks = [];
     }
 
@@ -4168,7 +4232,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.4'
+    version: '4.0.5'
   };
 })();
 

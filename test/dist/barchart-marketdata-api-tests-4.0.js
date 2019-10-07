@@ -21,6 +21,16 @@ module.exports = (() => {
       return;
     }
     /**
+     * Writes a log message, at "trace" level.
+     *
+     * @public
+     */
+
+
+    trace() {
+      return;
+    }
+    /**
      * Writes a log message, at "debug" level.
      *
      * @public
@@ -175,23 +185,39 @@ module.exports = (() => {
     }
 
     log() {
-      console.log.apply(console, arguments);
+      try {
+        console.log.apply(console, arguments);
+      } catch (e) {}
     }
 
     trace() {
-      console.trace.apply(console, arguments);
+      try {
+        console.trace.apply(console, arguments);
+      } catch (e) {}
+    }
+
+    debug() {
+      try {
+        console.debug.apply(console, arguments);
+      } catch (e) {}
     }
 
     info() {
-      console.info.apply(console, arguments);
+      try {
+        console.info.apply(console, arguments);
+      } catch (e) {}
     }
 
     warn() {
-      console.warn.apply(console, arguments);
+      try {
+        console.warn.apply(console, arguments);
+      } catch (e) {}
     }
 
     error() {
-      console.error.apply(console, arguments);
+      try {
+        console.error.apply(console, arguments);
+      } catch (e) {}
     }
 
     toString() {
@@ -231,6 +257,10 @@ module.exports = (() => {
     }
 
     trace() {
+      return;
+    }
+
+    debug() {
       return;
     }
 
@@ -330,13 +360,11 @@ module.exports = (() => {
       this._logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
     }
     /**
-     * <p>Registers an event handler for a given event.</p>
-     * <p>The following events are supported:
-     * <ul>
-     *   <li>update -- when a new price level is added, or an existing price level mutates.</li>
-     *   <li>reset -- when all price levels are cleared.</li>
-     * </ul>
-     * </p>
+     * Registers an event handler for a given event. The following events are
+     * supported:
+     *
+     * update -- when a new price level is added, or an existing price level mutates.
+     * reset -- when all price levels are cleared.
      *
      * @ignore
      * @param {string} eventType
@@ -1137,11 +1165,12 @@ module.exports = (() => {
    * @function
    * @param {Boolean=} useTwelveHourClock
    * @param {Boolean=} short
+   * @param {String=} timezone - A name from the tz database (see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
    * @returns {QuoteFormatterFactory~formatQuote}
    */
 
-  function buildQuoteFormatter(useTwelveHourClock, short) {
-    return quote => formatQuote(quote, useTwelveHourClock, short);
+  function buildQuoteFormatter(useTwelveHourClock, short, timezone) {
+    return quote => formatQuote(quote, useTwelveHourClock, short, timezone);
   }
   /**
    * Accepts a {@link Quote} instance and returns the appropriate human-readable
@@ -1149,7 +1178,7 @@ module.exports = (() => {
    *
    * @public
    * @callback QuoteFormatterFactory~formatQuote
-   * @param {Quote} value
+   * @param {Quote} quote
    * @returns {String}
    */
 
@@ -1325,10 +1354,11 @@ module.exports = (() => {
    * @param {Quote} quote
    * @param {Boolean=} useTwelveHourClock
    * @param {Boolean=} short
+   * @param {String=} timezone - A name from the tz database (see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
    * @returns {String}
    */
 
-  function formatQuoteDateTime(quote, useTwelveHourClock, short) {
+  function formatQuoteDateTime(quote, useTwelveHourClock, short, timezone) {
     const t = quote.time;
 
     if (!t) {
