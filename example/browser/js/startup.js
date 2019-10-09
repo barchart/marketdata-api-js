@@ -406,7 +406,7 @@ module.exports = (() => {
 		};
 
 		that.formatPrice = function(price) {
-			return formatPrice(price, that.quote().profile.unitCode, '-');
+			return formatPrice(price, that.quote().profile.unitCode, '-', true);
 		};
 
 		that.formatInteger = function(value) {

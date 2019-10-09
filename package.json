@@ -38,7 +38,7 @@
     "Forex"
   ],
   "dependencies": {
-    "@barchart/common-js": "~3.3.51",
+    "@barchart/common-js": "~3.3.0",
     "axios": "^0.19.0",
     "ws": "7.0.1",
     "xmldom": "0.1.27"
