@@ -4,7 +4,9 @@ const version = require('./../../../lib/meta').version;
 const Connection = require('./../../../lib/connection/Connection'),
       retrieveConcreteSymbol = require('./../../../lib/connection/snapshots/symbols/retrieveConcrete');
 
-const formatTime = require('./../../../lib/utilities/format/time');
+const formatDecimal = require('./../../../lib/utilities/format/decimal'),
+      formatPrice = require('./../../../lib/utilities/format/price'),
+      formatTime = require('./../../../lib/utilities/format/time');
 
 module.exports = (() => {
   'use strict';
@@ -326,10 +328,21 @@ module.exports = (() => {
     that.priceLevelLast = ko.observable(null);
     that.cumulativeVolumeReady = ko.observable(false);
     that.displayTime = ko.computed(function () {
-      if (that.quote() === null) {
-        return '';
-      } else {
+      var quote = that.quote();
+
+      if (quote !== null) {
         return formatTime(that.quote().time, null, true);
+      } else {
+        return '';
+      }
+    });
+    that.priceChange = ko.computed(function () {
+      var quote = that.quote();
+
+      if (quote !== null && quote.lastPrice && quote.previousPrice) {
+        return Math.round((quote.lastPrice - quote.previousPrice) * 100) / 100;
+      } else {
+        return '';
       }
     });
     that.handlers = {};
@@ -348,6 +361,14 @@ module.exports = (() => {
 
     that.getCumulativeVolumeHandler = function () {
       return that.handlers.cumulativeVolume;
+    };
+
+    that.formatPrice = function (price) {
+      return formatPrice(price, that.quote().profile.unitCode, '-');
+    };
+
+    that.formatInteger = function (value) {
+      return formatDecimal(value, 0, ',');
     };
   };
 
@@ -370,7 +391,7 @@ module.exports = (() => {
   });
 })();
 
-},{"./../../../lib/connection/Connection":2,"./../../../lib/connection/snapshots/symbols/retrieveConcrete":8,"./../../../lib/meta":16,"./../../../lib/utilities/format/time":24}],2:[function(require,module,exports){
+},{"./../../../lib/connection/Connection":2,"./../../../lib/connection/snapshots/symbols/retrieveConcrete":8,"./../../../lib/meta":16,"./../../../lib/utilities/format/decimal":21,"./../../../lib/utilities/format/price":23,"./../../../lib/utilities/format/time":24}],2:[function(require,module,exports){
 const array = require('@barchart/common-js/lang/array'),
       object = require('@barchart/common-js/lang/object');
 
@@ -4232,7 +4253,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.5'
+    version: '4.0.6'
   };
 })();
 
