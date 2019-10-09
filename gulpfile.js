@@ -2,7 +2,9 @@ const gulp = require('gulp');
 
 const fs = require('fs');
 
-const browserify = require('browserify'),
+const AWS = require('aws-sdk'),
+	awspublish = require('gulp-awspublish'),
+	browserify = require('browserify'),
 	buffer = require('vinyl-buffer'),
 	bump = require('gulp-bump'),
 	git = require('gulp-git'),
@@ -11,6 +13,7 @@ const browserify = require('browserify'),
 	jasmine = require('gulp-jasmine'),
 	jsdoc = require('gulp-jsdoc3'),
 	jshint = require('gulp-jshint'),
+	rename = require('gulp-rename'),
 	replace = require('gulp-replace'),
 	source = require('vinyl-source-stream');
 
@@ -87,6 +90,29 @@ gulp.task('build-example-bundle', () => {
 		.pipe(gulp.dest('./example/browser/'));
 });
 
+gulp.task('upload-example-to-S3', () => {
+	let publisher = awspublish.create({
+		region: 'us-east-1',
+		params: {
+			Bucket: 'barchart-examples'
+		},
+		credentials: new AWS.SharedIniFileCredentials({profile: 'default'})
+	});
+
+	let headers = {'Cache-Control': 'no-cache'};
+	let options = {};
+
+	return gulp.src(['./example/browser/example.css', './example/browser/example.html', './example/browser/example.js'])
+		.pipe(rename((path) => {
+			path.dirname = 'marketdata-api-js';
+		}))
+		.pipe(publisher.publish(headers, options))
+		.pipe(publisher.cache())
+		.pipe(awspublish.reporter());
+});
+
+gulp.task('deploy-example', gulp.series('upload-example-to-S3'));
+
 gulp.task('build', gulp.series('build-example-bundle'));
 
 gulp.task('build-browser-tests', () => {
@@ -134,4 +160,4 @@ gulp.task('lint', () => {
         .pipe(jshint.reporter('default'));
 });
 
-gulp.task('default', gulp.series('lint' ));
+gulp.task('default', gulp.series('lint'));
