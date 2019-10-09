@@ -19,12 +19,16 @@
         <table class="table table-striped small">
             <thead>
             <th class="left col-md-1"></th>
-            <th class="left col-md-1">Symbol</th>
-            <th class="left col-md-2">Bid Price</th>
-            <th class="left col-md-2">Ask Price</th>
-            <th class="left col-md-2">Last Price</th>
-            <th class="left col-md-2">Trades</th>
-			<th class="left col-md-2">Time</th>
+            <th class="left col-md-2">Symbol</th>
+            <th class="text-right col-md-1">Last</th>
+            <th class="text-right col-md-1">Change</th>
+            <th class="text-right col-md-1">Bid</th>
+            <th class="text-right col-md-1">Size</th>
+            <th class="text-right col-md-1">Ask</th>
+            <th class="text-right col-md-1">Size</th>
+            <th class="text-right col-md-1">Trades</th>
+            <th class="text-right col-md-1">Volume</th>
+			<th class="text-right col-md-1">Time</th>
             </thead>
             <tbody data-bind="template: { name: 'grid-item-template', foreach: rows }"></tbody>
         </table>
@@ -37,23 +41,31 @@
                 <span class="text-button text-button-black glyphicon glyphicon-signal" data-bind="click: function() { $parent.showCumulativeVolume($data); }"></span>
                 <span class="text-button text-button-black glyphicon glyphicon-remove" data-bind="click: function() { $parent.removeSymbol($data); }"></span>
             </td>
-            <td class="left col-md-1" data-bind="text: symbol"></td>
+            <td class="left col-md-2" data-bind="text: symbol"></td>
 
             <!-- ko if: quote() !== null -->
             <!-- ko with: quote -->
-            <td class="left col-md-2" data-bind="text: bidPrice"></td>
-            <td class="left col-md-2" data-bind="text: askPrice"></td>
-            <td class="left col-md-2" data-bind="text: lastPrice"></td>
-            <td class="left col-md-2" data-bind="text: numberOfTrades"></td>
-			<td class="left col-md-2" data-bind="text: $parent.displayTime"></td>
+	        <td class="text-right col-md-1" data-bind="text: $parent.formatPrice(lastPrice)"></td>
+	        <td class="text-right col-md-1" data-bind="text: $parent.formatPrice($parent.priceChange())"></td>
+            <td class="text-right col-md-1" data-bind="text: $parent.formatPrice(bidPrice)"></td>
+	        <td class="text-right col-md-1" data-bind="text: $parent.formatInteger(bidSize)"></td>
+            <td class="text-right col-md-1" data-bind="text: $parent.formatPrice(askPrice)"></td>
+	        <td class="text-right col-md-1" data-bind="text: $parent.formatInteger(askSize)"></td>
+            <td class="text-right col-md-1" data-bind="text: $parent.formatInteger(numberOfTrades)"></td>
+	        <td class="text-right col-md-1" data-bind="text: $parent.formatInteger(volume)"></td>
+			<td class="text-right col-md-1" data-bind="text: $parent.displayTime"></td>
             <!-- /ko -->
             <!-- /ko -->
             <!-- ko if: quote() === null -->
-            <td class="left col-md-2"></td>
-            <td class="left col-md-2"></td>
-            <td class="left col-md-2"></td>
-            <td class="left col-md-2"></td>
-			<td class="left col-md-2"></td>
+	        <td class="text-right col-md-1"></td>
+	        <td class="text-right col-md-1"></td>
+	        <td class="text-right col-md-1"></td>
+            <td class="text-right col-md-1"></td>
+            <td class="text-right col-md-1"></td>
+            <td class="text-right col-md-1"></td>
+            <td class="text-right col-md-1"></td>
+			<td class="text-right col-md-1"></td>
+	        <td class="text-right col-md-1"></td>
             <!-- /ko -->
         </tr>
     </script>
