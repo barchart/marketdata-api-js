@@ -7,7 +7,7 @@ const timezones = require('./../../../lib/utilities/data/timezones');
 
 const formatDecimal = require('./../../../lib/utilities/format/decimal'),
 	formatPrice = require('./../../../lib/utilities/format/price'),
-	formatTime = require('./../../../lib/utilities/format/time');
+	formatQuote = require('./../../../lib/utilities/format/quote');
 
 module.exports = (() => {
 	'use strict';
@@ -209,7 +209,7 @@ module.exports = (() => {
 			}
 
 			function execute(s) {
-				var model = new RowModel(s);
+				var model = new RowModel(s, that.timezone);
 
 				var handleMarketUpdate = function(message) {
 					model.quote(connection.getMarketState().getQuote(s));
@@ -387,7 +387,7 @@ module.exports = (() => {
 		that.disconnect();
 	};
 
-	var RowModel = function(symbol) {
+	var RowModel = function(symbol, timezone) {
 		var that = this;
 
 		that.symbol = symbol;
@@ -400,10 +400,15 @@ module.exports = (() => {
 		that.cumulativeVolumeReady = ko.observable(false);
 
 		that.displayTime = ko.computed(function() {
-			var quote = that.quote();
+			var q = that.quote();
+			var t = timezone();
 
-			if (quote !== null) {
-				return formatTime(that.quote().time, null, true);
+			if (t === 'Variable/Exchange_Local') {
+				t = null;
+			}
+
+			if (q !== null) {
+				return formatQuote(q, false, false, t || null);
 			} else {
 				return '';
 			}
