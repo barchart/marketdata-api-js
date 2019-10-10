@@ -202,3 +202,9 @@ input.percent.form-control {
 .error-box {
     margin-top: 0.75em;
 }
+
+.scrollable-menu {
+	height: auto;
+	max-height: 400px;
+	overflow-x: hidden;
+}

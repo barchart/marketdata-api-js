@@ -3,6 +3,8 @@ const version = require('./../../../lib/meta').version;
 const Connection = require('./../../../lib/connection/Connection'),
 	retrieveConcreteSymbol = require('./../../../lib/connection/snapshots/symbols/retrieveConcrete');
 
+const timezones = require('./../../../lib/utilities/data/timezones');
+
 const formatDecimal = require('./../../../lib/utilities/format/decimal'),
 	formatPrice = require('./../../../lib/utilities/format/price'),
 	formatTime = require('./../../../lib/utilities/format/time');
@@ -15,6 +17,9 @@ module.exports = (() => {
 		var connection = null;
 
 		that.server = ko.observable('qsws-us-e-02.aws.barchart.com');
+
+		that.timezone = ko.observable('Default/Exchange');
+		that.timezones = ko.observableArray(([ 'Default/Excahnge' ]).concat(timezones.getTimezones()));
 
 		that.username = ko.observable('');
 		that.password = ko.observable('');

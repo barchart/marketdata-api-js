@@ -146,6 +146,16 @@
         </div>
         <div class="pull-right">
             <div class="header-action-buttons pull-right form-inline" data-bind="visible: connected">
+				<div class="btn-group">
+					<button type="button" class="btn btn-primary form-control" data-bind="text: timezone"></button>
+					<button type="button" class="btn btn-primary dropdown-toggle form-control" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<span class="caret"></span>
+						<span class="sr-only"></span>
+					</button>
+					<ul class="dropdown-menu dropdown-menu-right scrollable-menu" data-bind="foreach: timezones">
+						<li class="center"><a href="#" data-bind="text: $data, click: function() { $parent.timezone($data); }"></a></li>
+					</ul>
+				</div>
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary form-control" data-bind="text: mode"></button>
                     <button type="button" class="btn btn-primary dropdown-toggle form-control" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
