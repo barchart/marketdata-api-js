@@ -37,9 +37,10 @@ module.exports = (() => {
 
 		addTimezone('America/Chicago');
 		addTimezone('America/New_York');
+		addTimezone('America/Los_Angeles');
 		addTimezone('Europe/London');
-		addTimezone('Europe/Minsk');
 		addTimezone('Europe/Paris');
+		addTimezone('Europe/Minsk');
 		addTimezone('Asia/Tokyo');
 
 		timezonesList.push('');
