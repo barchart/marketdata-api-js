@@ -19,7 +19,7 @@ module.exports = (() => {
 		that.server = ko.observable('qsws-us-e-02.aws.barchart.com');
 
 		that.timezone = ko.observable('Default/Exchange');
-		that.timezones = ko.observableArray(([ 'Default/Excahnge' ]).concat(timezones.getTimezones()));
+		that.timezones = ko.observableArray(([ 'Default/Exchange' ]).concat(timezones.getTimezones()));
 
 		that.username = ko.observable('');
 		that.password = ko.observable('');
