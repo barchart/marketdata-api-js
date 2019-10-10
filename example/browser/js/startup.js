@@ -18,8 +18,34 @@ module.exports = (() => {
 
 		that.server = ko.observable('qsws-us-e-02.aws.barchart.com');
 
-		that.timezone = ko.observable('Default/Exchange');
-		that.timezones = ko.observableArray(([ 'Default/Exchange' ]).concat(timezones.getTimezones()));
+		var timezoneLocal = timezones.guessTimezone();
+		var timezonesList = [ ];
+
+		timezonesList.push('Variable/Exchange_Local');
+		timezonesList.push('');
+
+		if (timezoneLocal) {
+			timezonesList.push(timezoneLocal);
+			timezonesList.push('');
+		}
+
+		function addTimezone(t) {
+			if (t !== timezoneLocal) {
+				timezonesList.push(t);
+			}
+		}
+
+		addTimezone('America/Chicago');
+		addTimezone('America/New_York');
+		addTimezone('Europe/London');
+		addTimezone('Europe/Minsk');
+		addTimezone('Europe/Paris');
+		addTimezone('Asia/Tokyo');
+
+		timezonesList.push('');
+
+		that.timezone = ko.observable('Variable/Exchange_Local');
+		that.timezones = ko.observableArray(timezonesList.concat(timezones.getTimezones()));
 
 		that.username = ko.observable('');
 		that.password = ko.observable('');

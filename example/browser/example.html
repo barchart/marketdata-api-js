@@ -153,7 +153,12 @@
 						<span class="sr-only"></span>
 					</button>
 					<ul class="dropdown-menu dropdown-menu-right scrollable-menu" data-bind="foreach: timezones">
+						<!-- ko if: $data !== '' -->
 						<li class="center"><a href="#" data-bind="text: $data, click: function() { $parent.timezone($data); }"></a></li>
+						<!-- /ko -->
+						<!-- ko if: $data === '' -->
+						<li role="separator" class="divider"></li>
+						<!-- /ko -->
 					</ul>
 				</div>
                 <div class="btn-group">
