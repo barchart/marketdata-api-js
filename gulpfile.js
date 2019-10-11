@@ -90,6 +90,8 @@ gulp.task('build-example-bundle', () => {
 		.pipe(gulp.dest('./example/browser/'));
 });
 
+gulp.task('build', gulp.series('build-example-bundle'));
+
 gulp.task('upload-example-to-S3', () => {
 	let publisher = awspublish.create({
 		region: 'us-east-1',
@@ -112,8 +114,6 @@ gulp.task('upload-example-to-S3', () => {
 });
 
 gulp.task('deploy-example', gulp.series('upload-example-to-S3'));
-
-gulp.task('build', gulp.series('build-example-bundle'));
 
 gulp.task('build-browser-tests', () => {
 	return browserify({ entries: glob.sync('test/specs/**/*.js') }).bundle()
