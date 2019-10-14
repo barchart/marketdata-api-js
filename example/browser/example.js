@@ -4367,7 +4367,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.8'
+    version: '4.0.9'
   };
 })();
 
@@ -4890,7 +4890,6 @@ module.exports = (() => {
         offset.timezone = Timezone.parse(timezone);
 
         if (offset.timezone !== null) {
-          console.log(timezone + offset.timezone.getUtcOffset());
           offset.milliseconds = offset.timezone.getUtcOffset() * 60 * 1000;
         } else {
           offset.milliseconds = null;
