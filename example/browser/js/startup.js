@@ -417,7 +417,7 @@ module.exports = (() => {
 		that.priceChange = ko.computed(function() {
 			var quote = that.quote();
 
-			if (quote !== null && quote.lastPrice && quote.previousPrice) {
+			if (quote && quote.lastPrice && quote.previousPrice) {
 				return Math.round((quote.lastPrice - quote.previousPrice) * 100) / 100;
 			} else {
 				return '';
