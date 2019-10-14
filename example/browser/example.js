@@ -372,7 +372,7 @@ module.exports = (() => {
     that.priceChange = ko.computed(function () {
       var quote = that.quote();
 
-      if (quote !== null && quote.lastPrice && quote.previousPrice) {
+      if (quote && quote.lastPrice && quote.previousPrice) {
         return Math.round((quote.lastPrice - quote.previousPrice) * 100) / 100;
       } else {
         return '';
@@ -881,6 +881,12 @@ module.exports = (() => {
       const subscribe = (streamingTaskName, snapshotTaskName, listenerMap, sharedListenerMaps) => {
         const consumerSymbol = symbol;
         const producerSymbol = SymbolParser.getProducerSymbol(consumerSymbol);
+
+        if (SymbolParser.getIsReference(consumerSymbol)) {
+          __logger.warn(`Connection [ ${__instance} ]: Ignoring subscription for reference symbol [ ${consumerSymbol} ].`);
+
+          return false;
+        }
 
         if (SymbolParser.getIsExpired(consumerSymbol)) {
           __logger.warn(`Connection [ ${__instance} ]: Ignoring subscription for expired symbol [ ${consumerSymbol} ].`);
@@ -4262,7 +4268,7 @@ module.exports = (() => {
       this.dayNum = 0;
       this.session = null;
       /**
-       * @property {Date|null} lastUpdate
+       * @property {Date|null} lastUpdate - the most recent refresh. this date instance stores the hours and minutes for the exchange time (without proper timezone adjustment). use caution.
        */
 
       this.lastUpdate = null;
@@ -4361,7 +4367,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.7'
+    version: '4.0.8'
   };
 })();
 
@@ -4531,6 +4537,7 @@ module.exports = (() => {
      * Gets a list of names in the tz database (see https://en.wikipedia.org/wiki/Tz_database
      * and https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
      *
+     * @public
      * @static
      * @returns {Array<String>}
      */
@@ -4541,6 +4548,8 @@ module.exports = (() => {
     /**
      * Attempts to guess the local timezone.
      *
+     * @public
+     * @static
      * @returns {String|null}
      */
     guessTimezone() {
