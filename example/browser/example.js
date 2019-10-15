@@ -183,6 +183,8 @@ module.exports = (() => {
         symbols = CMDTY_OLD;
       } else if (symbol === '#PLATTS') {
         symbols = PLATTS;
+      } else if (symbol === '#BOTH') {
+        symbols = BOTH;
       } else {
         symbols = [symbol];
       }
@@ -418,6 +420,7 @@ module.exports = (() => {
   const C3_OLD = ['C3:AL79MRM1', 'C3:BSP9WGQ1', 'C3:RA10BGM1'];
   const CMDTY_OLD = ['BC5L09YB.CM', 'EI3E06EI.CM', 'EI3E06EJ.CM', 'USDA-CORN-COND-EXC-AL-2528.CM', 'EURS-BEET-PRICE-SELL-GBR-33877.CM', 'EUJU0Q51.CM'];
   const PLATTS = ['PLATTS:RD52017', 'PLATTS:RD5MA17', 'PLATTS:RD52018'];
+  const BOTH = ['ESZ19', 'ESZ9'];
   $(document).ready(function () {
     var pageModel = new PageModel();
     ko.applyBindings(pageModel, $('body')[0]);
@@ -3403,7 +3406,8 @@ module.exports = (() => {
 })();
 
 },{"./../logging/LoggerFactory":10,"@barchart/common-js/lang//object":37}],13:[function(require,module,exports){
-const timezone = require('@barchart/common-js/lang/timezone'),
+const is = require('@barchart/common-js/lang/is'),
+      timezone = require('@barchart/common-js/lang/timezone'),
       Timezones = require('@barchart/common-js/lang/Timezones');
 
 const CumulativeVolume = require('./CumulativeVolume'),
@@ -3924,7 +3928,7 @@ module.exports = (() => {
       }
 
       return promise.then(cv => {
-        if (typeof callback === 'function') {
+        if (is.fn(callback)) {
           callback(cv);
         }
 
@@ -3947,14 +3951,14 @@ module.exports = (() => {
 
           _profileCallbacks[symbol].push(p => resolveCallback(p));
 
-          if (handleProfileRequest && typeof handleProfileRequest === 'function') {
+          if (handleProfileRequest && is.fn(handleProfileRequest)) {
             handleProfileRequest(symbol);
           }
         });
       }
 
       return promise.then(p => {
-        if (typeof callback === 'function') {
+        if (is.fn(callback)) {
           callback(p);
         }
 
@@ -4098,7 +4102,7 @@ module.exports = (() => {
   return MarketState;
 })();
 
-},{"../utilities/parsers/SymbolParser":31,"./../logging/LoggerFactory":10,"./../meta":16,"./../utilities/convert/dayCodeToNumber":19,"./CumulativeVolume":12,"./Profile":14,"./Quote":15,"@barchart/common-js/lang/Timezones":33,"@barchart/common-js/lang/timezone":38}],14:[function(require,module,exports){
+},{"../utilities/parsers/SymbolParser":31,"./../logging/LoggerFactory":10,"./../meta":16,"./../utilities/convert/dayCodeToNumber":19,"./CumulativeVolume":12,"./Profile":14,"./Quote":15,"@barchart/common-js/lang/Timezones":33,"@barchart/common-js/lang/is":36,"@barchart/common-js/lang/timezone":38}],14:[function(require,module,exports){
 const SymbolParser = require('./../utilities/parsers/SymbolParser'),
       buildPriceFormatter = require('../utilities/format/factories/price');
 
@@ -4367,7 +4371,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.9'
+    version: '4.0.10'
   };
 })();
 
@@ -6470,10 +6474,10 @@ module.exports = (() => {
 
       const offset = moment.tz.zone(this.code).utcOffset(timestampToUse);
 
-      if (offset == 0) {
-        return 0;
-      } else {
+      if (offset > 0) {
         return offset * -1;
+      } else {
+        return offset;
       }
     }
     /**
@@ -7534,7 +7538,7 @@ module.exports = (() => {
     },
 
     /**
-     * Attempts to guess the lock timezone.
+     * Attempts to guess the current timezone.
      *
      * @returns {String|null}
      */

@@ -2994,10 +2994,10 @@ module.exports = (() => {
 
       const offset = moment.tz.zone(this.code).utcOffset(timestampToUse);
 
-      if (offset == 0) {
-        return 0;
-      } else {
+      if (offset > 0) {
         return offset * -1;
+      } else {
+        return offset;
       }
     }
     /**
@@ -4058,7 +4058,7 @@ module.exports = (() => {
     },
 
     /**
-     * Attempts to guess the lock timezone.
+     * Attempts to guess the current timezone.
      *
      * @returns {String|null}
      */
