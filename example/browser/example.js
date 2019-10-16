@@ -4371,7 +4371,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.11'
+    version: '4.0.12'
   };
 })();
 
@@ -5699,7 +5699,7 @@ module.exports = (() => {
    * Parses DDF price.
    *
    * @function
-   * @param {String} bytes
+   * @param {String} str
    * @param {String} unitcode
    * @param {String=} thousandsSeparator
    * @returns {Number}
@@ -6474,10 +6474,10 @@ module.exports = (() => {
 
       const offset = moment.tz.zone(this.code).utcOffset(timestampToUse);
 
-      if (offset > 0) {
-        return offset * -1;
+      if (offset == 0) {
+        return 0;
       } else {
-        return offset;
+        return offset * -1;
       }
     }
     /**
@@ -7538,7 +7538,7 @@ module.exports = (() => {
     },
 
     /**
-     * Attempts to guess the current timezone.
+     * Attempts to guess the lock timezone.
      *
      * @returns {String|null}
      */
