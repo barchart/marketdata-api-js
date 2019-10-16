@@ -4371,7 +4371,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.12'
+    version: '4.0.13'
   };
 })();
 
