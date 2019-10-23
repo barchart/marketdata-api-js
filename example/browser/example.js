@@ -3781,8 +3781,12 @@ module.exports = (() => {
           q.message = message;
           q.flag = message.flag;
           q.mode = message.mode;
-          q.lastUpdate = message.lastUpdate;
-          q.lastUpdateUtc = _getUtcTimestamp(symbol, message.lastUpdate);
+
+          if (message.lastUpdate) {
+            q.lastUpdate = message.lastUpdate;
+            q.lastUpdateUtc = _getUtcTimestamp(symbol, message.lastUpdate);
+          }
+
           q.bidPrice = message.bidPrice;
           q.bidSize = message.bidSize;
           q.askPrice = message.askPrice;
@@ -4371,7 +4375,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.13'
+    version: '4.0.14'
   };
 })();
 
