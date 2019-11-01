@@ -427,14 +427,15 @@ module.exports = (() => {
   });
 })();
 
-},{"./../../../lib/connection/Connection":2,"./../../../lib/connection/snapshots/symbols/retrieveConcrete":8,"./../../../lib/meta":16,"./../../../lib/utilities/data/timezones":21,"./../../../lib/utilities/format/decimal":23,"./../../../lib/utilities/format/price":25,"./../../../lib/utilities/format/quote":26}],2:[function(require,module,exports){
+},{"./../../../lib/connection/Connection":2,"./../../../lib/connection/snapshots/symbols/retrieveConcrete":9,"./../../../lib/meta":18,"./../../../lib/utilities/data/timezones":23,"./../../../lib/utilities/format/decimal":25,"./../../../lib/utilities/format/price":27,"./../../../lib/utilities/format/quote":28}],2:[function(require,module,exports){
 const array = require('@barchart/common-js/lang/array'),
       object = require('@barchart/common-js/lang/object');
 
 const ConnectionBase = require('./ConnectionBase'),
       parseMessage = require('./../utilities/parse/ddf/message');
 
-const retrieveSnapshots = require('./snapshots/quotes/retrieveSnapshots'),
+const retrieveExchanges = require('./snapshots/exchanges/retrieveExchanges'),
+      retrieveSnapshots = require('./snapshots/quotes/retrieveSnapshots'),
       SymbolParser = require('./../utilities/parsers/SymbolParser');
 
 const WebSocketAdapterFactory = require('./adapter/WebSocketAdapterFactory'),
@@ -502,6 +503,7 @@ module.exports = (() => {
     let __pollingFrequency = null;
     let __watchdogToken = null;
     let __watchdogAwake = false;
+    let __exchangeMetadataPromise = null;
     let __inboundMessages = [];
     let __marketMessages = [];
     let __pendingTasks = [];
@@ -623,6 +625,8 @@ module.exports = (() => {
 
         return;
       }
+
+      ensureExchangeMetadata();
 
       __logger.log(`Connection [ ${__instance} ]: Initializing. Version [ ${version} ]. Using [ ${username}@${server} ].`);
 
@@ -815,6 +819,37 @@ module.exports = (() => {
       }
 
       __watchdogAwake = false;
+    } //
+    // Functions used to maintain exchange metadata
+    //
+
+
+    function ensureExchangeMetadata() {
+      if (__exchangeMetadataPromise !== null) {
+        return;
+      }
+
+      try {
+        __logger.log(`Connection [ ${__instance} ]: Downloading exchange metadata.`);
+
+        __exchangeMetadataPromise = retrieveExchanges().then(items => {
+          items.forEach(item => {
+            __marketState.processExchangeMetadata(item.id, item.description, item.timezone);
+          });
+
+          __logger.log(`Connection [ ${__instance} ]: Downloaded exchange metadata.`);
+
+          return true;
+        }).catch(e => {
+          __logger.warn(`Connection [ ${__instance} ]: An error occurred while processing exchange metadata`);
+
+          __exchangeMetadataPromise = null;
+        });
+      } catch (e) {
+        __logger.warn(`Connection [ ${__instance} ]: An error occurred while downloading exchange metadata`);
+
+        __exchangeMetadataPromise = null;
+      }
     } //
     // Functions for handling user-initiated requests to start subscriptions, stop subscriptions,
     // and request profiles.
@@ -1971,7 +2006,7 @@ module.exports = (() => {
   return Connection;
 })();
 
-},{"./../logging/LoggerFactory":10,"./../meta":16,"./../utilities/parse/ddf/message":28,"./../utilities/parsers/SymbolParser":31,"./ConnectionBase":3,"./adapter/WebSocketAdapterFactory":5,"./adapter/WebSocketAdapterFactoryForBrowsers":6,"./snapshots/quotes/retrieveSnapshots":7,"@barchart/common-js/lang/array":34,"@barchart/common-js/lang/object":37}],3:[function(require,module,exports){
+},{"./../logging/LoggerFactory":11,"./../meta":18,"./../utilities/parse/ddf/message":30,"./../utilities/parsers/SymbolParser":33,"./ConnectionBase":3,"./adapter/WebSocketAdapterFactory":5,"./adapter/WebSocketAdapterFactoryForBrowsers":6,"./snapshots/exchanges/retrieveExchanges":7,"./snapshots/quotes/retrieveSnapshots":8,"@barchart/common-js/lang/array":36,"@barchart/common-js/lang/object":39}],3:[function(require,module,exports){
 const MarketState = require('./../marketState/MarketState');
 
 module.exports = (() => {
@@ -2247,7 +2282,7 @@ module.exports = (() => {
   return ConnectionBase;
 })();
 
-},{"./../marketState/MarketState":13}],4:[function(require,module,exports){
+},{"./../marketState/MarketState":15}],4:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -2517,7 +2552,51 @@ module.exports = (() => {
   return WebSocketAdapterFactoryForBrowsers;
 })();
 
-},{"./../../logging/LoggerFactory":10,"./WebSocketAdapter":4,"./WebSocketAdapterFactory":5}],7:[function(require,module,exports){
+},{"./../../logging/LoggerFactory":11,"./WebSocketAdapter":4,"./WebSocketAdapterFactory":5}],7:[function(require,module,exports){
+const axios = require('axios');
+
+module.exports = (() => {
+  'use strict';
+  /**
+   * Executes an HTTP request for exchange metadata.
+   *
+   * @function
+   * @returns {Promise<ExchangeMetadata[]>}
+   */
+
+  function retrieveExchanges() {
+    return Promise.resolve().then(() => {
+      const options = {
+        url: `https://instruments-prod.aws.barchart.com/exchanges`,
+        method: 'GET'
+      };
+      return Promise.resolve(axios(options)).then(response => {
+        const results = response.data || [];
+        return results.map(result => {
+          const metadata = {};
+          metadata.id = result.id;
+          metadata.description = result.description;
+          metadata.timezone = result.timezone;
+          return metadata;
+        });
+      });
+    });
+  }
+  /**
+   * Exchange metadata
+   *
+   * @typedef ExchangeMetadata
+   * @type {Object}
+   * @property {String} id
+   * @property {String} description
+   * @property {String} timezone
+   */
+
+
+  return retrieveExchanges;
+})();
+
+},{"axios":41}],8:[function(require,module,exports){
 const axios = require('axios');
 
 const array = require('@barchart/common-js/lang/array'),
@@ -2774,7 +2853,7 @@ module.exports = (() => {
   return retrieveSnapshots;
 })();
 
-},{"../../../utilities/convert/baseCodeToUnitCode":17,"../../../utilities/convert/dateToDayCode":18,"../../../utilities/convert/dayCodeToNumber":19,"@barchart/common-js/lang/array":34,"@barchart/common-js/lang/is":36,"axios":39}],8:[function(require,module,exports){
+},{"../../../utilities/convert/baseCodeToUnitCode":19,"../../../utilities/convert/dateToDayCode":20,"../../../utilities/convert/dayCodeToNumber":21,"@barchart/common-js/lang/array":36,"@barchart/common-js/lang/is":38,"axios":41}],9:[function(require,module,exports){
 const axios = require('axios');
 
 const is = require('@barchart/common-js/lang/is');
@@ -2817,7 +2896,7 @@ module.exports = (() => {
   return retrieveConcreteSymbol;
 })();
 
-},{"@barchart/common-js/lang/is":36,"axios":39}],9:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":38,"axios":41}],10:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -2899,7 +2978,7 @@ module.exports = (() => {
   return Logger;
 })();
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 const Logger = require('./Logger'),
       LoggerProvider = require('./LoggerProvider');
 
@@ -3104,7 +3183,7 @@ module.exports = (() => {
   return LoggerFactory;
 })();
 
-},{"./Logger":9,"./LoggerProvider":11}],11:[function(require,module,exports){
+},{"./Logger":10,"./LoggerProvider":12}],12:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -3138,7 +3217,7 @@ module.exports = (() => {
   return LoggerProvider;
 })();
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 const object = require('@barchart/common-js/lang//object');
 
 const LoggerFactory = require('./../logging/LoggerFactory');
@@ -3405,12 +3484,50 @@ module.exports = (() => {
   return CumulativeVolume;
 })();
 
-},{"./../logging/LoggerFactory":10,"@barchart/common-js/lang//object":37}],13:[function(require,module,exports){
+},{"./../logging/LoggerFactory":11,"@barchart/common-js/lang//object":39}],14:[function(require,module,exports){
+module.exports = (() => {
+  'use strict';
+  /**
+   * Describes an exchange.
+   *
+   * @public
+   */
+
+  class Exchange {
+    constructor(id, name, timezone) {
+      /**
+       * @property {string} id - the code used to identify the exchange
+       */
+      this.id = id;
+      /**
+       * @property {string} name - the name of the exchange
+       */
+
+      this.name = name;
+      /**
+       * @property {Timezone} timezone - the timezone of the exchange (should conform to TZ database name)
+       */
+
+      this.timezone = timezone;
+    }
+
+    toString() {
+      return `[Exchange (id=${this.id})]`;
+    }
+
+  }
+
+  return Exchange;
+})();
+
+},{}],15:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is'),
+      object = require('@barchart/common-js/lang/object'),
       timezone = require('@barchart/common-js/lang/timezone'),
       Timezones = require('@barchart/common-js/lang/Timezones');
 
 const CumulativeVolume = require('./CumulativeVolume'),
+      Exchange = require('./Exchange'),
       Profile = require('./Profile'),
       Quote = require('./Quote');
 
@@ -3437,6 +3554,8 @@ module.exports = (() => {
 
     if (_timezone !== null) {
       _offset = Timezones.parse(_timezone).getUtcOffset() * 60 * 1000;
+    } else {
+      _offset = null;
     }
 
     _logger.log(`MarketState [ ${_instance} ]: Initializing. Version [ ${version} ]. Using timezone [ ${_timezone} ].`);
@@ -3446,6 +3565,7 @@ module.exports = (() => {
     const _cvol = {};
     const _profileCallbacks = {};
     const _offsets = {};
+    const _exchange = {};
 
     let _timestamp;
 
@@ -3527,10 +3647,12 @@ module.exports = (() => {
       return utc;
     };
 
-    const _getOffsetFor = symbol => {
+    const _getOffsetFor = (symbol, exchange) => {
       let timezone;
 
-      if (SymbolParser.getIsFuture(symbol) || SymbolParser.getIsForex(symbol) || SymbolParser.getIsCmdty(symbol)) {
+      if (exchange && exchange.timezone) {
+        timezone = exchange.timezone;
+      } else if (SymbolParser.getIsFuture(symbol) || SymbolParser.getIsForex(symbol) || SymbolParser.getIsCmdty(symbol)) {
         timezone = Timezones.AMERICA_CHICAGO;
       } else {
         timezone = Timezones.AMERICA_NEW_YORK;
@@ -3546,7 +3668,7 @@ module.exports = (() => {
       if (offset) {
         o = offset;
       } else {
-        o = _getOffsetFor(symbol);
+        o = _getOffsetFor(p.symbol, _exchange[p.exchange] || null);
       }
 
       if (o !== null) {
@@ -3914,6 +4036,28 @@ module.exports = (() => {
       }
     };
 
+    const _processExchangeMetadata = (id, description, tz) => {
+      if (!_exchange.hasOwnProperty(id)) {
+        const exchange = new Exchange(id, description, Timezones.parse(tz));
+
+        if (exchange.timezone !== null) {
+          const profiles = Profile.Profiles;
+          const symbols = object.keys(profiles);
+          symbols.forEach(symbol => {
+            const profile = profiles[symbol];
+
+            if (profile.exchange === id) {
+              _offsets[symbol] = _getOffsetFor(symbol, exchange);
+            }
+          });
+        } else {
+          _logger.warn(`MarketState [ ${_instance} ]: Unable to resolve timezone for [ ${id} ] [ ${tz ? tz : '--'} ]`);
+        }
+
+        _exchange[id] = exchange;
+      }
+    };
+
     const _getBook = symbol => {
       return _book[symbol];
     };
@@ -3938,6 +4082,10 @@ module.exports = (() => {
 
         return cv;
       });
+    };
+
+    const _getExchange = symbol => {
+      return _exchange[symbol];
     };
 
     const _getProfile = (symbol, callback) => {
@@ -3981,10 +4129,12 @@ module.exports = (() => {
     return {
       getBook: _getBook,
       getCumulativeVolume: _getCumulativeVolume,
+      getExchange: _getExchange,
       getProfile: _getProfile,
       getQuote: _getQuote,
       getTimestamp: _getTimestamp,
-      processMessage: _processMessage
+      processMessage: _processMessage,
+      processExchangeMetadata: _processExchangeMetadata
     };
   }
   /**
@@ -4077,6 +4227,14 @@ module.exports = (() => {
      */
 
 
+    processExchangeMetadata(id, description, tz) {
+      return this._internal.processExchangeMetadata(id, description, tz);
+    }
+    /**
+     * @ignore
+     */
+
+
     static get CumulativeVolume() {
       return CumulativeVolume;
     }
@@ -4106,7 +4264,7 @@ module.exports = (() => {
   return MarketState;
 })();
 
-},{"../utilities/parsers/SymbolParser":31,"./../logging/LoggerFactory":10,"./../meta":16,"./../utilities/convert/dayCodeToNumber":19,"./CumulativeVolume":12,"./Profile":14,"./Quote":15,"@barchart/common-js/lang/Timezones":33,"@barchart/common-js/lang/is":36,"@barchart/common-js/lang/timezone":38}],14:[function(require,module,exports){
+},{"../utilities/parsers/SymbolParser":33,"./../logging/LoggerFactory":11,"./../meta":18,"./../utilities/convert/dayCodeToNumber":21,"./CumulativeVolume":13,"./Exchange":14,"./Profile":16,"./Quote":17,"@barchart/common-js/lang/Timezones":35,"@barchart/common-js/lang/is":38,"@barchart/common-js/lang/object":39,"@barchart/common-js/lang/timezone":40}],16:[function(require,module,exports){
 const SymbolParser = require('./../utilities/parsers/SymbolParser'),
       buildPriceFormatter = require('../utilities/format/factories/price');
 
@@ -4237,7 +4395,7 @@ module.exports = (() => {
   return Profile;
 })();
 
-},{"../utilities/format/factories/price":24,"./../utilities/parsers/SymbolParser":31}],15:[function(require,module,exports){
+},{"../utilities/format/factories/price":26,"./../utilities/parsers/SymbolParser":33}],17:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -4370,16 +4528,16 @@ module.exports = (() => {
   return Quote;
 })();
 
-},{}],16:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.14'
+    version: '4.0.15'
   };
 })();
 
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -4442,7 +4600,7 @@ module.exports = (() => {
   return convertBaseCodeToUnitCode;
 })();
 
-},{}],18:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 const convertNumberToDayCode = require('./numberToDayCode');
 
 module.exports = (() => {
@@ -4467,7 +4625,7 @@ module.exports = (() => {
   return convertDateToDayCode;
 })();
 
-},{"./numberToDayCode":20}],19:[function(require,module,exports){
+},{"./numberToDayCode":22}],21:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -4499,7 +4657,7 @@ module.exports = (() => {
   return convertDayCodeToNumber;
 })();
 
-},{"@barchart/common-js/lang/is":36}],20:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":38}],22:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -4534,7 +4692,7 @@ module.exports = (() => {
   return convertNumberToDayCode;
 })();
 
-},{"@barchart/common-js/lang/is":36}],21:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":38}],23:[function(require,module,exports){
 const timezone = require('@barchart/common-js/lang/timezone');
 
 module.exports = (() => {
@@ -4567,7 +4725,7 @@ module.exports = (() => {
   };
 })();
 
-},{"@barchart/common-js/lang/timezone":38}],22:[function(require,module,exports){
+},{"@barchart/common-js/lang/timezone":40}],24:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -4599,7 +4757,7 @@ module.exports = (() => {
   return formatDate;
 })();
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -4667,7 +4825,7 @@ module.exports = (() => {
   return formatDecimal;
 })();
 
-},{"@barchart/common-js/lang/is":36}],24:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":38}],26:[function(require,module,exports){
 const formatPrice = require('./../price');
 
 module.exports = (() => {
@@ -4702,7 +4860,7 @@ module.exports = (() => {
   return buildPriceFormatter;
 })();
 
-},{"./../price":25}],25:[function(require,module,exports){
+},{"./../price":27}],27:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDecimal = require('./decimal');
@@ -4855,7 +5013,7 @@ module.exports = (() => {
   return formatPrice;
 })();
 
-},{"./decimal":23,"@barchart/common-js/lang/is":36}],26:[function(require,module,exports){
+},{"./decimal":25,"@barchart/common-js/lang/is":38}],28:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDate = require('./date'),
@@ -4930,7 +5088,7 @@ module.exports = (() => {
   return formatQuoteDateTime;
 })();
 
-},{"./date":22,"./time":27,"@barchart/common-js/lang/Timezones":33,"@barchart/common-js/lang/is":36}],27:[function(require,module,exports){
+},{"./date":24,"./time":29,"@barchart/common-js/lang/Timezones":35,"@barchart/common-js/lang/is":38}],29:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -5081,7 +5239,7 @@ module.exports = (() => {
   return formatTime;
 })();
 
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 const xmlDom = require('xmldom');
 
 const parseValue = require('./value'),
@@ -5633,7 +5791,7 @@ module.exports = (() => {
   return parseMessage;
 })();
 
-},{"./timestamp":29,"./value":30,"xmldom":68}],29:[function(require,module,exports){
+},{"./timestamp":31,"./value":32,"xmldom":70}],31:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -5686,7 +5844,7 @@ module.exports = (() => {
   return parseTimestamp;
 })();
 
-},{}],30:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -5785,7 +5943,7 @@ module.exports = (() => {
   return parseValue;
 })();
 
-},{}],31:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -6314,7 +6472,7 @@ module.exports = (() => {
   return SymbolParser;
 })();
 
-},{"@barchart/common-js/lang/is":36}],32:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":38}],34:[function(require,module,exports){
 const assert = require('./assert');
 
 module.exports = (() => {
@@ -6432,7 +6590,7 @@ module.exports = (() => {
   return Enum;
 })();
 
-},{"./assert":35}],33:[function(require,module,exports){
+},{"./assert":37}],35:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022');
 
 const Enum = require('./Enum'),
@@ -6547,7 +6705,7 @@ module.exports = (() => {
   return Timezones;
 })();
 
-},{"./Enum":32,"./is":36,"./timezone":38,"moment-timezone/builds/moment-timezone-with-data-2012-2022":66}],34:[function(require,module,exports){
+},{"./Enum":34,"./is":38,"./timezone":40,"moment-timezone/builds/moment-timezone-with-data-2012-2022":68}],36:[function(require,module,exports){
 const assert = require('./assert'),
       is = require('./is');
 
@@ -7002,7 +7160,7 @@ module.exports = (() => {
   }
 })();
 
-},{"./assert":35,"./is":36}],35:[function(require,module,exports){
+},{"./assert":37,"./is":38}],37:[function(require,module,exports){
 const is = require('./is');
 
 module.exports = (() => {
@@ -7147,7 +7305,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./is":36}],36:[function(require,module,exports){
+},{"./is":38}],38:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -7342,7 +7500,7 @@ module.exports = (() => {
   };
 })();
 
-},{}],37:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 const array = require('./array'),
       is = require('./is');
 
@@ -7502,7 +7660,7 @@ module.exports = (() => {
   return object;
 })();
 
-},{"./array":34,"./is":36}],38:[function(require,module,exports){
+},{"./array":36,"./is":38}],40:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022'),
       assert = require('./assert');
 
@@ -7553,9 +7711,9 @@ module.exports = (() => {
   };
 })();
 
-},{"./assert":35,"moment-timezone/builds/moment-timezone-with-data-2012-2022":66}],39:[function(require,module,exports){
+},{"./assert":37,"moment-timezone/builds/moment-timezone-with-data-2012-2022":68}],41:[function(require,module,exports){
 module.exports = require('./lib/axios');
-},{"./lib/axios":41}],40:[function(require,module,exports){
+},{"./lib/axios":43}],42:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7731,7 +7889,7 @@ module.exports = function xhrAdapter(config) {
   });
 };
 
-},{"../core/createError":47,"./../core/settle":51,"./../helpers/buildURL":55,"./../helpers/cookies":57,"./../helpers/isURLSameOrigin":59,"./../helpers/parseHeaders":61,"./../utils":63}],41:[function(require,module,exports){
+},{"../core/createError":49,"./../core/settle":53,"./../helpers/buildURL":57,"./../helpers/cookies":59,"./../helpers/isURLSameOrigin":61,"./../helpers/parseHeaders":63,"./../utils":65}],43:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -7786,7 +7944,7 @@ module.exports = axios;
 // Allow use of default import syntax in TypeScript
 module.exports.default = axios;
 
-},{"./cancel/Cancel":42,"./cancel/CancelToken":43,"./cancel/isCancel":44,"./core/Axios":45,"./core/mergeConfig":50,"./defaults":53,"./helpers/bind":54,"./helpers/spread":62,"./utils":63}],42:[function(require,module,exports){
+},{"./cancel/Cancel":44,"./cancel/CancelToken":45,"./cancel/isCancel":46,"./core/Axios":47,"./core/mergeConfig":52,"./defaults":55,"./helpers/bind":56,"./helpers/spread":64,"./utils":65}],44:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7807,7 +7965,7 @@ Cancel.prototype.__CANCEL__ = true;
 
 module.exports = Cancel;
 
-},{}],43:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 'use strict';
 
 var Cancel = require('./Cancel');
@@ -7866,14 +8024,14 @@ CancelToken.source = function source() {
 
 module.exports = CancelToken;
 
-},{"./Cancel":42}],44:[function(require,module,exports){
+},{"./Cancel":44}],46:[function(require,module,exports){
 'use strict';
 
 module.exports = function isCancel(value) {
   return !!(value && value.__CANCEL__);
 };
 
-},{}],45:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7961,7 +8119,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = Axios;
 
-},{"../helpers/buildURL":55,"./../utils":63,"./InterceptorManager":46,"./dispatchRequest":48,"./mergeConfig":50}],46:[function(require,module,exports){
+},{"../helpers/buildURL":57,"./../utils":65,"./InterceptorManager":48,"./dispatchRequest":50,"./mergeConfig":52}],48:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8015,7 +8173,7 @@ InterceptorManager.prototype.forEach = function forEach(fn) {
 
 module.exports = InterceptorManager;
 
-},{"./../utils":63}],47:[function(require,module,exports){
+},{"./../utils":65}],49:[function(require,module,exports){
 'use strict';
 
 var enhanceError = require('./enhanceError');
@@ -8035,7 +8193,7 @@ module.exports = function createError(message, config, code, request, response) 
   return enhanceError(error, config, code, request, response);
 };
 
-},{"./enhanceError":49}],48:[function(require,module,exports){
+},{"./enhanceError":51}],50:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8123,7 +8281,7 @@ module.exports = function dispatchRequest(config) {
   });
 };
 
-},{"../cancel/isCancel":44,"../defaults":53,"./../helpers/combineURLs":56,"./../helpers/isAbsoluteURL":58,"./../utils":63,"./transformData":52}],49:[function(require,module,exports){
+},{"../cancel/isCancel":46,"../defaults":55,"./../helpers/combineURLs":58,"./../helpers/isAbsoluteURL":60,"./../utils":65,"./transformData":54}],51:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8167,7 +8325,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
   return error;
 };
 
-},{}],50:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -8220,7 +8378,7 @@ module.exports = function mergeConfig(config1, config2) {
   return config;
 };
 
-},{"../utils":63}],51:[function(require,module,exports){
+},{"../utils":65}],53:[function(require,module,exports){
 'use strict';
 
 var createError = require('./createError');
@@ -8247,7 +8405,7 @@ module.exports = function settle(resolve, reject, response) {
   }
 };
 
-},{"./createError":47}],52:[function(require,module,exports){
+},{"./createError":49}],54:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8269,7 +8427,7 @@ module.exports = function transformData(data, headers, fns) {
   return data;
 };
 
-},{"./../utils":63}],53:[function(require,module,exports){
+},{"./../utils":65}],55:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -8371,7 +8529,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 module.exports = defaults;
 
 }).call(this,require('_process'))
-},{"./adapters/http":40,"./adapters/xhr":40,"./helpers/normalizeHeaderName":60,"./utils":63,"_process":64}],54:[function(require,module,exports){
+},{"./adapters/http":42,"./adapters/xhr":42,"./helpers/normalizeHeaderName":62,"./utils":65,"_process":66}],56:[function(require,module,exports){
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -8384,7 +8542,7 @@ module.exports = function bind(fn, thisArg) {
   };
 };
 
-},{}],55:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8457,7 +8615,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
-},{"./../utils":63}],56:[function(require,module,exports){
+},{"./../utils":65}],58:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8473,7 +8631,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
     : baseURL;
 };
 
-},{}],57:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8528,7 +8686,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":63}],58:[function(require,module,exports){
+},{"./../utils":65}],60:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8544,7 +8702,7 @@ module.exports = function isAbsoluteURL(url) {
   return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
 };
 
-},{}],59:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8614,7 +8772,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":63}],60:[function(require,module,exports){
+},{"./../utils":65}],62:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -8628,7 +8786,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
   });
 };
 
-},{"../utils":63}],61:[function(require,module,exports){
+},{"../utils":65}],63:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8683,7 +8841,7 @@ module.exports = function parseHeaders(headers) {
   return parsed;
 };
 
-},{"./../utils":63}],62:[function(require,module,exports){
+},{"./../utils":65}],64:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8712,7 +8870,7 @@ module.exports = function spread(callback) {
   };
 };
 
-},{}],63:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 'use strict';
 
 var bind = require('./helpers/bind');
@@ -9048,7 +9206,7 @@ module.exports = {
   trim: trim
 };
 
-},{"./helpers/bind":54,"is-buffer":65}],64:[function(require,module,exports){
+},{"./helpers/bind":56,"is-buffer":67}],66:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -9234,7 +9392,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],65:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -9247,7 +9405,7 @@ module.exports = function isBuffer (obj) {
     typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
 }
 
-},{}],66:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 //! moment-timezone.js
 //! version : 0.5.26
 //! Copyright (c) JS Foundation and other contributors
@@ -10473,7 +10631,7 @@ module.exports = function isBuffer (obj) {
 	return moment;
 }));
 
-},{"moment":67}],67:[function(require,module,exports){
+},{"moment":69}],69:[function(require,module,exports){
 //! moment.js
 
 ;(function (global, factory) {
@@ -15077,7 +15235,7 @@ module.exports = function isBuffer (obj) {
 
 })));
 
-},{}],68:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -15330,7 +15488,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":69,"./sax":70}],69:[function(require,module,exports){
+},{"./dom":71,"./sax":72}],71:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -16576,7 +16734,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],70:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
