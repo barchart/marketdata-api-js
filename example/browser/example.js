@@ -3639,7 +3639,7 @@ module.exports = (() => {
         const offsetLocal = _offset;
         const offsetExchange = _offsets[symbol];
 
-        if (offsetExchange) {
+        if (is.number(offsetExchange)) {
           utc = new Date(timestamp.getTime() + offsetLocal - offsetExchange);
         }
       }
@@ -4533,7 +4533,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.15'
+    version: '4.0.16'
   };
 })();
 
