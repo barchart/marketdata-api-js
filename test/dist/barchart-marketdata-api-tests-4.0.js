@@ -599,10 +599,18 @@ module.exports = (() => {
    * Describes an instrument.
    *
    * @public
+   * @param {string} symbol
+   * @param {name} name
+   * @param {string} exchangeId
+   * @param {string} unitCode
+   * @param {string} pointValue
+   * @param {number} tickIncrement
+   * @param {Exchange=} exchange
+   * @param {Object=} additional
    */
 
   class Profile {
-    constructor(symbol, name, exchange, unitCode, pointValue, tickIncrement, additional) {
+    constructor(symbol, name, exchangeId, unitCode, pointValue, tickIncrement, exchange, additional) {
       /**
        * @property {string} symbol - the symbol of the instrument.
        */
@@ -616,7 +624,7 @@ module.exports = (() => {
        * @property {string} exchange - code of the listing exchange.
        */
 
-      this.exchange = exchange;
+      this.exchange = exchangeId;
       /**
        * @property {string} unitCode - code indicating how a prices for the instrument should be formatted.
        */
@@ -632,6 +640,11 @@ module.exports = (() => {
        */
 
       this.tickIncrement = tickIncrement;
+      /**
+       * @property {Exchange|null} exchangeRef
+       */
+
+      this.exchangeRef = exchange || null;
       const info = SymbolParser.parseInstrumentType(this.symbol);
 
       if (info) {
@@ -646,7 +659,7 @@ module.exports = (() => {
 
           this.month = info.month;
           /**
-           * @property {undefined|number} year - the expiration year, if a symbol; otherwise undefined.
+           * @property {undefined|number} year - the expiration year, if a future; otherwise undefined.
            */
 
           this.year = info.year;
@@ -1369,7 +1382,7 @@ module.exports = (() => {
    * @param {Quote} quote
    * @param {Boolean=} useTwelveHourClock
    * @param {Boolean=} short
-   * @param {String=} timezone - A name from the tz database (see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+   * @param {String=} timezone - A name from the tz database (see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) or "EXCHANGE"
    * @returns {String}
    */
 
@@ -1391,7 +1404,7 @@ module.exports = (() => {
         offset.timezone = Timezone.parse(timezone);
 
         if (offset.timezone !== null) {
-          offset.milliseconds = offset.timezone.getUtcOffset() * 60 * 1000;
+          offset.milliseconds = offset.timezone.getUtcOffset(null, true);
         } else {
           offset.milliseconds = null;
         }
@@ -2973,17 +2986,16 @@ module.exports = (() => {
       super(code, code);
     }
     /**
-     * The timezone's offset from UTC, in minutes, at the moment of
-     * the timestamp argument. If no timestamp if provided, the offset
-     * from the current time is returned.
+     * Calculates and returns the timezone's offset from UTC.
      *
      * @public
-     * @param {Number=} timestamp
+     * @param {Number=} timestamp - The moment at which the offset is calculated, otherwise now.
+     * @param {Boolean=} milliseconds - If true, the offset is returned in milliseconds; otherwise minutes.
      * @returns {Number}
      */
 
 
-    getUtcOffset(timestamp) {
+    getUtcOffset(timestamp, milliseconds) {
       let timestampToUse;
 
       if (is.number(timestamp)) {
@@ -2992,7 +3004,15 @@ module.exports = (() => {
         timestampToUse = new Date().getTime();
       }
 
-      const offset = moment.tz.zone(this.code).utcOffset(timestampToUse);
+      let multiplier;
+
+      if (is.boolean(milliseconds) && milliseconds) {
+        multiplier = 60 * 1000;
+      } else {
+        multiplier = 1;
+      }
+
+      const offset = moment.tz.zone(this.code).utcOffset(timestampToUse) * multiplier;
 
       if (offset !== 0) {
         return offset * -1;

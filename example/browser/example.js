@@ -834,19 +834,19 @@ module.exports = (() => {
 
         __exchangeMetadataPromise = retrieveExchanges().then(items => {
           items.forEach(item => {
-            __marketState.processExchangeMetadata(item.id, item.description, item.timezoneLocal, item.timezoneDdf);
+            __marketState.processExchangeMetadata(item.id, item.description, item.timezoneDdf, item.timezoneExchange);
           });
 
           __logger.log(`Connection [ ${__instance} ]: Downloaded exchange metadata.`);
 
           return true;
         }).catch(e => {
-          __logger.warn(`Connection [ ${__instance} ]: An error occurred while processing exchange metadata`);
+          __logger.warn(`Connection [ ${__instance} ]: An error occurred while processing exchange metadata.`);
 
           __exchangeMetadataPromise = null;
         });
       } catch (e) {
-        __logger.warn(`Connection [ ${__instance} ]: An error occurred while downloading exchange metadata`);
+        __logger.warn(`Connection [ ${__instance} ]: An error occurred while downloading exchange metadata.`);
 
         __exchangeMetadataPromise = null;
       }
@@ -2576,7 +2576,7 @@ module.exports = (() => {
           const metadata = {};
           metadata.id = result.id;
           metadata.description = result.description;
-          metadata.timezoneLocal = result.timezoneLocal || null;
+          metadata.timezoneExchange = result.timezoneLocal || null;
           metadata.timezoneDdf = result.timezoneDdf || null;
           return metadata;
         });
@@ -2590,7 +2590,8 @@ module.exports = (() => {
    * @type {Object}
    * @property {String} id
    * @property {String} description
-   * @property {String} timezone
+   * @property {String} timezoneExchange
+   * @property {String} timezoneDdf
    */
 
 
@@ -3486,6 +3487,8 @@ module.exports = (() => {
 })();
 
 },{"./../logging/LoggerFactory":11,"@barchart/common-js/lang//object":39}],14:[function(require,module,exports){
+const Timezones = require('@barchart/common-js/lang/Timezones');
+
 module.exports = (() => {
   'use strict';
   /**
@@ -3495,7 +3498,7 @@ module.exports = (() => {
    */
 
   class Exchange {
-    constructor(id, name, timezoneLocal, timezoneDdf) {
+    constructor(id, name, timezoneDdf, timezoneExchange) {
       /**
        * @property {string} id - the code used to identify the exchange
        */
@@ -3506,15 +3509,37 @@ module.exports = (() => {
 
       this.name = name;
       /**
-       * @property {string} timezone - the timezone of the exchange (should conform to a TZ database name)
+       * @property {string|null} timezoneDdf - the timezone used by DDF for this exchange (should conform to a TZ database name)
        */
 
-      this.timezoneLocal = timezoneLocal;
+      this.timezoneDdf = null;
       /**
-       * @property {string} timezone - the timezone used by DDF for this exchange (should conform to a TZ database name)
+       * @property {number|null} offsetDdf - the UTC offset, in milliseconds, for DDF purposes.
        */
 
-      this.timezoneDdf = timezoneDdf;
+      this.offsetDdf = null;
+      /**
+       * @property {string} timezoneLocal - the actual timezone of the exchange (should conform to a TZ database name)
+       */
+
+      this.timezoneExchange = null;
+      /**
+       * @property {number} offsetExchange -- the UTC offset, in milliseconds, of the exchange's local time.
+       */
+
+      this.offsetExchange = null;
+      const tzDdf = Timezones.parse(timezoneDdf);
+      const txExchange = Timezones.parse(timezoneExchange);
+
+      if (tzDdf !== null) {
+        this.timezoneDdf = tzDdf.code;
+        this.offsetDdf = tzDdf.getUtcOffset(null, true);
+      }
+
+      if (txExchange !== null) {
+        this.timezoneExchange = txExchange.code;
+        this.offsetExchange = txExchange.getUtcOffset(null, true);
+      }
     }
 
     toString() {
@@ -3526,7 +3551,7 @@ module.exports = (() => {
   return Exchange;
 })();
 
-},{}],15:[function(require,module,exports){
+},{"@barchart/common-js/lang/Timezones":35}],15:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is'),
       object = require('@barchart/common-js/lang/object'),
       timezone = require('@barchart/common-js/lang/timezone'),
@@ -3552,26 +3577,25 @@ module.exports = (() => {
   function MarketStateInternal(handleProfileRequest, instance) {
     const _logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
 
-    let _instance = instance;
+    const _instance = instance;
 
     let _timezone = timezone.guessTimezone() || null;
 
     let _offset;
 
     if (_timezone !== null) {
-      _offset = Timezones.parse(_timezone).getUtcOffset() * 60 * 1000;
+      _offset = Timezones.parse(_timezone).getUtcOffset(null, true);
     } else {
       _offset = null;
     }
 
     _logger.log(`MarketState [ ${_instance} ]: Initializing. Version [ ${version} ]. Using timezone [ ${_timezone} ].`);
 
+    const _exchanges = {};
     const _book = {};
     const _quote = {};
     const _cvol = {};
     const _profileCallbacks = {};
-    const _offsets = {};
-    const _exchange = {};
 
     let _timestamp;
 
@@ -3639,55 +3663,25 @@ module.exports = (() => {
     };
 
     const _getUtcTimestamp = (symbol, timestamp) => {
-      let utc = null;
+      let utc;
 
-      if (_offset) {
-        const offsetLocal = _offset;
-        const offsetExchange = _offsets[symbol];
+      if (_offset !== null) {
+        const profile = Profile.Profiles[symbol];
 
-        if (is.number(offsetExchange)) {
-          utc = new Date(timestamp.getTime() + offsetLocal - offsetExchange);
+        if (profile && profile.exchangeRef && is.number(profile.exchangeRef.offsetDdf)) {
+          const offsetLocal = _offset;
+          const offsetDdf = profile.exchangeRef.offsetDdf;
+          utc = new Date(timestamp.getTime() + offsetLocal - offsetDdf);
         }
+      } else {
+        utc = null;
       }
 
       return utc;
     };
 
-    const _getOffsetFor = (symbol, exchange) => {
-      let timezone;
-
-      if (exchange && exchange.timezoneDdf) {
-        timezone = Timezones.parse(exchange.timezoneDdf) || null;
-      } else {
-        timezone = null;
-      }
-
-      if (timezone === null) {
-        if (SymbolParser.getIsFuture(symbol) || SymbolParser.getIsForex(symbol) || SymbolParser.getIsCmdty(symbol)) {
-          timezone = Timezones.AMERICA_CHICAGO;
-        } else {
-          timezone = Timezones.AMERICA_NEW_YORK;
-        }
-      }
-
-      return timezone.getUtcOffset() * 60 * 1000;
-    };
-
-    const _createProfile = (symbol, name, exchange, unitCode, pointValue, tickIncrement, additional, offset) => {
-      const p = new Profile(symbol, name, exchange, unitCode, pointValue, tickIncrement, additional, offset);
-      let o;
-
-      if (offset) {
-        o = offset;
-      } else {
-        o = _getOffsetFor(p.symbol, _exchange[p.exchange] || null);
-      }
-
-      if (o !== null) {
-        _offsets[symbol] = o;
-      }
-
-      return p;
+    const _createProfile = (symbol, name, exchange, unitCode, pointValue, tickIncrement, additional) => {
+      return new Profile(symbol, name, exchange, unitCode, pointValue, tickIncrement, _exchanges[exchange] || null, additional);
     };
 
     const _getOrCreateProfile = symbol => {
@@ -3698,7 +3692,7 @@ module.exports = (() => {
         const producerProfile = Profile.Profiles[producerSymbol];
 
         if (producerProfile) {
-          p = _createProfile(symbol, producerProfile.name, producerProfile.exchange, producerProfile.unitCode, producerProfile.pointValue, producerProfile.tickIncrement, _offsets[producerSymbol]);
+          p = _createProfile(symbol, producerProfile.name, producerProfile.exchange, producerProfile.unitCode, producerProfile.pointValue, producerProfile.tickIncrement);
         }
       }
 
@@ -3895,7 +3889,7 @@ module.exports = (() => {
                 q.openInterest = message.openInterest;
               }
 
-              if (message.subsrecord == '1') {
+              if (message.subrecord == '1') {
                 q.lastUpdate = message.time;
                 q.lastUpdateUtc = _getUtcTimestamp(symbol, message.time);
               }
@@ -4048,26 +4042,27 @@ module.exports = (() => {
       }
     };
 
-    const _processExchangeMetadata = (id, description, tzLocal, tzDdf) => {
-      if (!_exchange.hasOwnProperty(id)) {
-        const exchange = new Exchange(id, description, tzLocal, tzDdf);
-
-        if (Timezones.parse(tzDdf)) {
-          const profiles = Profile.Profiles;
-          const symbols = object.keys(profiles);
-          symbols.forEach(symbol => {
-            const profile = profiles[symbol];
-
-            if (profile.exchange === id) {
-              _offsets[symbol] = _getOffsetFor(symbol, exchange);
-            }
-          });
-        } else {
-          _logger.warn(`MarketState [ ${_instance} ]: Unable to resolve DDF timezone for [ ${id} ] [ ${tzDdf ? tzDdf : '--'} ]`);
-        }
-
-        _exchange[id] = exchange;
+    const _processExchangeMetadata = (id, description, timezoneDdf, timezoneExchange) => {
+      if (_exchanges.hasOwnProperty(id)) {
+        return;
       }
+
+      const exchange = new Exchange(id, description, timezoneDdf, timezoneExchange);
+
+      if (exchange.timezoneDdf === null || exchange.timezoneExchange === null) {
+        _logger.warn(`MarketState [ ${_instance} ]: Timezones data for [ ${id} ] is incomplete; DDF timezone is [ ${exchange.timezoneDdf ? exchange.timezoneDdf : '--'} ], exchange timezone is [ ${exchange.timezoneExchange ? exchange.timezoneExchange : '--'} ]`);
+      }
+
+      const profiles = Profile.Profiles;
+      const symbols = object.keys(profiles);
+      symbols.forEach(symbol => {
+        const profile = profiles[symbol];
+
+        if (profile.exchange === id) {
+          profile.exchangeRef = exchange;
+        }
+      });
+      _exchanges[id] = exchange;
     };
 
     const _getBook = symbol => {
@@ -4094,10 +4089,6 @@ module.exports = (() => {
 
         return cv;
       });
-    };
-
-    const _getExchange = symbol => {
-      return _exchange[symbol];
     };
 
     const _getProfile = (symbol, callback) => {
@@ -4141,7 +4132,6 @@ module.exports = (() => {
     return {
       getBook: _getBook,
       getCumulativeVolume: _getCumulativeVolume,
-      getExchange: _getExchange,
       getProfile: _getProfile,
       getQuote: _getQuote,
       getTimestamp: _getTimestamp,
@@ -4239,8 +4229,8 @@ module.exports = (() => {
      */
 
 
-    processExchangeMetadata(id, description, tzLocal, tzDDf) {
-      return this._internal.processExchangeMetadata(id, description, tzLocal, tzDDf);
+    processExchangeMetadata(id, description, timezoneDdf, timezoneExchange) {
+      return this._internal.processExchangeMetadata(id, description, timezoneDdf, timezoneExchange);
     }
     /**
      * @ignore
@@ -4289,10 +4279,18 @@ module.exports = (() => {
    * Describes an instrument.
    *
    * @public
+   * @param {string} symbol
+   * @param {name} name
+   * @param {string} exchangeId
+   * @param {string} unitCode
+   * @param {string} pointValue
+   * @param {number} tickIncrement
+   * @param {Exchange=} exchange
+   * @param {Object=} additional
    */
 
   class Profile {
-    constructor(symbol, name, exchange, unitCode, pointValue, tickIncrement, additional) {
+    constructor(symbol, name, exchangeId, unitCode, pointValue, tickIncrement, exchange, additional) {
       /**
        * @property {string} symbol - the symbol of the instrument.
        */
@@ -4306,7 +4304,7 @@ module.exports = (() => {
        * @property {string} exchange - code of the listing exchange.
        */
 
-      this.exchange = exchange;
+      this.exchange = exchangeId;
       /**
        * @property {string} unitCode - code indicating how a prices for the instrument should be formatted.
        */
@@ -4322,6 +4320,11 @@ module.exports = (() => {
        */
 
       this.tickIncrement = tickIncrement;
+      /**
+       * @property {Exchange|null} exchangeRef
+       */
+
+      this.exchangeRef = exchange || null;
       const info = SymbolParser.parseInstrumentType(this.symbol);
 
       if (info) {
@@ -4336,7 +4339,7 @@ module.exports = (() => {
 
           this.month = info.month;
           /**
-           * @property {undefined|number} year - the expiration year, if a symbol; otherwise undefined.
+           * @property {undefined|number} year - the expiration year, if a future; otherwise undefined.
            */
 
           this.year = info.year;
@@ -4512,16 +4515,16 @@ module.exports = (() => {
 
       this.previousPrice = null;
       /**
-       * @property {Profile|null} profile - metadata regarding the quoted instrument.
-       */
-
-      this.profile = null;
-      /**
        * @property {Date|null} time - the most recent trade, quote, or refresh. this date instance stores the hours and minutes for the exchange time (without proper timezone adjustment). use caution.
        */
 
       this.time = null;
       this.timeUtc = null;
+      /**
+       * @property {Profile|null} profile - metadata regarding the quoted instrument.
+       */
+
+      this.profile = null;
       this.ticks = [];
     }
 
@@ -4545,7 +4548,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.16'
+    version: '4.0.17'
   };
 })();
 
@@ -5046,7 +5049,7 @@ module.exports = (() => {
    * @param {Quote} quote
    * @param {Boolean=} useTwelveHourClock
    * @param {Boolean=} short
-   * @param {String=} timezone - A name from the tz database (see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+   * @param {String=} timezone - A name from the tz database (see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) or "EXCHANGE"
    * @returns {String}
    */
 
@@ -5068,7 +5071,7 @@ module.exports = (() => {
         offset.timezone = Timezone.parse(timezone);
 
         if (offset.timezone !== null) {
-          offset.milliseconds = offset.timezone.getUtcOffset() * 60 * 1000;
+          offset.milliseconds = offset.timezone.getUtcOffset(null, true);
         } else {
           offset.milliseconds = null;
         }
@@ -6627,17 +6630,16 @@ module.exports = (() => {
       super(code, code);
     }
     /**
-     * The timezone's offset from UTC, in minutes, at the moment of
-     * the timestamp argument. If no timestamp if provided, the offset
-     * from the current time is returned.
+     * Calculates and returns the timezone's offset from UTC.
      *
      * @public
-     * @param {Number=} timestamp
+     * @param {Number=} timestamp - The moment at which the offset is calculated, otherwise now.
+     * @param {Boolean=} milliseconds - If true, the offset is returned in milliseconds; otherwise minutes.
      * @returns {Number}
      */
 
 
-    getUtcOffset(timestamp) {
+    getUtcOffset(timestamp, milliseconds) {
       let timestampToUse;
 
       if (is.number(timestamp)) {
@@ -6646,7 +6648,15 @@ module.exports = (() => {
         timestampToUse = new Date().getTime();
       }
 
-      const offset = moment.tz.zone(this.code).utcOffset(timestampToUse);
+      let multiplier;
+
+      if (is.boolean(milliseconds) && milliseconds) {
+        multiplier = 60 * 1000;
+      } else {
+        multiplier = 1;
+      }
+
+      const offset = moment.tz.zone(this.code).utcOffset(timestampToUse) * multiplier;
 
       if (offset !== 0) {
         return offset * -1;
