@@ -834,7 +834,7 @@ module.exports = (() => {
 
         __exchangeMetadataPromise = retrieveExchanges().then(items => {
           items.forEach(item => {
-            __marketState.processExchangeMetadata(item.id, item.description, item.timezone);
+            __marketState.processExchangeMetadata(item.id, item.description, item.timezoneLocal, item.timezoneDdf);
           });
 
           __logger.log(`Connection [ ${__instance} ]: Downloaded exchange metadata.`);
@@ -2576,7 +2576,8 @@ module.exports = (() => {
           const metadata = {};
           metadata.id = result.id;
           metadata.description = result.description;
-          metadata.timezone = result.timezone;
+          metadata.timezoneLocal = result.timezoneLocal || null;
+          metadata.timezoneDdf = result.timezoneDdf || null;
           return metadata;
         });
       });
@@ -3494,7 +3495,7 @@ module.exports = (() => {
    */
 
   class Exchange {
-    constructor(id, name, timezone) {
+    constructor(id, name, timezoneLocal, timezoneDdf) {
       /**
        * @property {string} id - the code used to identify the exchange
        */
@@ -3505,10 +3506,15 @@ module.exports = (() => {
 
       this.name = name;
       /**
-       * @property {Timezone} timezone - the timezone of the exchange (should conform to TZ database name)
+       * @property {string} timezone - the timezone of the exchange (should conform to a TZ database name)
        */
 
-      this.timezone = timezone;
+      this.timezoneLocal = timezoneLocal;
+      /**
+       * @property {string} timezone - the timezone used by DDF for this exchange (should conform to a TZ database name)
+       */
+
+      this.timezoneDdf = timezoneDdf;
     }
 
     toString() {
@@ -3650,12 +3656,18 @@ module.exports = (() => {
     const _getOffsetFor = (symbol, exchange) => {
       let timezone;
 
-      if (exchange && exchange.timezone) {
-        timezone = exchange.timezone;
-      } else if (SymbolParser.getIsFuture(symbol) || SymbolParser.getIsForex(symbol) || SymbolParser.getIsCmdty(symbol)) {
-        timezone = Timezones.AMERICA_CHICAGO;
+      if (exchange && exchange.timezoneDdf) {
+        timezone = Timezones.parse(exchange.timezoneDdf) || null;
       } else {
-        timezone = Timezones.AMERICA_NEW_YORK;
+        timezone = null;
+      }
+
+      if (timezone === null) {
+        if (SymbolParser.getIsFuture(symbol) || SymbolParser.getIsForex(symbol) || SymbolParser.getIsCmdty(symbol)) {
+          timezone = Timezones.AMERICA_CHICAGO;
+        } else {
+          timezone = Timezones.AMERICA_NEW_YORK;
+        }
       }
 
       return timezone.getUtcOffset() * 60 * 1000;
@@ -4036,11 +4048,11 @@ module.exports = (() => {
       }
     };
 
-    const _processExchangeMetadata = (id, description, tz) => {
+    const _processExchangeMetadata = (id, description, tzLocal, tzDdf) => {
       if (!_exchange.hasOwnProperty(id)) {
-        const exchange = new Exchange(id, description, Timezones.parse(tz));
+        const exchange = new Exchange(id, description, tzLocal, tzDdf);
 
-        if (exchange.timezone !== null) {
+        if (Timezones.parse(tzDdf)) {
           const profiles = Profile.Profiles;
           const symbols = object.keys(profiles);
           symbols.forEach(symbol => {
@@ -4051,7 +4063,7 @@ module.exports = (() => {
             }
           });
         } else {
-          _logger.warn(`MarketState [ ${_instance} ]: Unable to resolve timezone for [ ${id} ] [ ${tz ? tz : '--'} ]`);
+          _logger.warn(`MarketState [ ${_instance} ]: Unable to resolve DDF timezone for [ ${id} ] [ ${tzDdf ? tzDdf : '--'} ]`);
         }
 
         _exchange[id] = exchange;
@@ -4227,8 +4239,8 @@ module.exports = (() => {
      */
 
 
-    processExchangeMetadata(id, description, tz) {
-      return this._internal.processExchangeMetadata(id, description, tz);
+    processExchangeMetadata(id, description, tzLocal, tzDDf) {
+      return this._internal.processExchangeMetadata(id, description, tzLocal, tzDDf);
     }
     /**
      * @ignore
