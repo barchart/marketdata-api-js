@@ -1394,14 +1394,22 @@ module.exports = (() => {
     let t;
     let utc;
 
-    if (is.string(timezone) && quote.timeUtc !== null) {
+    if (quote.timeUtc !== null && (is.string(timezone) || quote.profile && quote.profile.exchangeRef && quote.profile.exchangeRef && quote.profile.exchangeRef.timezoneExchange)) {
       utc = true;
+      let tz;
+
+      if (is.string(timezone)) {
+        tz = timezone;
+      } else {
+        tz = quote.profile.exchangeRef.timezoneExchange;
+      }
+
       let epoch = quote.timeUtc.getTime();
 
-      if (!offsets.hasOwnProperty(timezone)) {
+      if (!offsets.hasOwnProperty(tz)) {
         const offset = {};
         offset.latest = epoch;
-        offset.timezone = Timezone.parse(timezone);
+        offset.timezone = Timezone.parse(tz);
 
         if (offset.timezone !== null) {
           offset.milliseconds = offset.timezone.getUtcOffset(null, true);
@@ -1409,10 +1417,10 @@ module.exports = (() => {
           offset.milliseconds = null;
         }
 
-        offsets[timezone] = offset;
+        offsets[tz] = offset;
       }
 
-      const o = offsets[timezone];
+      const o = offsets[tz];
 
       if (o.milliseconds !== null) {
         t = new Date(epoch + o.milliseconds);
@@ -4056,6 +4064,7 @@ module.exports = (() => {
      * Gets a list of names in the tz database (see https://en.wikipedia.org/wiki/Tz_database
      * and https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
      *
+     * @public
      * @static
      * @returns {Array<String>}
      */
@@ -4066,6 +4075,7 @@ module.exports = (() => {
     /**
      * Indicates if a timezone name exists.
      *
+     * @public
      * @static
      * @param {String} name - The timezone name to find.
      * @returns {Boolean}
@@ -4080,6 +4090,8 @@ module.exports = (() => {
     /**
      * Attempts to guess the lock timezone.
      *
+     * @public
+     * @static
      * @returns {String|null}
      */
     guessTimezone() {
