@@ -1,3 +1,5 @@
 {
-  "validthis": true
+  "esversion": 6,
+  "validthis": true,
+  "-W018": true
 }
