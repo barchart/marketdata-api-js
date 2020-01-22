@@ -482,9 +482,9 @@ module.exports = (() => {
   const _WATCHDOG_INTERVAL = 10000;
   const regex = {};
   regex.cmdty = {};
-  regex.cmdty.short = /^(BC|BE|BL|CA|EI|EU|CF|CB|UD)(.*)(\.CS)$/i;
+  regex.cmdty.short = /^(AE|BC|BE|BH|BL|CA|CB|EI|EU|CF|UD)(.*)(\.CS)$/i;
   regex.cmdty.long = /^(BCSD-|BEA-|BLS-|CANS-|EIA-|EURS-|CFTC-|USCB-|USDA-)/i;
-  regex.cmdty.alias = /^(BC|BE|BL|CA|EI|EU|CF|CB|UD|BCSD-|BEA-|BLS-|CANS-|EIA-|EURS-|CFTC-|USCB-|USDA-)(.*)(\.CM)$/i;
+  regex.cmdty.alias = /^(AE|BC|BE|BL|CA|CB|EI|EU|CF|UD|BCSD-|BEA-|BH-|BLS-|CANS-|EIA-|EURS-|CFTC-|USCB-|USACE-|USDA-)(.*)(\.CM)$/i;
   regex.c3 = {};
   regex.c3.symbol = /(\.C3)$/i;
   regex.c3.alias = /^(C3:)$/i;
@@ -2614,9 +2614,9 @@ module.exports = (() => {
   const regex = {};
   regex.day = /^([0-9]{4}).?([0-9]{2}).?([0-9]{2})$/;
   regex.cmdty = {};
-  regex.cmdty.short = /^(BC|BE|BL|CA|EI|EU|CF|CB|UD)(.*)(\.CS)$/i;
+  regex.cmdty.short = /^(AE|BC|BE|BH|BL|CA|CB|EI|EU|CF|UD)(.*)(\.CS)$/i;
   regex.cmdty.long = /^(BCSD-|BEA-|BLS-|CANS-|EIA-|EURS-|CFTC-|USCB-|USDA-)/i;
-  regex.cmdty.alias = /^(BC|BE|BL|CA|EI|EU|CF|CB|UD|BCSD-|BEA-|BLS-|CANS-|EIA-|EURS-|CFTC-|USCB-|USDA-)(.*)(\.CM)$/i;
+  regex.cmdty.alias = /^(AE|BC|BE|BL|CA|CB|EI|EU|CF|UD|BCSD-|BEA-|BH-|BLS-|CANS-|EIA-|EURS-|CFTC-|USCB-|USACE-|USDA-)(.*)(\.CM)$/i;
   regex.c3 = {};
   regex.c3.symbol = /(\.C3)$/i;
   regex.c3.alias = /^(C3:)(.*)$/i;
@@ -4548,7 +4548,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.18'
+    version: '4.0.19'
   };
 })();
 
@@ -7708,7 +7708,6 @@ module.exports = (() => {
      * Gets a list of names in the tz database (see https://en.wikipedia.org/wiki/Tz_database
      * and https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
      *
-     * @public
      * @static
      * @returns {Array<String>}
      */
@@ -7719,7 +7718,6 @@ module.exports = (() => {
     /**
      * Indicates if a timezone name exists.
      *
-     * @public
      * @static
      * @param {String} name - The timezone name to find.
      * @returns {Boolean}
@@ -7734,8 +7732,6 @@ module.exports = (() => {
     /**
      * Attempts to guess the lock timezone.
      *
-     * @public
-     * @static
      * @returns {String|null}
      */
     guessTimezone() {
