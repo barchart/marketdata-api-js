@@ -427,7 +427,7 @@ module.exports = (() => {
   });
 })();
 
-},{"./../../../lib/connection/Connection":2,"./../../../lib/connection/snapshots/symbols/retrieveConcrete":9,"./../../../lib/meta":18,"./../../../lib/utilities/data/timezones":23,"./../../../lib/utilities/format/decimal":25,"./../../../lib/utilities/format/price":27,"./../../../lib/utilities/format/quote":28}],2:[function(require,module,exports){
+},{"./../../../lib/connection/Connection":2,"./../../../lib/connection/snapshots/symbols/retrieveConcrete":10,"./../../../lib/meta":19,"./../../../lib/utilities/data/timezones":24,"./../../../lib/utilities/format/decimal":26,"./../../../lib/utilities/format/price":28,"./../../../lib/utilities/format/quote":29}],2:[function(require,module,exports){
 const array = require('@barchart/common-js/lang/array'),
       object = require('@barchart/common-js/lang/object');
 
@@ -436,6 +436,7 @@ const ConnectionBase = require('./ConnectionBase'),
 
 const retrieveExchanges = require('./snapshots/exchanges/retrieveExchanges'),
       retrieveSnapshots = require('./snapshots/quotes/retrieveSnapshots'),
+      retrieveProfiles = require('./snapshots/profiles/retrieveProfiles'),
       SymbolParser = require('./../utilities/parsers/SymbolParser');
 
 const WebSocketAdapterFactory = require('./adapter/WebSocketAdapterFactory'),
@@ -1631,6 +1632,15 @@ module.exports = (() => {
                 processSnapshots(batch);
               }
             }
+
+            if (this.getExtendedProfileMode() && task.id === 'MU_GO') {
+              const symbolsExtended = symbolsUnique.filter(getIsExtendedSymbol);
+
+              while (symbolsExtended.length > 0) {
+                const batch = symbolsExtended.splice(0, batchSize);
+                processExtendedProfiles(batch);
+              }
+            }
           }
         }
       };
@@ -1747,18 +1757,33 @@ module.exports = (() => {
 
 
     function pumpSnapshotRefresh() {
-      if (__connectionState === state.authenticated) {
-        try {
-          const snapshotBatches = getSymbolBatches(getProducerSymbols([__listeners.marketUpdate]), getIsSnapshotSymbol);
-          snapshotBatches.forEach(batch => {
-            processSnapshots(batch);
-          });
-        } catch (e) {
-          __logger.warn(`Snapshots [ ${__instance} ]: An error occurred during refresh processing. Ignoring.`, e);
-        }
+      if (__connectionState !== state.authenticated) {
+        return;
+      }
+
+      try {
+        const snapshotBatches = getSymbolBatches(getProducerSymbols([__listeners.marketUpdate]), getIsSnapshotSymbol);
+        snapshotBatches.forEach(batch => {
+          processSnapshots(batch);
+        });
+      } catch (e) {
+        __logger.warn(`Snapshots [ ${__instance} ]: An error occurred during refresh processing. Ignoring.`, e);
       }
 
       setTimeout(pumpSnapshotRefresh, 3600000);
+    } //
+    // Functions to acquire "extended" profile data not provided through DDF (via JERQ).
+    //
+
+
+    function processExtendedProfiles(symbols) {
+      if (__connectionState !== state.authenticated) {
+        return;
+      }
+
+      retrieveProfiles(symbols).then(profiles => {
+        console.log(profiles);
+      });
     } //
     // Internal utility functions for querying symbol subscriptions.
     //
@@ -1906,6 +1931,20 @@ module.exports = (() => {
       return regex.cmdty.long.test(symbol) || regex.cmdty.short.test(symbol) || regex.cmdty.alias.test(symbol) || regex.c3.symbol.test(symbol) || regex.c3.alias.test(symbol) || regex.other.test(symbol);
     }
     /**
+     * Indicates if some profile information cannot be extracted from JERQ via
+     * DDF messages (which requires an out-of-band effort to get the complete
+     * profile).
+     *
+     * @private
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    function getIsExtendedSymbol(symbol) {
+      return SymbolParser.getIsFuture(symbol);
+    }
+    /**
      * Breaks an array of symbols into multiple array, each containing no more
      * than 250 symbols. Also, symbols are filtered according to a predicate.
      *
@@ -2006,7 +2045,9 @@ module.exports = (() => {
   return Connection;
 })();
 
-},{"./../logging/LoggerFactory":11,"./../meta":18,"./../utilities/parse/ddf/message":30,"./../utilities/parsers/SymbolParser":33,"./ConnectionBase":3,"./adapter/WebSocketAdapterFactory":5,"./adapter/WebSocketAdapterFactoryForBrowsers":6,"./snapshots/exchanges/retrieveExchanges":7,"./snapshots/quotes/retrieveSnapshots":8,"@barchart/common-js/lang/array":36,"@barchart/common-js/lang/object":39}],3:[function(require,module,exports){
+},{"./../logging/LoggerFactory":12,"./../meta":19,"./../utilities/parse/ddf/message":31,"./../utilities/parsers/SymbolParser":34,"./ConnectionBase":3,"./adapter/WebSocketAdapterFactory":5,"./adapter/WebSocketAdapterFactoryForBrowsers":6,"./snapshots/exchanges/retrieveExchanges":7,"./snapshots/profiles/retrieveProfiles":8,"./snapshots/quotes/retrieveSnapshots":9,"@barchart/common-js/lang/array":37,"@barchart/common-js/lang/object":40}],3:[function(require,module,exports){
+const is = require('@barchart/common-js/lang/is');
+
 const MarketState = require('./../marketState/MarketState');
 
 module.exports = (() => {
@@ -2028,6 +2069,7 @@ module.exports = (() => {
       this._password = null;
       this._marketState = new MarketState(symbol => this._handleProfileRequest(symbol));
       this._pollingFrequency = null;
+      this._extendedProfileMode = false;
       this._instance = ++instanceCounter;
     }
     /**
@@ -2205,6 +2247,16 @@ module.exports = (() => {
         this._onPollingFrequencyChanged(this._pollingFrequency);
       }
     }
+
+    getExtendedProfileMode() {
+      return this._extendedProfileMode;
+    }
+
+    setExtendedProfileMode(mode) {
+      if (is.boolean(mode) && this._extendedProfileMode !== mode) {
+        this._extendedProfileMode = mode;
+      }
+    }
     /**
      * @protected
      * @ignore
@@ -2282,7 +2334,7 @@ module.exports = (() => {
   return ConnectionBase;
 })();
 
-},{"./../marketState/MarketState":15}],4:[function(require,module,exports){
+},{"./../marketState/MarketState":16,"@barchart/common-js/lang/is":39}],4:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -2552,7 +2604,7 @@ module.exports = (() => {
   return WebSocketAdapterFactoryForBrowsers;
 })();
 
-},{"./../../logging/LoggerFactory":11,"./WebSocketAdapter":4,"./WebSocketAdapterFactory":5}],7:[function(require,module,exports){
+},{"./../../logging/LoggerFactory":12,"./WebSocketAdapter":4,"./WebSocketAdapterFactory":5}],7:[function(require,module,exports){
 const axios = require('axios');
 
 module.exports = (() => {
@@ -2598,7 +2650,49 @@ module.exports = (() => {
   return retrieveExchanges;
 })();
 
-},{"axios":41}],8:[function(require,module,exports){
+},{"axios":42}],8:[function(require,module,exports){
+const axios = require('axios');
+
+const assert = require('@barchart/common-js/lang/assert');
+
+module.exports = (() => {
+  'use strict';
+  /**
+   * Executes an HTTP request for profile data.
+   *
+   * @function
+   * @returns {Promise<ExchangeMetadata[]>}
+   */
+
+  function retrieveProfiles(symbols) {
+    return Promise.resolve().then(() => {
+      assert.argumentIsArray(symbols, 'symbols', String);
+      const options = {
+        url: `https://extras.ddfplus.com/json/instruments/?lookup=${encodeURIComponent(symbols.join())}`,
+        method: 'GET'
+      };
+      return Promise.resolve(axios(options)).then(response => {
+        const results = response.instruments || [];
+        return results.map(result => {
+          const profile = {};
+          return profile;
+        });
+      });
+    });
+  }
+  /**
+   * Profile metadata
+   *
+   * @typedef ProfileMetadata
+   * @type {Object}
+   * @property {String} symbol
+   */
+
+
+  return retrieveProfiles;
+})();
+
+},{"@barchart/common-js/lang/assert":38,"axios":42}],9:[function(require,module,exports){
 const axios = require('axios');
 
 const array = require('@barchart/common-js/lang/array'),
@@ -2855,7 +2949,7 @@ module.exports = (() => {
   return retrieveSnapshots;
 })();
 
-},{"../../../utilities/convert/baseCodeToUnitCode":19,"../../../utilities/convert/dateToDayCode":20,"../../../utilities/convert/dayCodeToNumber":21,"@barchart/common-js/lang/array":36,"@barchart/common-js/lang/is":38,"axios":41}],9:[function(require,module,exports){
+},{"../../../utilities/convert/baseCodeToUnitCode":20,"../../../utilities/convert/dateToDayCode":21,"../../../utilities/convert/dayCodeToNumber":22,"@barchart/common-js/lang/array":37,"@barchart/common-js/lang/is":39,"axios":42}],10:[function(require,module,exports){
 const axios = require('axios');
 
 const is = require('@barchart/common-js/lang/is');
@@ -2898,7 +2992,7 @@ module.exports = (() => {
   return retrieveConcreteSymbol;
 })();
 
-},{"@barchart/common-js/lang/is":38,"axios":41}],10:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":39,"axios":42}],11:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -2980,7 +3074,7 @@ module.exports = (() => {
   return Logger;
 })();
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 const Logger = require('./Logger'),
       LoggerProvider = require('./LoggerProvider');
 
@@ -3185,7 +3279,7 @@ module.exports = (() => {
   return LoggerFactory;
 })();
 
-},{"./Logger":10,"./LoggerProvider":12}],12:[function(require,module,exports){
+},{"./Logger":11,"./LoggerProvider":13}],13:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -3219,7 +3313,7 @@ module.exports = (() => {
   return LoggerProvider;
 })();
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 const object = require('@barchart/common-js/lang//object');
 
 const LoggerFactory = require('./../logging/LoggerFactory');
@@ -3486,7 +3580,7 @@ module.exports = (() => {
   return CumulativeVolume;
 })();
 
-},{"./../logging/LoggerFactory":11,"@barchart/common-js/lang//object":39}],14:[function(require,module,exports){
+},{"./../logging/LoggerFactory":12,"@barchart/common-js/lang//object":40}],15:[function(require,module,exports){
 const Timezones = require('@barchart/common-js/lang/Timezones');
 
 module.exports = (() => {
@@ -3551,7 +3645,7 @@ module.exports = (() => {
   return Exchange;
 })();
 
-},{"@barchart/common-js/lang/Timezones":35}],15:[function(require,module,exports){
+},{"@barchart/common-js/lang/Timezones":36}],16:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is'),
       object = require('@barchart/common-js/lang/object'),
       timezone = require('@barchart/common-js/lang/timezone'),
@@ -4266,7 +4360,7 @@ module.exports = (() => {
   return MarketState;
 })();
 
-},{"../utilities/parsers/SymbolParser":33,"./../logging/LoggerFactory":11,"./../meta":18,"./../utilities/convert/dayCodeToNumber":21,"./CumulativeVolume":13,"./Exchange":14,"./Profile":16,"./Quote":17,"@barchart/common-js/lang/Timezones":35,"@barchart/common-js/lang/is":38,"@barchart/common-js/lang/object":39,"@barchart/common-js/lang/timezone":40}],16:[function(require,module,exports){
+},{"../utilities/parsers/SymbolParser":34,"./../logging/LoggerFactory":12,"./../meta":19,"./../utilities/convert/dayCodeToNumber":22,"./CumulativeVolume":14,"./Exchange":15,"./Profile":17,"./Quote":18,"@barchart/common-js/lang/Timezones":36,"@barchart/common-js/lang/is":39,"@barchart/common-js/lang/object":40,"@barchart/common-js/lang/timezone":41}],17:[function(require,module,exports){
 const SymbolParser = require('./../utilities/parsers/SymbolParser'),
       buildPriceFormatter = require('../utilities/format/factories/price');
 
@@ -4410,7 +4504,7 @@ module.exports = (() => {
   return Profile;
 })();
 
-},{"../utilities/format/factories/price":26,"./../utilities/parsers/SymbolParser":33}],17:[function(require,module,exports){
+},{"../utilities/format/factories/price":27,"./../utilities/parsers/SymbolParser":34}],18:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -4543,7 +4637,7 @@ module.exports = (() => {
   return Quote;
 })();
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -4552,7 +4646,7 @@ module.exports = (() => {
   };
 })();
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -4615,7 +4709,7 @@ module.exports = (() => {
   return convertBaseCodeToUnitCode;
 })();
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 const convertNumberToDayCode = require('./numberToDayCode');
 
 module.exports = (() => {
@@ -4640,7 +4734,7 @@ module.exports = (() => {
   return convertDateToDayCode;
 })();
 
-},{"./numberToDayCode":22}],21:[function(require,module,exports){
+},{"./numberToDayCode":23}],22:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -4672,7 +4766,7 @@ module.exports = (() => {
   return convertDayCodeToNumber;
 })();
 
-},{"@barchart/common-js/lang/is":38}],22:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":39}],23:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -4707,7 +4801,7 @@ module.exports = (() => {
   return convertNumberToDayCode;
 })();
 
-},{"@barchart/common-js/lang/is":38}],23:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":39}],24:[function(require,module,exports){
 const timezone = require('@barchart/common-js/lang/timezone');
 
 module.exports = (() => {
@@ -4740,7 +4834,7 @@ module.exports = (() => {
   };
 })();
 
-},{"@barchart/common-js/lang/timezone":40}],24:[function(require,module,exports){
+},{"@barchart/common-js/lang/timezone":41}],25:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -4772,7 +4866,7 @@ module.exports = (() => {
   return formatDate;
 })();
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -4840,7 +4934,7 @@ module.exports = (() => {
   return formatDecimal;
 })();
 
-},{"@barchart/common-js/lang/is":38}],26:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":39}],27:[function(require,module,exports){
 const formatPrice = require('./../price');
 
 module.exports = (() => {
@@ -4875,7 +4969,7 @@ module.exports = (() => {
   return buildPriceFormatter;
 })();
 
-},{"./../price":27}],27:[function(require,module,exports){
+},{"./../price":28}],28:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDecimal = require('./decimal');
@@ -5028,7 +5122,7 @@ module.exports = (() => {
   return formatPrice;
 })();
 
-},{"./decimal":25,"@barchart/common-js/lang/is":38}],28:[function(require,module,exports){
+},{"./decimal":26,"@barchart/common-js/lang/is":39}],29:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDate = require('./date'),
@@ -5111,7 +5205,7 @@ module.exports = (() => {
   return formatQuoteDateTime;
 })();
 
-},{"./date":24,"./time":29,"@barchart/common-js/lang/Timezones":35,"@barchart/common-js/lang/is":38}],29:[function(require,module,exports){
+},{"./date":25,"./time":30,"@barchart/common-js/lang/Timezones":36,"@barchart/common-js/lang/is":39}],30:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -5262,7 +5356,7 @@ module.exports = (() => {
   return formatTime;
 })();
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 const xmlDom = require('xmldom');
 
 const parseValue = require('./value'),
@@ -5814,7 +5908,7 @@ module.exports = (() => {
   return parseMessage;
 })();
 
-},{"./timestamp":31,"./value":32,"xmldom":70}],31:[function(require,module,exports){
+},{"./timestamp":32,"./value":33,"xmldom":71}],32:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -5867,7 +5961,7 @@ module.exports = (() => {
   return parseTimestamp;
 })();
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -5966,7 +6060,7 @@ module.exports = (() => {
   return parseValue;
 })();
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -6495,7 +6589,7 @@ module.exports = (() => {
   return SymbolParser;
 })();
 
-},{"@barchart/common-js/lang/is":38}],34:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":39}],35:[function(require,module,exports){
 const assert = require('./assert');
 
 module.exports = (() => {
@@ -6613,7 +6707,7 @@ module.exports = (() => {
   return Enum;
 })();
 
-},{"./assert":37}],35:[function(require,module,exports){
+},{"./assert":38}],36:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022');
 
 const Enum = require('./Enum'),
@@ -6735,7 +6829,7 @@ module.exports = (() => {
   return Timezones;
 })();
 
-},{"./Enum":34,"./is":38,"./timezone":40,"moment-timezone/builds/moment-timezone-with-data-2012-2022":68}],36:[function(require,module,exports){
+},{"./Enum":35,"./is":39,"./timezone":41,"moment-timezone/builds/moment-timezone-with-data-2012-2022":69}],37:[function(require,module,exports){
 const assert = require('./assert'),
       is = require('./is');
 
@@ -7190,7 +7284,7 @@ module.exports = (() => {
   }
 })();
 
-},{"./assert":37,"./is":38}],37:[function(require,module,exports){
+},{"./assert":38,"./is":39}],38:[function(require,module,exports){
 const is = require('./is');
 
 module.exports = (() => {
@@ -7335,7 +7429,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./is":38}],38:[function(require,module,exports){
+},{"./is":39}],39:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -7530,7 +7624,7 @@ module.exports = (() => {
   };
 })();
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 const array = require('./array'),
       is = require('./is');
 
@@ -7690,7 +7784,7 @@ module.exports = (() => {
   return object;
 })();
 
-},{"./array":36,"./is":38}],40:[function(require,module,exports){
+},{"./array":37,"./is":39}],41:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022'),
       assert = require('./assert');
 
@@ -7741,9 +7835,9 @@ module.exports = (() => {
   };
 })();
 
-},{"./assert":37,"moment-timezone/builds/moment-timezone-with-data-2012-2022":68}],41:[function(require,module,exports){
+},{"./assert":38,"moment-timezone/builds/moment-timezone-with-data-2012-2022":69}],42:[function(require,module,exports){
 module.exports = require('./lib/axios');
-},{"./lib/axios":43}],42:[function(require,module,exports){
+},{"./lib/axios":44}],43:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -7919,7 +8013,7 @@ module.exports = function xhrAdapter(config) {
   });
 };
 
-},{"../core/createError":49,"./../core/settle":53,"./../helpers/buildURL":57,"./../helpers/cookies":59,"./../helpers/isURLSameOrigin":61,"./../helpers/parseHeaders":63,"./../utils":65}],43:[function(require,module,exports){
+},{"../core/createError":50,"./../core/settle":54,"./../helpers/buildURL":58,"./../helpers/cookies":60,"./../helpers/isURLSameOrigin":62,"./../helpers/parseHeaders":64,"./../utils":66}],44:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -7974,7 +8068,7 @@ module.exports = axios;
 // Allow use of default import syntax in TypeScript
 module.exports.default = axios;
 
-},{"./cancel/Cancel":44,"./cancel/CancelToken":45,"./cancel/isCancel":46,"./core/Axios":47,"./core/mergeConfig":52,"./defaults":55,"./helpers/bind":56,"./helpers/spread":64,"./utils":65}],44:[function(require,module,exports){
+},{"./cancel/Cancel":45,"./cancel/CancelToken":46,"./cancel/isCancel":47,"./core/Axios":48,"./core/mergeConfig":53,"./defaults":56,"./helpers/bind":57,"./helpers/spread":65,"./utils":66}],45:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7995,7 +8089,7 @@ Cancel.prototype.__CANCEL__ = true;
 
 module.exports = Cancel;
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 'use strict';
 
 var Cancel = require('./Cancel');
@@ -8054,14 +8148,14 @@ CancelToken.source = function source() {
 
 module.exports = CancelToken;
 
-},{"./Cancel":44}],46:[function(require,module,exports){
+},{"./Cancel":45}],47:[function(require,module,exports){
 'use strict';
 
 module.exports = function isCancel(value) {
   return !!(value && value.__CANCEL__);
 };
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8149,7 +8243,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = Axios;
 
-},{"../helpers/buildURL":57,"./../utils":65,"./InterceptorManager":48,"./dispatchRequest":50,"./mergeConfig":52}],48:[function(require,module,exports){
+},{"../helpers/buildURL":58,"./../utils":66,"./InterceptorManager":49,"./dispatchRequest":51,"./mergeConfig":53}],49:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8203,7 +8297,7 @@ InterceptorManager.prototype.forEach = function forEach(fn) {
 
 module.exports = InterceptorManager;
 
-},{"./../utils":65}],49:[function(require,module,exports){
+},{"./../utils":66}],50:[function(require,module,exports){
 'use strict';
 
 var enhanceError = require('./enhanceError');
@@ -8223,7 +8317,7 @@ module.exports = function createError(message, config, code, request, response) 
   return enhanceError(error, config, code, request, response);
 };
 
-},{"./enhanceError":51}],50:[function(require,module,exports){
+},{"./enhanceError":52}],51:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8311,7 +8405,7 @@ module.exports = function dispatchRequest(config) {
   });
 };
 
-},{"../cancel/isCancel":46,"../defaults":55,"./../helpers/combineURLs":58,"./../helpers/isAbsoluteURL":60,"./../utils":65,"./transformData":54}],51:[function(require,module,exports){
+},{"../cancel/isCancel":47,"../defaults":56,"./../helpers/combineURLs":59,"./../helpers/isAbsoluteURL":61,"./../utils":66,"./transformData":55}],52:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8355,7 +8449,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
   return error;
 };
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -8408,7 +8502,7 @@ module.exports = function mergeConfig(config1, config2) {
   return config;
 };
 
-},{"../utils":65}],53:[function(require,module,exports){
+},{"../utils":66}],54:[function(require,module,exports){
 'use strict';
 
 var createError = require('./createError');
@@ -8435,7 +8529,7 @@ module.exports = function settle(resolve, reject, response) {
   }
 };
 
-},{"./createError":49}],54:[function(require,module,exports){
+},{"./createError":50}],55:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8457,7 +8551,7 @@ module.exports = function transformData(data, headers, fns) {
   return data;
 };
 
-},{"./../utils":65}],55:[function(require,module,exports){
+},{"./../utils":66}],56:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -8559,7 +8653,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 module.exports = defaults;
 
 }).call(this,require('_process'))
-},{"./adapters/http":42,"./adapters/xhr":42,"./helpers/normalizeHeaderName":62,"./utils":65,"_process":66}],56:[function(require,module,exports){
+},{"./adapters/http":43,"./adapters/xhr":43,"./helpers/normalizeHeaderName":63,"./utils":66,"_process":67}],57:[function(require,module,exports){
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -8572,7 +8666,7 @@ module.exports = function bind(fn, thisArg) {
   };
 };
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8645,7 +8739,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
-},{"./../utils":65}],58:[function(require,module,exports){
+},{"./../utils":66}],59:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8661,7 +8755,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
     : baseURL;
 };
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8716,7 +8810,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":65}],60:[function(require,module,exports){
+},{"./../utils":66}],61:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8732,7 +8826,7 @@ module.exports = function isAbsoluteURL(url) {
   return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
 };
 
-},{}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8802,7 +8896,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":65}],62:[function(require,module,exports){
+},{"./../utils":66}],63:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -8816,7 +8910,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
   });
 };
 
-},{"../utils":65}],63:[function(require,module,exports){
+},{"../utils":66}],64:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8871,7 +8965,7 @@ module.exports = function parseHeaders(headers) {
   return parsed;
 };
 
-},{"./../utils":65}],64:[function(require,module,exports){
+},{"./../utils":66}],65:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8900,7 +8994,7 @@ module.exports = function spread(callback) {
   };
 };
 
-},{}],65:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 'use strict';
 
 var bind = require('./helpers/bind');
@@ -9236,7 +9330,7 @@ module.exports = {
   trim: trim
 };
 
-},{"./helpers/bind":56,"is-buffer":67}],66:[function(require,module,exports){
+},{"./helpers/bind":57,"is-buffer":68}],67:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -9422,7 +9516,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],67:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -9435,7 +9529,7 @@ module.exports = function isBuffer (obj) {
     typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
 }
 
-},{}],68:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 //! moment-timezone.js
 //! version : 0.5.26
 //! Copyright (c) JS Foundation and other contributors
@@ -10661,7 +10755,7 @@ module.exports = function isBuffer (obj) {
 	return moment;
 }));
 
-},{"moment":69}],69:[function(require,module,exports){
+},{"moment":70}],70:[function(require,module,exports){
 //! moment.js
 
 ;(function (global, factory) {
@@ -15265,7 +15359,7 @@ module.exports = function isBuffer (obj) {
 
 })));
 
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -15518,7 +15612,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":71,"./sax":72}],71:[function(require,module,exports){
+},{"./dom":72,"./sax":73}],72:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -16764,7 +16858,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],72:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
