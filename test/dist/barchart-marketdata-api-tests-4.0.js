@@ -650,11 +650,11 @@ module.exports = (() => {
       if (info) {
         if (info.type === 'future') {
           /**
-           * @property {undefined|string} root - the root symbol, if a future; otherwise undefined.
+           * @property {string|undefined} root - the root symbol, if a future; otherwise undefined.
            */
           this.root = info.root;
           /**
-           * @property {undefined|string} month - the month code, if a future; otherwise undefined.
+           * @property {string|undefined} month - the month code, if a future; otherwise undefined.
            */
 
           this.month = info.month;
@@ -663,6 +663,16 @@ module.exports = (() => {
            */
 
           this.year = info.year;
+          /**
+           * @property {string|undefined} expiration - the expiration date, as a string, formatted YYYY-MM-DD.
+           */
+
+          this.expiration = null;
+          /**
+           * @property {string|undefined} expiration - the first notice date, as a string, formatted YYYY-MM-DD.
+           */
+
+          this.firstNotice = null;
         }
       }
 

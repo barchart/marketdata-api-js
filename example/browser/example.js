@@ -3904,8 +3904,6 @@ module.exports = (() => {
       const extension = _profileExtensions[symbol];
 
       if (extension) {
-        console.log(`Create [ ${symbol} ], process extension`);
-
         _processProfileExtension(profile, extension);
 
         delete _profileExtensions[symbol];
@@ -3990,8 +3988,6 @@ module.exports = (() => {
 
       if (message.type === 'PROFILE_EXTENSION') {
         if (p) {
-          console.log(`Profile extended [ ${symbol} ], processing`);
-
           _processProfileExtension(p, message);
         } else {
           _profileExtensions[symbol] = message;
@@ -4811,7 +4807,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.19'
+    version: '4.0.20'
   };
 })();
 
