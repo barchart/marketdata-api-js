@@ -2760,7 +2760,7 @@ module.exports = (() => {
     return Promise.resolve().then(() => {
       assert.argumentIsArray(symbols, 'symbols', String);
       const options = {
-        url: `http://extras.ddfplus.com/json/instruments/?lookup=${encodeURIComponent(symbols.join())}`,
+        url: `https://extras.ddfplus.com/json/instruments/?lookup=${encodeURIComponent(symbols.join())}`,
         method: 'GET'
       };
       return Promise.resolve(axios(options)).then(response => {
@@ -4807,7 +4807,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.20'
+    version: '4.0.21'
   };
 })();
 
