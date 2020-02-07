@@ -145,6 +145,8 @@ module.exports = (() => {
 
 			connection = new Connection();
 
+			connection.setExtendedProfileMode(true);
+
 			connection.on('events', handleEvents);
 
 			connection.connect(server, username, password);
@@ -240,14 +242,11 @@ module.exports = (() => {
 
 			that.showProfile(null);
 
-			retrieveConcreteSymbol(symbol)
-				.then(function(resolvedSymbol) {
-					return connection.getMarketState().getProfile(resolvedSymbol)
-						.then(function(profile) {
-							if (that.activeTemplate() === 'profile-template') {
-								that.showProfile(profile);
-							}
-						});
+			return connection.getMarketState().getProfile(symbol)
+				.then(function(profile) {
+					if (that.activeTemplate() === 'profile-template') {
+						that.showProfile(profile);
+					}
 				});
 		};
 

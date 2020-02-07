@@ -128,6 +128,7 @@ module.exports = (() => {
       }
 
       connection = new Connection();
+      connection.setExtendedProfileMode(true);
       connection.on('events', handleEvents);
       connection.connect(server, username, password);
     };
@@ -216,12 +217,10 @@ module.exports = (() => {
       }
 
       that.showProfile(null);
-      retrieveConcreteSymbol(symbol).then(function (resolvedSymbol) {
-        return connection.getMarketState().getProfile(resolvedSymbol).then(function (profile) {
-          if (that.activeTemplate() === 'profile-template') {
-            that.showProfile(profile);
-          }
-        });
+      return connection.getMarketState().getProfile(symbol).then(function (profile) {
+        if (that.activeTemplate() === 'profile-template') {
+          that.showProfile(profile);
+        }
       });
     };
 
@@ -502,6 +501,7 @@ module.exports = (() => {
     let __paused = false;
     let __reconnectAllowed = false;
     let __pollingFrequency = null;
+    let __extendedProfile = false;
     let __watchdogToken = null;
     let __watchdogAwake = false;
     let __exchangeMetadataPromise = null;
@@ -549,6 +549,12 @@ module.exports = (() => {
         __logger.log(`Connection [ ${__instance} ]: Switching to polling mode.`);
 
         __pollingFrequency = pollingFrequency;
+      }
+    }
+
+    function setExtendedProfileMode(mode) {
+      if (__extendedProfile !== mode) {
+        __extendedProfile = mode;
       }
     } //
     // Functions for connecting to and disconnecting from JERQ, monitoring
@@ -1121,12 +1127,12 @@ module.exports = (() => {
       const producerSymbol = SymbolParser.getProducerSymbol(consumerSymbol);
       const pendingConsumerSymbols = __pendingProfileSymbols[producerSymbol] || [];
 
-      if (!pendingConsumerSymbols.some(candidate => candidate === consumerSymbol)) {
-        pendingConsumerSymbols.push(consumerSymbol);
-      }
-
       if (!pendingConsumerSymbols.some(candidate => candidate === producerSymbol)) {
         pendingConsumerSymbols.push(producerSymbol);
+      }
+
+      if (!pendingConsumerSymbols.some(candidate => candidate === consumerSymbol)) {
+        pendingConsumerSymbols.push(consumerSymbol);
       }
 
       __pendingProfileSymbols[producerSymbol] = pendingConsumerSymbols;
@@ -1295,6 +1301,102 @@ module.exports = (() => {
     //
 
     /**
+     * The first stage of inbound message processing. A raw DDF message is converted to
+     * its object representation and passed to the "processMarketMessage" function.
+     * 
+     * @private
+     * @param {String} message
+     */
+
+
+    function parseMarketMessage(message) {
+      let parsed;
+
+      try {
+        parsed = parseMessage(message);
+      } catch (e) {
+        parsed = null;
+
+        __logger.error(`An error occurred while parsing a market message [ ${message} ]. Continuing.`, e);
+      }
+
+      if (parsed !== null) {
+        if (parsed.type) {
+          processMarketMessage(parsed);
+        } else {
+          __logger.log(message);
+        }
+      }
+    }
+    /**
+     * The second stage of inbound message processing. Each message is checked to determine
+     * if aliases for the message's symbol exist (i.e. "consumer" symbols). If alternate
+     * "consumer" symbols exists, the message is cloned. Finally, the original message (for
+     * the "producer" symbol) along with any cloned messages (for the "consumer" symbols) are
+     * passed to the "updateMarketState" function.
+     *
+     * @private
+     * @param {Object} message
+     */
+
+
+    function processMarketMessage(message) {
+      try {
+        const producerSymbol = message.symbol;
+
+        if (producerSymbol) {
+          let consumerSymbols = __knownConsumerSymbols[producerSymbol] || [];
+
+          if (__pendingProfileSymbols.hasOwnProperty(producerSymbol)) {
+            let profileSymbols = __pendingProfileSymbols[producerSymbol] || [];
+            consumerSymbols = array.unique(consumerSymbols.concat(profileSymbols));
+            delete __pendingProfileSymbols[producerSymbol];
+          }
+
+          consumerSymbols.forEach(consumerSymbol => {
+            let messageToProcess;
+
+            if (consumerSymbol === producerSymbol) {
+              messageToProcess = message;
+            } else {
+              messageToProcess = Object.assign({}, message);
+              messageToProcess.symbol = consumerSymbol;
+            }
+
+            updateMarketState(messageToProcess);
+          });
+        } else {
+          updateMarketState(message);
+        }
+      } catch (e) {
+        __logger.error(`An error occurred while processing a market message [ ${message} ]. Continuing.`, e);
+      }
+    }
+    /**
+     * The third and final stage of message processing. The message is used to update
+     * market state and any interested consumers are notified.
+     *
+     * @private
+     * @param {Object} message
+     */
+
+
+    function updateMarketState(message) {
+      try {
+        __marketState.processMessage(message);
+
+        if (message.type === 'BOOK') {
+          broadcastEvent('marketDepth', message);
+        } else if (message.type === 'TIMESTAMP') {
+          broadcastEvent('timestamp', __marketState.getTimestamp());
+        } else {
+          broadcastEvent('marketUpdate', message);
+        }
+      } catch (e) {
+        __logger.error(`An error occurred while updating market state [ ${message} ]. Continuing.`, e);
+      }
+    }
+    /**
      * Invokes consumer-supplied callbacks in response to new events (e.g. market
      * state updates, heartbeats, connection status changes, etc).
      *
@@ -1329,75 +1431,6 @@ module.exports = (() => {
             __logger.warn(`Broadcast [ ${__instance} ]:: A consumer-supplied listener for [ ${eventType} ] events threw an error. Continuing.`, e);
           }
         });
-      }
-    }
-    /**
-     * Processes a parsed market message. Updates internal market state and invokes
-     * callbacks for interested subscribers.
-     * 
-     * @private
-     * @param {Object} message
-     */
-
-
-    function processMarketMessage(message) {
-      __marketState.processMessage(message);
-
-      if (message.type === 'BOOK') {
-        broadcastEvent('marketDepth', message);
-      } else if (message.type === 'TIMESTAMP') {
-        broadcastEvent('timestamp', __marketState.getTimestamp());
-      } else {
-        broadcastEvent('marketUpdate', message);
-      }
-    }
-    /**
-     * Converts a JERQ message into an object suitable for passing to
-     * the {@link MarketState#processMessage} function. Then processes and
-     * broadcasts the parsed message. Also, if other "consumer" symbols are 
-     * aliases of the "producer" symbol in the message, the message is cloned 
-     * and processed for the "consumer" symbols alias(es) too.
-     * 
-     * @private
-     * @param {String} message
-     */
-
-
-    function parseMarketMessage(message) {
-      try {
-        let parsed = parseMessage(message);
-        const producerSymbol = parsed.symbol;
-
-        if (parsed.type) {
-          if (producerSymbol) {
-            let consumerSymbols = __knownConsumerSymbols[producerSymbol] || [];
-
-            if (__pendingProfileSymbols.hasOwnProperty(producerSymbol)) {
-              let profileSymbols = __pendingProfileSymbols[producerSymbol] || [];
-              consumerSymbols = array.unique(consumerSymbols.concat(profileSymbols));
-              delete __pendingProfileSymbols[producerSymbol];
-            }
-
-            consumerSymbols.forEach(consumerSymbol => {
-              let messageToProcess;
-
-              if (consumerSymbol === producerSymbol) {
-                messageToProcess = parsed;
-              } else {
-                messageToProcess = Object.assign({}, parsed);
-                messageToProcess.symbol = consumerSymbol;
-              }
-
-              processMarketMessage(messageToProcess);
-            });
-          } else {
-            processMarketMessage(parsed);
-          }
-        } else {
-          __logger.log(message);
-        }
-      } catch (e) {
-        __logger.error(`An error occurred while parsing a market message [ ${message} ]. Continuing.`, e);
       }
     }
     /**
@@ -1633,7 +1666,7 @@ module.exports = (() => {
               }
             }
 
-            if (this.getExtendedProfileMode() && task.id === 'MU_GO') {
+            if (__extendedProfile && (task.id === 'MU_GO' || task.id === 'P_SNAPSHOT')) {
               const symbolsExtended = symbolsUnique.filter(getIsExtendedSymbol);
 
               while (symbolsExtended.length > 0) {
@@ -1733,7 +1766,7 @@ module.exports = (() => {
      * not supported by JERQ.
      *
      * @private
-     * @param {Array<String>} symbols
+     * @param {String[]} symbols
      */
 
 
@@ -1743,6 +1776,10 @@ module.exports = (() => {
       }
 
       retrieveSnapshots(symbols, __loginInfo.username, __loginInfo.password).then(quotes => {
+        if (__connectionState !== state.authenticated) {
+          return;
+        }
+
         quotes.forEach(message => processMarketMessage(message));
       }).catch(e => {
         __logger.log(`Snapshots [ ${__instance} ]: Out-of-band snapshot request failed for [ ${symbols.join()} ].`, e);
@@ -1775,6 +1812,14 @@ module.exports = (() => {
     // Functions to acquire "extended" profile data not provided through DDF (via JERQ).
     //
 
+    /**
+     * Makes requests for "extended" profile data for a batch of symbols to an out-of-band
+     * service (i.e. extras).
+     *
+     * @private
+     * @param {String[]} symbols
+     */
+
 
     function processExtendedProfiles(symbols) {
       if (__connectionState !== state.authenticated) {
@@ -1782,7 +1827,23 @@ module.exports = (() => {
       }
 
       retrieveProfiles(symbols).then(profiles => {
-        console.log(profiles);
+        if (__connectionState !== state.authenticated) {
+          return;
+        }
+
+        profiles.forEach(profile => {
+          const producerSymbol = profile.symbol;
+          const consumerSymbols = __knownConsumerSymbols[producerSymbol] || [];
+          const compositeSymbols = array.unique([producerSymbol].concat(consumerSymbols));
+          compositeSymbols.forEach(symbol => {
+            const message = Object.assign({}, profile);
+            message.symbol = symbol;
+            message.type = 'PROFILE_EXTENSION';
+            updateMarketState(message);
+          });
+        });
+      }).catch(e => {
+        __logger.log(`Profiles [ ${__instance} ]: Out-of-band profile request failed for [ ${symbols.join()} ].`, e);
       });
     } //
     // Internal utility functions for querying symbol subscriptions.
@@ -1819,7 +1880,7 @@ module.exports = (() => {
      *
      * @private
      * @param {Array<Object>} listenerMaps
-     * @returns {Array<String>}
+     * @returns {String[]}
      */
 
 
@@ -1949,9 +2010,9 @@ module.exports = (() => {
      * than 250 symbols. Also, symbols are filtered according to a predicate.
      *
      * @private
-     * @param {Array<String>} symbols
+     * @param {String[]} symbols
      * @param {Function} predicate
-     * @returns {Array<Array<String>>}
+     * @returns {Array<String[]>}
      */
 
 
@@ -1983,6 +2044,7 @@ module.exports = (() => {
       on: on,
       getProducerSymbolCount: getProducerSymbolCount,
       setPollingFrequency: setPollingFrequency,
+      setExtendedProfileMode: setExtendedProfileMode,
       handleProfileRequest: handleProfileRequest
     };
   }
@@ -2032,6 +2094,10 @@ module.exports = (() => {
       return this._internal.setPollingFrequency(pollingFrequency);
     }
 
+    _onExtendedProfileModeChanged(mode) {
+      return this._internal.setExtendedProfileMode(mode);
+    }
+
     _handleProfileRequest(symbol) {
       this._internal.handleProfileRequest(symbol);
     }
@@ -2045,7 +2111,7 @@ module.exports = (() => {
   return Connection;
 })();
 
-},{"./../logging/LoggerFactory":12,"./../meta":19,"./../utilities/parse/ddf/message":31,"./../utilities/parsers/SymbolParser":34,"./ConnectionBase":3,"./adapter/WebSocketAdapterFactory":5,"./adapter/WebSocketAdapterFactoryForBrowsers":6,"./snapshots/exchanges/retrieveExchanges":7,"./snapshots/profiles/retrieveProfiles":8,"./snapshots/quotes/retrieveSnapshots":9,"@barchart/common-js/lang/array":37,"@barchart/common-js/lang/object":40}],3:[function(require,module,exports){
+},{"./../logging/LoggerFactory":12,"./../meta":19,"./../utilities/parse/ddf/message":31,"./../utilities/parsers/SymbolParser":34,"./ConnectionBase":3,"./adapter/WebSocketAdapterFactory":5,"./adapter/WebSocketAdapterFactoryForBrowsers":6,"./snapshots/exchanges/retrieveExchanges":7,"./snapshots/profiles/retrieveProfiles":8,"./snapshots/quotes/retrieveSnapshots":9,"@barchart/common-js/lang/array":40,"@barchart/common-js/lang/object":43}],3:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const MarketState = require('./../marketState/MarketState');
@@ -2247,6 +2313,23 @@ module.exports = (() => {
         this._onPollingFrequencyChanged(this._pollingFrequency);
       }
     }
+    /**
+     * @protected
+     * @ignore
+     */
+
+
+    _onPollingFrequencyChanged(pollingFrequency) {
+      return;
+    }
+    /**
+     * Indicates if additional profile data (e.g. future contract expiration dates
+     * should be loaded when subscribing to to market data).
+     *
+     * @public
+     * @return {boolean}
+     */
+
 
     getExtendedProfileMode() {
       return this._extendedProfileMode;
@@ -2255,6 +2338,8 @@ module.exports = (() => {
     setExtendedProfileMode(mode) {
       if (is.boolean(mode) && this._extendedProfileMode !== mode) {
         this._extendedProfileMode = mode;
+
+        this._onExtendedProfileModeChanged(this._extendedProfileMode);
       }
     }
     /**
@@ -2263,7 +2348,7 @@ module.exports = (() => {
      */
 
 
-    _onPollingFrequencyChanged(pollingFrequency) {
+    _onExtendedProfileModeChanged(mode) {
       return;
     }
     /**
@@ -2334,7 +2419,7 @@ module.exports = (() => {
   return ConnectionBase;
 })();
 
-},{"./../marketState/MarketState":16,"@barchart/common-js/lang/is":39}],4:[function(require,module,exports){
+},{"./../marketState/MarketState":16,"@barchart/common-js/lang/is":42}],4:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -2650,49 +2735,78 @@ module.exports = (() => {
   return retrieveExchanges;
 })();
 
-},{"axios":42}],8:[function(require,module,exports){
+},{"axios":45}],8:[function(require,module,exports){
 const axios = require('axios');
 
-const assert = require('@barchart/common-js/lang/assert');
+const assert = require('@barchart/common-js/lang/assert'),
+      Day = require('@barchart/common-js/lang/Day'),
+      is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
   'use strict';
+
+  const regex = {};
+  regex.dates = {};
+  regex.dates.expire = /^([0-9]{4}-[0-9]{2}-[0-9]{2})T/;
   /**
    * Executes an HTTP request for profile data.
    *
    * @function
-   * @returns {Promise<ExchangeMetadata[]>}
+   * @param {String[]} symbols
+   * @returns {Promise<ProfileExtension[]>}
    */
 
   function retrieveProfiles(symbols) {
     return Promise.resolve().then(() => {
       assert.argumentIsArray(symbols, 'symbols', String);
       const options = {
-        url: `https://extras.ddfplus.com/json/instruments/?lookup=${encodeURIComponent(symbols.join())}`,
+        url: `http://extras.ddfplus.com/json/instruments/?lookup=${encodeURIComponent(symbols.join())}`,
         method: 'GET'
       };
       return Promise.resolve(axios(options)).then(response => {
-        const results = response.instruments || [];
+        if (response.status !== 200) {
+          return [];
+        }
+
+        const results = (response.data.instruments || []).filter(result => {
+          return result.status === 200;
+        });
         return results.map(result => {
           const profile = {};
+          profile.symbol = result.lookup;
+
+          if (is.string(result.symbol_expire)) {
+            const matches = result.symbol_expire.match(regex.dates.expire);
+
+            if (matches !== null) {
+              profile.expiration = Day.parse(matches[1]).format();
+            }
+          }
+
+          if (is.string(result.symbol_fnd)) {
+            profile.firstNotice = Day.parse(result.symbol_fnd).format();
+          }
+
           return profile;
         });
       });
     });
   }
   /**
-   * Profile metadata
+   * Extended profile information.
    *
-   * @typedef ProfileMetadata
+   * @typedef ProfileExtension
    * @type {Object}
    * @property {String} symbol
+   * @property {String=} expiration
+   * @property {String=} firstNotice
    */
 
 
   return retrieveProfiles;
 })();
 
-},{"@barchart/common-js/lang/assert":38,"axios":42}],9:[function(require,module,exports){
+},{"@barchart/common-js/lang/Day":37,"@barchart/common-js/lang/assert":41,"@barchart/common-js/lang/is":42,"axios":45}],9:[function(require,module,exports){
 const axios = require('axios');
 
 const array = require('@barchart/common-js/lang/array'),
@@ -2949,7 +3063,7 @@ module.exports = (() => {
   return retrieveSnapshots;
 })();
 
-},{"../../../utilities/convert/baseCodeToUnitCode":20,"../../../utilities/convert/dateToDayCode":21,"../../../utilities/convert/dayCodeToNumber":22,"@barchart/common-js/lang/array":37,"@barchart/common-js/lang/is":39,"axios":42}],10:[function(require,module,exports){
+},{"../../../utilities/convert/baseCodeToUnitCode":20,"../../../utilities/convert/dateToDayCode":21,"../../../utilities/convert/dayCodeToNumber":22,"@barchart/common-js/lang/array":40,"@barchart/common-js/lang/is":42,"axios":45}],10:[function(require,module,exports){
 const axios = require('axios');
 
 const is = require('@barchart/common-js/lang/is');
@@ -2992,7 +3106,7 @@ module.exports = (() => {
   return retrieveConcreteSymbol;
 })();
 
-},{"@barchart/common-js/lang/is":39,"axios":42}],11:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":42,"axios":45}],11:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -3580,7 +3694,7 @@ module.exports = (() => {
   return CumulativeVolume;
 })();
 
-},{"./../logging/LoggerFactory":12,"@barchart/common-js/lang//object":40}],15:[function(require,module,exports){
+},{"./../logging/LoggerFactory":12,"@barchart/common-js/lang//object":43}],15:[function(require,module,exports){
 const Timezones = require('@barchart/common-js/lang/Timezones');
 
 module.exports = (() => {
@@ -3645,7 +3759,7 @@ module.exports = (() => {
   return Exchange;
 })();
 
-},{"@barchart/common-js/lang/Timezones":36}],16:[function(require,module,exports){
+},{"@barchart/common-js/lang/Timezones":39}],16:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is'),
       object = require('@barchart/common-js/lang/object'),
       timezone = require('@barchart/common-js/lang/timezone'),
@@ -3690,6 +3804,7 @@ module.exports = (() => {
     const _quote = {};
     const _cvol = {};
     const _profileCallbacks = {};
+    const _profileExtensions = {};
 
     let _timestamp;
 
@@ -3774,23 +3889,63 @@ module.exports = (() => {
       return utc;
     };
 
+    const _processProfileExtension = (profile, extension) => {
+      if (extension.expiration) {
+        profile.expiration = extension.expiration;
+      }
+
+      if (extension.firstNotice) {
+        profile.firstNotice = extension.firstNotice;
+      }
+    };
+
     const _createProfile = (symbol, name, exchange, unitCode, pointValue, tickIncrement, additional) => {
-      return new Profile(symbol, name, exchange, unitCode, pointValue, tickIncrement, _exchanges[exchange] || null, additional);
+      const profile = new Profile(symbol, name, exchange, unitCode, pointValue, tickIncrement, _exchanges[exchange] || null, additional);
+      const extension = _profileExtensions[symbol];
+
+      if (extension) {
+        console.log(`Create [ ${symbol} ], process extension`);
+
+        _processProfileExtension(profile, extension);
+
+        delete _profileExtensions[symbol];
+      }
+
+      if (_profileCallbacks.hasOwnProperty(symbol)) {
+        _profileCallbacks[symbol].forEach(profileCallback => {
+          profileCallback(profile);
+        });
+
+        delete _profileCallbacks[symbol];
+      }
+
+      return profile;
     };
 
     const _getOrCreateProfile = symbol => {
-      let p = Profile.Profiles[symbol];
+      let profile = Profile.Profiles[symbol];
 
-      if (!p) {
+      if (!profile) {
         const producerSymbol = SymbolParser.getProducerSymbol(symbol);
         const producerProfile = Profile.Profiles[producerSymbol];
 
         if (producerProfile) {
-          p = _createProfile(symbol, producerProfile.name, producerProfile.exchange, producerProfile.unitCode, producerProfile.pointValue, producerProfile.tickIncrement);
+          profile = _createProfile(symbol, producerProfile.name, producerProfile.exchange, producerProfile.unitCode, producerProfile.pointValue, producerProfile.tickIncrement);
+          const extension = {};
+
+          if (producerProfile.expiration) {
+            extension.expiration = producerProfile.expiration;
+          }
+
+          if (producerProfile.firstNotice) {
+            extension.firstNotice = producerProfile.firstNotice;
+          }
+
+          _processProfileExtension(profile, extension);
         }
       }
 
-      return p;
+      return profile;
     };
 
     const _processMessage = message => {
@@ -3799,8 +3954,7 @@ module.exports = (() => {
       if (message.type === 'TIMESTAMP') {
         _timestamp = message.timestamp;
         return;
-      } // Process book messages first, they don't need profiles, etc.
-
+      }
 
       if (message.type === 'BOOK') {
         const b = _getOrCreateBook(symbol);
@@ -3833,6 +3987,18 @@ module.exports = (() => {
       }
 
       let p = _getOrCreateProfile(symbol);
+
+      if (message.type === 'PROFILE_EXTENSION') {
+        if (p) {
+          console.log(`Profile extended [ ${symbol} ], processing`);
+
+          _processProfileExtension(p, message);
+        } else {
+          _profileExtensions[symbol] = message;
+        }
+
+        return;
+      }
 
       if (!p && message.type !== 'REFRESH_QUOTE') {
         _logger.warn(`MarketState [ ${_instance} ]: No profile found for [ ${symbol} ]`);
@@ -3994,7 +4160,9 @@ module.exports = (() => {
           break;
 
         case 'REFRESH_QUOTE':
-          p = _createProfile(symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement, message.additional || null);
+          if (!p) {
+            p = _createProfile(symbol, message.name, message.exchange, message.unitcode, message.pointValue, message.tickIncrement, message.additional || null);
+          }
 
           if (!q.profile) {
             q.profile = p;
@@ -4033,15 +4201,6 @@ module.exports = (() => {
           }
 
           if (message.blockTrade) q.blockTrade = message.blockTrade;
-
-          if (_profileCallbacks.hasOwnProperty(symbol)) {
-            _profileCallbacks[symbol].forEach(profileCallback => {
-              profileCallback(p);
-            });
-
-            delete _profileCallbacks[symbol];
-          }
-
           break;
 
         case 'SETTLEMENT':
@@ -4360,7 +4519,7 @@ module.exports = (() => {
   return MarketState;
 })();
 
-},{"../utilities/parsers/SymbolParser":34,"./../logging/LoggerFactory":12,"./../meta":19,"./../utilities/convert/dayCodeToNumber":22,"./CumulativeVolume":14,"./Exchange":15,"./Profile":17,"./Quote":18,"@barchart/common-js/lang/Timezones":36,"@barchart/common-js/lang/is":39,"@barchart/common-js/lang/object":40,"@barchart/common-js/lang/timezone":41}],17:[function(require,module,exports){
+},{"../utilities/parsers/SymbolParser":34,"./../logging/LoggerFactory":12,"./../meta":19,"./../utilities/convert/dayCodeToNumber":22,"./CumulativeVolume":14,"./Exchange":15,"./Profile":17,"./Quote":18,"@barchart/common-js/lang/Timezones":39,"@barchart/common-js/lang/is":42,"@barchart/common-js/lang/object":43,"@barchart/common-js/lang/timezone":44}],17:[function(require,module,exports){
 const SymbolParser = require('./../utilities/parsers/SymbolParser'),
       buildPriceFormatter = require('../utilities/format/factories/price');
 
@@ -4424,11 +4583,11 @@ module.exports = (() => {
       if (info) {
         if (info.type === 'future') {
           /**
-           * @property {undefined|string} root - the root symbol, if a future; otherwise undefined.
+           * @property {string|undefined} root - the root symbol, if a future; otherwise undefined.
            */
           this.root = info.root;
           /**
-           * @property {undefined|string} month - the month code, if a future; otherwise undefined.
+           * @property {string|undefined} month - the month code, if a future; otherwise undefined.
            */
 
           this.month = info.month;
@@ -4437,6 +4596,16 @@ module.exports = (() => {
            */
 
           this.year = info.year;
+          /**
+           * @property {string|undefined} expiration - the expiration date, as a string, formatted YYYY-MM-DD.
+           */
+
+          this.expiration = null;
+          /**
+           * @property {string|undefined} expiration - the first notice date, as a string, formatted YYYY-MM-DD.
+           */
+
+          this.firstNotice = null;
         }
       }
 
@@ -4766,7 +4935,7 @@ module.exports = (() => {
   return convertDayCodeToNumber;
 })();
 
-},{"@barchart/common-js/lang/is":39}],23:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":42}],23:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -4801,7 +4970,7 @@ module.exports = (() => {
   return convertNumberToDayCode;
 })();
 
-},{"@barchart/common-js/lang/is":39}],24:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":42}],24:[function(require,module,exports){
 const timezone = require('@barchart/common-js/lang/timezone');
 
 module.exports = (() => {
@@ -4834,7 +5003,7 @@ module.exports = (() => {
   };
 })();
 
-},{"@barchart/common-js/lang/timezone":41}],25:[function(require,module,exports){
+},{"@barchart/common-js/lang/timezone":44}],25:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -4934,7 +5103,7 @@ module.exports = (() => {
   return formatDecimal;
 })();
 
-},{"@barchart/common-js/lang/is":39}],27:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":42}],27:[function(require,module,exports){
 const formatPrice = require('./../price');
 
 module.exports = (() => {
@@ -5122,7 +5291,7 @@ module.exports = (() => {
   return formatPrice;
 })();
 
-},{"./decimal":26,"@barchart/common-js/lang/is":39}],29:[function(require,module,exports){
+},{"./decimal":26,"@barchart/common-js/lang/is":42}],29:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDate = require('./date'),
@@ -5205,7 +5374,7 @@ module.exports = (() => {
   return formatQuoteDateTime;
 })();
 
-},{"./date":25,"./time":30,"@barchart/common-js/lang/Timezones":36,"@barchart/common-js/lang/is":39}],30:[function(require,module,exports){
+},{"./date":25,"./time":30,"@barchart/common-js/lang/Timezones":39,"@barchart/common-js/lang/is":42}],30:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -5908,7 +6077,7 @@ module.exports = (() => {
   return parseMessage;
 })();
 
-},{"./timestamp":32,"./value":33,"xmldom":71}],32:[function(require,module,exports){
+},{"./timestamp":32,"./value":33,"xmldom":74}],32:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -6589,7 +6758,735 @@ module.exports = (() => {
   return SymbolParser;
 })();
 
-},{"@barchart/common-js/lang/is":39}],35:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":42}],35:[function(require,module,exports){
+const assert = require('./../../lang/assert'),
+      comparators = require('./comparators');
+
+module.exports = (() => {
+  'use strict';
+  /**
+   * A builder for compound comparator functions (e.g. sort by last name,
+   * then by first name, then by social security number) that uses a fluent
+   * interface.
+   *
+   * @public
+   * @param {Function} comparator - The initial comparator.
+   * @param {Boolean=} invert - Indicates if the comparator should sort in descending order.
+   */
+
+  class ComparatorBuilder {
+    constructor(comparator, invert, previous) {
+      assert.argumentIsRequired(comparator, 'comparator', Function);
+      assert.argumentIsOptional(invert, 'invert', Boolean);
+      this._comparator = comparator;
+      this._invert = invert || false;
+      this._previous = previous || null;
+    }
+    /**
+     * Adds a new comparator to the list of comparators to use.
+     *
+     * @public
+     * @param {Function} comparator - The next comparator function.
+     * @param {Boolean=} invert - Indicates if the comparator should sort in descending order.
+     * @returns {ComparatorBuilder}
+     */
+
+
+    thenBy(comparator, invert) {
+      assert.argumentIsRequired(comparator, 'comparator', Function);
+      assert.argumentIsOptional(invert, 'invert', Boolean);
+      return new ComparatorBuilder(comparator, invert, this);
+    }
+    /**
+     * Flips the order of the comparator (e.g. ascending to descending).
+     *
+     * @public
+     * @returns {ComparatorBuilder}
+     */
+
+
+    invert() {
+      let previous;
+
+      if (this._previous) {
+        previous = this._previous.invert();
+      } else {
+        previous = null;
+      }
+
+      return new ComparatorBuilder(this._comparator, !this._invert, previous);
+    }
+    /**
+     * Returns the comparator function.
+     *
+     * @public
+     * @returns {Function}
+     */
+
+
+    toComparator() {
+      let previousComparator;
+
+      if (this._previous) {
+        previousComparator = this._previous.toComparator();
+      } else {
+        previousComparator = comparators.empty;
+      }
+
+      return (a, b) => {
+        let result = previousComparator(a, b);
+
+        if (result === 0) {
+          let sortA;
+          let sortB;
+
+          if (this._invert) {
+            sortA = b;
+            sortB = a;
+          } else {
+            sortA = a;
+            sortB = b;
+          }
+
+          result = this._comparator(sortA, sortB);
+        }
+
+        return result;
+      };
+    }
+
+    toString() {
+      return '[ComparatorBuilder]';
+    }
+    /**
+     * Creates a {@link ComparatorBuilder}, given an initial comparator function.
+     *
+     * @public
+     * @param {Function} comparator - The initial comparator.
+     * @param {Boolean=} invert - Indicates if the comparator should sort in descending order.
+     * @returns {ComparatorBuilder}
+     */
+
+
+    static startWith(comparator, invert) {
+      return new ComparatorBuilder(comparator, invert);
+    }
+
+  }
+
+  return ComparatorBuilder;
+})();
+
+},{"./../../lang/assert":41,"./comparators":36}],36:[function(require,module,exports){
+const assert = require('./../../lang/assert');
+
+module.exports = (() => {
+  'use strict';
+  /**
+   * Functions that can be used as comparators.
+   *
+   * @public
+   * @module collections/sorting/comparators
+   */
+
+  return {
+    /**
+     * Compares two dates (in ascending order).
+     *
+     * @static
+     * @param {Date} a
+     * @param {Date} b
+     * @returns {Number}
+     */
+    compareDates: (a, b) => {
+      assert.argumentIsRequired(a, 'a', Date);
+      assert.argumentIsRequired(b, 'b', Date);
+      return a - b;
+    },
+
+    /**
+     * Compares two numbers (in ascending order).
+     *
+     * @static
+     * @param {Number} a
+     * @param {Number} b
+     * @returns {Number}
+     */
+    compareNumbers: (a, b) => {
+      assert.argumentIsRequired(a, 'a', Number);
+      assert.argumentIsRequired(b, 'b', Number);
+      return a - b;
+    },
+
+    /**
+     * Compares two strings (in ascending order), using {@link String#localeCompare}.
+     *
+     * @static
+     * @param {String} a
+     * @param {String} b
+     * @returns {Number}
+     */
+    compareStrings: (a, b) => {
+      assert.argumentIsRequired(a, 'a', String);
+      assert.argumentIsRequired(b, 'b', String);
+      return a.localeCompare(b);
+    },
+
+    /**
+     * Compares two boolean values (in ascending order -- false first, true second).
+     *
+     * @static
+     * @param {Boolean} a
+     * @param {Boolean} b
+     * @returns {Number}
+     */
+    compareBooleans: (a, b) => {
+      assert.argumentIsRequired(a, 'a', Boolean);
+      assert.argumentIsRequired(b, 'b', Boolean);
+
+      if (a === b) {
+        return 0;
+      } else if (a) {
+        return 1;
+      } else {
+        return -1;
+      }
+    },
+
+    /**
+     * Compares two objects, always returning zero.
+     *
+     * @static
+     * @param {*} a
+     * @param {*} b
+     * @returns {Number}
+     */
+    empty: (a, b) => {
+      return 0;
+    }
+  };
+})();
+
+},{"./../../lang/assert":41}],37:[function(require,module,exports){
+const assert = require('./assert'),
+      ComparatorBuilder = require('./../collections/sorting/ComparatorBuilder'),
+      comparators = require('./../collections/sorting/comparators'),
+      is = require('./is');
+
+module.exports = (() => {
+  'use strict';
+  /**
+   * A data structure that represents a day (year, month, and day)
+   * without consideration for time or timezone.
+   *
+   * @public
+   * @param {Number} year
+   * @param {Number} month
+   * @param {Number} day
+   */
+
+  class Day {
+    constructor(year, month, day) {
+      if (!Day.validate(year, month, day)) {
+        throw new Error(`Unable to instantiate Day, input is invalid [${year}], [${month}], [${day}]`);
+      }
+
+      this._year = year;
+      this._month = month;
+      this._day = day;
+    }
+    /**
+     * Calculates a new {@link Day} in the future (or past).
+     *
+     * @public
+     * @param {Number} days - The number of days to add (negative numbers can be used for subtraction).
+     * @param {Boolean=} inverse - If true, the sign of the "days" value will be flipped.
+     * @returns {Day}
+     */
+
+
+    addDays(days, inverse) {
+      assert.argumentIsRequired(days, 'days', Number);
+      assert.argumentIsOptional(inverse, inverse, Boolean);
+      assert.argumentIsValid(days, 'days', is.large, 'is an integer');
+      let totalDaysToShift;
+
+      if (is.boolean(inverse) && inverse) {
+        totalDaysToShift = days * -1;
+      } else {
+        totalDaysToShift = days;
+      }
+
+      const positive = is.positive(totalDaysToShift);
+      let shiftedDay = this._day;
+      let shiftedMonth = this._month;
+      let shiftedYear = this._year;
+
+      while (totalDaysToShift !== 0) {
+        let monthDaysAvailable;
+        let monthDaysToShift;
+
+        if (positive) {
+          monthDaysAvailable = Day.getDaysInMonth(shiftedYear, shiftedMonth) - shiftedDay;
+          monthDaysToShift = Math.min(totalDaysToShift, monthDaysAvailable);
+        } else {
+          monthDaysAvailable = 1 - shiftedDay;
+          monthDaysToShift = Math.max(totalDaysToShift, monthDaysAvailable);
+        }
+
+        totalDaysToShift = totalDaysToShift - monthDaysToShift;
+
+        if (totalDaysToShift === 0) {
+          shiftedDay = shiftedDay + monthDaysToShift;
+        } else if (positive) {
+          shiftedMonth++;
+
+          if (shiftedMonth > 12) {
+            shiftedYear++;
+            shiftedMonth = 1;
+          }
+
+          shiftedDay = 0;
+        } else {
+          shiftedMonth--;
+
+          if (shiftedMonth < 1) {
+            shiftedYear--;
+            shiftedMonth = 12;
+          }
+
+          shiftedDay = Day.getDaysInMonth(shiftedYear, shiftedMonth) + 1;
+        }
+      }
+
+      return new Day(shiftedYear, shiftedMonth, shiftedDay);
+    }
+    /**
+     * Calculates a new {@link Day} in the past (or future).
+     *
+     * @public
+     * @param {Number} days - The number of days to subtract (negative numbers can be used for addition).
+     * @returns {Day}
+     */
+
+
+    subtractDays(days) {
+      return this.addDays(days, true);
+    }
+    /**
+     * Calculates a new {@link Day} in the future (or past). If the new date is at the end of
+     * the month and the new month has fewer days than the current month, days will be subtracted
+     * as necessary (e.g. adding one month to March 31 will return April 30).
+     *
+     * @public
+     * @param {Number} months - The number of months to add (negative numbers can be used for subtraction).
+     * @param {Boolean=} inverse - If true, the sign of the "days" value will be flipped.
+     * @returns {Day}
+     */
+
+
+    addMonths(months, inverse) {
+      assert.argumentIsRequired(months, 'months', Number);
+      assert.argumentIsOptional(inverse, inverse, Boolean);
+      assert.argumentIsValid(months, 'months', is.large, 'is an integer');
+      let totalMonthsToShift;
+
+      if (is.boolean(inverse) && inverse) {
+        totalMonthsToShift = months * -1;
+      } else {
+        totalMonthsToShift = months;
+      }
+
+      const monthsToShift = totalMonthsToShift % 12;
+      const yearsToShift = (totalMonthsToShift - monthsToShift) / 12;
+      let shiftedYear = this.year + yearsToShift;
+      let shiftedMonth = this.month + monthsToShift;
+      let shiftedDay = this.day;
+
+      if (shiftedMonth > 12) {
+        shiftedYear = shiftedYear + 1;
+        shiftedMonth = shiftedMonth - 12;
+      }
+
+      if (shiftedMonth < 1) {
+        shiftedYear = shiftedYear - 1;
+        shiftedMonth = shiftedMonth + 12;
+      }
+
+      while (!Day.validate(shiftedYear, shiftedMonth, shiftedDay)) {
+        shiftedDay = shiftedDay - 1;
+      }
+
+      return new Day(shiftedYear, shiftedMonth, shiftedDay);
+    }
+    /**
+     * Calculates a new {@link Day} in the past (or future).
+     *
+     * @public
+     * @param {Number} months - The number of months to subtract (negative numbers can be used for addition).
+     * @returns {Day}
+     */
+
+
+    subtractMonths(months) {
+      return this.addMonths(months, true);
+    }
+    /**
+     * Calculates a new {@link Day} in the future (or past). If the new date is at the end of
+     * the month and the new month has fewer days than the current month, days will be subtracted
+     * as necessary (e.g. adding one year to February 29 will return February 28).
+     *
+     * @public
+     * @param {Number} years - The number of years to add (negative numbers can be used for subtraction).
+     * @param {Boolean=} inverse - If true, the sign of the "days" value will be flipped.
+     * @returns {Day}
+     */
+
+
+    addYears(years, inverse) {
+      assert.argumentIsRequired(years, 'years', Number);
+      assert.argumentIsOptional(inverse, inverse, Boolean);
+      assert.argumentIsValid(years, 'years', is.large, 'is an integer');
+      let yearsToShift;
+
+      if (is.boolean(inverse) && inverse) {
+        yearsToShift = years * -1;
+      } else {
+        yearsToShift = years;
+      }
+
+      let shiftedYear = this.year + yearsToShift;
+      let shiftedMonth = this.month;
+      let shiftedDay = this.day;
+
+      while (!Day.validate(shiftedYear, shiftedMonth, shiftedDay)) {
+        shiftedDay = shiftedDay - 1;
+      }
+
+      return new Day(shiftedYear, shiftedMonth, shiftedDay);
+    }
+    /**
+     * Calculates a new {@link Day} in the past (or future).
+     *
+     * @public
+     * @param {Number} years - The number of years to subtract (negative numbers can be used for addition).
+     * @returns {Day}
+     */
+
+
+    subtractYears(years) {
+      return this.addYears(years, true);
+    }
+    /**
+     * Returns a new {@link Day} instance for the start of the month referenced by the current instance.
+     *
+     * @public
+     * @returns {Day}
+     */
+
+
+    getStartOfMonth() {
+      return new Day(this.year, this.month, 1);
+    }
+    /**
+     * Returns a new instance for the {@link Day} end of the month referenced by the current instance.
+     *
+     * @public
+     * @returns {Day}
+     */
+
+
+    getEndOfMonth() {
+      return new Day(this.year, this.month, Day.getDaysInMonth(this.year, this.month));
+    }
+    /**
+     * Indicates if another {@link Day} occurs before the current instance.
+     *
+     * @public
+     * @param {Day} other
+     * @returns {boolean}
+     */
+
+
+    getIsBefore(other) {
+      return Day.compareDays(this, other) < 0;
+    }
+    /**
+     * Indicates if another {@link Day} occurs after the current instance.
+     *
+     * @public
+     * @param {Day} other
+     * @returns {boolean}
+     */
+
+
+    getIsAfter(other) {
+      return Day.compareDays(this, other) > 0;
+    }
+    /**
+     * Indicates the current day falls between two other days, inclusive
+     * of the range boundaries.
+     *
+     * @public
+     * @param {Day=} first
+     * @param {Day=} last
+     * @param {boolean=} exclusive
+     * @returns {boolean}
+     */
+
+
+    getIsContained(first, last) {
+      assert.argumentIsOptional(first, 'first', Day, 'Day');
+      assert.argumentIsOptional(last, 'last', Day, 'Day');
+      let notAfter;
+      let notBefore;
+
+      if (first && last && first.getIsAfter(last)) {
+        notBefore = false;
+        notAfter = false;
+      } else {
+        notAfter = !(last instanceof Day) || !this.getIsAfter(last);
+        notBefore = !(first instanceof Day) || !this.getIsBefore(first);
+      }
+
+      return notAfter && notBefore;
+    }
+    /**
+     * Indicates if another {@link Day} occurs after the current instance.
+     *
+     * @public
+     * @param {Day} other
+     * @returns {boolean}
+     */
+
+
+    getIsEqual(other) {
+      return Day.compareDays(this, other) === 0;
+    }
+    /**
+     * The year.
+     *
+     * @public
+     * @returns {Number}
+     */
+
+
+    get year() {
+      return this._year;
+    }
+    /**
+     * The month of the year (January is one, December is twelve).
+     *
+     * @public
+     * @returns {Number}
+     */
+
+
+    get month() {
+      return this._month;
+    }
+    /**
+     * The day of the month.
+     *
+     * @public
+     * @returns {Number}
+     */
+
+
+    get day() {
+      return this._day;
+    }
+    /**
+     * Outputs the date as the formatted string: {year}-{month}-{day}.
+     *
+     * @public
+     * @returns {String}
+     */
+
+
+    format() {
+      return `${leftPad(this._year, 4, '0')}-${leftPad(this._month, 2, '0')}-${leftPad(this._day, 2, '0')}`;
+    }
+    /**
+     * Returns the JSON representation.
+     *
+     * @public
+     * @returns {String}
+     */
+
+
+    toJSON() {
+      return this.format();
+    }
+    /**
+     * Clones a {@link Day} instance.
+     *
+     * @public
+     * @static
+     * @param {Day} value
+     * @returns {Day}
+     */
+
+
+    static clone(value) {
+      assert.argumentIsRequired(value, 'value', Day, 'Day');
+      return new Day(value.year, value.month, value.day);
+    }
+    /**
+     * Converts a string (which matches the output of {@link Day#format}) into
+     * a {@link Day} instance.
+     *
+     * @public
+     * @static
+     * @param {String} value
+     * @returns {Day}
+     */
+
+
+    static parse(value) {
+      assert.argumentIsRequired(value, 'value', String);
+      const match = value.match(dayRegex);
+
+      if (match === null) {
+        throw new Error(`Unable to parse value as Day [ ${value} ]`);
+      }
+
+      return new Day(parseInt(match[1]), parseInt(match[2]), parseInt(match[3]));
+    }
+    /**
+     * Creates a {@link Day} from the year, month, and day properties (in local time)
+     * of the {@link Date} argument.
+     *
+     * @public
+     * @static
+     * @param {Date} date
+     * @returns {Day}
+     */
+
+
+    static fromDate(date) {
+      assert.argumentIsRequired(date, 'date', Date);
+      return new Day(date.getFullYear(), date.getMonth() + 1, date.getDate());
+    }
+    /**
+     * Creates a {@link Day} from the year, month, and day properties (in UTC)
+     * of the {@link Date} argument.
+     *
+     * @public
+     * @static
+     * @param {Date} date
+     * @returns {Day}
+     */
+
+
+    static fromDateUtc(date) {
+      assert.argumentIsRequired(date, 'date', Date);
+      return new Day(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
+    }
+    /**
+     * Returns a {@link Day} instance using today's local date.
+     *
+     * @static
+     * @public
+     * @returns {Day}
+     */
+
+
+    static getToday() {
+      return Day.fromDate(new Date());
+    }
+    /**
+     * Returns true if the year, month, and day combination is valid; otherwise false.
+     *
+     * @public
+     * @static
+     * @param {Number} year
+     * @param {Number} month
+     * @param {Number} day
+     * @returns {Boolean}
+     */
+
+
+    static validate(year, month, day) {
+      return is.integer(year) && is.integer(month) && is.integer(day) && !(month < 1) && !(month > 12) && !(day < 1) && !(day > Day.getDaysInMonth(year, month));
+    }
+    /**
+     * Returns the number of days in a given month.
+     *
+     * @public
+     * @static
+     * @param {number} year - The year number (e.g. 2017)
+     * @param {number} month - The month number (e.g. 2 is February)
+     */
+
+
+    static getDaysInMonth(year, month) {
+      switch (month) {
+        case 1:
+        case 3:
+        case 5:
+        case 7:
+        case 8:
+        case 10:
+        case 12:
+          {
+            return 31;
+          }
+
+        case 4:
+        case 6:
+        case 9:
+        case 11:
+          {
+            return 30;
+          }
+
+        case 2:
+          {
+            if (year % 4 === 0 && year % 100 !== 0 || year % 400 === 0) {
+              return 29;
+            } else {
+              return 28;
+            }
+          }
+      }
+    }
+    /**
+     * A comparator function for {@link Day} instances.
+     *
+     * @public
+     * @static
+     * @param {Day} a
+     * @param {Day} b
+     * @returns {Number}
+     */
+
+
+    static compareDays(a, b) {
+      assert.argumentIsRequired(a, 'a', Day, 'Day');
+      assert.argumentIsRequired(b, 'b', Day, 'Day');
+      return comparator(a, b);
+    }
+
+    toString() {
+      return '[Day]';
+    }
+
+  }
+
+  const dayRegex = /^([0-9]{4}).?([0-9]{2}).?([0-9]{2})$/;
+
+  function leftPad(value, digits, character) {
+    let string = value.toString();
+    let padding = digits - string.length;
+    return `${character.repeat(padding)}${string}`;
+  }
+
+  const comparator = ComparatorBuilder.startWith((a, b) => comparators.compareNumbers(a.year, b.year)).thenBy((a, b) => comparators.compareNumbers(a.month, b.month)).thenBy((a, b) => comparators.compareNumbers(a.day, b.day)).toComparator();
+  return Day;
+})();
+
+},{"./../collections/sorting/ComparatorBuilder":35,"./../collections/sorting/comparators":36,"./assert":41,"./is":42}],38:[function(require,module,exports){
 const assert = require('./assert');
 
 module.exports = (() => {
@@ -6707,7 +7604,7 @@ module.exports = (() => {
   return Enum;
 })();
 
-},{"./assert":38}],36:[function(require,module,exports){
+},{"./assert":41}],39:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022');
 
 const Enum = require('./Enum'),
@@ -6829,7 +7726,7 @@ module.exports = (() => {
   return Timezones;
 })();
 
-},{"./Enum":35,"./is":39,"./timezone":41,"moment-timezone/builds/moment-timezone-with-data-2012-2022":69}],37:[function(require,module,exports){
+},{"./Enum":38,"./is":42,"./timezone":44,"moment-timezone/builds/moment-timezone-with-data-2012-2022":72}],40:[function(require,module,exports){
 const assert = require('./assert'),
       is = require('./is');
 
@@ -7284,7 +8181,7 @@ module.exports = (() => {
   }
 })();
 
-},{"./assert":38,"./is":39}],38:[function(require,module,exports){
+},{"./assert":41,"./is":42}],41:[function(require,module,exports){
 const is = require('./is');
 
 module.exports = (() => {
@@ -7429,7 +8326,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./is":39}],39:[function(require,module,exports){
+},{"./is":42}],42:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -7624,7 +8521,7 @@ module.exports = (() => {
   };
 })();
 
-},{}],40:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 const array = require('./array'),
       is = require('./is');
 
@@ -7784,7 +8681,7 @@ module.exports = (() => {
   return object;
 })();
 
-},{"./array":37,"./is":39}],41:[function(require,module,exports){
+},{"./array":40,"./is":42}],44:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022'),
       assert = require('./assert');
 
@@ -7835,9 +8732,9 @@ module.exports = (() => {
   };
 })();
 
-},{"./assert":38,"moment-timezone/builds/moment-timezone-with-data-2012-2022":69}],42:[function(require,module,exports){
+},{"./assert":41,"moment-timezone/builds/moment-timezone-with-data-2012-2022":72}],45:[function(require,module,exports){
 module.exports = require('./lib/axios');
-},{"./lib/axios":44}],43:[function(require,module,exports){
+},{"./lib/axios":47}],46:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8013,7 +8910,7 @@ module.exports = function xhrAdapter(config) {
   });
 };
 
-},{"../core/createError":50,"./../core/settle":54,"./../helpers/buildURL":58,"./../helpers/cookies":60,"./../helpers/isURLSameOrigin":62,"./../helpers/parseHeaders":64,"./../utils":66}],44:[function(require,module,exports){
+},{"../core/createError":53,"./../core/settle":57,"./../helpers/buildURL":61,"./../helpers/cookies":63,"./../helpers/isURLSameOrigin":65,"./../helpers/parseHeaders":67,"./../utils":69}],47:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -8068,7 +8965,7 @@ module.exports = axios;
 // Allow use of default import syntax in TypeScript
 module.exports.default = axios;
 
-},{"./cancel/Cancel":45,"./cancel/CancelToken":46,"./cancel/isCancel":47,"./core/Axios":48,"./core/mergeConfig":53,"./defaults":56,"./helpers/bind":57,"./helpers/spread":65,"./utils":66}],45:[function(require,module,exports){
+},{"./cancel/Cancel":48,"./cancel/CancelToken":49,"./cancel/isCancel":50,"./core/Axios":51,"./core/mergeConfig":56,"./defaults":59,"./helpers/bind":60,"./helpers/spread":68,"./utils":69}],48:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8089,7 +8986,7 @@ Cancel.prototype.__CANCEL__ = true;
 
 module.exports = Cancel;
 
-},{}],46:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 'use strict';
 
 var Cancel = require('./Cancel');
@@ -8148,14 +9045,14 @@ CancelToken.source = function source() {
 
 module.exports = CancelToken;
 
-},{"./Cancel":45}],47:[function(require,module,exports){
+},{"./Cancel":48}],50:[function(require,module,exports){
 'use strict';
 
 module.exports = function isCancel(value) {
   return !!(value && value.__CANCEL__);
 };
 
-},{}],48:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8243,7 +9140,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = Axios;
 
-},{"../helpers/buildURL":58,"./../utils":66,"./InterceptorManager":49,"./dispatchRequest":51,"./mergeConfig":53}],49:[function(require,module,exports){
+},{"../helpers/buildURL":61,"./../utils":69,"./InterceptorManager":52,"./dispatchRequest":54,"./mergeConfig":56}],52:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8297,7 +9194,7 @@ InterceptorManager.prototype.forEach = function forEach(fn) {
 
 module.exports = InterceptorManager;
 
-},{"./../utils":66}],50:[function(require,module,exports){
+},{"./../utils":69}],53:[function(require,module,exports){
 'use strict';
 
 var enhanceError = require('./enhanceError');
@@ -8317,7 +9214,7 @@ module.exports = function createError(message, config, code, request, response) 
   return enhanceError(error, config, code, request, response);
 };
 
-},{"./enhanceError":52}],51:[function(require,module,exports){
+},{"./enhanceError":55}],54:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8405,7 +9302,7 @@ module.exports = function dispatchRequest(config) {
   });
 };
 
-},{"../cancel/isCancel":47,"../defaults":56,"./../helpers/combineURLs":59,"./../helpers/isAbsoluteURL":61,"./../utils":66,"./transformData":55}],52:[function(require,module,exports){
+},{"../cancel/isCancel":50,"../defaults":59,"./../helpers/combineURLs":62,"./../helpers/isAbsoluteURL":64,"./../utils":69,"./transformData":58}],55:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8449,7 +9346,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
   return error;
 };
 
-},{}],53:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -8502,7 +9399,7 @@ module.exports = function mergeConfig(config1, config2) {
   return config;
 };
 
-},{"../utils":66}],54:[function(require,module,exports){
+},{"../utils":69}],57:[function(require,module,exports){
 'use strict';
 
 var createError = require('./createError');
@@ -8529,7 +9426,7 @@ module.exports = function settle(resolve, reject, response) {
   }
 };
 
-},{"./createError":50}],55:[function(require,module,exports){
+},{"./createError":53}],58:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8551,7 +9448,7 @@ module.exports = function transformData(data, headers, fns) {
   return data;
 };
 
-},{"./../utils":66}],56:[function(require,module,exports){
+},{"./../utils":69}],59:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -8653,7 +9550,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 module.exports = defaults;
 
 }).call(this,require('_process'))
-},{"./adapters/http":43,"./adapters/xhr":43,"./helpers/normalizeHeaderName":63,"./utils":66,"_process":67}],57:[function(require,module,exports){
+},{"./adapters/http":46,"./adapters/xhr":46,"./helpers/normalizeHeaderName":66,"./utils":69,"_process":70}],60:[function(require,module,exports){
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -8666,7 +9563,7 @@ module.exports = function bind(fn, thisArg) {
   };
 };
 
-},{}],58:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8739,7 +9636,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
-},{"./../utils":66}],59:[function(require,module,exports){
+},{"./../utils":69}],62:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8755,7 +9652,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
     : baseURL;
 };
 
-},{}],60:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8810,7 +9707,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":66}],61:[function(require,module,exports){
+},{"./../utils":69}],64:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8826,7 +9723,7 @@ module.exports = function isAbsoluteURL(url) {
   return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
 };
 
-},{}],62:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8896,7 +9793,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":66}],63:[function(require,module,exports){
+},{"./../utils":69}],66:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -8910,7 +9807,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
   });
 };
 
-},{"../utils":66}],64:[function(require,module,exports){
+},{"../utils":69}],67:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -8965,7 +9862,7 @@ module.exports = function parseHeaders(headers) {
   return parsed;
 };
 
-},{"./../utils":66}],65:[function(require,module,exports){
+},{"./../utils":69}],68:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8994,7 +9891,7 @@ module.exports = function spread(callback) {
   };
 };
 
-},{}],66:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 'use strict';
 
 var bind = require('./helpers/bind');
@@ -9330,7 +10227,7 @@ module.exports = {
   trim: trim
 };
 
-},{"./helpers/bind":57,"is-buffer":68}],67:[function(require,module,exports){
+},{"./helpers/bind":60,"is-buffer":71}],70:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -9516,7 +10413,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],68:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -9529,7 +10426,7 @@ module.exports = function isBuffer (obj) {
     typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
 }
 
-},{}],69:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 //! moment-timezone.js
 //! version : 0.5.26
 //! Copyright (c) JS Foundation and other contributors
@@ -10755,7 +11652,7 @@ module.exports = function isBuffer (obj) {
 	return moment;
 }));
 
-},{"moment":70}],70:[function(require,module,exports){
+},{"moment":73}],73:[function(require,module,exports){
 //! moment.js
 
 ;(function (global, factory) {
@@ -15359,7 +16256,7 @@ module.exports = function isBuffer (obj) {
 
 })));
 
-},{}],71:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -15612,7 +16509,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":72,"./sax":73}],72:[function(require,module,exports){
+},{"./dom":75,"./sax":76}],75:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -16858,7 +17755,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],73:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
