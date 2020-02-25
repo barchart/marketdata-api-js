@@ -208,6 +208,8 @@ module.exports = (() => {
 				symbols = PLATTS;
 			} else if (symbol === '#BOTH') {
 				symbols = BOTH;
+			} else if (symbol === '#AG') {
+				symbols = AG;
 			} else {
 				symbols = [ symbol ];
 			}
@@ -466,6 +468,7 @@ module.exports = (() => {
 	const C3_OLD = [ 'C3:AL79MRM1', 'C3:BSP9WGQ1', 'C3:RA10BGM1' ];
 	const CMDTY_OLD = [ 'BC5L09YB.CM', 'EI3E06EI.CM', 'EI3E06EJ.CM', 'USDA-CORN-COND-EXC-AL-2528.CM', 'EURS-BEET-PRICE-SELL-GBR-33877.CM', 'EUJU0Q51.CM' ];
 	const PLATTS = [ 'PLATTS:RD52017', 'PLATTS:RD5MA17', 'PLATTS:RD52018' ];
+	const AG = [ 'ZCPAIA.CM', 'ZCPAIL.CM', 'ZCPAIN.CM', 'ZCPAKS.CM', 'ZCPAMI.CM'  ];
 	const BOTH = [ 'ESZ19', 'ESZ9' ];
 
 	$(document).ready(function() {
