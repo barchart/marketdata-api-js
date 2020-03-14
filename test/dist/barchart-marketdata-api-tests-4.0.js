@@ -4074,6 +4074,7 @@ module.exports = (() => {
      * Gets a list of names in the tz database (see https://en.wikipedia.org/wiki/Tz_database
      * and https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
      *
+     * @public
      * @static
      * @returns {Array<String>}
      */
@@ -4084,6 +4085,7 @@ module.exports = (() => {
     /**
      * Indicates if a timezone name exists.
      *
+     * @public
      * @static
      * @param {String} name - The timezone name to find.
      * @returns {Boolean}
@@ -4098,6 +4100,8 @@ module.exports = (() => {
     /**
      * Attempts to guess the lock timezone.
      *
+     * @public
+     * @static
      * @returns {String|null}
      */
     guessTimezone() {
