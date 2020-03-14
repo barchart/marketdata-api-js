@@ -1,18 +1,19 @@
 # @barchart/marketdata-api-js
-## JavaScript library for accessing streaming market data from [Barchart](https://www.barchart.com)
 
-Include streaming market data in your applications. Asset classes include equities, futures, and forex.
+A JavaScript library for accessing streaming market data from [Barchart](https://www.barchart.com).
 
-All you need is a username/password from Barchart and your app can be live within a matter of minutes. To obtain your credentials, please contact solutions@barchart.com.
+### Overview
 
-## Supported Environments
+Include streaming market data in your applications. Asset classes include equities, futures, and forex. All you need is a username/password from Barchart and your app can be live within a matter of minutes. To obtain your credentials, please contact solutions@barchart.com.
+
+### Supported Environments
 
 * *Browsers* - Your target browser must support WebSockets (which all modern browsers do). Also, the source code is written using ES6, so transpilation (with appropriate polyfills) is recommended before distribution.
 * *Node.js* - Node.js does not natively support WebSockets. Instead, a third-party library called [WS](https://github.com/websockets/ws) is responsible for maintaining the WebSocket connection to Barchart's servers.
 
-## Examples
+### Examples
 
-### Browser
+#### Browser
 
 Open the following file in your browser:
 
@@ -22,17 +23,13 @@ Or, visit the hosted page at:
 
 - [https://examples.aws.barchart.com/marketdata-api-js/example.html](https://examples.aws.barchart.com/marketdata-api-js/example.html)
 
-### Node.js
+#### Node.js
 
 Ensure you're running a recent version of Node.js (e.g. v10.16.0) and execute the [example script](https://github.com/barchart/marketdata-api-js/blob/master/example/node/example.js) as follows:
 
     > node example/node/example.js {host} {username} {password} {comma-delimited symbol list}
 
-## Documentation
-
-### Wiki
-
-[Read the Wiki for full documentation](https://github.com/barchart/marketdata-api-js/wiki)
+### Documentation
 
 ### Code
 
@@ -40,8 +37,9 @@ Ensure you're running a recent version of Node.js (e.g. v10.16.0) and execute th
 
 	> gulp document
 
-## Development
+## Package Managers
 
-If you want, a gulp task exists which watches the source code an automatically rebuilds the example page bundle, as you make changes to the cofe:
+This library has been published as a public module to NPM as [@barchart/marketdata-api-js](https://www.npmjs.com/package/@barchart/marketdata-api-js).
 
-    > gulp watch
+    > npm install @barchart/marketdata-api-js -S
+
