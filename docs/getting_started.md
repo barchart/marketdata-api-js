@@ -1,0 +1,45 @@
+# @barchart/marketdata-api-js
+
+A JavaScript library for accessing streaming market data from [Barchart](https://www.barchart.com).
+
+## Overview
+
+Include streaming market data in your applications. Asset classes include equities, futures, and forex. All you need is a username/password from Barchart and your app can be live within a matter of minutes. To obtain your credentials, please contact solutions@barchart.com.
+
+## Supported Environments
+
+* *Browsers* - Your target browser must support WebSockets (which all modern browsers do). Also, the source code is written using ES6, so transpilation (with appropriate polyfills) is recommended before distribution.
+* *Node.js* - Node.js does not natively support WebSockets. Instead, a third-party library called [WS](https://github.com/websockets/ws) is responsible for maintaining the WebSocket connection to Barchart's servers.
+
+## Examples
+
+### Browser
+
+Open the following file in your browser:
+
+    ./example/browser/example.html
+    
+Or, visit the hosted page at:
+
+- [https://examples.aws.barchart.com/marketdata-api-js/example.html](https://examples.aws.barchart.com/marketdata-api-js/example.html)
+
+### Node.js
+
+Ensure you're running a recent version of Node.js (e.g. v10.16.0) and execute the [example script](https://github.com/barchart/marketdata-api-js/blob/master/example/node/example.js) as follows:
+
+    > node example/node/example.js {host} {username} {password} {comma-delimited symbol list}
+
+## Documentation
+
+### Code
+
+[JSDoc](http://usejsdoc.org/) is used to document the source code. HTML documentation can be generated (into a "docs" folder), as follows:
+
+	> gulp document
+
+## Package Managers
+
+This library has been published as a public module to NPM as [@barchart/marketdata-api-js](https://www.npmjs.com/package/@barchart/marketdata-api-js).
+
+    > npm install @barchart/marketdata-api-js -S
+
