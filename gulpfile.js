@@ -15,7 +15,9 @@ const AWS = require('aws-sdk'),
 	jshint = require('gulp-jshint'),
 	rename = require('gulp-rename'),
 	replace = require('gulp-replace'),
-	source = require('vinyl-source-stream');
+	source = require('vinyl-source-stream'),
+	docsify = require('docsify-cli/lib/commands/init'),
+	jsdoc2md = require('jsdoc-to-markdown');
 
 function getVersionFromPackage() {
     return JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
@@ -24,6 +26,33 @@ function getVersionFromPackage() {
 function getVersionForComponent() {
     return getVersionFromPackage().split('.').slice(0, 2).join('.');
 }
+
+function generateDocs(cb) {
+	const sidebar = '* [Getting Started](/README.md)\n* [Documentation](documentation.md)';
+	return jsdoc2md.render({
+		files: 'lib/**/*.js'
+	}).then(output => {
+		fs.writeFileSync('./docs/documentation.md', output);
+		fs.writeFileSync('./docs/_sidebar.md', sidebar);
+		return cb();
+	});
+}
+
+gulp.task('docsify', (cb) => {
+	const isInited = fs.existsSync("./docs/index.html");
+
+	if (!isInited) {
+		const docsifyConfig = 'window.$docsify = {\n\tloadSidebar: true,';
+
+		docsify("./docs",  "", "vue");
+
+		gulp.src(['./docs/index.html'])
+			.pipe(replace(/(window.\$docsify.*)/g, docsifyConfig))
+			.pipe(gulp.dest('./docs/'));
+	}
+
+	return generateDocs(cb);
+});
 
 gulp.task('document', (cb) => {
 	const config = {
