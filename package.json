@@ -56,7 +56,6 @@
     "gulp-bump": "~1.0.0",
     "gulp-git": "^2.5.1",
     "gulp-jasmine": "^2.2.1",
-    "gulp-jsdoc3": "^1.0.1",
     "gulp-jshint": "~2.1.0",
     "gulp-rename": "^1.4.0",
     "gulp-replace": "^0.5.4",

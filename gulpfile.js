@@ -11,7 +11,6 @@ const AWS = require('aws-sdk'),
 	gitStatus = require('git-get-status'),
 	glob = require('glob'),
 	jasmine = require('gulp-jasmine'),
-	jsdoc = require('gulp-jsdoc3'),
 	jshint = require('gulp-jshint'),
 	rename = require('gulp-rename'),
 	replace = require('gulp-replace'),
@@ -52,17 +51,6 @@ gulp.task('docsify', (cb) => {
 	}
 
 	return generateDocs(cb);
-});
-
-gulp.task('document', (cb) => {
-	const config = {
-		"opts": {
-			"destination": "./docs"
-		}
-	};
-
-	gulp.src(['README.md', './lib/**/*.js' ], {read: false})
-		.pipe(jsdoc(config, cb));
 });
 
 gulp.task('ensure-clean-working-directory', (cb) => {
