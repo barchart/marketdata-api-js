@@ -161,7 +161,6 @@ gulp.task('release', gulp.series(
 	'embed-version',
 	'build',
 	'build-browser-tests',
-	'document',
 	'commit-changes',
 	'push-changes',
 	'create-tag'
