@@ -1,6 +1,5 @@
 .gitignore
 .idea
 node_modules
-docs
 .DS_Store
 .awspublish-barchart-examples
