@@ -31,13 +31,11 @@ Ensure you're running a recent version of Node.js (e.g. v10.16.0) and execute th
 
 ### Documentation
 
-### Code
+Full documentation can be found here:
 
-[JSDoc](http://usejsdoc.org/) is used to document the source code. HTML documentation can be generated (into a "docs" folder), as follows:
+http://barchart.github.io/marketdata-api-js/
 
-	> gulp document
-
-## Package Managers
+### Package Managers
 
 This library has been published as a public module to NPM as [@barchart/marketdata-api-js](https://www.npmjs.com/package/@barchart/marketdata-api-js).
 
