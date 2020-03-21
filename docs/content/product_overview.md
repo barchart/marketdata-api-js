@@ -6,9 +6,9 @@
 
 ## Market Data Catalog
 
-Barchart offers a exhaustive array of asset classes from exchanges around the world.
+Barchart offers an exhaustive array of market data for multiple asset classes from exchanges around the world.
 
-#### Available Asset Classes
+#### Asset Classes
 
 * Equities
 * Exchange Traded Funds
@@ -16,11 +16,11 @@ Barchart offers a exhaustive array of asset classes from exchanges around the wo
 * Foreign Exchange (Forex)
 * Cryptocurrency
 
-#### Available Exchanges
+#### Exchanges
 
 Market data from virtually every exchange across the globe is available.
 
-#### Available Data Formats
+#### Data Formats
 
 **Level I Data**
 

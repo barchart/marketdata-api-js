@@ -63,5 +63,18 @@ Running the SDK in Node.js is identical to running it in a web browser -- with o
 
 ### Web Browsers
 
+The SDK includes a simple, single-page HTML application demonstrates the capabilities of this SDK in the browser.
+
+You can load the following page in a web browser from your file system:
+
+    ./example/browser/example.html
+
+This example application is also hosted here:
+
+https://examples.aws.barchart.com/marketdata-api-js/example.html
+
 ### Node.js
 
+The SDK includes a simple Node.js script which will establish a connection and subscribe to a single symbol. You can execute it as follows:
+
+    > node ./example/node/example.js {host} {username} {password} {comma-delimited symbol list}
