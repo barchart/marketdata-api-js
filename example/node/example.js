@@ -63,7 +63,7 @@ const startup = (() => {
 		symbols.split(',').forEach((s) => {
 			let price = null;
 
-			const handleMarketUpdate = function(message) {
+			const handleMarketUpdate = (message) => {
 				const current = connection.getMarketState().getQuote(s).lastPrice;
 
 				if (price !== current) {
