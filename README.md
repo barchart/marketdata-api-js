@@ -1,39 +1,22 @@
 # @barchart/marketdata-api-js
 
-A JavaScript library for accessing streaming market data from [Barchart](https://www.barchart.com).
+**[Barchart](https://www.barchart.com) offers an exhaustive collection of streaming market data from exchanges around the world. This SDK allows your applications to consume real-time market data.**
 
 ### Overview
 
-Include streaming market data in your applications. Asset classes include equities, futures, and forex. All you need is a username/password from Barchart and your app can be live within a matter of minutes. To obtain your credentials, please contact solutions@barchart.com.
+**This SDK enables your applications to consume real-time market data**, as follows:
 
-### Supported Environments
-
-* *Browsers* - Your target browser must support WebSockets (which all modern browsers do). Also, the source code is written using ES6, so transpilation (with appropriate polyfills) is recommended before distribution.
-* *Node.js* - Node.js does not natively support WebSockets. Instead, a third-party library called [WS](https://github.com/websockets/ws) is responsible for maintaining the WebSocket connection to Barchart's servers.
-
-### Examples
-
-#### Browser
-
-Open the following file in your browser:
-
-    ./example/browser/example.html
-    
-Or, visit the hosted page at:
-
-- [https://examples.aws.barchart.com/marketdata-api-js/example.html](https://examples.aws.barchart.com/marketdata-api-js/example.html)
-
-#### Node.js
-
-Ensure you're running a recent version of Node.js (e.g. v10.16.0) and execute the [example script](https://github.com/barchart/marketdata-api-js/blob/master/example/node/example.js) as follows:
-
-    > node example/node/example.js {host} {username} {password} {comma-delimited symbol list}
+* A **WebSocket connection** is established between your application and Barchart's quote servers.
+  * Your application sends subscription requests for individual symbols.
+  * Your application receives a stream of market data for subscribed symbols.
 
 ### Documentation
 
-Full documentation can be found here:
+Complete documentation for this SDK can be found here: http://barchart.github.io/marketdata-api-js/
 
-http://barchart.github.io/marketdata-api-js/
+### Examples
+
+Working examples are available for both web browser and Node.js environments. Please refer to the [documentation](http://barchart.github.io/marketdata-api-js/).
 
 ### Package Managers
 
