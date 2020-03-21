@@ -1,6 +1,6 @@
 # @barchart/marketdata-api-js
 
-**[Barchart](https://www.barchart.com) offers an exhaustive collection of streaming market data from exchanges around the world. This SDK allows your applications to consume real-time market data.**
+[Barchart](https://www.barchart.com) offers streaming market data from an exhaustive array of exchanges around the world. This SDK allows your applications to consume real-time market data.
 
 ### Overview
 
