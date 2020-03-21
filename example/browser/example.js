@@ -76,6 +76,7 @@ module.exports = (() => {
 
     var handleEvents = function (data) {
       if (data.event) {
+        debugger;
         var event = data.event;
 
         if (event === 'login success') {
@@ -7572,6 +7573,7 @@ module.exports = (() => {
      * item's value. If no matching item can be found, a null value is returned.
      *
      * @public
+     * @static
      * @param {Function} type - The enumeration type.
      * @param {String} code - The enumeration item's code.
      * @returns {*|null}
@@ -7585,6 +7587,7 @@ module.exports = (() => {
      * Returns all of the enumeration's items (given an enumeration type).
      *
      * @public
+     * @static
      * @param {Function} type - The enumeration to list.
      * @returns {Array}
      */
@@ -8743,6 +8746,7 @@ module.exports = require('./lib/axios');
 var utils = require('./../utils');
 var settle = require('./../core/settle');
 var buildURL = require('./../helpers/buildURL');
+var buildFullPath = require('../core/buildFullPath');
 var parseHeaders = require('./../helpers/parseHeaders');
 var isURLSameOrigin = require('./../helpers/isURLSameOrigin');
 var createError = require('../core/createError');
@@ -8765,7 +8769,8 @@ module.exports = function xhrAdapter(config) {
       requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
     }
 
-    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
+    var fullPath = buildFullPath(config.baseURL, config.url);
+    request.open(config.method.toUpperCase(), buildURL(fullPath, config.params, config.paramsSerializer), true);
 
     // Set the request timeout in MS
     request.timeout = config.timeout;
@@ -8826,7 +8831,11 @@ module.exports = function xhrAdapter(config) {
 
     // Handle timeout
     request.ontimeout = function handleTimeout() {
-      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
+      var timeoutErrorMessage = 'timeout of ' + config.timeout + 'ms exceeded';
+      if (config.timeoutErrorMessage) {
+        timeoutErrorMessage = config.timeoutErrorMessage;
+      }
+      reject(createError(timeoutErrorMessage, config, 'ECONNABORTED',
         request));
 
       // Clean up request
@@ -8840,7 +8849,7 @@ module.exports = function xhrAdapter(config) {
       var cookies = require('./../helpers/cookies');
 
       // Add xsrf header
-      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
+      var xsrfValue = (config.withCredentials || isURLSameOrigin(fullPath)) && config.xsrfCookieName ?
         cookies.read(config.xsrfCookieName) :
         undefined;
 
@@ -8863,8 +8872,8 @@ module.exports = function xhrAdapter(config) {
     }
 
     // Add withCredentials to request if needed
-    if (config.withCredentials) {
-      request.withCredentials = true;
+    if (!utils.isUndefined(config.withCredentials)) {
+      request.withCredentials = !!config.withCredentials;
     }
 
     // Add responseType to request if needed
@@ -8913,7 +8922,7 @@ module.exports = function xhrAdapter(config) {
   });
 };
 
-},{"../core/createError":53,"./../core/settle":57,"./../helpers/buildURL":61,"./../helpers/cookies":63,"./../helpers/isURLSameOrigin":65,"./../helpers/parseHeaders":67,"./../utils":69}],47:[function(require,module,exports){
+},{"../core/buildFullPath":53,"../core/createError":54,"./../core/settle":58,"./../helpers/buildURL":62,"./../helpers/cookies":64,"./../helpers/isURLSameOrigin":66,"./../helpers/parseHeaders":68,"./../utils":70}],47:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -8968,7 +8977,7 @@ module.exports = axios;
 // Allow use of default import syntax in TypeScript
 module.exports.default = axios;
 
-},{"./cancel/Cancel":48,"./cancel/CancelToken":49,"./cancel/isCancel":50,"./core/Axios":51,"./core/mergeConfig":56,"./defaults":59,"./helpers/bind":60,"./helpers/spread":68,"./utils":69}],48:[function(require,module,exports){
+},{"./cancel/Cancel":48,"./cancel/CancelToken":49,"./cancel/isCancel":50,"./core/Axios":51,"./core/mergeConfig":57,"./defaults":60,"./helpers/bind":61,"./helpers/spread":69,"./utils":70}],48:[function(require,module,exports){
 'use strict';
 
 /**
@@ -9093,7 +9102,15 @@ Axios.prototype.request = function request(config) {
   }
 
   config = mergeConfig(this.defaults, config);
-  config.method = config.method ? config.method.toLowerCase() : 'get';
+
+  // Set config.method
+  if (config.method) {
+    config.method = config.method.toLowerCase();
+  } else if (this.defaults.method) {
+    config.method = this.defaults.method.toLowerCase();
+  } else {
+    config.method = 'get';
+  }
 
   // Hook up interceptors middleware
   var chain = [dispatchRequest, undefined];
@@ -9143,7 +9160,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = Axios;
 
-},{"../helpers/buildURL":61,"./../utils":69,"./InterceptorManager":52,"./dispatchRequest":54,"./mergeConfig":56}],52:[function(require,module,exports){
+},{"../helpers/buildURL":62,"./../utils":70,"./InterceptorManager":52,"./dispatchRequest":55,"./mergeConfig":57}],52:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -9197,7 +9214,29 @@ InterceptorManager.prototype.forEach = function forEach(fn) {
 
 module.exports = InterceptorManager;
 
-},{"./../utils":69}],53:[function(require,module,exports){
+},{"./../utils":70}],53:[function(require,module,exports){
+'use strict';
+
+var isAbsoluteURL = require('../helpers/isAbsoluteURL');
+var combineURLs = require('../helpers/combineURLs');
+
+/**
+ * Creates a new URL by combining the baseURL with the requestedURL,
+ * only when the requestedURL is not already an absolute URL.
+ * If the requestURL is absolute, this function returns the requestedURL untouched.
+ *
+ * @param {string} baseURL The base URL
+ * @param {string} requestedURL Absolute or relative URL to combine
+ * @returns {string} The combined full path
+ */
+module.exports = function buildFullPath(baseURL, requestedURL) {
+  if (baseURL && !isAbsoluteURL(requestedURL)) {
+    return combineURLs(baseURL, requestedURL);
+  }
+  return requestedURL;
+};
+
+},{"../helpers/combineURLs":63,"../helpers/isAbsoluteURL":65}],54:[function(require,module,exports){
 'use strict';
 
 var enhanceError = require('./enhanceError');
@@ -9217,15 +9256,13 @@ module.exports = function createError(message, config, code, request, response) 
   return enhanceError(error, config, code, request, response);
 };
 
-},{"./enhanceError":55}],54:[function(require,module,exports){
+},{"./enhanceError":56}],55:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
 var transformData = require('./transformData');
 var isCancel = require('../cancel/isCancel');
 var defaults = require('../defaults');
-var isAbsoluteURL = require('./../helpers/isAbsoluteURL');
-var combineURLs = require('./../helpers/combineURLs');
 
 /**
  * Throws a `Cancel` if cancellation has been requested.
@@ -9245,11 +9282,6 @@ function throwIfCancellationRequested(config) {
 module.exports = function dispatchRequest(config) {
   throwIfCancellationRequested(config);
 
-  // Support baseURL config
-  if (config.baseURL && !isAbsoluteURL(config.url)) {
-    config.url = combineURLs(config.baseURL, config.url);
-  }
-
   // Ensure headers exist
   config.headers = config.headers || {};
 
@@ -9264,7 +9296,7 @@ module.exports = function dispatchRequest(config) {
   config.headers = utils.merge(
     config.headers.common || {},
     config.headers[config.method] || {},
-    config.headers || {}
+    config.headers
   );
 
   utils.forEach(
@@ -9305,7 +9337,7 @@ module.exports = function dispatchRequest(config) {
   });
 };
 
-},{"../cancel/isCancel":50,"../defaults":59,"./../helpers/combineURLs":62,"./../helpers/isAbsoluteURL":64,"./../utils":69,"./transformData":58}],55:[function(require,module,exports){
+},{"../cancel/isCancel":50,"../defaults":60,"./../utils":70,"./transformData":59}],56:[function(require,module,exports){
 'use strict';
 
 /**
@@ -9349,7 +9381,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
   return error;
 };
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -9367,13 +9399,23 @@ module.exports = function mergeConfig(config1, config2) {
   config2 = config2 || {};
   var config = {};
 
-  utils.forEach(['url', 'method', 'params', 'data'], function valueFromConfig2(prop) {
+  var valueFromConfig2Keys = ['url', 'method', 'params', 'data'];
+  var mergeDeepPropertiesKeys = ['headers', 'auth', 'proxy'];
+  var defaultToConfig2Keys = [
+    'baseURL', 'url', 'transformRequest', 'transformResponse', 'paramsSerializer',
+    'timeout', 'withCredentials', 'adapter', 'responseType', 'xsrfCookieName',
+    'xsrfHeaderName', 'onUploadProgress', 'onDownloadProgress',
+    'maxContentLength', 'validateStatus', 'maxRedirects', 'httpAgent',
+    'httpsAgent', 'cancelToken', 'socketPath'
+  ];
+
+  utils.forEach(valueFromConfig2Keys, function valueFromConfig2(prop) {
     if (typeof config2[prop] !== 'undefined') {
       config[prop] = config2[prop];
     }
   });
 
-  utils.forEach(['headers', 'auth', 'proxy'], function mergeDeepProperties(prop) {
+  utils.forEach(mergeDeepPropertiesKeys, function mergeDeepProperties(prop) {
     if (utils.isObject(config2[prop])) {
       config[prop] = utils.deepMerge(config1[prop], config2[prop]);
     } else if (typeof config2[prop] !== 'undefined') {
@@ -9385,13 +9427,25 @@ module.exports = function mergeConfig(config1, config2) {
     }
   });
 
-  utils.forEach([
-    'baseURL', 'transformRequest', 'transformResponse', 'paramsSerializer',
-    'timeout', 'withCredentials', 'adapter', 'responseType', 'xsrfCookieName',
-    'xsrfHeaderName', 'onUploadProgress', 'onDownloadProgress', 'maxContentLength',
-    'validateStatus', 'maxRedirects', 'httpAgent', 'httpsAgent', 'cancelToken',
-    'socketPath'
-  ], function defaultToConfig2(prop) {
+  utils.forEach(defaultToConfig2Keys, function defaultToConfig2(prop) {
+    if (typeof config2[prop] !== 'undefined') {
+      config[prop] = config2[prop];
+    } else if (typeof config1[prop] !== 'undefined') {
+      config[prop] = config1[prop];
+    }
+  });
+
+  var axiosKeys = valueFromConfig2Keys
+    .concat(mergeDeepPropertiesKeys)
+    .concat(defaultToConfig2Keys);
+
+  var otherKeys = Object
+    .keys(config2)
+    .filter(function filterAxiosKeys(key) {
+      return axiosKeys.indexOf(key) === -1;
+    });
+
+  utils.forEach(otherKeys, function otherKeysDefaultToConfig2(prop) {
     if (typeof config2[prop] !== 'undefined') {
       config[prop] = config2[prop];
     } else if (typeof config1[prop] !== 'undefined') {
@@ -9402,7 +9456,7 @@ module.exports = function mergeConfig(config1, config2) {
   return config;
 };
 
-},{"../utils":69}],57:[function(require,module,exports){
+},{"../utils":70}],58:[function(require,module,exports){
 'use strict';
 
 var createError = require('./createError');
@@ -9429,7 +9483,7 @@ module.exports = function settle(resolve, reject, response) {
   }
 };
 
-},{"./createError":53}],58:[function(require,module,exports){
+},{"./createError":54}],59:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -9451,7 +9505,7 @@ module.exports = function transformData(data, headers, fns) {
   return data;
 };
 
-},{"./../utils":69}],59:[function(require,module,exports){
+},{"./../utils":70}],60:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -9470,13 +9524,12 @@ function setContentTypeIfUnset(headers, value) {
 
 function getDefaultAdapter() {
   var adapter;
-  // Only Node.JS has a process variable that is of [[Class]] process
-  if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
-    // For node use HTTP adapter
-    adapter = require('./adapters/http');
-  } else if (typeof XMLHttpRequest !== 'undefined') {
+  if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
     adapter = require('./adapters/xhr');
+  } else if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
+    // For node use HTTP adapter
+    adapter = require('./adapters/http');
   }
   return adapter;
 }
@@ -9553,7 +9606,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 module.exports = defaults;
 
 }).call(this,require('_process'))
-},{"./adapters/http":46,"./adapters/xhr":46,"./helpers/normalizeHeaderName":66,"./utils":69,"_process":70}],60:[function(require,module,exports){
+},{"./adapters/http":46,"./adapters/xhr":46,"./helpers/normalizeHeaderName":67,"./utils":70,"_process":71}],61:[function(require,module,exports){
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -9566,7 +9619,7 @@ module.exports = function bind(fn, thisArg) {
   };
 };
 
-},{}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -9639,7 +9692,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
-},{"./../utils":69}],62:[function(require,module,exports){
+},{"./../utils":70}],63:[function(require,module,exports){
 'use strict';
 
 /**
@@ -9655,7 +9708,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
     : baseURL;
 };
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -9710,7 +9763,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":69}],64:[function(require,module,exports){
+},{"./../utils":70}],65:[function(require,module,exports){
 'use strict';
 
 /**
@@ -9726,7 +9779,7 @@ module.exports = function isAbsoluteURL(url) {
   return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
 };
 
-},{}],65:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -9796,7 +9849,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":69}],66:[function(require,module,exports){
+},{"./../utils":70}],67:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -9810,7 +9863,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
   });
 };
 
-},{"../utils":69}],67:[function(require,module,exports){
+},{"../utils":70}],68:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -9865,7 +9918,7 @@ module.exports = function parseHeaders(headers) {
   return parsed;
 };
 
-},{"./../utils":69}],68:[function(require,module,exports){
+},{"./../utils":70}],69:[function(require,module,exports){
 'use strict';
 
 /**
@@ -9894,11 +9947,10 @@ module.exports = function spread(callback) {
   };
 };
 
-},{}],69:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 'use strict';
 
 var bind = require('./helpers/bind');
-var isBuffer = require('is-buffer');
 
 /*global toString:true*/
 
@@ -9914,6 +9966,27 @@ var toString = Object.prototype.toString;
  */
 function isArray(val) {
   return toString.call(val) === '[object Array]';
+}
+
+/**
+ * Determine if a value is undefined
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if the value is undefined, otherwise false
+ */
+function isUndefined(val) {
+  return typeof val === 'undefined';
+}
+
+/**
+ * Determine if a value is a Buffer
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Buffer, otherwise false
+ */
+function isBuffer(val) {
+  return val !== null && !isUndefined(val) && val.constructor !== null && !isUndefined(val.constructor)
+    && typeof val.constructor.isBuffer === 'function' && val.constructor.isBuffer(val);
 }
 
 /**
@@ -9970,16 +10043,6 @@ function isString(val) {
  */
 function isNumber(val) {
   return typeof val === 'number';
-}
-
-/**
- * Determine if a value is undefined
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if the value is undefined, otherwise false
- */
-function isUndefined(val) {
-  return typeof val === 'undefined';
 }
 
 /**
@@ -10230,7 +10293,7 @@ module.exports = {
   trim: trim
 };
 
-},{"./helpers/bind":60,"is-buffer":71}],70:[function(require,module,exports){
+},{"./helpers/bind":61}],71:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -10415,19 +10478,6 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 process.umask = function() { return 0; };
-
-},{}],71:[function(require,module,exports){
-/*!
- * Determine if an object is a Buffer
- *
- * @author   Feross Aboukhadijeh <https://feross.org>
- * @license  MIT
- */
-
-module.exports = function isBuffer (obj) {
-  return obj != null && obj.constructor != null &&
-    typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
-}
 
 },{}],72:[function(require,module,exports){
 //! moment-timezone.js

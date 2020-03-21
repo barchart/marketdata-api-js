@@ -1,6 +1,6 @@
-# Marketdata API JS <small>4.0.22</small>
+# Barchart Market Data SDK <small>JavaScript 4.0.22</small>
 
-> Barchart client library for streaming market data from JERQ servers using JavaScript
+> Inject real-time market data into your JavaScript applications
 
-[GitHub](https://github.com/barchart/marketdata-api-js/)
-[Getting Started](/getting_started)
+[Product Overview](/content/product_overview)
+[Quick Start](/content/quick_start)

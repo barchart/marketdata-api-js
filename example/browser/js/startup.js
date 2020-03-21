@@ -89,6 +89,8 @@ module.exports = (() => {
 
 		var handleEvents = function(data) {
 			if (data.event) {
+				debugger;
+
 				var event = data.event;
 
 				if (event === 'login success') {
