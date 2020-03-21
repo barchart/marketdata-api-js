@@ -75,6 +75,12 @@ https://examples.aws.barchart.com/marketdata-api-js/example.html
 
 ### Node.js
 
-The SDK includes a simple Node.js script which will establish a connection and subscribe to a single symbol. You can execute it as follows:
+The SDK includes a simple Node.js script which will establish a connection and subscribe to a single symbol.
+
+First, make sure required dependencies are installed:
+
+    > npm install
+
+Then, execute the example script, as follows:
 
     > node ./example/node/example.js {host} {username} {password} {comma-delimited symbol list}
