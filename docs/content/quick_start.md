@@ -79,26 +79,22 @@ After a connection has been established, let's subscribe to the Level I data for
 
 ## Examples
 
+Two pre-built applications can provide some insight into the features of the SDK.
+
 ### Web Browsers
 
-A simple, single-page HTML application demonstrates the capabilities of this SDK in the browser.
-
-You can load the application by launching:
-
-	./example/browser/example.html
-
-Or, the application is also hosted here:
+A single-page HTML application allows the user to select symbols they are interested in and observe changes. You can find the source code in the */example/browser* folder. It is also hosted here:
 
 https://examples.aws.barchart.com/marketdata-api-js/example.html
 
 ### Node.js
 
-A simple Node.js script illustrates the basic concepts of the SDK. You can find it in the *example/node* folder.
+A simple Node.js script connects to the backend, subscribes to Level I data for one or more symbols, and prints price changes to the console. You can find the source code in the */example/node* folder.
 
-First, make sure required dependencies are installed:
+To run the script, make sure required dependencies are installed:
 
 	> npm install
 
-Then, execute the example script, as follows:
+Then, execute it, as follows:
 
 	> node ./example/node/example.js {host} {username} {password} {comma-delimited symbol list}
