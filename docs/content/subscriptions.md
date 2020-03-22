@@ -37,13 +37,13 @@ For market data subscriptions, you must supply a symbol. A symbol is a ```String
 The symbol for Apple common stock is widely accepted. However, in some cases, symbols are not universal. In these cases, Barchart defines their own *symbology*; here are some examples:
 
 * Forex - Begins with a caret (e.g. ^EURUSD)
-* Indicies - Begins with a dollar sign (e.g. $SPX for the S&P 500)
+* Indices - Begins with a dollar sign (e.g. $SPX -- the S&P 500)
 
 ## Subscriptions
 
 ### Timestamp
 
-The *timestamp* subscription is the simplest. The callback should accept a ```Date``` argument, as follows:
+The *timestamp* subscription is the simple. The callback should accept a ```Date``` argument, as follows:
 
 	const timestampHandler = (date) => {
 		console.log(`Server time is ${date.getHours()}:${date.getMinutes()}`);
@@ -56,6 +56,10 @@ Remember, you need to pass a reference to the *same* event handler to successful
 	connection.off(SubscriptionType.Timestamp, timestampHandler);
 
 ### SDK Events
+
+The *events* subscription provides information about the state of the connection.
+
+
 
 ### Level I Market Data
 
