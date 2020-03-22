@@ -6,7 +6,7 @@ This SDK has been published to Node Package Manager (NPM). The package is named 
 
 If you aren't using NPM, you can download the SDK directly from GitHub at https://github.com/barchart/marketdata-api-js.
 
-## Connecting to Barchart
+## Connecting
 
 Before you can subscribe to market data, you'll need to establish a WebSocket connection to Barchart's quote servers.
 
@@ -57,7 +57,7 @@ Running the SDK in Node.js is identical to running it in a web browser -- with o
 
 	connection.connect(server, username, password, new WebSocketFactory());
 
-## Subscribing to Level I Data
+## Subscribing
 
 After a connection has been established, let's subscribe to the Level I data for Apple stock, as follows:
 
@@ -77,7 +77,7 @@ After a connection has been established, let's subscribe to the Level I data for
 	
 	connection.on('marketUpdate', handleMarketUpdate, symbol);
 
-## Example Applications
+## Examples
 
 ### Web Browsers
 
