@@ -14,7 +14,9 @@ Barchart offers an exhaustive array of market data for multiple asset classes fr
 * Exchange Traded Funds
 * Futures Contracts
 * Foreign Exchange (Forex)
-* Cryptocurrency
+* Cryptocurrencies
+* Indicies (Industry Standard)
+* Indicies (Barchart Proprietary)
 
 #### Exchanges
 
