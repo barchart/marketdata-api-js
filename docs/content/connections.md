@@ -7,13 +7,11 @@ The ```lib/connection/Connection``` class is central to the SDK's object model. 
 * Automatically track market state, and
 * Access the current market state
 
-## Instantiation
-
 The ```Connection``` class constructor does not accept any arguments:
 
 	const connection = new Connection();
 
-In general, you'll want to treat the ```Connection``` as a singleton. You only need one instance. In fact, Barchart's servers typically reject simultaneous connections using the same credentials.
+In general, you'll want to treat the ```Connection``` as a singleton. Only one instance is needed. In fact, Barchart's servers typically reject simultaneous connections using the same credentials.
 
 ## Monitoring
 
