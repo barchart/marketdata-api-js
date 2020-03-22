@@ -63,19 +63,19 @@ Running the SDK in Node.js is identical to running it in a web browser -- with o
 
 ### Web Browsers
 
-The SDK includes a simple, single-page HTML application demonstrates the capabilities of this SDK in the browser.
+A simple, single-page HTML application demonstrates the capabilities of this SDK in the browser.
 
-You can load the following page in a web browser from your file system:
+You can load the application by launching:
 
     ./example/browser/example.html
 
-This example application is also hosted here:
+Or, the application is also hosted here:
 
 https://examples.aws.barchart.com/marketdata-api-js/example.html
 
 ### Node.js
 
-The SDK includes a simple Node.js script which will establish a connection and subscribe to a single symbol.
+A simple Node.js script illustrates the basic concepts of the SDK. You can find it in the *example/node* folder.
 
 First, make sure required dependencies are installed:
 
