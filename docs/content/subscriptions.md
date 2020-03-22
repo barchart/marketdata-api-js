@@ -2,7 +2,7 @@
 
 ### Start/Stop
 
-The ```Connection.on``` function is used to establish new subscriptions. The ```Connection.off``` function is used to stop existing subscriptions.
+The ```Connection.on``` function is used to establish new subscriptions. Conversely, the ```Connection.off``` function is used to stop existing subscriptions.
 
 The ```Connection.on``` requires a subscription type, a callback, and in some cases, and a symbol (sometimes). Here is the function's signature:
 
@@ -39,11 +39,21 @@ The symbol for Apple common stock is widely accepted. However, in some cases, sy
 * Forex - Begins with a caret (e.g. ^EURUSD)
 * Indicies - Begins with a dollar sign (e.g. $SPX for the S&P 500)
 
-Consult Barc≠ for more information regarding symbols.
-
-## Subscription Types
+## Subscriptions
 
 ### Timestamp
+
+The *timestamp* subscription is the simplest. The callback should accept a ```Date``` argument, as follows:
+
+	const timestampHandler = (date) => {
+		console.log(`Server time is ${date.getHours()}:${date.getMinutes()}`);
+	};
+
+	connection.on(SubscriptionType.Timestamp, timestampHandler);
+
+Remember, you need to pass a reference to the *same* event handler to successfully unsubscribe:
+
+	connection.off(SubscriptionType.Timestamp, timestampHandler);
 
 ### SDK Events
 
