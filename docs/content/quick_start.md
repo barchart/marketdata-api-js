@@ -83,13 +83,15 @@ Two pre-built applications can provide some insight into the features of the SDK
 
 ### Web Browsers
 
-A single-page HTML application allows the user to select symbols they are interested in and observe changes. You can find the source code in the */example/browser* folder. It is also hosted here:
+A single-page HTML application allows users to enter symbols, subscribe to Level I data, unsubscribe, and observe data changes on screen.
+
+You can find the source code in the */example/browser* folder. The application is also hosted here:
 
 https://examples.aws.barchart.com/marketdata-api-js/example.html
 
 ### Node.js
 
-A simple Node.js script connects to the backend, subscribes to Level I data for one or more symbols, and prints price changes to the console. You can find the source code in the */example/node* folder.
+A simple Node.js script connects to the backend, subscribes to Level I data, and prints price changes to the console. You can find the source code in the */example/node* folder.
 
 To run the script, make sure required dependencies are installed:
 
