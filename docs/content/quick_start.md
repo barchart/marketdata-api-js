@@ -79,7 +79,7 @@ After a connection has been established, let's subscribe to the Level I data for
 
 ## Examples
 
-Two pre-built applications can provide some insight into the features of the SDK.
+Two pre-built applications should provide some insight into the features and usage of the SDK.
 
 ### Web Browsers
 
