@@ -36,7 +36,7 @@ By default, the SDK will assume it's running in a web browser and it will attemp
 
 ### From Node.js
 
-Running the SDK in Node.js is identical to running it in a web browser -- with one exception. You need to provide a tool for creating WebSocket connections to the *Connection.connect* function. So, make one slight change to the [Web Browser](#from-a-web-browser) code, as follows:
+Running the SDK in Node.js is identical to running it in a web browser -- with one exception. You need to provide a *WebSocketAdapterFactory* to the *Connection.connect* function. Connect as follows:
 
     const Connection = require('@barchart/marketdata-api-js/lib/connection/Connection');
     const WebSocketFactory = require('@barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForNode');
