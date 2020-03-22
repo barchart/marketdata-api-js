@@ -2,15 +2,19 @@
 
 ### Start/Stop
 
-The ```Connection.on``` function is used to establish a new subscription(s). The ```Connection.off``` function is used to stop existing subscriptions.
+The ```Connection.on``` function is used to establish new subscriptions. The ```Connection.off``` function is used to stop existing subscriptions.
 
-The ```Connection.on``` requires an subscription type, a callback, and in some cases, and a symbol (sometimes), having the following signature:
+The ```Connection.on``` requires a subscription type, a callback, and in some cases, and a symbol (sometimes). Here is the function's signature:
 
-	connection.on(subscriptionType, handler, symbol);
+	connection.on(subscriptionType, handler, [symbol]);
+
+The function signature for ```Connection.off``` is the same. It requires that you store and pass the *same* function reference used to establish the original subscription. Here is the function's signature:
+
+	connection.off(subscriptionType, handler, [symbol]);
 
 ### Subscription Types
 
-Subscription types are passed as ```String``` values. These values are enumerated in the ```lib/connection/SubscriptionType``` object. There are five types of subscription, grouped into two categories:
+A subscription type is a ```String``` value. The possible values are enumerated in the ```lib/connection/SubscriptionType``` object. There are five types of subscription, grouped into two categories:
 
 * **Metadata**
   * *timestamp* - Current time on Barchart's network
@@ -30,7 +34,7 @@ Every subscription requires a callback -- a function the SDK invokes each time n
 
 For market data subscriptions, you must supply a symbol. A symbol is a ```String``` which references an instrument. For example, AAPL is the symbol for Apple's common stock.
 
-The symbol for Apple common stock is widely accepted. However, in some cases, symbols are less widely accepted. In these cases, Barchart defines their own *symbology*; here are some examples:
+The symbol for Apple common stock is widely accepted. However, in some cases, symbols are not universal. In these cases, Barchart defines their own *symbology*; here are some examples:
 
 * Forex - Begins with a caret (e.g. ^EURUSD)
 * Indicies - Begins with a dollar sign (e.g. $SPX for the S&P 500)
