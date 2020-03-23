@@ -1,4 +1,4 @@
-## Overview
+## Fundamentals
 
 ### Start/Stop
 
@@ -39,11 +39,9 @@ The symbol for Apple common stock is widely accepted. However, in some cases, sy
 * Forex - Begins with a caret (e.g. ^EURUSD)
 * Indices - Begins with a dollar sign (e.g. $SPX -- the S&P 500)
 
-## Subscriptions
+## Heartbeat
 
-### Timestamp
-
-The *timestamp* subscription is the simple. The callback should accept a ```Date``` argument, as follows:
+The ```SubscriptionType.Timestamp``` subscription is the simple. The callback should expect a ```Date``` argument, as follows:
 
 	const timestampHandler = (date) => {
 		console.log(`Server time is ${date.getHours()}:${date.getMinutes()}`);
@@ -55,15 +53,36 @@ Remember, you need to pass a reference to the *same* event handler to successful
 
 	connection.off(SubscriptionType.Timestamp, timestampHandler);
 
-### SDK Events
+## System Events
 
-The *events* subscription provides information about the state of the connection.
+The ```SubscriptionType.Events``` subscription provides information about the state of the connection. The callback should expect a JavaScript ```Object``` with a ```String``` property, as follows:
 
+	{
+		event: 'login success'
+	}
 
+Possible values of the ```event``` property are:
 
-### Level I Market Data
+* *login success* - Generated after calling ```Connection.connect```, remote server accepted credentials
+* *login fail* - Generated after calling ```Connection.connect```, remote server rejected credentials
+* *disconnecting* - Generated after calling ```Connection.disconnect```
+* *disconnect* - Generated after loss of connection -- whether intentional or not
+* *feed paused* - Generated after calling ```Connection.pause```
+* *feed resumed* - Generated after calling ```Connection.resume```
 
-### Level II Market Data
+Subscribe and unsubscribe as follows:
 
-### Cumulative Volume
+	const eventsHandler = (data) => {
+		console.log(data.event);
+	};
+
+	connection.on(SubscriptionType.Events, eventsHandler);
+
+	connection.on(SubscriptionType.Events, eventsHandler);
+
+## Level I Market Data
+
+## Level II Market Data
+
+## Cumulative Volume
 

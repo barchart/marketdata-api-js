@@ -1,4 +1,4 @@
-## Overview
+## Fundamentals
 
 The ```lib/connection/Connection``` class is central to the SDK's object model. It allows you to:
 
@@ -15,30 +15,13 @@ In general, you'll want to treat the ```Connection``` as a singleton. Only one i
 
 ## Monitoring
 
-After you create a connection, you'll probably want to monitor state changes.
-
-You can do this by subscribing to the *events* topic, passing a callback. The callback will be invoked each time the connection's state changes.
+After you create a connection, you'll probably want to monitor state changes. Additional details can be found in [System Events](content/subscriptions?id=system-events) documentation. Here's the short version:
 
 	const eventsHandler = (data) => {
 		// Invoked when connection state changes
 	}
 
-	connection.on('events', eventsHandler);
-
-The callback will receive an object with a *event* property, as follows:
-
-	{
-		event: 'login success'
-	}
-
-Possible *event* values are:
-
-* *login success* - Generated after calling ```Connection.connect```, remote server accepted credentials
-* *login fail* - Generated after calling ```Connection.connect```, remote server rejected credentials
-* *disconnecting* - Generated after calling ```Connection.disconnect```
-* *disconnect* - Generated after loss of connection -- whether intentional or not
-* *feed paused* - Generated after calling ```Connection.pause```
-* *feed resumed* - Gernated after calling ```Connection.resume```
+	connection.on(SubscriptionType.Events, eventsHandler);
 
 ## Opening
 
@@ -71,7 +54,7 @@ This causes the WebSocket connection to be severed. It also clears **all** exist
 
 ## Reconnecting
 
-Unexpected network conditions may cause the WebSocket connection to close. When this happens, a *disconnect* event will be generated (see the [Monitoring](#monitoring) section). The SDK will **automatically** begin attempting to reestablish the connection.
+Unexpected network conditions may cause the WebSocket connection to close. When this happens, a *disconnect* event will be generated (see [System Events](content/subscriptions?id=system-events)). The SDK will **automatically** begin attempting to reestablish the connection.
 
 Once the connection is reestablished, a *login success* event will be generated and subscriptions will be automatically restarted. However, market state should be considered to be outdated until you receive the first notification for each subscription.
 
