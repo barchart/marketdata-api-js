@@ -1,4 +1,4 @@
-**This SDK enables your applications to consume real-time market data**, as follows:
+**This SDK enables your JavaScript applications to consume real-time market data**, as follows:
 
 * A **WebSocket connection** is established between your application and Barchart's quote servers.
   * Your application sends subscription requests for individual symbols.
