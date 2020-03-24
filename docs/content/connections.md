@@ -15,7 +15,7 @@ In general, you'll want to treat the ```Connection``` as a singleton. Only one i
 
 ## Monitoring
 
-After you create a connection, you'll probably want to monitor state changes. Additional details can be found in [System Events](content/subscriptions?id=system-events) documentation. Here's the short version:
+After you create a connection, you'll probably want to monitor state changes. Additional details can be found in [System Status](content/subscriptions?id=system-status) documentation. Here's the short version:
 
 	const eventsHandler = (data) => {
 		// Invoked when connection state changes
@@ -54,7 +54,7 @@ This causes the WebSocket connection to be severed. It also clears **all** exist
 
 ## Reconnecting
 
-Unexpected network conditions may cause the WebSocket connection to close. When this happens, a *disconnect* event will be generated (see [System Events](content/subscriptions?id=system-events)). The SDK will **automatically** begin attempting to reestablish the connection.
+Unexpected network conditions may cause the WebSocket connection to close. When this happens, a *disconnect* event will be generated (see [System Status](content/subscriptions?id=system-status)). The SDK will **automatically** begin attempting to reestablish the connection.
 
 Once the connection is reestablished, a *login success* event will be generated and subscriptions will be automatically restarted. However, market state should be considered to be outdated until you receive the first notification for each subscription.
 

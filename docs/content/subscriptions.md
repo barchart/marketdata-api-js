@@ -53,7 +53,7 @@ Remember, you need to pass a reference to the *same* event handler to successful
 
 	connection.off(SubscriptionType.Timestamp, timestampHandler);
 
-## System Events
+## System Status
 
 The ```SubscriptionType.Events``` subscription provides information about the state of the connection. The callback should expect a JavaScript ```Object``` with a ```String``` property, as follows:
 
