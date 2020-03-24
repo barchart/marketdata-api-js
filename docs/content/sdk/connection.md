@@ -1,40 +1,33 @@
 ## Classes
 
-### [ConnectionBase](#ConnectionBase) :id=ConnectionBaseDesc
-Contract for communicating with remove market data servers and
-querying current market state.
-
+* [ConnectionBase](#ConnectionBase) 
 ## Objects
 
-### [Subscription](#Subscription) :id=SubscriptionDesc
-
-
+* [Subscription](#Subscription) 
 ## ConnectionBase :id=connectionbase
-Contract for communicating with remove market data servers and
-querying current market state.
-
 **Kind**: global class  
 **Access**: protected  
+>Contract for communicating with remove market data servers and
+querying current market state.
+
 
 * [ConnectionBase](#ConnectionBase)
-    * [.connect(server, username, password, [webSocketAdapterFactory])](#ConnectionBaseconnect)
-    * [.disconnect()](#ConnectionBasedisconnect)
-    * [.pause()](#ConnectionBasepause)
-    * [.resume()](#ConnectionBaseresume)
-    * [.on(eventType, callback, [symbol])](#ConnectionBaseon)
-    * [.off(eventType, callback, [symbol])](#ConnectionBaseoff)
-    * [.getPollingFrequency()](#ConnectionBasegetPollingFrequency) ⇒ <code>number</code> \| <code>null</code>
-    * [.setPollingFrequency(pollingFrequency)](#ConnectionBasesetPollingFrequency)
-    * [.getExtendedProfileMode()](#ConnectionBasegetExtendedProfileMode) ⇒ <code>boolean</code>
-    * [.getMarketState()](#ConnectionBasegetMarketState) ⇒ <code>MarketState</code>
-    * [.getServer()](#ConnectionBasegetServer) ⇒ <code>null</code> \| <code>string</code>
-    * [.getPassword()](#ConnectionBasegetPassword) ⇒ <code>null</code> \| <code>string</code>
-    * [.getUsername()](#ConnectionBasegetUsername) ⇒ <code>null</code> \| <code>string</code>
-    * [._getInstance()](#ConnectionBase_getInstance) ⇒ <code>Number</code>
+    * [.connect(server, username, password, [webSocketAdapterFactory])](#ConnectionBase+connect)
+    * [.disconnect()](#ConnectionBase+disconnect)
+    * [.pause()](#ConnectionBase+pause)
+    * [.resume()](#ConnectionBase+resume)
+    * [.on(eventType, callback, [symbol])](#ConnectionBase+on)
+    * [.off(eventType, callback, [symbol])](#ConnectionBase+off)
+    * [.getPollingFrequency()](#ConnectionBase+getPollingFrequency) ⇒ <code>number</code> \| <code>null</code>
+    * [.setPollingFrequency(pollingFrequency)](#ConnectionBase+setPollingFrequency)
+    * [.getExtendedProfileMode()](#ConnectionBase+getExtendedProfileMode) ⇒ <code>boolean</code>
+    * [.getMarketState()](#ConnectionBase+getMarketState) ⇒ <code>MarketState</code>
+    * [.getServer()](#ConnectionBase+getServer) ⇒ <code>null</code> \| <code>string</code>
+    * [.getPassword()](#ConnectionBase+getPassword) ⇒ <code>null</code> \| <code>string</code>
+    * [.getUsername()](#ConnectionBase+getUsername) ⇒ <code>null</code> \| <code>string</code>
+    * [._getInstance()](#ConnectionBase+_getInstance) ⇒ <code>Number</code>
 
 ### connectionBase.connect(server, username, password, [webSocketAdapterFactory]) :id=connectionbaseconnect
-Connects to the given server with username and password.
-
 **Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
 **Access**: public  
 
@@ -45,25 +38,24 @@ Connects to the given server with username and password.
 | password | <code>string</code> | 
 | [webSocketAdapterFactory] | <code>WebSocketAdapterFactory</code> | 
 
+>Connects to the given server with username and password.
+
 ### connectionBase.disconnect() :id=connectionbasedisconnect
-Forces a disconnect from the server.
-
 **Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
 **Access**: public  
+>Forces a disconnect from the server.
+
 ### connectionBase.pause() :id=connectionbasepause
-Causes the market state to stop updating. All subscriptions are maintained.
-
 **Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
 **Access**: public  
+>Causes the market state to stop updating. All subscriptions are maintained.
+
 ### connectionBase.resume() :id=connectionbaseresume
-Causes the market state to begin updating again (after [pause](#ConnectionBasepause) has been called).
-
 **Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
 **Access**: public  
-### connectionBase.on(eventType, callback, [symbol]) :id=connectionbaseon
-Initiates a subscription to an [Subscription.EventType](Subscription.EventType) and
-registers the callback for notifications.
+>Causes the market state to begin updating again (after [pause](#ConnectionBase+pause) has been called).
 
+### connectionBase.on(eventType, callback, [symbol]) :id=connectionbaseon
 **Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
 **Access**: public  
 
@@ -73,29 +65,29 @@ registers the callback for notifications.
 | callback | <code>function</code> | notified each time the event occurs |
 | [symbol] | <code>String</code> | A symbol, if applicable, to the given [Subscription.EventType](Subscription.EventType) |
 
-### connectionBase.off(eventType, callback, [symbol]) :id=connectionbaseoff
-Stops notification of the callback for the [Subscription.EventType](Subscription.EventType).
-See [on](#ConnectionBaseon).
+>Initiates a subscription to an [Subscription.EventType](Subscription.EventType) and
+registers the callback for notifications.
 
+### connectionBase.off(eventType, callback, [symbol]) :id=connectionbaseoff
 **Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
 **Access**: public  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| eventType | <code>Subscription.EventType</code> | the [Subscription.EventType](Subscription.EventType) which was passed to [on](#ConnectionBaseon) |
-| callback | <code>function</code> | the callback which was passed to [on](#ConnectionBaseon) |
+| eventType | <code>Subscription.EventType</code> | the [Subscription.EventType](Subscription.EventType) which was passed to [on](#ConnectionBase+on) |
+| callback | <code>function</code> | the callback which was passed to [on](#ConnectionBase+on) |
 | [symbol] | <code>String</code> | A symbol, if applicable, to the given [Subscription.EventType](Subscription.EventType) |
 
-### connectionBase.getPollingFrequency() ⇒ <code>number</code> \| <code>null</code> :id=connectionbasegetpollingfrequency
-The frequency, in milliseconds, used to poll for changes to [Quote](Quote)
-objects. A null value indicates streaming updates (default).
+>Stops notification of the callback for the [Subscription.EventType](Subscription.EventType).
+See [on](#ConnectionBase+on).
 
+### connectionBase.getPollingFrequency() :id=connectionbasegetpollingfrequency
 **Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
 **Access**: public  
-### connectionBase.setPollingFrequency(pollingFrequency) :id=connectionbasesetpollingfrequency
-Sets the polling frequency, in milliseconds. A null value indicates
-streaming market updates (where polling is not used).
+>The frequency, in milliseconds, used to poll for changes to [Quote](Quote)
+objects. A null value indicates streaming updates (default).
 
+### connectionBase.setPollingFrequency(pollingFrequency) :id=connectionbasesetpollingfrequency
 **Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
 **Access**: public  
 
@@ -103,36 +95,37 @@ streaming market updates (where polling is not used).
 | --- | --- |
 | pollingFrequency | <code>number</code> \| <code>null</code> | 
 
-### connectionBase.getExtendedProfileMode() ⇒ <code>boolean</code> :id=connectionbasegetextendedprofilemode
-Indicates if additional profile data (e.g. future contract expiration dates
+>Sets the polling frequency, in milliseconds. A null value indicates
+streaming market updates (where polling is not used).
+
+### connectionBase.getExtendedProfileMode() :id=connectionbasegetextendedprofilemode
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Access**: public  
+>Indicates if additional profile data (e.g. future contract expiration dates
 should be loaded when subscribing to to market data).
 
+### connectionBase.getMarketState() :id=connectionbasegetmarketstate
 **Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Access**: public  
-### connectionBase.getMarketState() ⇒ <code>MarketState</code> :id=connectionbasegetmarketstate
-Returns the [MarketState](MarketState) singleton, used to access [Quote](Quote), 
+>Returns the [MarketState](MarketState) singleton, used to access [Quote](Quote), 
 [Profile](Profile), and [CumulativeVolume](CumulativeVolume) objects.
 
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-### connectionBase.getServer() ⇒ <code>null</code> \| <code>string</code> :id=connectionbasegetserver
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Access**: public  
-### connectionBase.getPassword() ⇒ <code>null</code> \| <code>string</code> :id=connectionbasegetpassword
+### connectionBase.getServer() :id=connectionbasegetserver
 **Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
 **Access**: public  
-### connectionBase.getUsername() ⇒ <code>null</code> \| <code>string</code> :id=connectionbasegetusername
+### connectionBase.getPassword() :id=connectionbasegetpassword
 **Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
 **Access**: public  
-### connectionBase.\_getInstance() ⇒ <code>Number</code> :id=connectionbase_getinstance
-Get an unique identifier for the current instance.
-
+### connectionBase.getUsername() :id=connectionbasegetusername
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Access**: public  
+### connectionBase.\_getInstance() :id=connectionbase_getinstance
 **Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
 **Access**: protected  
-## Subscription : <code>object</code> :id=subscription
-**Kind**: global namespace  
-### Subscription.SubscriptionType : <code>enum</code> :id=subscriptionsubscriptiontype
-A data feed type. See [on](#ConnectionBaseon).
+>Get an unique identifier for the current instance.
 
+## Subscription :id=subscription
+**Kind**: global namespace  
+### Subscription.SubscriptionType :id=subscriptionsubscriptiontype
 **Kind**: static enum of [<code>Subscription</code>](#Subscription)  
 **Access**: public  
 **Read only**: true  
@@ -145,4 +138,6 @@ A data feed type. See [on](#ConnectionBaseon).
 | CumulativeVolume | <code>string</code> | <code>&quot;cumulativeVolume&quot;</code> | a subscription to [CumulativeVolume](CumulativeVolume) changes |
 | Timestamp | <code>string</code> | <code>&quot;timestamp&quot;</code> | a subscription to the server's timestamp beacon |
 | Events | <code>string</code> | <code>&quot;events&quot;</code> | a subscription to system events (debugging only) |
+
+>A data feed type. See [on](#ConnectionBase+on).
 

@@ -1,5 +1,5 @@
-## guessTimezone() ⇒ <code>String</code> \| <code>null</code> :id=guesstimezone
-Attempts to guess the local timezone.
-
+## guessTimezone() :id=guesstimezone
 **Kind**: global function  
 **Access**: public  
+>Attempts to guess the local timezone.
+

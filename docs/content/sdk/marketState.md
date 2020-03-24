@@ -1,40 +1,25 @@
 ## Classes
 
-### [Exchange](#Exchange) :id=ExchangeDesc
-Describes an exchange.
-
-### [MarketState](#MarketState) :id=MarketStateDesc
-Repository for current market state. This repository will only contain
-data for an instrument after a subscription has been established using
-the [Connection#on](Connection#on) function.
-
-Access the singleton instance using the [ConnectionBase#getMarketState](ConnectionBase#getMarketState)
-function.
-
-### [Profile](#Profile) :id=ProfileDesc
-Describes an instrument.
-
-### [Quote](#Quote) :id=QuoteDesc
-Current market conditions for an instrument.
-
+* [Exchange](#Exchange) 
+* [MarketState](#MarketState) 
+* [Profile](#Profile) 
+* [Quote](#Quote) 
 ## Typedefs
 
-### [Book](#Book) :id=BookDesc
-
-
+* [Book](#Book) 
 ## Exchange :id=exchange
-Describes an exchange.
-
 **Kind**: global class  
 **Access**: public  
+>Describes an exchange.
+
 
 * [Exchange](#Exchange)
-    * [.id](#Exchangeid)
-    * [.name](#Exchangename)
-    * [.timezoneDdf](#ExchangetimezoneDdf)
-    * [.offsetDdf](#ExchangeoffsetDdf)
-    * [.timezoneExchange](#ExchangetimezoneExchange)
-    * [.offsetExchange](#ExchangeoffsetExchange)
+    * [.id](#Exchange+id)
+    * [.name](#Exchange+name)
+    * [.timezoneDdf](#Exchange+timezoneDdf)
+    * [.offsetDdf](#Exchange+offsetDdf)
+    * [.timezoneExchange](#Exchange+timezoneExchange)
+    * [.offsetExchange](#Exchange+offsetExchange)
 
 ### exchange.id :id=exchangeid
 **Kind**: instance property of [<code>Exchange</code>](#Exchange)  
@@ -85,24 +70,24 @@ Describes an exchange.
 | offsetExchange | <code>number</code> | - the UTC offset, in milliseconds, of the exchange's local time. |
 
 ## MarketState :id=marketstate
-Repository for current market state. This repository will only contain
+**Kind**: global class  
+**Access**: public  
+>Repository for current market state. This repository will only contain
 data for an instrument after a subscription has been established using
 the [Connection#on](Connection#on) function.
 
 Access the singleton instance using the [ConnectionBase#getMarketState](ConnectionBase#getMarketState)
 function.
 
-**Kind**: global class  
-**Access**: public  
 
 * [MarketState](#MarketState)
-    * [.getProfile(symbol, [callback])](#MarketStategetProfile) ⇒ [<code>Promise.&lt;Profile&gt;</code>](#Profile)
-    * [.getQuote(symbol)](#MarketStategetQuote) ⇒ [<code>Quote</code>](#Quote)
-    * [.getBook(symbol)](#MarketStategetBook) ⇒ [<code>Book</code>](#Book)
-    * [.getCumulativeVolume(symbol, [callback])](#MarketStategetCumulativeVolume) ⇒ <code>Promise.&lt;CumulativeVolume&gt;</code>
-    * [.getTimestamp()](#MarketStategetTimestamp) ⇒ <code>Date</code>
+    * [.getProfile(symbol, [callback])](#MarketState+getProfile) ⇒ [<code>Promise.&lt;Profile&gt;</code>](#Profile)
+    * [.getQuote(symbol)](#MarketState+getQuote) ⇒ [<code>Quote</code>](#Quote)
+    * [.getBook(symbol)](#MarketState+getBook) ⇒ [<code>Book</code>](#Book)
+    * [.getCumulativeVolume(symbol, [callback])](#MarketState+getCumulativeVolume) ⇒ <code>Promise.&lt;CumulativeVolume&gt;</code>
+    * [.getTimestamp()](#MarketState+getTimestamp) ⇒ <code>Date</code>
 
-### marketState.getProfile(symbol, [callback]) ⇒ [<code>Promise.&lt;Profile&gt;</code>](#Profile) :id=marketstategetprofile
+### marketState.getProfile(symbol, [callback]) :id=marketstategetprofile
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
 **Returns**: [<code>Promise.&lt;Profile&gt;</code>](#Profile) - The [Profile](#Profile) instance, as a promise.  
 **Access**: public  
@@ -112,7 +97,7 @@ function.
 | symbol | <code>string</code> |  |
 | [callback] | <code>function</code> | invoked when the [Profile](#Profile) instance becomes available |
 
-### marketState.getQuote(symbol) ⇒ [<code>Quote</code>](#Quote) :id=marketstategetquote
+### marketState.getQuote(symbol) :id=marketstategetquote
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
 **Access**: public  
 
@@ -120,7 +105,7 @@ function.
 | --- | --- |
 | symbol | <code>string</code> | 
 
-### marketState.getBook(symbol) ⇒ [<code>Book</code>](#Book) :id=marketstategetbook
+### marketState.getBook(symbol) :id=marketstategetbook
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
 **Access**: public  
 
@@ -128,7 +113,7 @@ function.
 | --- | --- |
 | symbol | <code>string</code> | 
 
-### marketState.getCumulativeVolume(symbol, [callback]) ⇒ <code>Promise.&lt;CumulativeVolume&gt;</code> :id=marketstategetcumulativevolume
+### marketState.getCumulativeVolume(symbol, [callback]) :id=marketstategetcumulativevolume
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
 **Returns**: <code>Promise.&lt;CumulativeVolume&gt;</code> - The [CumulativeVolume](CumulativeVolume) instance, as a promise  
 **Access**: public  
@@ -138,35 +123,35 @@ function.
 | symbol | <code>string</code> |  |
 | [callback] | <code>function</code> | invoked when the [CumulativeVolume](CumulativeVolume) instance becomes available |
 
-### marketState.getTimestamp() ⇒ <code>Date</code> :id=marketstategettimestamp
-Returns the time the most recent market data message was received.
-
+### marketState.getTimestamp() :id=marketstategettimestamp
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
 **Access**: public  
-## Profile :id=profile
-Describes an instrument.
+>Returns the time the most recent market data message was received.
 
+## Profile :id=profile
 **Kind**: global class  
 **Access**: public  
+>Describes an instrument.
+
 
 * [Profile](#Profile)
     * _instance_
-        * [.symbol](#Profilesymbol)
-        * [.name](#Profilename)
-        * [.exchange](#Profileexchange)
-        * [.unitCode](#ProfileunitCode)
-        * [.pointValue](#ProfilepointValue)
-        * [.tickIncrement](#ProfiletickIncrement)
-        * [.exchangeRef](#ProfileexchangeRef)
-        * [.root](#Profileroot)
-        * [.month](#Profilemonth)
-        * [.year](#Profileyear)
-        * [.expiration](#Profileexpiration)
-        * [.firstNotice](#ProfilefirstNotice)
-        * [.formatPrice(price)](#ProfileformatPrice) ⇒ <code>string</code>
+        * [.symbol](#Profile+symbol)
+        * [.name](#Profile+name)
+        * [.exchange](#Profile+exchange)
+        * [.unitCode](#Profile+unitCode)
+        * [.pointValue](#Profile+pointValue)
+        * [.tickIncrement](#Profile+tickIncrement)
+        * [.exchangeRef](#Profile+exchangeRef)
+        * [.root](#Profile+root)
+        * [.month](#Profile+month)
+        * [.year](#Profile+year)
+        * [.expiration](#Profile+expiration)
+        * [.firstNotice](#Profile+firstNotice)
+        * [.formatPrice(price)](#Profile+formatPrice) ⇒ <code>string</code>
     * _static_
-        * [.setPriceFormatter(fractionSeparator, specialFractions, [thousandsSeparator])](#ProfilesetPriceFormatter)
-        * ~~[.PriceFormatter()](#ProfilePriceFormatter)~~
+        * [.setPriceFormatter(fractionSeparator, specialFractions, [thousandsSeparator])](#Profile.setPriceFormatter)
+        * ~~[.PriceFormatter()](#Profile.PriceFormatter)~~
 
 ### profile.symbol :id=profilesymbol
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
@@ -264,9 +249,7 @@ Describes an instrument.
 | --- | --- | --- |
 | expiration | <code>string</code> \| <code>undefined</code> | the first notice date, as a string, formatted YYYY-MM-DD. |
 
-### profile.formatPrice(price) ⇒ <code>string</code> :id=profileformatprice
-Given a numeric price, returns a human-readable price.
-
+### profile.formatPrice(price) :id=profileformatprice
 **Kind**: instance method of [<code>Profile</code>](#Profile)  
 **Access**: public  
 
@@ -274,9 +257,9 @@ Given a numeric price, returns a human-readable price.
 | --- | --- |
 | price | <code>number</code> | 
 
-### Profile.setPriceFormatter(fractionSeparator, specialFractions, [thousandsSeparator]) :id=profilesetpriceformatter
-Configures the logic used to format all prices using the [formatPrice](#ProfileformatPrice) instance function.
+>Given a numeric price, returns a human-readable price.
 
+### Profile.setPriceFormatter(fractionSeparator, specialFractions, [thousandsSeparator]) :id=profilesetpriceformatter
 **Kind**: static method of [<code>Profile</code>](#Profile)  
 **Access**: public  
 
@@ -286,39 +269,41 @@ Configures the logic used to format all prices using the [formatPrice](#Profilef
 | specialFractions | <code>boolean</code> | usually true |
 | [thousandsSeparator] | <code>string</code> | usually a comma |
 
+>Configures the logic used to format all prices using the [formatPrice](#Profile+formatPrice) instance function.
+
 ### ~~Profile.PriceFormatter()~~ :id=profilepriceformatter
 ***Deprecated***
 
-Alias for [setPriceFormatter](#ProfilesetPriceFormatter) function.
-
 **Kind**: static method of [<code>Profile</code>](#Profile)  
 **Access**: public  
-**See**: [setPriceFormatter](#ProfilesetPriceFormatter)  
-## Quote :id=quote
-Current market conditions for an instrument.
+**See**: [setPriceFormatter](#Profile.setPriceFormatter)  
+>Alias for [setPriceFormatter](#Profile.setPriceFormatter) function.
 
+## Quote :id=quote
 **Kind**: global class  
 **Access**: public  
+>Current market conditions for an instrument.
+
 
 * [Quote](#Quote)
-    * [.symbol](#Quotesymbol)
-    * [.message](#Quotemessage)
-    * [.flag](#Quoteflag)
-    * [.day](#Quoteday)
-    * [.dayNum](#QuotedayNum)
-    * [.lastUpdate](#QuotelastUpdate)
-    * [.bidPrice](#QuotebidPrice)
-    * [.bidSize](#QuotebidSize)
-    * [.askPrice](#QuoteaskPrice)
-    * [.askSize](#QuoteaskSize)
-    * [.lastPrice](#QuotelastPrice)
-    * [.tradePrice](#QuotetradePrice)
-    * [.tradeSize](#QuotetradeSize)
-    * [.blockTrade](#QuoteblockTrade)
-    * [.settlementPrice](#QuotesettlementPrice)
-    * [.previousPrice](#QuotepreviousPrice)
-    * [.time](#Quotetime)
-    * [.profile](#Quoteprofile)
+    * [.symbol](#Quote+symbol)
+    * [.message](#Quote+message)
+    * [.flag](#Quote+flag)
+    * [.day](#Quote+day)
+    * [.dayNum](#Quote+dayNum)
+    * [.lastUpdate](#Quote+lastUpdate)
+    * [.bidPrice](#Quote+bidPrice)
+    * [.bidSize](#Quote+bidSize)
+    * [.askPrice](#Quote+askPrice)
+    * [.askSize](#Quote+askSize)
+    * [.lastPrice](#Quote+lastPrice)
+    * [.tradePrice](#Quote+tradePrice)
+    * [.tradeSize](#Quote+tradeSize)
+    * [.blockTrade](#Quote+blockTrade)
+    * [.settlementPrice](#Quote+settlementPrice)
+    * [.previousPrice](#Quote+previousPrice)
+    * [.time](#Quote+time)
+    * [.profile](#Quote+profile)
 
 ### quote.symbol :id=quotesymbol
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
@@ -464,7 +449,7 @@ Current market conditions for an instrument.
 | --- | --- | --- |
 | profile | [<code>Profile</code>](#Profile) \| <code>null</code> | metadata regarding the quoted instrument. |
 
-## Book : <code>Object</code> :id=book
+## Book :id=book
 **Kind**: global typedef  
 **Properties**
 
@@ -474,7 +459,7 @@ Current market conditions for an instrument.
 | bids | <code>Array.&lt;Object&gt;</code> | 
 | asks | <code>Array.&lt;Object&gt;</code> | 
 
-## ~PriceLevel : <code>Object</code> :id=pricelevel
+## ~PriceLevel :id=pricelevel
 **Kind**: inner typedef  
 **Properties**
 

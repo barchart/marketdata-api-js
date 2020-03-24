@@ -20,11 +20,11 @@ const AWS = require('aws-sdk'),
 	jsdoc2md = require('jsdoc-to-markdown');
 
 function getVersionFromPackage() {
-    return JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
+	return JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
 }
 
 function getVersionForComponent() {
-    return getVersionFromPackage().split('.').slice(0, 2).join('.');
+	return getVersionFromPackage().split('.').slice(0, 2).join('.');
 }
 
 function generateDocs(cb, files = 'lib/**/*.js') {
@@ -38,57 +38,77 @@ function generateDocs(cb, files = 'lib/**/*.js') {
 	});
 }
 
-function preparePath(path) {
-	const name = path.replace('-', '/');
-	return `* [${name}](content/sdk/${path})\n\n`;
+function toTitleCase(str) {
+	return str.replace(/(^[a-z]| [a-z]|-[a-z]|_[a-z]|\/[a-z])/g,
+		function (s) {
+			return s.toUpperCase();
+		}
+	);
+}
+
+function preparePath(path, tab) {
+	const name = toTitleCase(path.replace('-', '/'));
+	return `${tab ? '\t' : ''}* [${name}](/content/sdk/${path})\n`;
 }
 
 gulp.task('generate_docs', (cb) => {
 	const inputFile = 'lib/**/*.js';
-	const contentDir = `${__dirname}/docs/content`;
-	const sdkDir = `${__dirname}/docs/content/sdk`;
+	const docFolder = `${__dirname}/docs`;
+	const contentDir = `${docFolder}/content`;
+	const sdkDir = `${contentDir}/sdk`;
 	const template = `{{>main}}`;
-	let sdkReference = '';
+	let sdkReference = '# SDK Reference\n';
+	let sdkReferenceMD = '<!--- sdk_open -->\n* [SDK Reference](/content/sdk_reference)\n';
 
-	return jsdoc2md.getTemplateData({
-		files: inputFile
-	}).then((templateData) => {
-		return templateData.reduce((paths, identifier) => {
-			//SOME objects hasn't meta.path
-			if (!identifier.meta) {
+	return jsdoc2md.clear().then(() => {
+		return jsdoc2md.getTemplateData({
+			files: inputFile
+		}).then((templateData) => {
+			return templateData.reduce((paths, identifier) => {
+				//SOME objects hasn't meta.path
+				if (!identifier.meta) {
+					return paths;
+				}
+
+				const path = identifier.meta.path;
+				const arrayFilePath = path.split('lib/');
+				const filePath = arrayFilePath[1].replace('/', '-');
+
+				if (!paths[filePath]) {
+					paths[filePath] = [];
+				} else {
+					paths[filePath].push(identifier);
+				}
+
 				return paths;
-			}
+			}, {});
+		}).then((paths) => {
+			const keys = Object.keys(paths).sort();
+			keys.forEach((filePath) => {
+				const data = paths[filePath];
 
-			const path = identifier.meta.path;
-			const arrayFilePath = path.split('lib/');
-			const filePath = arrayFilePath[1].replace('/','-');
+				const output = jsdoc2md.renderSync({
+					data: data,
+					template,
+					plugin: '@barchart/dmd-plugin',
+					"global-index-format": 'md'
+				});
 
-			if (!paths[filePath]) {
-				paths[filePath] = [];
-			} else {
-				paths[filePath].push(identifier);
-			}
-
-			return paths;
-		}, {});
-	}).then((paths) => {
-		const keys = Object.keys(paths).sort();
-		keys.forEach((filePath) => {
-			const data = paths[filePath];
-			const output = jsdoc2md.renderSync({
-				data: data,
-				template,
-				plugin: '/Users/jaymorrison/Documents/iTechArt/BarChart/barchart-dmd-plugin',
-				"global-index-format": 'md'
+				if (output) {
+					sdkReference += preparePath(filePath);
+					sdkReferenceMD += preparePath(filePath, true);
+					fs.writeFileSync(path.resolve(sdkDir, `${filePath}.md`), output);
+				}
 			});
-			if (output){
-				sdkReference += preparePath(filePath);
-				fs.writeFileSync(path.resolve(sdkDir, `${filePath}.md`), output);
-			}
-		});
 
-		fs.writeFileSync(path.resolve(contentDir, `sdk_reference.md`), sdkReference);
-		cb();
+			sdkReferenceMD += '<!--- sdk_close -->';
+
+			fs.writeFileSync(path.resolve(contentDir, `sdk_reference.md`), sdkReference);
+
+			gulp.src([`${docFolder}/_sidebar.md`])
+				.pipe(replace(/(<!--- sdk_open -->(\s|.)*<!--- sdk_close -->)/gm, sdkReferenceMD))
+				.pipe(gulp.dest(docFolder));
+		});
 	});
 });
 
@@ -98,7 +118,7 @@ gulp.task('docsify', (cb) => {
 	if (!isInited) {
 		const docsifyConfig = 'window.$docsify = {\n\tloadSidebar: true,';
 
-		docsify("./docs",  "", "vue");
+		docsify("./docs", "", "vue");
 
 		gulp.src(['./docs/index.html'])
 			.pipe(replace(/(window.\$docsify.*)/g, docsifyConfig))
@@ -109,19 +129,19 @@ gulp.task('docsify', (cb) => {
 });
 
 gulp.task('ensure-clean-working-directory', (cb) => {
-    gitStatus((err, status) => {
-        if (err, !status.clean) {
-            throw new Error('Unable to proceed, your working directory is not clean.');
-        }
+	gitStatus((err, status) => {
+		if (err, !status.clean) {
+			throw new Error('Unable to proceed, your working directory is not clean.');
+		}
 
-        cb();
-    });
+		cb();
+	});
 });
 
 gulp.task('bump-version', () => {
-    return gulp.src([ './package.json' ])
-        .pipe(bump({ type: 'patch' }))
-        .pipe(gulp.dest('./'));
+	return gulp.src(['./package.json'])
+		.pipe(bump({type: 'patch'}))
+		.pipe(gulp.dest('./'));
 });
 
 gulp.task('embed-version', () => {
@@ -133,29 +153,29 @@ gulp.task('embed-version', () => {
 });
 
 gulp.task('commit-changes', () => {
-    return gulp.src([ './', './test/', './package.json', './lib/meta.js' ])
-        .pipe(git.add())
-        .pipe(git.commit('Release. Bump version number'));
+	return gulp.src(['./', './test/', './package.json', './lib/meta.js'])
+		.pipe(git.add())
+		.pipe(git.commit('Release. Bump version number'));
 });
 
 gulp.task('push-changes', (cb) => {
-    git.push('origin', 'master', cb);
+	git.push('origin', 'master', cb);
 });
 
 gulp.task('create-tag', (cb) => {
-    const version = getVersionFromPackage();
+	const version = getVersionFromPackage();
 
-    git.tag(version, 'Release ' + version, (error) => {
-        if (error) {
-            return cb(error);
-        }
+	git.tag(version, 'Release ' + version, (error) => {
+		if (error) {
+			return cb(error);
+		}
 
-        git.push('origin', 'master', { args: '--tags' }, cb);
-    });
+		git.push('origin', 'master', {args: '--tags'}, cb);
+	});
 });
 
 gulp.task('build-example-bundle', () => {
-	return browserify([ './example/browser/js/startup.js' ])
+	return browserify(['./example/browser/js/startup.js'])
 		.bundle()
 		.pipe(source('example.js'))
 		.pipe(buffer())
@@ -188,7 +208,7 @@ gulp.task('upload-example-to-S3', () => {
 gulp.task('deploy-example', gulp.series('upload-example-to-S3'));
 
 gulp.task('build-browser-tests', () => {
-	return browserify({ entries: glob.sync('test/specs/**/*.js') }).bundle()
+	return browserify({entries: glob.sync('test/specs/**/*.js')}).bundle()
 		.pipe(source('barchart-marketdata-api-tests-' + getVersionForComponent() + '.js'))
 		.pipe(buffer())
 		.pipe(gulp.dest('test/dist'));
@@ -226,9 +246,9 @@ gulp.task('watch', () => {
 });
 
 gulp.task('lint', () => {
-    return gulp.src([ './lib/**/*.js', './test/specs/**/*.js' ])
-        .pipe(jshint({'esversion': 6}))
-        .pipe(jshint.reporter('default'));
+	return gulp.src(['./lib/**/*.js', './test/specs/**/*.js'])
+		.pipe(jshint({'esversion': 6}))
+		.pipe(jshint.reporter('default'));
 });
 
 gulp.task('default', gulp.series('lint'));

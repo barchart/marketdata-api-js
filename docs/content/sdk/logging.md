@@ -1,37 +1,30 @@
 ## Classes
 
-### [LoggerFactory](#LoggerFactory) :id=LoggerFactoryDesc
-Static utilities for interacting with the log system.
-
-### [LoggerProvider](#LoggerProvider) :id=LoggerProviderDesc
-An interface for generating [Logger](Logger) instances.
-
+* [LoggerFactory](#LoggerFactory) 
+* [LoggerProvider](#LoggerProvider) 
 ## LoggerFactory :id=loggerfactory
-Static utilities for interacting with the log system.
-
 **Kind**: global class  
 **Access**: public  
+>Static utilities for interacting with the log system.
+
 
 * [LoggerFactory](#LoggerFactory)
-    * [.configureForConsole()](#LoggerFactoryconfigureForConsole)
-    * [.configureForSilence()](#LoggerFactoryconfigureForSilence)
-    * [.configure(provider)](#LoggerFactoryconfigure)
-    * [.getLogger(category)](#LoggerFactorygetLogger) ⇒ <code>Logger</code>
+    * [.configureForConsole()](#LoggerFactory.configureForConsole)
+    * [.configureForSilence()](#LoggerFactory.configureForSilence)
+    * [.configure(provider)](#LoggerFactory.configure)
+    * [.getLogger(category)](#LoggerFactory.getLogger) ⇒ <code>Logger</code>
 
 ### LoggerFactory.configureForConsole() :id=loggerfactoryconfigureforconsole
-Configures the library to write log messages to the console.
-
 **Kind**: static method of [<code>LoggerFactory</code>](#LoggerFactory)  
 **Access**: public  
+>Configures the library to write log messages to the console.
+
 ### LoggerFactory.configureForSilence() :id=loggerfactoryconfigureforsilence
-Configures the library to mute all log messages.
-
 **Kind**: static method of [<code>LoggerFactory</code>](#LoggerFactory)  
 **Access**: public  
-### LoggerFactory.configure(provider) :id=loggerfactoryconfigure
-Configures the library to delegate any log messages to a custom
-implementation of the [LoggerProvider](#LoggerProvider) interface.
+>Configures the library to mute all log messages.
 
+### LoggerFactory.configure(provider) :id=loggerfactoryconfigure
 **Kind**: static method of [<code>LoggerFactory</code>](#LoggerFactory)  
 **Access**: public  
 
@@ -39,9 +32,10 @@ implementation of the [LoggerProvider](#LoggerProvider) interface.
 | --- | --- |
 | provider | [<code>LoggerProvider</code>](#LoggerProvider) | 
 
-### LoggerFactory.getLogger(category) ⇒ <code>Logger</code> :id=loggerfactorygetlogger
-Returns an instance of [Logger](Logger) for a specific category.
+>Configures the library to delegate any log messages to a custom
+implementation of the [LoggerProvider](#LoggerProvider) interface.
 
+### LoggerFactory.getLogger(category) :id=loggerfactorygetlogger
 **Kind**: static method of [<code>LoggerFactory</code>](#LoggerFactory)  
 **Access**: public  
 
@@ -49,18 +43,20 @@ Returns an instance of [Logger](Logger) for a specific category.
 | --- | --- |
 | category | <code>String</code> | 
 
-## LoggerProvider :id=loggerprovider
-An interface for generating [Logger](Logger) instances.
+>Returns an instance of [Logger](Logger) for a specific category.
 
+## LoggerProvider :id=loggerprovider
 **Kind**: global class  
 **Access**: public  
-### loggerProvider.getLogger(category) ⇒ <code>Logger</code> :id=loggerprovidergetlogger
-Returns an instance of [Logger](Logger).
+>An interface for generating [Logger](Logger) instances.
 
+### loggerProvider.getLogger(category) :id=loggerprovidergetlogger
 **Kind**: instance method of [<code>LoggerProvider</code>](#LoggerProvider)  
 **Access**: public  
 
 | Param | Type |
 | --- | --- |
 | category | <code>String</code> | 
+
+>Returns an instance of [Logger](Logger).
 

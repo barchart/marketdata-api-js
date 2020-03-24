@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
+    "@barchart/dmd-plugin": "https://github.com:barchart/dmd-plugin",
     "aws-sdk": "^2.546.0",
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
