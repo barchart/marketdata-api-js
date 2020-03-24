@@ -1,8 +1,11 @@
 ## Classes
 
 * [WebSocketAdapterFactory](#WebSocketAdapterFactory) 
+
 * [WebSocketAdapterFactoryForBrowsers](#WebSocketAdapterFactoryForBrowsers) 
+
 * [WebSocketAdapterFactoryForNode](#WebSocketAdapterFactoryForNode) 
+
 ## WebSocketAdapterFactory :id=websocketadapterfactory
 **Kind**: global class  
 **Access**: public  

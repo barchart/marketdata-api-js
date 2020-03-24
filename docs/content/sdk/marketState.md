@@ -1,12 +1,17 @@
 ## Classes
 
 * [Exchange](#Exchange) 
+
 * [MarketState](#MarketState) 
+
 * [Profile](#Profile) 
+
 * [Quote](#Quote) 
+
 ## Typedefs
 
 * [Book](#Book) 
+
 ## Exchange :id=exchange
 **Kind**: global class  
 **Access**: public  

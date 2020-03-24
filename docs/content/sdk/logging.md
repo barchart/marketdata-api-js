@@ -1,7 +1,9 @@
 ## Classes
 
 * [LoggerFactory](#LoggerFactory) 
+
 * [LoggerProvider](#LoggerProvider) 
+
 ## LoggerFactory :id=loggerfactory
 **Kind**: global class  
 **Access**: public  

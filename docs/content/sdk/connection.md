@@ -1,9 +1,11 @@
 ## Classes
 
 * [ConnectionBase](#ConnectionBase) 
+
 ## Objects
 
 * [Subscription](#Subscription) 
+
 ## ConnectionBase :id=connectionbase
 **Kind**: global class  
 **Access**: protected  
