@@ -22,7 +22,8 @@
   "scripts": {
     "test": "gulp test",
     "version": "npm run build && git add -A dist && git push --follow-tags",
-    "watch": "gulp watch"
+    "watch": "gulp watch",
+	"docs": "docsify serve ./docs"
   },
   "repository": {
     "type": "git",
