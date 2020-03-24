@@ -1,6 +1,7 @@
 const gulp = require('gulp');
 
 const fs = require('fs');
+const path = require('path');
 
 const AWS = require('aws-sdk'),
 	awspublish = require('gulp-awspublish'),
@@ -26,16 +27,70 @@ function getVersionForComponent() {
     return getVersionFromPackage().split('.').slice(0, 2).join('.');
 }
 
-function generateDocs(cb) {
+function generateDocs(cb, files = 'lib/**/*.js') {
 	const sidebar = '* [Getting Started](/README.md)\n* [Documentation](documentation.md)';
 	return jsdoc2md.render({
-		files: 'lib/**/*.js'
+		files: files
 	}).then(output => {
 		fs.writeFileSync('./docs/documentation.md', output);
 		fs.writeFileSync('./docs/_sidebar.md', sidebar);
 		return cb();
 	});
 }
+
+function preparePath(path) {
+	const name = path.replace('-', '/');
+	return `* [${name}](content/sdk/${path})\n\n`;
+}
+
+gulp.task('generate_docs', (cb) => {
+	const inputFile = 'lib/**/*.js';
+	const contentDir = `${__dirname}/docs/content`;
+	const sdkDir = `${__dirname}/docs/content/sdk`;
+	const template = `{{>main}}`;
+	let sdkReference = '';
+
+	return jsdoc2md.getTemplateData({
+		files: inputFile
+	}).then((templateData) => {
+		return templateData.reduce((paths, identifier) => {
+			//SOME objects hasn't meta.path
+			if (!identifier.meta) {
+				return paths;
+			}
+
+			const path = identifier.meta.path;
+			const arrayFilePath = path.split('lib/');
+			const filePath = arrayFilePath[1].replace('/','-');
+
+			if (!paths[filePath]) {
+				paths[filePath] = [];
+			} else {
+				paths[filePath].push(identifier);
+			}
+
+			return paths;
+		}, {});
+	}).then((paths) => {
+		const keys = Object.keys(paths).sort();
+		keys.forEach((filePath) => {
+			const data = paths[filePath];
+			const output = jsdoc2md.renderSync({
+				data: data,
+				template,
+				plugin: '/Users/jaymorrison/Documents/iTechArt/BarChart/barchart-dmd-plugin',
+				"global-index-format": 'md'
+			});
+			if (output){
+				sdkReference += preparePath(filePath);
+				fs.writeFileSync(path.resolve(sdkDir, `${filePath}.md`), output);
+			}
+		});
+
+		fs.writeFileSync(path.resolve(contentDir, `sdk_reference.md`), sdkReference);
+		cb();
+	});
+});
 
 gulp.task('docsify', (cb) => {
 	const isInited = fs.existsSync("./docs/index.html");
