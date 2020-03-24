@@ -106,7 +106,7 @@ This data is communicated to the SDK using a proprietary protocol called **DDF**
 
 	connection.on(SubscriptionType.MarketUpdate, marketUpdateHandler, 'AAPL');
 
-That said, **it is not necessary to understand the DDF protocol or work with DDF messages to use this SDK**. Instead, the SDK maintains state for each symbol using an instance of the ```lib/marketState/Quote``` class. When a DDF message is received:
+That said, **it is not necessary to understand the DDF protocol or work with DDF messages**. Instead, the SDK maintains state for each symbol using an instance of the ```lib/marketState/Quote``` class. When a DDF message is received:
 
 1. The SDK parses the DDF message.
 2. The SDK mutates a ```Quote``` instance.
