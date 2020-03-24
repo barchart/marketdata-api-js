@@ -70,7 +70,7 @@ Possible ```String``` values of the ```event``` property are:
 * *feed paused* - Generated after calling ```Connection.pause```
 * *feed resumed* - Generated after calling ```Connection.resume```
 
-Subscribe and unsubscribe as follows:
+Subscribe as follows:
 
 	const eventsHandler = (data) => {
 		console.log(data.event);
@@ -78,9 +78,53 @@ Subscribe and unsubscribe as follows:
 
 	connection.on(SubscriptionType.Events, eventsHandler);
 
-	connection.on(SubscriptionType.Events, eventsHandler);
+Unsubscribe as follows:
+
+	connection.off(SubscriptionType.Events, eventsHandler);
 
 ## Level I Market Data
+
+A ```SubscriptionType.MarketUpdate``` subscription streams Level I data for a single symbol. This data includes:
+
+* Trade notifications
+  * Trade price
+  * Trade size
+* Top of book changes
+  * Best prices (bid and ask)
+  * Size available (bid and ask)
+* Other (as applicable and available)
+  * Today's aggregate volume
+  * Today's open price
+  * Today's settlement price
+  * More...
+
+This data is communicated to the SDK using a proprietary protocol called **DDF**. Each time a DDF message is received, it is passed to the callback:
+
+	const marketUpdateHandler = (ddf) => {
+		console.log(`Raw DDF message received: ${ddf}`);
+	};
+
+	connection.on(SubscriptionType.MarketUpdate, marketUpdateHandler, 'AAPL');
+
+That said, **it is not necessary to understand the DDF protocol or work with DDF messages to use this SDK**. Instead, the SDK maintains state for each symbol using an instance of the ```lib/marketState/Quote``` class. When a DDF message is received:
+
+1. The SDK parses the DDF message.
+2. The SDK mutates a ```Quote``` instance.
+3. Your callback is invoked.
+
+So, you can read the ```Quote``` instance (instead of dealing with DDF). Consider a slightly more complex example:
+
+	const subscribe = (symbol) => {
+		const marketUpdateHandler = (ddf) => {
+			const quote = connection.getMarketState().getQuote(symbol);
+
+			console.log(`Current price of ${symbol} is ${quote.lastPrice}`);
+		};
+
+		connection.on(SubscriptionType.MarketUpdate, marketUpdateHandler, 'AAPL');
+	};
+
+	subscribe('AAPL');
 
 ## Level II Market Data
 
