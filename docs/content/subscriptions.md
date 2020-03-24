@@ -98,7 +98,7 @@ A ```SubscriptionType.MarketUpdate``` subscription streams Level I data for a si
   * Today's settlement price
   * More...
 
-This data is communicated to the SDK using a proprietary protocol called **DDF**. Each time a DDF message is received, it is passed to the callback:
+This data is communicated to the SDK using a proprietary protocol called **DDF**. Each time a DDF message is received, it is passed to your callback:
 
 	const marketUpdateHandler = (ddf) => {
 		console.log(`Raw DDF message received: ${ddf}`);
