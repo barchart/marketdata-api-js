@@ -61,7 +61,7 @@ The ```SubscriptionType.Events``` subscription provides information about the st
 		event: 'login success'
 	}
 
-Possible values of the ```event``` property are:
+Possible ```String``` values of the ```event``` property are:
 
 * *login success* - Generated after calling ```Connection.connect```, remote server accepted credentials
 * *login fail* - Generated after calling ```Connection.connect```, remote server rejected credentials
