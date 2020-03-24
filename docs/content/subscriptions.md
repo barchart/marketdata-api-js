@@ -6,11 +6,15 @@ The ```Connection.on``` function is used to establish new subscriptions. Convers
 
 The ```Connection.on``` requires a subscription type, a callback, and in some cases, and a symbol (sometimes). Here is the function's signature:
 
-	connection.on(subscriptionType, handler, [symbol]);
+```js
+connection.on(subscriptionType, handler, symbol);
+```
 
 The function signature for ```Connection.off``` is the same. It requires that you store and pass the *same* function reference used to establish the original subscription. Here is the function's signature:
 
-	connection.off(subscriptionType, handler, [symbol]);
+```js
+connection.off(subscriptionType, handler, symbol);
+```
 
 ### Subscription Types
 
@@ -43,23 +47,29 @@ The symbol for Apple common stock is widely accepted. However, in some cases, sy
 
 The ```SubscriptionType.Timestamp``` subscription is the simple. The callback should expect a ```Date``` argument, as follows:
 
-	const timestampHandler = (date) => {
-		console.log(`Server time is ${date.getHours()}:${date.getMinutes()}`);
-	};
+```js
+const timestampHandler = (date) => {
+	console.log(`Server time is ${date.getHours()}:${date.getMinutes()}`);
+};
 
-	connection.on(SubscriptionType.Timestamp, timestampHandler);
+connection.on(SubscriptionType.Timestamp, timestampHandler);
+```
 
 Remember, you need to pass a reference to the *same* event handler to successfully unsubscribe:
 
-	connection.off(SubscriptionType.Timestamp, timestampHandler);
+```js
+connection.off(SubscriptionType.Timestamp, timestampHandler);
+```
 
 ## System Status
 
 The ```SubscriptionType.Events``` subscription provides information about the state of the connection. The callback should expect a JavaScript ```Object``` with a ```String``` property, as follows:
 
-	{
-		event: 'login success'
-	}
+```js
+{
+	event: 'login success'
+}
+```
 
 Possible ```String``` values of the ```event``` property are:
 
@@ -72,15 +82,19 @@ Possible ```String``` values of the ```event``` property are:
 
 Subscribe as follows:
 
-	const eventsHandler = (data) => {
-		console.log(data.event);
-	};
+```js
+const eventsHandler = (data) => {
+	console.log(data.event);
+};
 
-	connection.on(SubscriptionType.Events, eventsHandler);
+connection.on(SubscriptionType.Events, eventsHandler);
+```
 
 Unsubscribe as follows:
 
-	connection.off(SubscriptionType.Events, eventsHandler);
+```js
+connection.off(SubscriptionType.Events, eventsHandler);
+```
 
 ## Level I Market Data
 
@@ -100,11 +114,13 @@ A ```SubscriptionType.MarketUpdate``` subscription streams Level I data for a si
 
 This data is communicated to the SDK using a proprietary protocol called **DDF**. Each time a DDF message is received, it is passed to your callback:
 
-	const marketUpdateHandler = (ddf) => {
-		console.log(`Raw DDF message received: ${ddf}`);
-	};
+```js
+const marketUpdateHandler = (ddf) => {
+	console.log(`Raw DDF message received: ${ddf}`);
+};
 
-	connection.on(SubscriptionType.MarketUpdate, marketUpdateHandler, 'AAPL');
+connection.on(SubscriptionType.MarketUpdate, marketUpdateHandler, 'AAPL');
+```
 
 That said, **it is not necessary to understand the DDF protocol or work with DDF messages**. Instead, the SDK maintains state for each symbol using an instance of the ```lib/marketState/Quote``` class. When a DDF message is received:
 
@@ -114,17 +130,19 @@ That said, **it is not necessary to understand the DDF protocol or work with DDF
 
 So, you can read the ```Quote``` instance (instead of dealing with DDF). Consider a slightly more complex example:
 
-	const subscribe = (symbol) => {
-		const marketUpdateHandler = (ddf) => {
-			const quote = connection.getMarketState().getQuote(symbol);
+```js
+const subscribe = (symbol) => {
+	const marketUpdateHandler = (ddf) => {
+		const quote = connection.getMarketState().getQuote(symbol);
 
-			console.log(`Current price of ${symbol} is ${quote.lastPrice}`);
-		};
-
-		connection.on(SubscriptionType.MarketUpdate, marketUpdateHandler, 'AAPL');
+		console.log(`Current price of ${symbol} is ${quote.lastPrice}`);
 	};
 
-	subscribe('AAPL');
+	connection.on(SubscriptionType.MarketUpdate, marketUpdateHandler, 'AAPL');
+};
+
+subscribe('AAPL');
+```
 
 ## Level II Market Data
 
