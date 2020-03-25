@@ -23,7 +23,7 @@
     "test": "gulp test",
     "version": "npm run build && git add -A dist && git push --follow-tags",
     "watch": "gulp watch",
-	"docs": "docsify serve ./docs"
+    "docs": "docsify serve ./docs"
   },
   "repository": {
     "type": "git",
@@ -56,6 +56,7 @@
     "gulp": "^4.0.2",
     "gulp-awspublish": "^4.0.0",
     "gulp-bump": "~1.0.0",
+    "gulp-file": "^0.4.0",
     "gulp-git": "^2.5.1",
     "gulp-jasmine": "^2.2.1",
     "gulp-jshint": "~2.1.0",
@@ -64,6 +65,7 @@
     "jsdoc-to-markdown": "^5.0.3",
     "jshint": "2.9.5",
     "log4js": "^4.4.0",
+    "merge-stream": "^2.0.0",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
   },

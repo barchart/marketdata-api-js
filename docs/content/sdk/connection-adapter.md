@@ -1,15 +1,28 @@
 ## Classes
 
+* [WebSocketAdapter](#WebSocketAdapter) 
+
 * [WebSocketAdapterFactory](#WebSocketAdapterFactory) 
 
 * [WebSocketAdapterFactoryForBrowsers](#WebSocketAdapterFactoryForBrowsers) 
 
 * [WebSocketAdapterFactoryForNode](#WebSocketAdapterFactoryForNode) 
 
+## WebSocketAdapter :id=websocketadapter
+**Kind**: global class  
+**Access**: public  
+>An interface for establishing and interacting with a WebSocket connection.
+
+
+* * *
+
 ## WebSocketAdapterFactory :id=websocketadapterfactory
 **Kind**: global class  
 **Access**: public  
->An interface for creating WebSocket [WebSocketAdapter](WebSocketAdapter) instances.
+>An interface for creating WebSocket [WebSocketAdapter](#WebSocketAdapter) instances.
+
+
+* * *
 
 ### webSocketAdapterFactory.build(host) :id=websocketadapterfactorybuild
 **Kind**: instance method of [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  
@@ -19,13 +32,19 @@
 | --- | --- |
 | host | <code>String</code> | 
 
->Returns a new [WebSocketAdapter](WebSocketAdapter) instance.
+>Returns a new [WebSocketAdapter](#WebSocketAdapter) instance.
+
+
+* * *
 
 ## WebSocketAdapterFactoryForBrowsers :id=websocketadapterfactoryforbrowsers
 **Kind**: global class  
 **Extends**: [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  
 **Access**: public  
 >An implementation of [WebSocketAdapterFactory](#WebSocketAdapterFactory) for use with web browsers.
+
+
+* * *
 
 ### webSocketAdapterFactoryForBrowsers.build(host) :id=websocketadapterfactoryforbrowsersbuild
 **Kind**: instance method of [<code>WebSocketAdapterFactoryForBrowsers</code>](#WebSocketAdapterFactoryForBrowsers)  
@@ -36,13 +55,19 @@
 | --- | --- |
 | host | <code>String</code> | 
 
->Returns a new [WebSocketAdapter](WebSocketAdapter) instance.
+>Returns a new [WebSocketAdapter](#WebSocketAdapter) instance.
+
+
+* * *
 
 ## WebSocketAdapterFactoryForNode :id=websocketadapterfactoryfornode
 **Kind**: global class  
 **Extends**: [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  
 **Access**: public  
 >An implementation of [WebSocketAdapterFactory](#WebSocketAdapterFactory) for use by Node.js servers.
+
+
+* * *
 
 ### webSocketAdapterFactoryForNode.build(host) :id=websocketadapterfactoryfornodebuild
 **Kind**: instance method of [<code>WebSocketAdapterFactoryForNode</code>](#WebSocketAdapterFactoryForNode)  
@@ -53,5 +78,8 @@
 | --- | --- |
 | host | <code>String</code> | 
 
->Returns a new [WebSocketAdapter](WebSocketAdapter) instance.
+>Returns a new [WebSocketAdapter](#WebSocketAdapter) instance.
+
+
+* * *
 
