@@ -64,7 +64,7 @@ This causes the WebSocket connection to be severed. It also clears **all** exist
 
 ## Reconnecting
 
-Unexpected network conditions may cause the WebSocket connection to close. When this happens, a *disconnect* event will be generated (see [System Status](content/subscriptions?id=system-status)). The SDK will **automatically** begin attempting to reestablish the connection.
+Unexpected network conditions may cause the WebSocket connection to close. When this happens, a *disconnect* event will be generated (see the [System Status](content/subscriptions?id=system-status)). The SDK will **automatically** begin attempting to reestablish the connection.
 
 Once the connection is reestablished, a *login success* event will be generated and subscriptions will be automatically restarted. However, market state should be considered to be outdated until you receive the first notification for each subscription.
 

@@ -45,7 +45,13 @@ The symbol for Apple common stock is widely accepted. However, in some cases, sy
 
 ## Heartbeat
 
-The ```SubscriptionType.Timestamp``` subscription is the simple. The callback should expect a ```Date``` argument, as follows:
+The ```SubscriptionType.Timestamp``` subscription is the simple.
+
+#### Callback
+
+The callback should expect a ```Date``` argument.
+
+#### Example
 
 ```js
 const timestampHandler = (date) => {
@@ -55,7 +61,7 @@ const timestampHandler = (date) => {
 connection.on(SubscriptionType.Timestamp, timestampHandler);
 ```
 
-Remember, you need to pass a reference to the *same* event handler to successfully unsubscribe:
+Remember, the *same* event handler must be used to unsubscribe:
 
 ```js
 connection.off(SubscriptionType.Timestamp, timestampHandler);
@@ -63,7 +69,11 @@ connection.off(SubscriptionType.Timestamp, timestampHandler);
 
 ## System Status
 
-The ```SubscriptionType.Events``` subscription provides information about the state of the connection. The callback should expect a JavaScript ```Object``` with a ```String``` property, as follows:
+The ```SubscriptionType.Events``` subscription notifies you when the state of your ```Connection``` changes.
+
+#### Callback
+
+The callback should expect a JavaScript ```Object``` with a single ```String``` property, as follows:
 
 ```js
 {
@@ -80,7 +90,7 @@ Possible ```String``` values of the ```event``` property are:
 * *feed paused* - Generated after calling ```Connection.pause```
 * *feed resumed* - Generated after calling ```Connection.resume```
 
-Subscribe as follows:
+#### Example
 
 ```js
 const eventsHandler = (data) => {
@@ -98,94 +108,118 @@ connection.off(SubscriptionType.Events, eventsHandler);
 
 ## Level I Market Data
 
-A ```SubscriptionType.MarketUpdate``` subscription streams Level I data for a single symbol. This data includes:
+A ```SubscriptionType.MarketUpdate``` subscription streams Level I data for a single symbol.
 
-* Trade notifications
-  * Trade price
-  * Trade size
-* Top of book changes
-  * Best prices (bid and ask)
-  * Size available (bid and ask)
-* Other (as applicable and available)
-  * Today's aggregate volume
-  * Today's open price
-  * Today's settlement price
-  * More...
+#### Callback
 
-This data is communicated to the SDK using a proprietary protocol called **DDF**. Each time a DDF message is received, it is passed to your callback:
+The callback receives an ```Object``` representing an event (e.g. trade occurred, top of book changed, etc). See the [Data Structures Section](/content/data_structures?id=market-updates) for a complete schema.
+
+Regardless, here is an sample market update for a *trade* event:
 
 ```js
-const marketUpdateHandler = (ddf) => {
-	console.log(`Raw DDF message received: ${ddf}`);
-};
-
-connection.on(SubscriptionType.MarketUpdate, marketUpdateHandler, 'AAPL');
+{ 
+	message: '\u00012AAPL,7\u0002AQ1525517,100,O@\u0003\u0014TCYO[LÞ\u0003\n',
+	type: 'TRADE',
+	record: '2',
+	symbol: 'AAPL',
+	subrecord: '7',
+	unitcode: 'A',
+	exchange: 'Q',
+	delay: 15,
+	tradePrice: 255.17,
+	tradeSize: 100,
+	day: 'O',
+	session: '@',
+	time: 2020-03-25T20:27:12.990Z
+}
 ```
 
-That said, **it is not necessary to understand the DDF protocol or work with DDF messages**. Instead, the SDK maintains state for each symbol using an instance of the ```lib/marketState/Quote``` class. When a DDF message is received:
+In addition to providing your callback with market updates, the SDK independently maintains state for each symbol using instances of the ```lib/marketState/Quote``` class. These steps are followed when processing Level I market data:
 
-1. The SDK parses the DDF message.
-2. The SDK mutates a ```Quote``` instance.
-3. Your callback is invoked.
+1. Market data event is received from server.
+2. Market data event is parsed, producing a market update ```Object```.
+3. Appropriate ```Quote``` instance is updated, based on the market update ```Object```.
+4. Your callback is invoked and passed the market update ```Object``` (from step 2).
 
-So, you can read the ```Quote``` instance (instead of dealing with DDF). Consider a slightly more complex example:
+#### Examples
 
-```js
-const subscribe = (symbol) => {
-	const marketUpdateHandler = (ddf) => {
-		const quote = connection.getMarketState().getQuote(symbol);
+Here are two strategies for processing callback notifications:
 
-		console.log(`Current price of ${symbol} is ${quote.lastPrice}`);
-	};
-
-	connection.on(SubscriptionType.MarketUpdate, marketUpdateHandler, symbol);
-};
-
-subscribe('AAPL');
-```
-
-As always, stopping the subscription requires you to provide the symbol and a reference to the original callback, emphasized here:
+1. Process the market update ```Object``` (maintaining your own state), or
+2. Query the ```Quote``` instance (relying on the SDK to maintain state).
 
 ```js
-const symbol = 'AAPL';
-
-let previousPrice = null;
-let previousVolume = null;
-
-const printPrice = (ddf) => {
-	const price = connection.getMarketState().getQuote(symbol).lastPrice;
-
-	if (previousPrice !== price) {
-		console.log(`${symbol} price changed from ${previousPrice} to ${price}`);
-
-		previousPrice = price;
+const handleUsingEvent = (data) => {
+	if (data.type === 'TRADE') {
+		console.log(`${data.symbol} just traded for ${data.tradePrice}`);
 	}
 };
 
-const printVolume = (ddf) => {
-	const volume = connection.getMarketState().getQuote(symbol).volume;
+const handleUsingQuote = (data) => {
+	if (data.symbol) {
+		const quote = connection.getMarketState().getQuote(data.symbol);
 
-	if (previousVolume !== volume) {
-		console.log(`${symbol} volume changed from ${previousVolume} to ${volume}`);
-
-		previousVolume = volume;
+		console.log(`${quote.symbol} recently traded for ${quote.tradePrice}`;
 	}
 };
 
-/*
- Initially both "printPrice" and "printVolume" can be invoked. Then, after
- ten seconds, only "printPrice" can be invoked.
-*/
+connection.on(SubscriptionType.MarketUpdate, 'AAPL', handleUsingEvent);
+connection.on(SubscriptionType.MarketUpdate, 'AAPL', handleUsingQuote);
+```
 
-connection.on(SubscriptionType.MarketUpdate, symbol, printPrice);
-connection.on(SubscriptionType.MarketUpdate, symbol, printVolume);
+As before, unsubscribe using the original callback references:
 
-setTimeout(() => {
-	connection.off(SubscriptionType.MarketUpdate, symbol, printVolume);
-}, 10000);
+```js
+connection.off(SubscriptionType.MarketUpdate, 'AAPL', handleUsingEvent);
+connection.off(SubscriptionType.MarketUpdate, 'AAPL', handleUsingQuote);
 ```
 
 ## Level II Market Data
 
+A ```SubscriptionType.MarketDepth``` subscription streams Level II data for a single symbol.
+
+#### Callback
+
+The callback receives an ```Object``` with:
+
+* a property called *bids* which is an ordered ```Array``` of ```BookPriceLevel``` objects, and
+* a property called *asks* which is an ordered ```Array``` of ```BookPriceLevel``` objects.
+
+Each ```BookPriceLevel``` has a *price* and a *size* property, as follows:
+
+```js
+	{
+		price: 255.17,
+		size: 1200
+	}
+```
+
+The SDK does not attempt to maintain book state and each time your callback is invoked, a completely new ```Object``` is passed.
+
+#### Examples
+
+```js
+const handleMarketDepth = (book) => {
+	book.asks.forEach((level) => {
+		console.log(`${level.size} unit(s) are available at ${level.price}`);
+	});
+
+	book.bids.forEach((level) => {
+		console.log(`${level.size} unit(s) are wanted at ${level.price}`);
+	});
+};
+
+connection.on(SubscriptionType.MarketDepth, handleMarketDepth, 'ESM0');
+```
+
+Unsubscribe as follows:
+
+```js
+connection.off(SubscriptionType.MarketDepth, handleMarketDepth, 'ESM0');
+```
+
 ## Cumulative Volume
 
+#### Callback
+
+#### Examples

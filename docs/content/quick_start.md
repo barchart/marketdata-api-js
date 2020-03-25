@@ -72,7 +72,7 @@ const symbol = 'AAPL';
 
 let previousPrice = null;
 
-const handleMarketUpdate = (message) => {
+const handleMarketUpdate = (data) => {
 	const price = connection.getMarketState().getQuote(symbol).lastPrice;
 
 	if (previousPrice !== price) {
