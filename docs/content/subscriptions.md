@@ -108,7 +108,7 @@ connection.off(SubscriptionType.Events, eventsHandler);
 
 ## Level I Market Data
 
-A ```SubscriptionType.MarketUpdate``` subscription gives you market events as they occur (e.g. trade, top of book changed, etc).
+A ```SubscriptionType.MarketUpdate``` subscription notifies you of market events as they occur (e.g. trade, top of book changed, etc).
 
 #### Callback
 
