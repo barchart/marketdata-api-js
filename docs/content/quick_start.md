@@ -85,7 +85,7 @@ const handleMarketUpdate = (message) => {
 connection.on('marketUpdate', handleMarketUpdate, symbol);
 ```
 
-## Examples
+## Demos
 
 Two pre-built applications should provide some insight into the features and usage of the SDK.
 
