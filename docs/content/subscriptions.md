@@ -108,11 +108,11 @@ connection.off(SubscriptionType.Events, eventsHandler);
 
 ## Level I Market Data
 
-A ```SubscriptionType.MarketUpdate``` subscription streams Level I data for a single symbol.
+A ```SubscriptionType.MarketUpdate``` subscription gives you access to market events as they occur (e.g. trade, top of book changed, etc).
 
 #### Callback
 
-The callback receives an ```Object``` representing an event (e.g. trade occurred, top of book changed, etc). See the [Data Structures Section](/content/data_structures?id=market-updates) for a complete schema.
+The callback receives an ```Object``` representing a market event. See the [Data Structures Section](/content/data_structures?id=market-updates) for a complete schema.
 
 Regardless, here is an sample market update for a *trade* event:
 
@@ -176,7 +176,7 @@ connection.off(SubscriptionType.MarketUpdate, 'AAPL', handleUsingQuote);
 
 ## Level II Market Data
 
-A ```SubscriptionType.MarketDepth``` subscription streams Level II data for a single symbol.
+A ```SubscriptionType.MarketDepth``` subscription gives a snapshot of the aggregated order book, each time the book changes.
 
 #### Callback
 
