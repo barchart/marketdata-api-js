@@ -73,12 +73,12 @@ const symbol = 'AAPL';
 let previousPrice = null;
 
 const handleMarketUpdate = (message) => {
-	const currentPrice = connection.getMarketState().getQuote(symbol).lastPrice;
+	const price = connection.getMarketState().getQuote(symbol).lastPrice;
 
-	if (previousPrice !== currentPrice) {
-		previousPrice = currentPrice;
+	if (previousPrice !== price) {
+		console.log(`${symbol} price changed from ${previousPrice} to ${price}`);
 
-		console.log(`${symbol} price changed from ${previousPrice} to ${currentPrice}`);
+		previousPrice = price;
 	}
 };
 
@@ -103,8 +103,12 @@ A simple Node.js script connects to the backend, subscribes to Level I data, and
 
 To run the script, make sure required dependencies are installed:
 
-	> npm install
+```shell
+npm install
+```
 
 Then, execute it, as follows:
 
-	> node ./example/node/example.js {host} {username} {password} {comma-delimited symbol list}
+```shell
+node ./example/node/example.js {host} {username} {password} {comma-delimited symbol list}
+```

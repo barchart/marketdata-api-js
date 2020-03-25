@@ -32,7 +32,7 @@ Metadata subscriptions *do not* require a symbol to be provided. Market data sub
 
 ### Callbacks
 
-Every subscription requires a callback -- a function the SDK invokes each time new data is available. When you start a start a subscription, you must supply a callback. When you stop the subscription, you must supply the *same* callback.
+Every subscription requires a callback -- a function the SDK invokes each time new data is available. When you start a start a subscription, you must supply a callback. Again, when you stop the subscription, you must supply the *same* callback.
 
 ### Symbols
 
@@ -135,13 +135,54 @@ const subscribe = (symbol) => {
 	const marketUpdateHandler = (ddf) => {
 		const quote = connection.getMarketState().getQuote(symbol);
 
-		console.log(`Current price of ${symbol} is ${quote.lastPrice}`);
+		console.log(`Current price of ${symbol} is ${quote.previousPrice}`);
 	};
 
-	connection.on(SubscriptionType.MarketUpdate, marketUpdateHandler, 'AAPL');
+	connection.on(SubscriptionType.MarketUpdate, marketUpdateHandler, symbol);
 };
 
 subscribe('AAPL');
+```
+
+As always, stopping the subscription requires you to provide the symbol and a reference to the original callback, emphasized here:
+
+```js
+const symbol = 'AAPL';
+
+let previousPrice = null;
+let previousVolume = null;
+
+const printPrice = (ddf) => {
+	const price = connection.getMarketState().getQuote(symbol).lastPrice;
+
+	if (previousPrice !== price) {
+		console.log(`${symbol} price changed from ${previousPrice} to ${price}`);
+
+		previousPrice = price;
+	}
+};
+
+const printVolume = (ddf) => {
+	const volume = connection.getMarketState().getQuote(symbol).volume;
+
+	if (previousVolume !== volume) {
+		console.log(`${symbol} volume changed from ${previousVolume} to ${volume}`);
+
+		previousVolume = volume;
+	}
+};
+
+/*
+ Initially both "printPrice" and "printVolume" can be invoked. Then, after
+ ten seconds, only "printPrice" can be invoked.
+*/
+
+connection.on(SubscriptionType.MarketUpdate, symbol, printPrice);
+connection.on(SubscriptionType.MarketUpdate, symbol, printVolume);
+
+setTimeout(() => {
+	connection.off(SubscriptionType.MarketUpdate, symbol, printVolume);
+}, 10000);
 ```
 
 ## Level II Market Data
