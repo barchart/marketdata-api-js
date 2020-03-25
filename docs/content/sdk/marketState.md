@@ -1,4 +1,4 @@
-## Classes
+## Contents {docsify-ignore}
 
 * [CumulativeVolume](#CumulativeVolume) 
 
@@ -10,8 +10,6 @@
 
 * [Quote](#Quote) 
 
-## Typedefs
-
 * [BookPriceLevel](#BookPriceLevel) 
 
 * [Book](#Book) 
@@ -19,14 +17,15 @@
 ## CumulativeVolume :id=cumulativevolume
 **Kind**: global class  
 **Access**: public  
+ **Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
 >An aggregation of the total volume traded at each price level for a
 single instrument.
 
 
 * [CumulativeVolume](#CumulativeVolume)
-    * [.symbol](#CumulativeVolume+symbol)
-    * [.getVolume(price)](#CumulativeVolume+getVolume) ⇒ <code>number</code>
-    * [.toArray()](#CumulativeVolume+toArray) ⇒ [<code>Array.&lt;PriceLevel&gt;</code>](#PriceLevel)
+    * [.symbol](#CumulativeVolumesymbol)
+    * [.getVolume(price)](#CumulativeVolumegetVolume) ⇒ <code>number</code>
+    * [.toArray()](#CumulativeVolumetoArray) ⇒ [<code>Array.&lt;PriceLevel&gt;</code>](#PriceLevel)
 
 
 * * *
@@ -44,6 +43,7 @@ single instrument.
 
 ### cumulativeVolume.getVolume(price) :id=cumulativevolumegetvolume
 **Kind**: instance method of [<code>CumulativeVolume</code>](#CumulativeVolume)  
+**Returns**: <code>number</code>  
 **Access**: public  
 
 | Param | Type |
@@ -57,6 +57,7 @@ single instrument.
 
 ### cumulativeVolume.toArray() :id=cumulativevolumetoarray
 **Kind**: instance method of [<code>CumulativeVolume</code>](#CumulativeVolume)  
+**Returns**: [<code>Array.&lt;PriceLevel&gt;</code>](#PriceLevel)  
 >Returns an array of all price levels. This is an expensive operation. Observing
 an ongoing subscription is preferred (see [Connection#on](Connection#on)).
 
@@ -66,16 +67,17 @@ an ongoing subscription is preferred (see [Connection#on](Connection#on)).
 ## Exchange :id=exchange
 **Kind**: global class  
 **Access**: public  
+ **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
 >Describes an exchange.
 
 
 * [Exchange](#Exchange)
-    * [.id](#Exchange+id)
-    * [.name](#Exchange+name)
-    * [.timezoneDdf](#Exchange+timezoneDdf)
-    * [.offsetDdf](#Exchange+offsetDdf)
-    * [.timezoneExchange](#Exchange+timezoneExchange)
-    * [.offsetExchange](#Exchange+offsetExchange)
+    * [.id](#Exchangeid)
+    * [.name](#Exchangename)
+    * [.timezoneDdf](#ExchangetimezoneDdf)
+    * [.offsetDdf](#ExchangeoffsetDdf)
+    * [.timezoneExchange](#ExchangetimezoneExchange)
+    * [.offsetExchange](#ExchangeoffsetExchange)
 
 
 * * *
@@ -149,6 +151,7 @@ an ongoing subscription is preferred (see [Connection#on](Connection#on)).
 ## MarketState :id=marketstate
 **Kind**: global class  
 **Access**: public  
+ **Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
 >Repository for current market state. This repository will only contain
 data for an instrument after a subscription has been established using
 the [Connection#on](Connection#on) function.
@@ -158,11 +161,11 @@ function.
 
 
 * [MarketState](#MarketState)
-    * [.getProfile(symbol, [callback])](#MarketState+getProfile) ⇒ [<code>Promise.&lt;Profile&gt;</code>](#Profile)
-    * [.getQuote(symbol)](#MarketState+getQuote) ⇒ [<code>Quote</code>](#Quote)
-    * [.getBook(symbol)](#MarketState+getBook) ⇒ [<code>Book</code>](#Book)
-    * [.getCumulativeVolume(symbol, [callback])](#MarketState+getCumulativeVolume) ⇒ [<code>Promise.&lt;CumulativeVolume&gt;</code>](#CumulativeVolume)
-    * [.getTimestamp()](#MarketState+getTimestamp) ⇒ <code>Date</code>
+    * [.getProfile(symbol, [callback])](#MarketStategetProfile) ⇒ [<code>Promise.&lt;Profile&gt;</code>](#Profile)
+    * [.getQuote(symbol)](#MarketStategetQuote) ⇒ [<code>Quote</code>](#Quote)
+    * [.getBook(symbol)](#MarketStategetBook) ⇒ [<code>Book</code>](#Book)
+    * [.getCumulativeVolume(symbol, [callback])](#MarketStategetCumulativeVolume) ⇒ [<code>Promise.&lt;CumulativeVolume&gt;</code>](#CumulativeVolume)
+    * [.getTimestamp()](#MarketStategetTimestamp) ⇒ <code>Date</code>
 
 
 * * *
@@ -182,6 +185,7 @@ function.
 
 ### marketState.getQuote(symbol) :id=marketstategetquote
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
+**Returns**: [<code>Quote</code>](#Quote)  
 **Access**: public  
 
 | Param | Type |
@@ -193,6 +197,7 @@ function.
 
 ### marketState.getBook(symbol) :id=marketstategetbook
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
+**Returns**: [<code>Book</code>](#Book)  
 **Access**: public  
 
 | Param | Type |
@@ -217,6 +222,7 @@ function.
 
 ### marketState.getTimestamp() :id=marketstategettimestamp
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
+**Returns**: <code>Date</code>  
 **Access**: public  
 >Returns the time the most recent market data message was received.
 
@@ -226,27 +232,28 @@ function.
 ## Profile :id=profile
 **Kind**: global class  
 **Access**: public  
+ **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 >Describes an instrument.
 
 
 * [Profile](#Profile)
     * _instance_
-        * [.symbol](#Profile+symbol)
-        * [.name](#Profile+name)
-        * [.exchange](#Profile+exchange)
-        * [.unitCode](#Profile+unitCode)
-        * [.pointValue](#Profile+pointValue)
-        * [.tickIncrement](#Profile+tickIncrement)
-        * [.exchangeRef](#Profile+exchangeRef)
-        * [.root](#Profile+root)
-        * [.month](#Profile+month)
-        * [.year](#Profile+year)
-        * [.expiration](#Profile+expiration)
-        * [.firstNotice](#Profile+firstNotice)
-        * [.formatPrice(price)](#Profile+formatPrice) ⇒ <code>string</code>
+        * [.symbol](#Profilesymbol)
+        * [.name](#Profilename)
+        * [.exchange](#Profileexchange)
+        * [.unitCode](#ProfileunitCode)
+        * [.pointValue](#ProfilepointValue)
+        * [.tickIncrement](#ProfiletickIncrement)
+        * [.exchangeRef](#ProfileexchangeRef)
+        * [.root](#Profileroot)
+        * [.month](#Profilemonth)
+        * [.year](#Profileyear)
+        * [.expiration](#Profileexpiration)
+        * [.firstNotice](#ProfilefirstNotice)
+        * [.formatPrice(price)](#ProfileformatPrice) ⇒ <code>string</code>
     * _static_
-        * [.setPriceFormatter(fractionSeparator, specialFractions, [thousandsSeparator])](#Profile.setPriceFormatter)
-        * ~~[.PriceFormatter()](#Profile.PriceFormatter)~~
+        * [.setPriceFormatter(fractionSeparator, specialFractions, [thousandsSeparator])](#ProfilesetPriceFormatter)
+        * ~~[.PriceFormatter()](#ProfilePriceFormatter)~~
 
 
 * * *
@@ -385,6 +392,7 @@ function.
 
 ### profile.formatPrice(price) :id=profileformatprice
 **Kind**: instance method of [<code>Profile</code>](#Profile)  
+**Returns**: <code>string</code>  
 **Access**: public  
 
 | Param | Type |
@@ -406,7 +414,7 @@ function.
 | specialFractions | <code>boolean</code> | usually true |
 | [thousandsSeparator] | <code>string</code> | usually a comma |
 
->Configures the logic used to format all prices using the [formatPrice](#Profile+formatPrice) instance function.
+>Configures the logic used to format all prices using the [formatPrice](#ProfileformatPrice) instance function.
 
 
 * * *
@@ -416,8 +424,8 @@ function.
 
 **Kind**: static method of [<code>Profile</code>](#Profile)  
 **Access**: public  
-**See**: [setPriceFormatter](#Profile.setPriceFormatter)  
->Alias for [setPriceFormatter](#Profile.setPriceFormatter) function.
+**See**: [setPriceFormatter](#ProfilesetPriceFormatter)  
+>Alias for [setPriceFormatter](#ProfilesetPriceFormatter) function.
 
 
 * * *
@@ -425,28 +433,29 @@ function.
 ## Quote :id=quote
 **Kind**: global class  
 **Access**: public  
+ **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 >Current market conditions for an instrument.
 
 
 * [Quote](#Quote)
-    * [.symbol](#Quote+symbol)
-    * [.message](#Quote+message)
-    * [.flag](#Quote+flag)
-    * [.day](#Quote+day)
-    * [.dayNum](#Quote+dayNum)
-    * [.lastUpdate](#Quote+lastUpdate)
-    * [.bidPrice](#Quote+bidPrice)
-    * [.bidSize](#Quote+bidSize)
-    * [.askPrice](#Quote+askPrice)
-    * [.askSize](#Quote+askSize)
-    * [.lastPrice](#Quote+lastPrice)
-    * [.tradePrice](#Quote+tradePrice)
-    * [.tradeSize](#Quote+tradeSize)
-    * [.blockTrade](#Quote+blockTrade)
-    * [.settlementPrice](#Quote+settlementPrice)
-    * [.previousPrice](#Quote+previousPrice)
-    * [.time](#Quote+time)
-    * [.profile](#Quote+profile)
+    * [.symbol](#Quotesymbol)
+    * [.message](#Quotemessage)
+    * [.flag](#Quoteflag)
+    * [.day](#Quoteday)
+    * [.dayNum](#QuotedayNum)
+    * [.lastUpdate](#QuotelastUpdate)
+    * [.bidPrice](#QuotebidPrice)
+    * [.bidSize](#QuotebidSize)
+    * [.askPrice](#QuoteaskPrice)
+    * [.askSize](#QuoteaskSize)
+    * [.lastPrice](#QuotelastPrice)
+    * [.tradePrice](#QuotetradePrice)
+    * [.tradeSize](#QuotetradeSize)
+    * [.blockTrade](#QuoteblockTrade)
+    * [.settlementPrice](#QuotesettlementPrice)
+    * [.previousPrice](#QuotepreviousPrice)
+    * [.time](#Quotetime)
+    * [.profile](#Quoteprofile)
 
 
 * * *

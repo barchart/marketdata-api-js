@@ -1,4 +1,4 @@
-## Classes
+## Contents {docsify-ignore}
 
 * [Logger](#Logger) 
 
@@ -9,16 +9,17 @@
 ## Logger :id=logger
 **Kind**: global class  
 **Access**: public  
+ **Import**: @barchart/marketdata-api-js/lib/logging/Logger  
 >An interface for writing log messages.
 
 
 * [Logger](#Logger)
-    * [.log()](#Logger+log)
-    * [.trace()](#Logger+trace)
-    * [.debug()](#Logger+debug)
-    * [.info()](#Logger+info)
-    * [.warn()](#Logger+warn)
-    * [.error()](#Logger+error)
+    * [.log()](#Loggerlog)
+    * [.trace()](#Loggertrace)
+    * [.debug()](#Loggerdebug)
+    * [.info()](#Loggerinfo)
+    * [.warn()](#Loggerwarn)
+    * [.error()](#Loggererror)
 
 
 * * *
@@ -74,14 +75,15 @@
 ## LoggerFactory :id=loggerfactory
 **Kind**: global class  
 **Access**: public  
+ **Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
 >Static utilities for interacting with the log system.
 
 
 * [LoggerFactory](#LoggerFactory)
-    * [.configureForConsole()](#LoggerFactory.configureForConsole)
-    * [.configureForSilence()](#LoggerFactory.configureForSilence)
-    * [.configure(provider)](#LoggerFactory.configure)
-    * [.getLogger(category)](#LoggerFactory.getLogger) ⇒ [<code>Logger</code>](#Logger)
+    * [.configureForConsole()](#LoggerFactoryconfigureForConsole)
+    * [.configureForSilence()](#LoggerFactoryconfigureForSilence)
+    * [.configure(provider)](#LoggerFactoryconfigure)
+    * [.getLogger(category)](#LoggerFactorygetLogger) ⇒ [<code>Logger</code>](#Logger)
 
 
 * * *
@@ -118,6 +120,7 @@ implementation of the [LoggerProvider](#LoggerProvider) interface.
 
 ### LoggerFactory.getLogger(category) :id=loggerfactorygetlogger
 **Kind**: static method of [<code>LoggerFactory</code>](#LoggerFactory)  
+**Returns**: [<code>Logger</code>](#Logger)  
 **Access**: public  
 
 | Param | Type |
@@ -132,6 +135,7 @@ implementation of the [LoggerProvider](#LoggerProvider) interface.
 ## LoggerProvider :id=loggerprovider
 **Kind**: global class  
 **Access**: public  
+ **Import**: @barchart/marketdata-api-js/lib/logging/LoggerProvider  
 >An interface for generating [Logger](#Logger) instances.
 
 
@@ -139,6 +143,7 @@ implementation of the [LoggerProvider](#LoggerProvider) interface.
 
 ### loggerProvider.getLogger(category) :id=loggerprovidergetlogger
 **Kind**: instance method of [<code>LoggerProvider</code>](#LoggerProvider)  
+**Returns**: [<code>Logger</code>](#Logger)  
 **Access**: public  
 
 | Param | Type |

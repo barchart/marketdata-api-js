@@ -1,31 +1,33 @@
 ## SymbolParser :id=symbolparser
 **Kind**: global class  
 **Access**: public  
+ **Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
 >Static utilities for parsing symbols.
 
 
 * [SymbolParser](#SymbolParser)
-    * [.parseInstrumentType(symbol)](#SymbolParser.parseInstrumentType) ⇒ <code>Object</code> \| <code>null</code>
-    * [.getProducerSymbol(symbol)](#SymbolParser.getProducerSymbol) ⇒ <code>String</code> \| <code>null</code>
-    * [.getFuturesOptionPipelineFormat(symbol)](#SymbolParser.getFuturesOptionPipelineFormat) ⇒ <code>String</code> \| <code>null</code>
-    * [.getIsConcrete(symbol)](#SymbolParser.getIsConcrete) ⇒ <code>Boolean</code>
-    * [.getIsReference(symbol)](#SymbolParser.getIsReference) ⇒ <code>Boolean</code>
-    * [.getIsFuture(symbol)](#SymbolParser.getIsFuture) ⇒ <code>Boolean</code>
-    * [.getIsFutureSpread(symbol)](#SymbolParser.getIsFutureSpread) ⇒ <code>Boolean</code>
-    * [.getIsFutureOption(symbol)](#SymbolParser.getIsFutureOption) ⇒ <code>Boolean</code>
-    * [.getIsForex(symbol)](#SymbolParser.getIsForex) ⇒ <code>Boolean</code>
-    * [.getIsIndex(symbol)](#SymbolParser.getIsIndex) ⇒ <code>Boolean</code>
-    * [.getIsSector(symbol)](#SymbolParser.getIsSector) ⇒ <code>Boolean</code>
-    * [.getIsCmdty(symbol)](#SymbolParser.getIsCmdty) ⇒ <code>Boolean</code>
-    * [.getIsBats(symbol)](#SymbolParser.getIsBats) ⇒ <code>Boolean</code>
-    * [.getIsExpired(symbol)](#SymbolParser.getIsExpired) ⇒ <code>Boolean</code>
-    * [.displayUsingPercent(symbol)](#SymbolParser.displayUsingPercent) ⇒ <code>Boolean</code>
+    * [.parseInstrumentType(symbol)](#SymbolParserparseInstrumentType) ⇒ <code>Object</code> \| <code>null</code>
+    * [.getProducerSymbol(symbol)](#SymbolParsergetProducerSymbol) ⇒ <code>String</code> \| <code>null</code>
+    * [.getFuturesOptionPipelineFormat(symbol)](#SymbolParsergetFuturesOptionPipelineFormat) ⇒ <code>String</code> \| <code>null</code>
+    * [.getIsConcrete(symbol)](#SymbolParsergetIsConcrete) ⇒ <code>Boolean</code>
+    * [.getIsReference(symbol)](#SymbolParsergetIsReference) ⇒ <code>Boolean</code>
+    * [.getIsFuture(symbol)](#SymbolParsergetIsFuture) ⇒ <code>Boolean</code>
+    * [.getIsFutureSpread(symbol)](#SymbolParsergetIsFutureSpread) ⇒ <code>Boolean</code>
+    * [.getIsFutureOption(symbol)](#SymbolParsergetIsFutureOption) ⇒ <code>Boolean</code>
+    * [.getIsForex(symbol)](#SymbolParsergetIsForex) ⇒ <code>Boolean</code>
+    * [.getIsIndex(symbol)](#SymbolParsergetIsIndex) ⇒ <code>Boolean</code>
+    * [.getIsSector(symbol)](#SymbolParsergetIsSector) ⇒ <code>Boolean</code>
+    * [.getIsCmdty(symbol)](#SymbolParsergetIsCmdty) ⇒ <code>Boolean</code>
+    * [.getIsBats(symbol)](#SymbolParsergetIsBats) ⇒ <code>Boolean</code>
+    * [.getIsExpired(symbol)](#SymbolParsergetIsExpired) ⇒ <code>Boolean</code>
+    * [.displayUsingPercent(symbol)](#SymbolParserdisplayUsingPercent) ⇒ <code>Boolean</code>
 
 
 * * *
 
 ### SymbolParser.parseInstrumentType(symbol) :id=symbolparserparseinstrumenttype
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>Object</code> \| <code>null</code>  
 **Access**: public  
 
 | Param | Type |
@@ -41,6 +43,7 @@ symbol, a null value is returned.
 
 ### SymbolParser.getProducerSymbol(symbol) :id=symbolparsergetproducersymbol
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>String</code> \| <code>null</code>  
 **Access**: public  
 
 | Param | Type |
@@ -54,6 +57,7 @@ symbol, a null value is returned.
 
 ### SymbolParser.getFuturesOptionPipelineFormat(symbol) :id=symbolparsergetfuturesoptionpipelineformat
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>String</code> \| <code>null</code>  
 **Access**: public  
 
 | Param | Type |
@@ -68,6 +72,7 @@ symbol, a null value is returned.
 
 ### SymbolParser.getIsConcrete(symbol) :id=symbolparsergetisconcrete
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>Boolean</code>  
 **Access**: public  
 
 | Param | Type |
@@ -82,6 +87,7 @@ false.
 
 ### SymbolParser.getIsReference(symbol) :id=symbolparsergetisreference
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>Boolean</code>  
 **Access**: public  
 
 | Param | Type |
@@ -95,6 +101,7 @@ false.
 
 ### SymbolParser.getIsFuture(symbol) :id=symbolparsergetisfuture
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>Boolean</code>  
 **Access**: public  
 
 | Param | Type |
@@ -108,6 +115,7 @@ false.
 
 ### SymbolParser.getIsFutureSpread(symbol) :id=symbolparsergetisfuturespread
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>Boolean</code>  
 **Access**: public  
 
 | Param | Type |
@@ -121,6 +129,7 @@ false.
 
 ### SymbolParser.getIsFutureOption(symbol) :id=symbolparsergetisfutureoption
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>Boolean</code>  
 **Access**: public  
 
 | Param | Type |
@@ -135,6 +144,7 @@ otherwise.
 
 ### SymbolParser.getIsForex(symbol) :id=symbolparsergetisforex
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>Boolean</code>  
 **Access**: public  
 
 | Param | Type |
@@ -149,6 +159,7 @@ false otherwise.
 
 ### SymbolParser.getIsIndex(symbol) :id=symbolparsergetisindex
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>Boolean</code>  
 **Access**: public  
 
 | Param | Type |
@@ -163,6 +174,7 @@ Industrials); false otherwise.
 
 ### SymbolParser.getIsSector(symbol) :id=symbolparsergetissector
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>Boolean</code>  
 **Access**: public  
 
 | Param | Type |
@@ -177,6 +189,7 @@ index; false otherwise.
 
 ### SymbolParser.getIsCmdty(symbol) :id=symbolparsergetiscmdty
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>Boolean</code>  
 **Access**: public  
 
 | Param | Type |
@@ -191,6 +204,7 @@ index; false otherwise.
 
 ### SymbolParser.getIsBats(symbol) :id=symbolparsergetisbats
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>Boolean</code>  
 **Access**: public  
 
 | Param | Type |
@@ -204,6 +218,7 @@ index; false otherwise.
 
 ### SymbolParser.getIsExpired(symbol) :id=symbolparsergetisexpired
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>Boolean</code>  
 **Access**: public  
 
 | Param | Type |
@@ -218,6 +233,7 @@ to be expired (e.g. a future for a past year).
 
 ### SymbolParser.displayUsingPercent(symbol) :id=symbolparserdisplayusingpercent
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
+**Returns**: <code>Boolean</code>  
 **Access**: public  
 
 | Param | Type |
