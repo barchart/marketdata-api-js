@@ -135,7 +135,7 @@ const subscribe = (symbol) => {
 	const marketUpdateHandler = (ddf) => {
 		const quote = connection.getMarketState().getQuote(symbol);
 
-		console.log(`Current price of ${symbol} is ${quote.previousPrice}`);
+		console.log(`Current price of ${symbol} is ${quote.lastPrice}`);
 	};
 
 	connection.on(SubscriptionType.MarketUpdate, marketUpdateHandler, symbol);
