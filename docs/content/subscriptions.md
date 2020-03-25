@@ -108,7 +108,7 @@ connection.off(SubscriptionType.Events, eventsHandler);
 
 ## Level I Market Data
 
-A ```SubscriptionType.MarketUpdate``` subscription gives you access to market events as they occur (e.g. trade, top of book changed, etc).
+A ```SubscriptionType.MarketUpdate``` subscription gives you market events as they occur (e.g. trade, top of book changed, etc).
 
 #### Callback
 
@@ -176,7 +176,7 @@ connection.off(SubscriptionType.MarketUpdate, 'AAPL', handleUsingQuote);
 
 ## Level II Market Data
 
-A ```SubscriptionType.MarketDepth``` subscription gives a snapshot of the aggregated order book, each time the book changes.
+A ```SubscriptionType.MarketDepth``` subscription gives you a snapshot of the aggregated order book, each time the book changes.
 
 #### Callback
 
