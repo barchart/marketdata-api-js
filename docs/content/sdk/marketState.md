@@ -658,6 +658,8 @@ function.
 
 ## Schema :id=schema
 **Kind**: global namespace  
+>A meta namespace for structural contracts of anonymous objects.
+
 
 * [Schema](#Schema) : <code>object</code>
     * [.BookPriceLevel](#SchemaBookPriceLevel) : <code>Object</code>

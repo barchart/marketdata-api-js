@@ -368,6 +368,8 @@ should be loaded when subscribing to to market data).
 
 ## Enums :id=enums
 **Kind**: global namespace  
+>A namespace for enumerations.
+
 
 * [Enums](#Enums) : <code>object</code>
     * [.ConnectionEventType](#EnumsConnectionEventType) : <code>enum</code>
@@ -384,15 +386,14 @@ should be loaded when subscribing to to market data).
 
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
-| LoginSuccess | <code>string</code> | <code>&quot;login success&quot;</code> | Remote server accepted credentials |
-| LoginFail | <code>string</code> | <code>&quot;login fail&quot;</code> | Remote server rejected credentials |
-| Disconnecting | <code>string</code> | <code>&quot;disconnecting&quot;</code> | Generated after calling [disconnect](#ConnectionBasedisconnect) |
+| LoginSuccess | <code>string</code> | <code>&quot;login success&quot;</code> | Remote server accepted your credentials |
+| LoginFail | <code>string</code> | <code>&quot;login fail&quot;</code> | Remote server rejected your credentials |
+| Disconnecting | <code>string</code> | <code>&quot;disconnecting&quot;</code> | Generated after [disconnect](#ConnectionBasedisconnect) is called |
 | Disconnect | <code>string</code> | <code>&quot;disconnect&quot;</code> | Connection to remote server lost |
-| FeedPaused | <code>string</code> | <code>&quot;feed paused&quot;</code> | Generated after calling [pause](#ConnectionBasepause) |
-| FeedResumed | <code>string</code> | <code>&quot;feed resumed&quot;</code> | Generated after calling [resume](#ConnectionBaseresume) |
+| FeedPaused | <code>string</code> | <code>&quot;feed paused&quot;</code> | Generated after [pause](#ConnectionBasepause) is called |
+| FeedResumed | <code>string</code> | <code>&quot;feed resumed&quot;</code> | Generated after [resume](#ConnectionBaseresume) is called |
 
->An enumeration of descriptions for events which can occur during the life
-of a [Connection](/content/sdk/connection?id=connection).
+>An enumeration of events which can occur during the life of a [Connection](/content/sdk/connection?id=connection).
 
 
 * * *
@@ -418,6 +419,8 @@ of a [Connection](/content/sdk/connection?id=connection).
 
 ## Callbacks :id=callbacks
 **Kind**: global namespace  
+>A meta namespace for signatures of anonymous functions.
+
 
 * [Callbacks](#Callbacks) : <code>object</code>
     * [.MarketDepthCallback](#CallbacksMarketDepthCallback) : <code>function</code>
