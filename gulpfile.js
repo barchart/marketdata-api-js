@@ -1,25 +1,25 @@
-const gulp = require('gulp');
-
-const fs = require('fs');
-const path = require('path');
-
 const AWS = require('aws-sdk'),
 	awspublish = require('gulp-awspublish'),
 	browserify = require('browserify'),
 	buffer = require('vinyl-buffer'),
 	bump = require('gulp-bump'),
+	docsify = require('docsify-cli/lib/commands/init'),
 	file = require('gulp-file'),
+	fs = require('fs'),
 	git = require('gulp-git'),
 	gitStatus = require('git-get-status'),
 	glob = require('glob'),
+	gulp = require('gulp'),
 	jasmine = require('gulp-jasmine'),
+	jsdoc2md = require('jsdoc-to-markdown'),
 	jshint = require('gulp-jshint'),
 	merge = require('merge-stream'),
+	path = require('path'),
 	rename = require('gulp-rename'),
 	replace = require('gulp-replace'),
-	source = require('vinyl-source-stream'),
-	docsify = require('docsify-cli/lib/commands/init'),
-	jsdoc2md = require('jsdoc-to-markdown');
+	source = require('vinyl-source-stream');
+
+const docsifyTemplates = require('./docsifyTemplates');
 
 function getVersionFromPackage() {
 	return JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
@@ -29,40 +29,52 @@ function getVersionForComponent() {
 	return getVersionFromPackage().split('.').slice(0, 2).join('.');
 }
 
+function preparePathForDocs(path) {
+	return `/content/sdk/${path}`.toLocaleLowerCase();
+}
+
+function prepareLinkForDocs(path, tab) {
+	const name = path.replace(/-/g, '/');
+	return `${tab ? '\t' : ''}* [${name}](${preparePathForDocs(path)})\n`;
+}
+
 function generateDocs(inputFiles = 'lib/**/*.js') {
 	const docFolder = `${__dirname}/docs`;
 	const contentDir = `${docFolder}/content`;
 	const sdkDir = `${contentDir}/sdk`;
 	const template = `{{>main}}`;
-	let sdkReference = '# SDK Reference\n';
-	let sdkReferenceMD = '<!--- sdk_open -->\n* [SDK Reference](/content/sdk_reference)\n';
+	let sdkReference = docsifyTemplates.sdkReference;
+	let sdkSidebar = docsifyTemplates.sdkSidebar;
 	global.packageName = '@barchart/marketdata-api-js';
 
 	return jsdoc2md.clear().then(() => {
 		return jsdoc2md.getTemplateData({
 			files: inputFiles
 		}).then((templateData) => {
-			return templateData.reduce((paths, identifier) => {
+			return templateData.reduce((templateGroups, identifier) => {
 				if (!identifier.meta) {
-					return paths;
+					return templateGroups;
 				}
 
 				const path = identifier.meta.path;
 				const arrayFilePath = path.split('lib/');
 				const filePath = arrayFilePath[1].replace(/\//g, '-');
 
-				if (!paths[filePath]) {
-					paths[filePath] = [];
+				if (!templateGroups.dataByPath[filePath]) {
+					templateGroups.dataByPath[filePath] = [];
 				}
 
-				paths[filePath].push(identifier);
+				templateGroups.dataByPath[filePath].push(identifier);
+				templateGroups.pathById[identifier.id] = preparePathForDocs(filePath).toLocaleLowerCase();
 
-				return paths;
-			}, {});
-		}).then((paths) => {
-			const keys = Object.keys(paths).sort();
+				return templateGroups;
+			}, {dataByPath: {}, pathById: {}});
+		}).then((templateGroups) => {
+			global.pathById = templateGroups.pathById;
+
+			const keys = Object.keys(templateGroups.dataByPath).sort();
 			keys.forEach((filePath) => {
-				const data = paths[filePath];
+				const data = templateGroups.dataByPath[filePath];
 
 				const output = jsdoc2md.renderSync({
 					data: data,
@@ -73,98 +85,79 @@ function generateDocs(inputFiles = 'lib/**/*.js') {
 				});
 
 				if (output) {
-					sdkReference += preparePath(filePath);
-					sdkReferenceMD += preparePath(filePath, true);
+					sdkReference += prepareLinkForDocs(filePath);
+					sdkSidebar += prepareLinkForDocs(filePath, true);
 					fs.writeFileSync(path.resolve(sdkDir, `${filePath}.md`), output);
 				}
 			});
 
-			sdkReferenceMD += '<!--- sdk_close -->';
+			sdkSidebar += '<!--- sdk_close -->';
 
 			fs.writeFileSync(path.resolve(contentDir, `sdk_reference.md`), sdkReference);
 
-			gulp.src([`${docFolder}/_sidebar.md`], { allowEmpty: true})
-				.pipe(replace(/(<!--- sdk_open -->(\s|.)*<!--- sdk_close -->)/gm, sdkReferenceMD))
+			gulp.src([`${docFolder}/_sidebar.md`], {allowEmpty: true})
+				.pipe(replace(/(<!--- sdk_open -->(\s|.)*<!--- sdk_close -->)/gm, sdkSidebar))
 				.pipe(gulp.dest(sdkDir));
 		});
 	});
 }
 
-function preparePath(path, tab) {
-	const name = path.replace(/-/g, '/');
-	return `${tab ? '\t' : ''}* [${name}](/content/sdk/${path})\n`;
-}
-
-gulp.task('docsify', (cb) => {
+gulp.task('docsify', () => {
 	const isInited = fs.existsSync("./docs/index.html");
-	
+
 	const generateStructure = new Promise((resolve, reject) => {
 		if (!isInited) {
-			const sidebar = `* [Overview](/content/product_overview)
-* [Quick Start](/content/quick_start)
-<!--- sdk_open -->
-* [SDK Reference](/content/sdk_reference)
-<!--- sdk_close -->
-* [Release Notes](/content/release_notes)`;
-			const coverPage = `# Barchart Market Data SDK <small>JavaScript ${getVersionFromPackage()}</small>
+			const sidebar = docsifyTemplates.sidebar;
+			const docsifyConfig = docsifyTemplates.docsifyConfig;
+			const styles = docsifyTemplates.styles;
+			const indexHTMLHead = docsifyTemplates.indexHTMLHead;
+			const quickStart = docsifyTemplates.quickStart;
+			const productOverview = docsifyTemplates.productOverview;
+			const releaseNotes = docsifyTemplates.releaseNotes;
+			const coverPageTemplate = docsifyTemplates.coverPage(getVersionFromPackage());
 
-> Inject real-time market data into your JavaScript applications
+			fs.mkdirSync(`${__dirname}/docs/content/sdk`, {recursive: true});
+			fs.mkdirSync(`${__dirname}/docs/content/releases`, {recursive: true});
 
-[Product Overview](/content/product_overview)
-[Quick Start](/content/quick_start)
-`;
-			const docsifyConfig = `window.$docsify = {
-		loadSidebar: true,
-		coverpage: true,
-		relativePath: false,
-		onlyCover: true,
-		notFoundPage: true,
-		subMaxLevel: 2,
-		search: {
-			maxAge: 86400000, // Expiration time, the default one day
-			placeholder: 'Type to search',
-			noData: 'No Results',
-			depth: 0,
-			hideOtherSidebarContent: false,
-		},`;
-			const styles = '.sidebar .app-name {\n\ttext-align: left;\n\n\tmargin-left: 15px;\n}\n\nh2#contents + ul p {\n\tmargin: 0;\n}';
-			
-			fs.mkdirSync(`${__dirname}/docs/content/sdk`, {	recursive: true	});
-			fs.mkdirSync(`${__dirname}/docs/content/releases`, {	recursive: true	});
-			
 			docsify("./docs", "", "vue");
-			
+
 			merge(
 				gulp.src(['./docs/index.html'])
 					.pipe(replace(/(window.\$docsify.*)/g, docsifyConfig))
-					.pipe(replace(/(<\/head>)/g, '  <link rel="stylesheet" type="text/css" href="styles/override.css">\n</head>'))
+					.pipe(replace(/(<\/head>)/g, indexHTMLHead))
 					.pipe(gulp.dest('./docs/')),
-				gulp.src(['./docs/styles/override.css'], { allowEmpty: true })
+
+				gulp.src(['./docs/styles/override.css'], {allowEmpty: true})
 					.pipe(file('override.css', styles))
 					.pipe(gulp.dest('./docs/styles')),
-				gulp.src(['docs/content/quick_start.md'], { allowEmpty: true })
-					.pipe(file('quick_start.md', '# Quick Start'))
+
+				gulp.src(['docs/content/quick_start.md'], {allowEmpty: true})
+					.pipe(file('quick_start.md', quickStart))
 					.pipe(gulp.dest('./docs/content')),
-				gulp.src(['docs/content/product_overview.md'], { allowEmpty: true })
-					.pipe(file('product_overview.md', '# Overview'))
+
+				gulp.src(['docs/content/product_overview.md'], {allowEmpty: true})
+					.pipe(file('product_overview.md', productOverview))
 					.pipe(gulp.dest('./docs/content')),
-				gulp.src(['docs/content/release_notes.md'], { allowEmpty: true })
-					.pipe(file('release_notes.md', '# Release Notes'))
+
+				gulp.src(['docs/content/release_notes.md'], {allowEmpty: true})
+					.pipe(file('release_notes.md', releaseNotes))
 					.pipe(gulp.dest('./docs/content')),
-				gulp.src(['docs/_sidebar.md'], { allowEmpty: true })
+
+				gulp.src(['docs/_sidebar.md'], {allowEmpty: true})
 					.pipe(file('_sidebar.md', sidebar))
 					.pipe(gulp.dest('./docs/')),
-				gulp.src(['docs/_coverpage.md'], { allowEmpty: true })
-					.pipe(file('_coverpage.md', coverPage))
+
+				gulp.src(['docs/_coverpage.md'], {allowEmpty: true})
+					.pipe(file('_coverpage.md', coverPageTemplate))
 					.pipe(gulp.dest('./docs/'))
 					.on("end", resolve)
 					.on("error", reject)
 			);
-		} else{
+		} else {
 			return resolve();
 		}
 	});
-	
+
 	return generateStructure.then(() => {
 		return generateDocs();
 	});

@@ -113,7 +113,7 @@
 | provider | [<code>LoggerProvider</code>](#LoggerProvider) | 
 
 >Configures the library to delegate any log messages to a custom
-implementation of the [LoggerProvider](#LoggerProvider) interface.
+implementation of the [LoggerProvider](/content/sdk/logging?id=loggerprovider) interface.
 
 
 * * *
@@ -127,7 +127,7 @@ implementation of the [LoggerProvider](#LoggerProvider) interface.
 | --- | --- |
 | category | <code>String</code> | 
 
->Returns an instance of [Logger](#Logger) for a specific category.
+>Returns an instance of [Logger](/content/sdk/logging?id=logger) for a specific category.
 
 
 * * *
@@ -136,7 +136,7 @@ implementation of the [LoggerProvider](#LoggerProvider) interface.
 **Kind**: global class  
 **Access**: public  
  **Import**: @barchart/marketdata-api-js/lib/logging/LoggerProvider  
->An interface for generating [Logger](#Logger) instances.
+>An interface for generating [Logger](/content/sdk/logging?id=logger) instances.
 
 
 * * *
@@ -150,7 +150,7 @@ implementation of the [LoggerProvider](#LoggerProvider) interface.
 | --- | --- |
 | category | <code>String</code> | 
 
->Returns an instance of [Logger](#Logger).
+>Returns an instance of [Logger](/content/sdk/logging?id=logger).
 
 
 * * *

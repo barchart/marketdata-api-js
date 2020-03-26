@@ -116,7 +116,7 @@ See [on](#ConnectionBaseon).
 **Overrides**: [<code>getPollingFrequency</code>](#ConnectionBasegetPollingFrequency)  
 **Returns**: <code>number</code> \| <code>null</code>  
 **Access**: public  
->The frequency, in milliseconds, used to poll for changes to [Quote](Quote)
+>The frequency, in milliseconds, used to poll for changes to [Quote](/content/sdk/marketstate?id=quote)
 objects. A null value indicates streaming updates (default).
 
 
@@ -152,8 +152,8 @@ should be loaded when subscribing to to market data).
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
 **Overrides**: [<code>getMarketState</code>](#ConnectionBasegetMarketState)  
 **Returns**: <code>MarketState</code>  
->Returns the [MarketState](MarketState) singleton, used to access [Quote](Quote), 
-[Profile](Profile), and [CumulativeVolume](CumulativeVolume) objects.
+>Returns the [MarketState](/content/sdk/marketstate?id=marketstate) singleton, used to access [Quote](/content/sdk/marketstate?id=quote), 
+[Profile](/content/sdk/marketstate?id=profile), and [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) objects.
 
 
 * * *
@@ -295,7 +295,7 @@ See [on](#ConnectionBaseon).
 **Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
 **Returns**: <code>number</code> \| <code>null</code>  
 **Access**: public  
->The frequency, in milliseconds, used to poll for changes to [Quote](Quote)
+>The frequency, in milliseconds, used to poll for changes to [Quote](/content/sdk/marketstate?id=quote)
 objects. A null value indicates streaming updates (default).
 
 
@@ -328,8 +328,8 @@ should be loaded when subscribing to to market data).
 ### connectionBase.getMarketState() :id=connectionbasegetmarketstate
 **Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
 **Returns**: <code>MarketState</code>  
->Returns the [MarketState](MarketState) singleton, used to access [Quote](Quote), 
-[Profile](Profile), and [CumulativeVolume](CumulativeVolume) objects.
+>Returns the [MarketState](/content/sdk/marketstate?id=marketstate) singleton, used to access [Quote](/content/sdk/marketstate?id=quote), 
+[Profile](/content/sdk/marketstate?id=profile), and [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) objects.
 
 
 * * *
@@ -377,9 +377,9 @@ should be loaded when subscribing to to market data).
 
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
-| MarketDepth | <code>string</code> | <code>&quot;marketDepth&quot;</code> | a subscription to [Book](Book) changes |
-| MarketUpdate | <code>string</code> | <code>&quot;marketUpdate&quot;</code> | a subscription to [Quote](Quote) changes |
-| CumulativeVolume | <code>string</code> | <code>&quot;cumulativeVolume&quot;</code> | a subscription to [CumulativeVolume](CumulativeVolume) changes |
+| MarketDepth | <code>string</code> | <code>&quot;marketDepth&quot;</code> | a subscription to [Book](/content/sdk/marketstate?id=book) changes |
+| MarketUpdate | <code>string</code> | <code>&quot;marketUpdate&quot;</code> | a subscription to [Quote](/content/sdk/marketstate?id=quote) changes |
+| CumulativeVolume | <code>string</code> | <code>&quot;cumulativeVolume&quot;</code> | a subscription to [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) changes |
 | Timestamp | <code>string</code> | <code>&quot;timestamp&quot;</code> | a subscription to the server's timestamp beacon |
 | Events | <code>string</code> | <code>&quot;events&quot;</code> | a subscription to system events (debugging only) |
 

@@ -59,7 +59,7 @@ single instrument.
 **Kind**: instance method of [<code>CumulativeVolume</code>](#CumulativeVolume)  
 **Returns**: [<code>Array.&lt;PriceLevel&gt;</code>](#PriceLevel)  
 >Returns an array of all price levels. This is an expensive operation. Observing
-an ongoing subscription is preferred (see [Connection#on](Connection#on)).
+an ongoing subscription is preferred (see [Connection#on](/content/sdk/connection?id=connectionon)).
 
 
 * * *
@@ -154,9 +154,9 @@ an ongoing subscription is preferred (see [Connection#on](Connection#on)).
  **Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
 >Repository for current market state. This repository will only contain
 data for an instrument after a subscription has been established using
-the [Connection#on](Connection#on) function.
+the [Connection#on](/content/sdk/connection?id=connectionon) function.
 
-Access the singleton instance using the [ConnectionBase#getMarketState](ConnectionBase#getMarketState)
+Access the singleton instance using the [ConnectionBase#getMarketState](/content/sdk/connection?id=connectionbasegetmarketstate)
 function.
 
 
@@ -172,13 +172,13 @@ function.
 
 ### marketState.getProfile(symbol, [callback]) :id=marketstategetprofile
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
-**Returns**: [<code>Promise.&lt;Profile&gt;</code>](#Profile) - The [Profile](#Profile) instance, as a promise.  
+**Returns**: [<code>Promise.&lt;Profile&gt;</code>](#Profile) - The [Profile](/content/sdk/marketstate?id=profile) instance, as a promise.  
 **Access**: public  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | symbol | <code>string</code> |  |
-| [callback] | <code>function</code> | invoked when the [Profile](#Profile) instance becomes available |
+| [callback] | <code>function</code> | invoked when the [Profile](/content/sdk/marketstate?id=profile) instance becomes available |
 
 
 * * *
@@ -209,13 +209,13 @@ function.
 
 ### marketState.getCumulativeVolume(symbol, [callback]) :id=marketstategetcumulativevolume
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
-**Returns**: [<code>Promise.&lt;CumulativeVolume&gt;</code>](#CumulativeVolume) - The [CumulativeVolume](#CumulativeVolume) instance, as a promise  
+**Returns**: [<code>Promise.&lt;CumulativeVolume&gt;</code>](#CumulativeVolume) - The [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) instance, as a promise  
 **Access**: public  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | symbol | <code>string</code> |  |
-| [callback] | <code>function</code> | invoked when the [CumulativeVolume](#CumulativeVolume) instance becomes available |
+| [callback] | <code>function</code> | invoked when the [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) instance becomes available |
 
 
 * * *

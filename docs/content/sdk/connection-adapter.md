@@ -21,7 +21,7 @@
 **Kind**: global class  
 **Access**: public  
  **Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactory  
->An interface for creating WebSocket [WebSocketAdapter](#WebSocketAdapter) instances.
+>An interface for creating WebSocket [WebSocketAdapter](/content/sdk/connection-adapter?id=websocketadapter) instances.
 
 
 * * *
@@ -35,7 +35,7 @@
 | --- | --- |
 | host | <code>String</code> | 
 
->Returns a new [WebSocketAdapter](#WebSocketAdapter) instance.
+>Returns a new [WebSocketAdapter](/content/sdk/connection-adapter?id=websocketadapter) instance.
 
 
 * * *
@@ -45,7 +45,7 @@
 **Extends**: [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  
 **Access**: public  
  **Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForBrowsers  
->An implementation of [WebSocketAdapterFactory](#WebSocketAdapterFactory) for use with web browsers.
+>An implementation of [WebSocketAdapterFactory](/content/sdk/connection-adapter?id=websocketadapterfactory) for use with web browsers.
 
 
 * * *
@@ -60,7 +60,7 @@
 | --- | --- |
 | host | <code>String</code> | 
 
->Returns a new [WebSocketAdapter](#WebSocketAdapter) instance.
+>Returns a new [WebSocketAdapter](/content/sdk/connection-adapter?id=websocketadapter) instance.
 
 
 * * *
@@ -70,7 +70,7 @@
 **Extends**: [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  
 **Access**: public  
  **Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForNode  
->An implementation of [WebSocketAdapterFactory](#WebSocketAdapterFactory) for use by Node.js servers.
+>An implementation of [WebSocketAdapterFactory](/content/sdk/connection-adapter?id=websocketadapterfactory) for use by Node.js servers.
 
 
 * * *
@@ -85,7 +85,7 @@
 | --- | --- |
 | host | <code>String</code> | 
 
->Returns a new [WebSocketAdapter](#WebSocketAdapter) instance.
+>Returns a new [WebSocketAdapter](/content/sdk/connection-adapter?id=websocketadapter) instance.
 
 
 * * *
