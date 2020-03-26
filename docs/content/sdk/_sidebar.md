@@ -1,8 +1,9 @@
 * [Overview](/content/product_overview)
 * [Quick Start](/content/quick_start)
-* [Connections](/content/connections)
-* [Subscriptions](/content/subscriptions)
-* [Data Structures](/content/data_structures)
+* Key Concepts
+  * [Connections](/content/concepts/connections)
+  * [Subscriptions](/content/concepts/subscriptions)
+  * [Data Structures](/content/concepts/data_structures)
 <!--- sdk_open -->
 * [SDK Reference](/content/sdk_reference)
 	* [connection](/content/sdk/connection)

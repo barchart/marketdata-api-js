@@ -4,7 +4,7 @@
 
 * [ConnectionBase](#ConnectionBase) 
 
-* [Subscription](#Subscription) 
+* [Enums](#Enums) 
 
 ## Connection :id=connection
 **Kind**: global class  
@@ -84,11 +84,11 @@
 
 | Param | Type | Description |
 | --- | --- | --- |
-| subscriptionType | [<code>SubscriptionType</code>](#SubscriptionSubscriptionType) |  |
+| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) |  |
 | callback | <code>function</code> | notified each time the event occurs |
-| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#SubscriptionSubscriptionType) |
+| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#EnumsSubscriptionType) |
 
->Initiates a subscription to an [SubscriptionType](#SubscriptionSubscriptionType) and
+>Initiates a subscription to an [SubscriptionType](#EnumsSubscriptionType) and
 registers the callback for notifications.
 
 
@@ -101,11 +101,11 @@ registers the callback for notifications.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| subscriptionType | [<code>SubscriptionType</code>](#SubscriptionSubscriptionType) | the [SubscriptionType](#SubscriptionSubscriptionType) which was passed to [on](#ConnectionBaseon) |
+| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) | the [SubscriptionType](#EnumsSubscriptionType) which was passed to [on](#ConnectionBaseon) |
 | callback | <code>function</code> | the callback which was passed to [on](#ConnectionBaseon) |
-| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#SubscriptionSubscriptionType) |
+| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#EnumsSubscriptionType) |
 
->Stops notification of the callback for the [SubscriptionType](#SubscriptionSubscriptionType).
+>Stops notification of the callback for the [SubscriptionType](#EnumsSubscriptionType).
 See [on](#ConnectionBaseon).
 
 
@@ -265,11 +265,11 @@ querying current market state.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| subscriptionType | [<code>SubscriptionType</code>](#SubscriptionSubscriptionType) |  |
+| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) |  |
 | callback | <code>function</code> | notified each time the event occurs |
-| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#SubscriptionSubscriptionType) |
+| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#EnumsSubscriptionType) |
 
->Initiates a subscription to an [SubscriptionType](#SubscriptionSubscriptionType) and
+>Initiates a subscription to an [SubscriptionType](#EnumsSubscriptionType) and
 registers the callback for notifications.
 
 
@@ -281,11 +281,11 @@ registers the callback for notifications.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| subscriptionType | [<code>SubscriptionType</code>](#SubscriptionSubscriptionType) | the [SubscriptionType](#SubscriptionSubscriptionType) which was passed to [on](#ConnectionBaseon) |
+| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) | the [SubscriptionType](#EnumsSubscriptionType) which was passed to [on](#ConnectionBaseon) |
 | callback | <code>function</code> | the callback which was passed to [on](#ConnectionBaseon) |
-| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#SubscriptionSubscriptionType) |
+| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#EnumsSubscriptionType) |
 
->Stops notification of the callback for the [SubscriptionType](#SubscriptionSubscriptionType).
+>Stops notification of the callback for the [SubscriptionType](#EnumsSubscriptionType).
 See [on](#ConnectionBaseon).
 
 
@@ -364,13 +364,13 @@ should be loaded when subscribing to to market data).
 
 * * *
 
-## Subscription :id=subscription
+## Enums :id=enums
 **Kind**: global namespace  
 
 * * *
 
-### Subscription.SubscriptionType :id=subscriptionsubscriptiontype
-**Kind**: static enum of [<code>Subscription</code>](#Subscription)  
+### Enums.SubscriptionType :id=enumssubscriptiontype
+**Kind**: static enum of [<code>Enums</code>](#Enums)  
 **Access**: public  
 **Read only**: true  
 **Properties**
