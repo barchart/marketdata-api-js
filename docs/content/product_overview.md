@@ -6,7 +6,10 @@
 
 ## Market Data Catalog
 
-Barchart offers an exhaustive array of market data for multiple asset classes from exchanges around the world.
+Barchart offers an exhaustive array of market data for multiple asset classes from exchanges around the world. Consult our website for more information.
+
+* [Barchart Market Data](https://www.barchart.com/solutions/data/market)
+* [Barchart Streaming Services](https://www.barchart.com/solutions/services/stream)
 
 #### Asset Classes
 
@@ -53,7 +56,7 @@ Node.js is fully-supported.
 
 #### Other
 
-This SDK can only be used within a JavaScript environment. Other environments are supported (e.g. Java, .NET, Go, etc). Contact contact solutions@barchart.com for more details.
+This SDK can only be used within a JavaScript environment. Other environments are supported (e.g. Java, .NET, Go, etc). Read the [Barchart Streaming Services](https://www.barchart.com/solutions/services/stream) page of our website for more details.
 
 
 
