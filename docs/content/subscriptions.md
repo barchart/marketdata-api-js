@@ -110,6 +110,10 @@ connection.off(SubscriptionType.Events, eventsHandler);
 
 A ```SubscriptionType.MarketUpdate``` subscription notifies you of market events as they occur (e.g. trade, top of book changed, etc).
 
+#### Availability
+
+Level I market data is available for all symbols.
+
 #### Callback
 
 The callback receives an ```Object``` representing a market event. See the [Data Structures Section](/content/data_structures?id=market-updates) for a complete schema.
@@ -178,12 +182,23 @@ connection.off(SubscriptionType.MarketUpdate, 'AAPL', handleUsingQuote);
 
 A ```SubscriptionType.MarketDepth``` subscription gives you a snapshot of the aggregated order book, each time the book changes.
 
+#### Availability
+
+Level II market data is available for futures contracts.
+
 #### Callback
 
 The callback receives an ```Object``` with:
 
-* a property called *bids* which is an ordered ```Array``` of ```BookPriceLevel``` objects, and
-* a property called *asks* which is an ordered ```Array``` of ```BookPriceLevel``` objects.
+* a **bids** property is an ordered ```Array``` of ```BookPriceLevel``` objects, and
+* a **asks** property is an ordered ```Array``` of ```BookPriceLevel``` objects.
+
+```js
+	{
+		bids: [ ],
+		asks: [ ]
+	}
+```
 
 Each ```BookPriceLevel``` has a *price* and a *size* property, as follows:
 
@@ -220,6 +235,43 @@ connection.off(SubscriptionType.MarketDepth, handleMarketDepth, 'ESM0');
 
 ## Cumulative Volume
 
+A ```SubscriptionType.CumulativeVolume``` reports the total volume traded, at each price level, for the current trading session.
+
+#### Availability
+
+Cumulative market is available for futures contracts.
+
 #### Callback
 
+The callback receives an ```Object``` with several notable properties:
+
+The **event** property is a ```String```. It has one of two possible values:
+
+  * *update* - Indicates the volume at one price level has changed (or a new price level has been added).
+  * *reset* - Indicates the entire structure has been cleared, leaving no price levels.
+
+The **price** property is a ```Number``` that indicates the price level which changed. This property does not exist for *reset* events.
+
+The **volume** property is a ```Number``` that indicates the current aggregate volume at the given **price** level.  This property does not exist for *reset* events.
+
+The **container** property is an instance of the ```lib/marketState/CumulativeVolume``` class. It tracks the current volume traded for all price levels.
+
 #### Examples
+
+```js
+const handleCumulativeVolume = (data) => {
+	if (data.event === 'update') {
+		console.log(`Volume at ${data.price} increased to ${data.volume}for ${data.container.symbol}`;
+	} else if (data.event === 'reset') {
+		console.log(`Volume statistics for ${data.container.symbol} has been cleared`;
+	}
+};
+
+connection.on(SubscriptionType.CumulativeVolume, handleCumulativeVolume, 'ESM0');
+```
+
+Unsubscribe as follows:
+
+```js
+connection.off(SubscriptionType.CumulativeVolume, handleCumulativeVolume, 'ESM0');
+```
