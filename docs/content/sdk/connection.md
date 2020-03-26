@@ -6,6 +6,8 @@
 
 * [Enums](#Enums) 
 
+* [Callbacks](#Callbacks) 
+
 ## Connection :id=connection
 **Kind**: global class  
 **Extends**: [<code>ConnectionBase</code>](#ConnectionBase)  
@@ -85,7 +87,7 @@
 | Param | Type | Description |
 | --- | --- | --- |
 | subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) |  |
-| callback | <code>function</code> | notified each time the event occurs |
+| callback | [<code>MarketDepthCallback</code>](#CallbacksMarketDepthCallback) | notified each time the event occurs |
 | [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#EnumsSubscriptionType) |
 
 >Initiates a subscription to an [SubscriptionType](#EnumsSubscriptionType) and
@@ -266,7 +268,7 @@ querying current market state.
 | Param | Type | Description |
 | --- | --- | --- |
 | subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) |  |
-| callback | <code>function</code> | notified each time the event occurs |
+| callback | [<code>MarketDepthCallback</code>](#CallbacksMarketDepthCallback) | notified each time the event occurs |
 | [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#EnumsSubscriptionType) |
 
 >Initiates a subscription to an [SubscriptionType](#EnumsSubscriptionType) and
@@ -367,6 +369,32 @@ should be loaded when subscribing to to market data).
 ## Enums :id=enums
 **Kind**: global namespace  
 
+* [Enums](#Enums) : <code>object</code>
+    * [.ConnectionEventType](#EnumsConnectionEventType) : <code>enum</code>
+    * [.SubscriptionType](#EnumsSubscriptionType) : <code>enum</code>
+
+
+* * *
+
+### Enums.ConnectionEventType :id=enumsconnectioneventtype
+**Kind**: static enum of [<code>Enums</code>](#Enums)  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| LoginSuccess | <code>string</code> | <code>&quot;login success&quot;</code> | Remote server accepted credentials |
+| LoginFail | <code>string</code> | <code>&quot;login fail&quot;</code> | Remote server rejected credentials |
+| Disconnecting | <code>string</code> | <code>&quot;disconnecting&quot;</code> | Generated after calling [disconnect](#ConnectionBasedisconnect) |
+| Disconnect | <code>string</code> | <code>&quot;disconnect&quot;</code> | Connection to remote server lost |
+| FeedPaused | <code>string</code> | <code>&quot;feed paused&quot;</code> | Generated after calling [pause](#ConnectionBasepause) |
+| FeedResumed | <code>string</code> | <code>&quot;feed resumed&quot;</code> | Generated after calling [resume](#ConnectionBaseresume) |
+
+>An enumeration of descriptions for events which can occur during the life
+of a [Connection](/content/sdk/connection?id=connection).
+
+
 * * *
 
 ### Enums.SubscriptionType :id=enumssubscriptiontype
@@ -377,13 +405,96 @@ should be loaded when subscribing to to market data).
 
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
-| MarketDepth | <code>string</code> | <code>&quot;marketDepth&quot;</code> | a subscription to [Book](/content/sdk/marketstate?id=book) changes |
-| MarketUpdate | <code>string</code> | <code>&quot;marketUpdate&quot;</code> | a subscription to [Quote](/content/sdk/marketstate?id=quote) changes |
-| CumulativeVolume | <code>string</code> | <code>&quot;cumulativeVolume&quot;</code> | a subscription to [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) changes |
-| Timestamp | <code>string</code> | <code>&quot;timestamp&quot;</code> | a subscription to the server's timestamp beacon |
-| Events | <code>string</code> | <code>&quot;events&quot;</code> | a subscription to system events (debugging only) |
+| Events | <code>string</code> | <code>&quot;events&quot;</code> | A subscription to connection status |
+| MarketDepth | <code>string</code> | <code>&quot;marketDepth&quot;</code> | A Level II market data subscription |
+| MarketUpdate | <code>string</code> | <code>&quot;marketUpdate&quot;</code> | A Level I market data subscription |
+| CumulativeVolume | <code>string</code> | <code>&quot;cumulativeVolume&quot;</code> | A subscription for aggregate volume |
+| Timestamp | <code>string</code> | <code>&quot;timestamp&quot;</code> | A subscription to the remote server's heartbeat |
 
->A data feed type. See [on](#ConnectionBaseon).
+>An enumeration of subscriptions supported by a [Connection](/content/sdk/connection?id=connection).
+
+
+* * *
+
+## Callbacks :id=callbacks
+**Kind**: global namespace  
+
+* [Callbacks](#Callbacks) : <code>object</code>
+    * [.MarketDepthCallback](#CallbacksMarketDepthCallback) : <code>function</code>
+    * [.MarketUpdateCallback](#CallbacksMarketUpdateCallback) : <code>function</code>
+    * [.CumulativeVolumeCallback](#CallbacksCumulativeVolumeCallback) : <code>function</code>
+    * [.TimestampCallback](#CallbacksTimestampCallback) : <code>function</code>
+    * [.EventsCallback](#CallbacksEventsCallback) : <code>function</code>
+
+
+* * *
+
+### Callbacks.MarketDepthCallback :id=callbacksmarketdepthcallback
+**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Access**: public  
+
+| Param | Type |
+| --- | --- |
+| book | <code>Schema.Book</code> | 
+
+>The signature of a function which accepts events generated by a
+MarketDepth subscription (see [SubscriptionType](#EnumsSubscriptionType)).
+
+
+* * *
+
+### Callbacks.MarketUpdateCallback :id=callbacksmarketupdatecallback
+**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Access**: public  
+
+| Param | Type |
+| --- | --- |
+| data | <code>Object</code> | 
+
+>The signature of a function which accepts events generated by a
+MarketUpdate subscription (see [SubscriptionType](#EnumsSubscriptionType)).
+
+
+* * *
+
+### Callbacks.CumulativeVolumeCallback :id=callbackscumulativevolumecallback
+**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Access**: public  
+
+| Param | Type |
+| --- | --- |
+| data | <code>Object</code> | 
+
+>The signature of a function which accepts events generated by a
+CumulativeVolume subscription (see [SubscriptionType](#EnumsSubscriptionType)).
+
+
+* * *
+
+### Callbacks.TimestampCallback :id=callbackstimestampcallback
+**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Access**: public  
+
+| Param | Type |
+| --- | --- |
+| date | <code>Date</code> | 
+
+>The signature of a function which accepts events generated by a
+Timestamp subscription (see [SubscriptionType](#EnumsSubscriptionType)).
+
+
+* * *
+
+### Callbacks.EventsCallback :id=callbackseventscallback
+**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Access**: public  
+
+| Param | Type |
+| --- | --- |
+| data | <code>String</code> | 
+
+>The signature of a function which accepts events generated by an
+Events subscription (see [SubscriptionType](#EnumsSubscriptionType)).
 
 
 * * *

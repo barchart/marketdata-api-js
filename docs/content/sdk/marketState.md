@@ -10,9 +10,7 @@
 
 * [Quote](#Quote) 
 
-* [BookPriceLevel](#BookPriceLevel) 
-
-* [Book](#Book) 
+* [Schema](#Schema) 
 
 ## CumulativeVolume :id=cumulativevolume
 **Kind**: global class  
@@ -163,7 +161,7 @@ function.
 * [MarketState](#MarketState)
     * [.getProfile(symbol, [callback])](#MarketStategetProfile) ⇒ [<code>Promise.&lt;Profile&gt;</code>](#Profile)
     * [.getQuote(symbol)](#MarketStategetQuote) ⇒ [<code>Quote</code>](#Quote)
-    * [.getBook(symbol)](#MarketStategetBook) ⇒ [<code>Book</code>](#Book)
+    * [.getBook(symbol)](#MarketStategetBook) ⇒ <code>Book</code>
     * [.getCumulativeVolume(symbol, [callback])](#MarketStategetCumulativeVolume) ⇒ [<code>Promise.&lt;CumulativeVolume&gt;</code>](#CumulativeVolume)
     * [.getTimestamp()](#MarketStategetTimestamp) ⇒ <code>Date</code>
 
@@ -197,7 +195,7 @@ function.
 
 ### marketState.getBook(symbol) :id=marketstategetbook
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
-**Returns**: [<code>Book</code>](#Book)  
+**Returns**: <code>Book</code>  
 **Access**: public  
 
 | Param | Type |
@@ -658,27 +656,44 @@ function.
 
 * * *
 
-## BookPriceLevel :id=bookpricelevel
-**Kind**: global typedef  
-**Properties**
+## Schema :id=schema
+**Kind**: global namespace  
 
-| Name | Type |
-| --- | --- |
-| price | <code>number</code> | 
-| size | <code>number</code> | 
+* [Schema](#Schema) : <code>object</code>
+    * [.BookPriceLevel](#SchemaBookPriceLevel) : <code>Object</code>
+    * [.Book](#SchemaBook) : <code>Object</code>
 
 
 * * *
 
-## Book :id=book
-**Kind**: global typedef  
+### Schema.BookPriceLevel :id=schemabookpricelevel
+**Kind**: static typedef of [<code>Schema</code>](#Schema)  
 **Properties**
 
-| Name | Type |
-| --- | --- |
-| symbol | <code>string</code> | 
-| bids | [<code>Array.&lt;BookPriceLevel&gt;</code>](#BookPriceLevel) | 
-| asks | [<code>Array.&lt;BookPriceLevel&gt;</code>](#BookPriceLevel) | 
+| Name | Type | Description |
+| --- | --- | --- |
+| price | <code>number</code> | The price level. |
+| size | <code>number</code> | The quantity available at the price level. |
+
+>The definition of an anonymous object representing one level within a
+[Book](#SchemaBook).
+
+
+* * *
+
+### Schema.Book :id=schemabook
+**Kind**: static typedef of [<code>Schema</code>](#Schema)  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| symbol | <code>string</code> | The symbol. |
+| bids | [<code>Array.&lt;BookPriceLevel&gt;</code>](#SchemaBookPriceLevel) | The price levels for buy orders. |
+| asks | [<code>Array.&lt;BookPriceLevel&gt;</code>](#SchemaBookPriceLevel) | The price levels for sell orders. |
+
+>The definition of an anonymous object representing an aggregate order
+book. In other words, the total size of all orders (bid or ask) at
+every price.
 
 
 * * *
