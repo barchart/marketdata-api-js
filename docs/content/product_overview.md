@@ -56,7 +56,7 @@ Node.js is fully-supported.
 
 #### Other
 
-This SDK can only be used within a JavaScript environment. Other environments are supported (e.g. Java, .NET, Go, etc). Read the [Barchart Streaming Services](https://www.barchart.com/solutions/services/stream) page of our website for more details.
+This SDK can only be used within a JavaScript environment. Other environments are supported (e.g. Java, .NET, Go, etc). Read the [Streaming Services](https://www.barchart.com/solutions/services/stream) page of our website for more details.
 
 
 
