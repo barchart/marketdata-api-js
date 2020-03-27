@@ -12,7 +12,7 @@ If you aren't using NPM, you can download the SDK directly from GitHub at https:
 
 Before you can subscribe to market data, you'll need to establish a WebSocket connection to Barchart's quote servers.
 
-Barchart does not permit anonymous connections to its systems. Please contact solutions@barchart.com to *obtain a free username and password*.
+Barchart does not permit anonymous connections. Please contact solutions@barchart.com to *obtain a free username and password*.
 
 ### From a Web Browser
 
@@ -40,7 +40,7 @@ connection.connect(server, username, password);
 
 ### From Node.js
 
-Running the SDK in Node.js is identical to running it in a web browser -- with one exception. You need to provide a *WebSocketAdapterFactory* to the *Connection.connect* function. Connect as follows:
+Running the SDK in Node.js is identical to running it in a web browser -- with one exception. You need to provide a *WebSocketAdapterFactory* to the *Connection.connect* function, as follows:
 
 ```js
 const Connection = require('@barchart/marketdata-api-js/lib/connection/Connection');

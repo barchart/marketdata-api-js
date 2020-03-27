@@ -2,35 +2,35 @@
 
 * [Connection](#Connection) 
 
-* [ConnectionBase](#ConnectionBase) 
-
 * [Enums](#Enums) 
 
 * [Callbacks](#Callbacks) 
 
 ## Connection :id=connection
 **Kind**: global class  
-**Extends**: [<code>ConnectionBase</code>](#ConnectionBase)  
+**Extends**: <code>ConnectionBase</code>  
 **Access**: public  
  **Import**: @barchart/marketdata-api-js/lib/connection/Connection  
->Object used to connect to Barchart servers and subscribe to market data.
+>This class is the central component of the SDK. It is responsible for connecting to
+Barchart's servers, maintaining market data subscriptions, and maintaining market
+state. The SDK consumer should use one instance at a time.
 
 
-* [Connection](#Connection) ⇐ [<code>ConnectionBase</code>](#ConnectionBase)
+* [Connection](#Connection) ⇐ <code>ConnectionBase</code>
     * [.connect(server, username, password, [webSocketAdapterFactory])](#ConnectionBaseconnect)
     * [.disconnect()](#ConnectionBasedisconnect)
-    * [.pause()](#ConnectionBasepause)
-    * [.resume()](#ConnectionBaseresume)
     * [.on(subscriptionType, callback, [symbol])](#ConnectionBaseon)
     * [.off(subscriptionType, callback, [symbol])](#ConnectionBaseoff)
-    * [.getPollingFrequency()](#ConnectionBasegetPollingFrequency) ⇒ <code>number</code> \| <code>null</code>
+    * [.pause()](#ConnectionBasepause)
+    * [.resume()](#ConnectionBaseresume)
     * [.setPollingFrequency(pollingFrequency)](#ConnectionBasesetPollingFrequency)
+    * [.getPollingFrequency()](#ConnectionBasegetPollingFrequency) ⇒ <code>number</code> \| <code>null</code>
+    * [.setExtendedProfileMode(mode)](#ConnectionBasesetExtendedProfileMode)
     * [.getExtendedProfileMode()](#ConnectionBasegetExtendedProfileMode) ⇒ <code>boolean</code>
     * [.getMarketState()](#ConnectionBasegetMarketState) ⇒ <code>MarketState</code>
     * [.getServer()](#ConnectionBasegetServer) ⇒ <code>null</code> \| <code>string</code>
     * [.getPassword()](#ConnectionBasegetPassword) ⇒ <code>null</code> \| <code>string</code>
     * [.getUsername()](#ConnectionBasegetUsername) ⇒ <code>null</code> \| <code>string</code>
-    * [._getInstance()](#ConnectionBase_getInstance) ⇒ <code>Number</code>
 
 
 * * *
@@ -40,14 +40,16 @@
 **Overrides**: [<code>connect</code>](#ConnectionBaseconnect)  
 **Access**: public  
 
-| Param | Type |
-| --- | --- |
-| server | <code>string</code> | 
-| username | <code>string</code> | 
-| password | <code>string</code> | 
-| [webSocketAdapterFactory] | <code>WebSocketAdapterFactory</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| server | <code>string</code> | Barchart hostname (contact solutions@barchart.com) |
+| username | <code>string</code> | Your username (contact solutions@barchart.com) |
+| password | <code>string</code> | Your password (contact solutions@barchart.com) |
+| [webSocketAdapterFactory] | <code>WebSocketAdapterFactory</code> | Strategy for creating a WebSocket (required for Node.js) |
 
->Connects to the given server with username and password.
+>Establishes WebSocket connection to Barchart's servers and authenticates. Success
+or failure is reported asynchronously by the **Events** subscription (see
+[SubscriptionType](#EnumsSubscriptionType)).
 
 
 * * *
@@ -56,25 +58,7 @@
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
 **Overrides**: [<code>disconnect</code>](#ConnectionBasedisconnect)  
 **Access**: public  
->Forces a disconnect from the server.
-
-
-* * *
-
-### connection.pause() :id=connectionpause
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>pause</code>](#ConnectionBasepause)  
-**Access**: public  
->Causes the market state to stop updating. All subscriptions are maintained.
-
-
-* * *
-
-### connection.resume() :id=connectionresume
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>resume</code>](#ConnectionBaseresume)  
-**Access**: public  
->Causes the market state to begin updating again (after [pause](#ConnectionBasepause) has been called).
+>Forces a disconnect from the server. All subscriptions are discarded.
 
 
 * * *
@@ -86,12 +70,11 @@
 
 | Param | Type | Description |
 | --- | --- | --- |
-| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) |  |
-| callback | [<code>MarketDepthCallback</code>](#CallbacksMarketDepthCallback) | notified each time the event occurs |
-| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#EnumsSubscriptionType) |
+| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) | The type of subscription |
+| callback | [<code>MarketDepthCallback</code>](#CallbacksMarketDepthCallback) \| [<code>MarketUpdateCallback</code>](#CallbacksMarketUpdateCallback) \| [<code>CumulativeVolumeCallback</code>](#CallbacksCumulativeVolumeCallback) \| [<code>TimestampCallback</code>](#CallbacksTimestampCallback) \| [<code>EventsCallback</code>](#CallbacksEventsCallback) | A function which will be invoked each time the event occurs |
+| [symbol] | <code>String</code> | A symbol (only applicable for market data subscriptions) |
 
->Initiates a subscription to an [SubscriptionType](#EnumsSubscriptionType) and
-registers the callback for notifications.
+>Initiates a subscription, registering a callback for event notifications.
 
 
 * * *
@@ -103,23 +86,31 @@ registers the callback for notifications.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) | the [SubscriptionType](#EnumsSubscriptionType) which was passed to [on](#ConnectionBaseon) |
-| callback | <code>function</code> | the callback which was passed to [on](#ConnectionBaseon) |
-| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#EnumsSubscriptionType) |
+| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) | The type of subscription |
+| callback | [<code>MarketDepthCallback</code>](#CallbacksMarketDepthCallback) \| [<code>MarketUpdateCallback</code>](#CallbacksMarketUpdateCallback) \| [<code>CumulativeVolumeCallback</code>](#CallbacksCumulativeVolumeCallback) \| [<code>TimestampCallback</code>](#CallbacksTimestampCallback) \| [<code>EventsCallback</code>](#CallbacksEventsCallback) | The **same** function which was passed to [on](#ConnectionBaseon) |
+| [symbol] | <code>String</code> | The symbol (only applicable for market data subscriptions) |
 
->Stops notification of the callback for the [SubscriptionType](#EnumsSubscriptionType).
-See [on](#ConnectionBaseon).
+>Drops a subscription (see [on](#ConnectionBaseon)).
 
 
 * * *
 
-### connection.getPollingFrequency() :id=connectiongetpollingfrequency
+### connection.pause() :id=connectionpause
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>getPollingFrequency</code>](#ConnectionBasegetPollingFrequency)  
-**Returns**: <code>number</code> \| <code>null</code>  
+**Overrides**: [<code>pause</code>](#ConnectionBasepause)  
 **Access**: public  
->The frequency, in milliseconds, used to poll for changes to [Quote](/content/sdk/marketstate?id=quote)
-objects. A null value indicates streaming updates (default).
+>Pauses the data flow over the network. All subscriptions are maintained;
+however, callbacks will cease to be invoked.
+
+
+* * *
+
+### connection.resume() :id=connectionresume
+**Kind**: instance method of [<code>Connection</code>](#Connection)  
+**Overrides**: [<code>resume</code>](#ConnectionBaseresume)  
+**Access**: public  
+>Restarts the flow of data over the network. Subscription callbacks will once
+again be invoked.
 
 
 * * *
@@ -133,8 +124,42 @@ objects. A null value indicates streaming updates (default).
 | --- | --- |
 | pollingFrequency | <code>number</code> \| <code>null</code> | 
 
->Sets the polling frequency, in milliseconds. A null value indicates
-streaming market updates (where polling is not used).
+>By default, the server pushes data to the SDK. However, to save network
+bandwidth, the SDK can operate in a polling mode -- only updating
+periodically. Calling this function with a positive number will
+cause the SDK to begin polling. Calling this function with a null
+value will cause to SDK to resume normal operation.
+
+
+* * *
+
+### connection.getPollingFrequency() :id=connectiongetpollingfrequency
+**Kind**: instance method of [<code>Connection</code>](#Connection)  
+**Overrides**: [<code>getPollingFrequency</code>](#ConnectionBasegetPollingFrequency)  
+**Returns**: <code>number</code> \| <code>null</code>  
+**Access**: public  
+>By default, the server pushes data to the SDK. However, to save network
+bandwidth, the SDK can operate in a polling mode -- only updating
+periodically. If the SDK is configured for polling, the frequency, in
+milliseconds will be returned. If the SDK is configured for normal operation,
+a null value will be returned.
+
+
+* * *
+
+### connection.setExtendedProfileMode(mode) :id=connectionsetextendedprofilemode
+**Kind**: instance method of [<code>Connection</code>](#Connection)  
+**Overrides**: [<code>setExtendedProfileMode</code>](#ConnectionBasesetExtendedProfileMode)  
+**Access**: public  
+
+| Param | Type |
+| --- | --- |
+| mode | <code>Boolean</code> | 
+
+>When set to true, additional properties properties become
+available on [Profile](/content/sdk/marketstate?id=profile) instances (e.g. future contract
+expiration date). This is accomplished by making additional
+out-of-band queries to Barchart services.
 
 
 * * *
@@ -144,8 +169,8 @@ streaming market updates (where polling is not used).
 **Overrides**: [<code>getExtendedProfileMode</code>](#ConnectionBasegetExtendedProfileMode)  
 **Returns**: <code>boolean</code>  
 **Access**: public  
->Indicates if additional profile data (e.g. future contract expiration dates
-should be loaded when subscribing to to market data).
+>Indicates if additional [Profile](/content/sdk/marketstate?id=profile) data (e.g. future contract
+expiration dates) should be loaded (via out-of-band queries).
 
 
 * * *
@@ -154,8 +179,10 @@ should be loaded when subscribing to to market data).
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
 **Overrides**: [<code>getMarketState</code>](#ConnectionBasegetMarketState)  
 **Returns**: <code>MarketState</code>  
->Returns the [MarketState](/content/sdk/marketstate?id=marketstate) singleton, used to access [Quote](/content/sdk/marketstate?id=quote), 
-[Profile](/content/sdk/marketstate?id=profile), and [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) objects.
+**Access**: public  
+>Returns the [MarketState](/content/sdk/marketstate?id=marketstate) singleton -- which can be used to access
+[Quote](/content/sdk/marketstate?id=quote), [Profile](/content/sdk/marketstate?id=profile), and [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) instances
+for any symbol subscribed symbol.
 
 
 * * *
@@ -165,6 +192,8 @@ should be loaded when subscribing to to market data).
 **Overrides**: [<code>getServer</code>](#ConnectionBasegetServer)  
 **Returns**: <code>null</code> \| <code>string</code>  
 **Access**: public  
+>The Barchart hostname.
+
 
 * * *
 
@@ -173,6 +202,8 @@ should be loaded when subscribing to to market data).
 **Overrides**: [<code>getPassword</code>](#ConnectionBasegetPassword)  
 **Returns**: <code>null</code> \| <code>string</code>  
 **Access**: public  
+>The password used to authenticate to Barchart.
+
 
 * * *
 
@@ -181,187 +212,7 @@ should be loaded when subscribing to to market data).
 **Overrides**: [<code>getUsername</code>](#ConnectionBasegetUsername)  
 **Returns**: <code>null</code> \| <code>string</code>  
 **Access**: public  
-
-* * *
-
-### connection.\_getInstance() :id=connection_getinstance
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>\_getInstance</code>](#ConnectionBase_getInstance)  
-**Returns**: <code>Number</code>  
-**Access**: protected  
->Get an unique identifier for the current instance.
-
-
-* * *
-
-## ConnectionBase :id=connectionbase
-**Kind**: global class  
-**Access**: protected  
- **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
->Contract for communicating with remove market data servers and
-querying current market state.
-
-
-* [ConnectionBase](#ConnectionBase)
-    * [.connect(server, username, password, [webSocketAdapterFactory])](#ConnectionBaseconnect)
-    * [.disconnect()](#ConnectionBasedisconnect)
-    * [.pause()](#ConnectionBasepause)
-    * [.resume()](#ConnectionBaseresume)
-    * [.on(subscriptionType, callback, [symbol])](#ConnectionBaseon)
-    * [.off(subscriptionType, callback, [symbol])](#ConnectionBaseoff)
-    * [.getPollingFrequency()](#ConnectionBasegetPollingFrequency) ⇒ <code>number</code> \| <code>null</code>
-    * [.setPollingFrequency(pollingFrequency)](#ConnectionBasesetPollingFrequency)
-    * [.getExtendedProfileMode()](#ConnectionBasegetExtendedProfileMode) ⇒ <code>boolean</code>
-    * [.getMarketState()](#ConnectionBasegetMarketState) ⇒ <code>MarketState</code>
-    * [.getServer()](#ConnectionBasegetServer) ⇒ <code>null</code> \| <code>string</code>
-    * [.getPassword()](#ConnectionBasegetPassword) ⇒ <code>null</code> \| <code>string</code>
-    * [.getUsername()](#ConnectionBasegetUsername) ⇒ <code>null</code> \| <code>string</code>
-    * [._getInstance()](#ConnectionBase_getInstance) ⇒ <code>Number</code>
-
-
-* * *
-
-### connectionBase.connect(server, username, password, [webSocketAdapterFactory]) :id=connectionbaseconnect
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Access**: public  
-
-| Param | Type |
-| --- | --- |
-| server | <code>string</code> | 
-| username | <code>string</code> | 
-| password | <code>string</code> | 
-| [webSocketAdapterFactory] | <code>WebSocketAdapterFactory</code> | 
-
->Connects to the given server with username and password.
-
-
-* * *
-
-### connectionBase.disconnect() :id=connectionbasedisconnect
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Access**: public  
->Forces a disconnect from the server.
-
-
-* * *
-
-### connectionBase.pause() :id=connectionbasepause
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Access**: public  
->Causes the market state to stop updating. All subscriptions are maintained.
-
-
-* * *
-
-### connectionBase.resume() :id=connectionbaseresume
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Access**: public  
->Causes the market state to begin updating again (after [pause](#ConnectionBasepause) has been called).
-
-
-* * *
-
-### connectionBase.on(subscriptionType, callback, [symbol]) :id=connectionbaseon
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Access**: public  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) |  |
-| callback | [<code>MarketDepthCallback</code>](#CallbacksMarketDepthCallback) | notified each time the event occurs |
-| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#EnumsSubscriptionType) |
-
->Initiates a subscription to an [SubscriptionType](#EnumsSubscriptionType) and
-registers the callback for notifications.
-
-
-* * *
-
-### connectionBase.off(subscriptionType, callback, [symbol]) :id=connectionbaseoff
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Access**: public  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) | the [SubscriptionType](#EnumsSubscriptionType) which was passed to [on](#ConnectionBaseon) |
-| callback | <code>function</code> | the callback which was passed to [on](#ConnectionBaseon) |
-| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#EnumsSubscriptionType) |
-
->Stops notification of the callback for the [SubscriptionType](#EnumsSubscriptionType).
-See [on](#ConnectionBaseon).
-
-
-* * *
-
-### connectionBase.getPollingFrequency() :id=connectionbasegetpollingfrequency
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Returns**: <code>number</code> \| <code>null</code>  
-**Access**: public  
->The frequency, in milliseconds, used to poll for changes to [Quote](/content/sdk/marketstate?id=quote)
-objects. A null value indicates streaming updates (default).
-
-
-* * *
-
-### connectionBase.setPollingFrequency(pollingFrequency) :id=connectionbasesetpollingfrequency
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Access**: public  
-
-| Param | Type |
-| --- | --- |
-| pollingFrequency | <code>number</code> \| <code>null</code> | 
-
->Sets the polling frequency, in milliseconds. A null value indicates
-streaming market updates (where polling is not used).
-
-
-* * *
-
-### connectionBase.getExtendedProfileMode() :id=connectionbasegetextendedprofilemode
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Returns**: <code>boolean</code>  
-**Access**: public  
->Indicates if additional profile data (e.g. future contract expiration dates
-should be loaded when subscribing to to market data).
-
-
-* * *
-
-### connectionBase.getMarketState() :id=connectionbasegetmarketstate
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Returns**: <code>MarketState</code>  
->Returns the [MarketState](/content/sdk/marketstate?id=marketstate) singleton, used to access [Quote](/content/sdk/marketstate?id=quote), 
-[Profile](/content/sdk/marketstate?id=profile), and [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) objects.
-
-
-* * *
-
-### connectionBase.getServer() :id=connectionbasegetserver
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Returns**: <code>null</code> \| <code>string</code>  
-**Access**: public  
-
-* * *
-
-### connectionBase.getPassword() :id=connectionbasegetpassword
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Returns**: <code>null</code> \| <code>string</code>  
-**Access**: public  
-
-* * *
-
-### connectionBase.getUsername() :id=connectionbasegetusername
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Returns**: <code>null</code> \| <code>string</code>  
-**Access**: public  
-
-* * *
-
-### connectionBase.\_getInstance() :id=connectionbase_getinstance
-**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
-**Returns**: <code>Number</code>  
-**Access**: protected  
->Get an unique identifier for the current instance.
+>The username used to authenticate to Barchart.
 
 
 * * *
@@ -441,7 +292,7 @@ should be loaded when subscribing to to market data).
 | book | <code>Schema.Book</code> | 
 
 >The signature of a function which accepts events generated by a
-MarketDepth subscription (see [SubscriptionType](#EnumsSubscriptionType)).
+**MarketDepth** subscription (see [SubscriptionType](#EnumsSubscriptionType)).
 
 
 * * *
@@ -455,7 +306,7 @@ MarketDepth subscription (see [SubscriptionType](#EnumsSubscriptionType)).
 | data | <code>Object</code> | 
 
 >The signature of a function which accepts events generated by a
-MarketUpdate subscription (see [SubscriptionType](#EnumsSubscriptionType)).
+**MarketUpdate** subscription (see [SubscriptionType](#EnumsSubscriptionType)).
 
 
 * * *
@@ -469,7 +320,7 @@ MarketUpdate subscription (see [SubscriptionType](#EnumsSubscriptionType)).
 | data | <code>Object</code> | 
 
 >The signature of a function which accepts events generated by a
-CumulativeVolume subscription (see [SubscriptionType](#EnumsSubscriptionType)).
+**CumulativeVolume** subscription (see [SubscriptionType](#EnumsSubscriptionType)).
 
 
 * * *
@@ -483,7 +334,7 @@ CumulativeVolume subscription (see [SubscriptionType](#EnumsSubscriptionType)).
 | date | <code>Date</code> | 
 
 >The signature of a function which accepts events generated by a
-Timestamp subscription (see [SubscriptionType](#EnumsSubscriptionType)).
+**Timestamp** subscription (see [SubscriptionType](#EnumsSubscriptionType)).
 
 
 * * *
@@ -497,7 +348,7 @@ Timestamp subscription (see [SubscriptionType](#EnumsSubscriptionType)).
 | data | [<code>ConnectionEventType</code>](#EnumsConnectionEventType) | 
 
 >The signature of a function which accepts events generated by an
-Events subscription (see [SubscriptionType](#EnumsSubscriptionType)).
+**Events** subscription (see [SubscriptionType](#EnumsSubscriptionType)).
 
 
 * * *
