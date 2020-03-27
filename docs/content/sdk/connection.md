@@ -2,37 +2,36 @@
 
 * [Connection](#Connection) 
 
+* [ConnectionBase](#ConnectionBase) 
+
 * [Enums](#Enums) 
 
 * [Callbacks](#Callbacks) 
 
-* [Schema](#Schema) 
-
 ## Connection :id=connection
 **Kind**: global class  
-**Extends**: <code>ConnectionBase</code>  
+**Extends**: [<code>ConnectionBase</code>](#ConnectionBase)  
 **Access**: public  
- **Import**: @barchart/marketdata-api-js/lib/connection/Connection  
->This class is the central component of the SDK. It is responsible for connecting to
-Barchart's servers, maintaining market data subscriptions, and maintaining market
-state. The SDK consumer should use one instance at a time.
+**Import**: @barchart/marketdata-api-js/lib/connection/Connection  
+**File**: ./lib/connection/Connection.js  
+>Object used to connect to Barchart servers and subscribe to market data.
 
 
-* [Connection](#Connection) ⇐ <code>ConnectionBase</code>
+* [Connection](#Connection) ⇐ [<code>ConnectionBase</code>](#ConnectionBase)
     * [.connect(server, username, password, [webSocketAdapterFactory])](#ConnectionBaseconnect)
     * [.disconnect()](#ConnectionBasedisconnect)
-    * [.on(subscriptionType, callback, [symbol])](#ConnectionBaseon)
-    * [.off(subscriptionType, callback, [symbol])](#ConnectionBaseoff)
     * [.pause()](#ConnectionBasepause)
     * [.resume()](#ConnectionBaseresume)
-    * [.setPollingFrequency(pollingFrequency)](#ConnectionBasesetPollingFrequency)
+    * [.on(subscriptionType, callback, [symbol])](#ConnectionBaseon)
+    * [.off(subscriptionType, callback, [symbol])](#ConnectionBaseoff)
     * [.getPollingFrequency()](#ConnectionBasegetPollingFrequency) ⇒ <code>number</code> \| <code>null</code>
-    * [.setExtendedProfileMode(mode)](#ConnectionBasesetExtendedProfileMode)
+    * [.setPollingFrequency(pollingFrequency)](#ConnectionBasesetPollingFrequency)
     * [.getExtendedProfileMode()](#ConnectionBasegetExtendedProfileMode) ⇒ <code>boolean</code>
     * [.getMarketState()](#ConnectionBasegetMarketState) ⇒ <code>MarketState</code>
     * [.getServer()](#ConnectionBasegetServer) ⇒ <code>null</code> \| <code>string</code>
     * [.getPassword()](#ConnectionBasegetPassword) ⇒ <code>null</code> \| <code>string</code>
     * [.getUsername()](#ConnectionBasegetUsername) ⇒ <code>null</code> \| <code>string</code>
+    * [._getInstance()](#ConnectionBase_getInstance) ⇒ <code>Number</code>
 
 
 * * *
@@ -41,17 +40,17 @@ state. The SDK consumer should use one instance at a time.
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
 **Overrides**: [<code>connect</code>](#ConnectionBaseconnect)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| server | <code>string</code> | Barchart hostname (contact solutions@barchart.com) |
-| username | <code>string</code> | Your username (contact solutions@barchart.com) |
-| password | <code>string</code> | Your password (contact solutions@barchart.com) |
-| [webSocketAdapterFactory] | <code>WebSocketAdapterFactory</code> | Strategy for creating a WebSocket (required for Node.js) |
+| Param | Type |
+| --- | --- |
+| server | <code>string</code> | 
+| username | <code>string</code> | 
+| password | <code>string</code> | 
+| [webSocketAdapterFactory] | <code>WebSocketAdapterFactory</code> | 
 
->Establishes WebSocket connection to Barchart's servers and authenticates. Success
-or failure is reported asynchronously by the **Events** subscription (see
-[SubscriptionType](#EnumsSubscriptionType)).
+>Connects to the given server with username and password.
 
 
 * * *
@@ -60,39 +59,9 @@ or failure is reported asynchronously by the **Events** subscription (see
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
 **Overrides**: [<code>disconnect</code>](#ConnectionBasedisconnect)  
 **Access**: public  
->Forces a disconnect from the server. All subscriptions are discarded.
-
-
-* * *
-
-### connection.on(subscriptionType, callback, [symbol]) :id=connectionon
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>on</code>](#ConnectionBaseon)  
-**Access**: public  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) | The type of subscription |
-| callback | [<code>MarketDepthCallback</code>](#CallbacksMarketDepthCallback) \| [<code>MarketUpdateCallback</code>](#CallbacksMarketUpdateCallback) \| [<code>CumulativeVolumeCallback</code>](#CallbacksCumulativeVolumeCallback) \| [<code>TimestampCallback</code>](#CallbacksTimestampCallback) \| [<code>EventsCallback</code>](#CallbacksEventsCallback) | A function which will be invoked each time the event occurs |
-| [symbol] | <code>String</code> | A symbol (only applicable for market data subscriptions) |
-
->Initiates a subscription, registering a callback for event notifications.
-
-
-* * *
-
-### connection.off(subscriptionType, callback, [symbol]) :id=connectionoff
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>off</code>](#ConnectionBaseoff)  
-**Access**: public  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) | The type of subscription |
-| callback | [<code>MarketDepthCallback</code>](#CallbacksMarketDepthCallback) \| [<code>MarketUpdateCallback</code>](#CallbacksMarketUpdateCallback) \| [<code>CumulativeVolumeCallback</code>](#CallbacksCumulativeVolumeCallback) \| [<code>TimestampCallback</code>](#CallbacksTimestampCallback) \| [<code>EventsCallback</code>](#CallbacksEventsCallback) | The **same** function which was passed to [on](#ConnectionBaseon) |
-| [symbol] | <code>String</code> | The symbol (only applicable for market data subscriptions) |
-
->Drops a subscription (see [on](#ConnectionBaseon)).
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>Forces a disconnect from the server.
 
 
 * * *
@@ -101,8 +70,9 @@ or failure is reported asynchronously by the **Events** subscription (see
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
 **Overrides**: [<code>pause</code>](#ConnectionBasepause)  
 **Access**: public  
->Pauses the data flow over the network. All subscriptions are maintained;
-however, callbacks will cease to be invoked.
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>Causes the market state to stop updating. All subscriptions are maintained.
 
 
 * * *
@@ -111,26 +81,47 @@ however, callbacks will cease to be invoked.
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
 **Overrides**: [<code>resume</code>](#ConnectionBaseresume)  
 **Access**: public  
->Restarts the flow of data over the network. Subscription callbacks will once
-again be invoked.
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>Causes the market state to begin updating again (after [pause](#ConnectionBasepause) has been called).
 
 
 * * *
 
-### connection.setPollingFrequency(pollingFrequency) :id=connectionsetpollingfrequency
+### connection.on(subscriptionType, callback, [symbol]) :id=connectionon
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>setPollingFrequency</code>](#ConnectionBasesetPollingFrequency)  
+**Overrides**: [<code>on</code>](#ConnectionBaseon)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
 
-| Param | Type |
-| --- | --- |
-| pollingFrequency | <code>number</code> \| <code>null</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) |  |
+| callback | [<code>MarketDepthCallback</code>](#CallbacksMarketDepthCallback) | notified each time the event occurs |
+| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#EnumsSubscriptionType) |
 
->By default, the server pushes data to the SDK. However, to save network
-bandwidth, the SDK can operate in a polling mode -- only updating
-periodically. Calling this function with a positive number will
-cause the SDK to begin polling. Calling this function with a null
-value will cause to SDK to resume normal operation.
+>Initiates a subscription to an [SubscriptionType](#EnumsSubscriptionType) and
+registers the callback for notifications.
+
+
+* * *
+
+### connection.off(subscriptionType, callback, [symbol]) :id=connectionoff
+**Kind**: instance method of [<code>Connection</code>](#Connection)  
+**Overrides**: [<code>off</code>](#ConnectionBaseoff)  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) | the [SubscriptionType](#EnumsSubscriptionType) which was passed to [on](#ConnectionBaseon) |
+| callback | <code>function</code> | the callback which was passed to [on](#ConnectionBaseon) |
+| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#EnumsSubscriptionType) |
+
+>Stops notification of the callback for the [SubscriptionType](#EnumsSubscriptionType).
+See [on](#ConnectionBaseon).
 
 
 * * *
@@ -140,28 +131,27 @@ value will cause to SDK to resume normal operation.
 **Overrides**: [<code>getPollingFrequency</code>](#ConnectionBasegetPollingFrequency)  
 **Returns**: <code>number</code> \| <code>null</code>  
 **Access**: public  
->By default, the server pushes data to the SDK. However, to save network
-bandwidth, the SDK can operate in a polling mode -- only updating
-periodically. If the SDK is configured for polling, the frequency, in
-milliseconds will be returned. If the SDK is configured for normal operation,
-a null value will be returned.
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>The frequency, in milliseconds, used to poll for changes to [Quote](/content/sdk/marketstate?id=quote)
+objects. A null value indicates streaming updates (default).
 
 
 * * *
 
-### connection.setExtendedProfileMode(mode) :id=connectionsetextendedprofilemode
+### connection.setPollingFrequency(pollingFrequency) :id=connectionsetpollingfrequency
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>setExtendedProfileMode</code>](#ConnectionBasesetExtendedProfileMode)  
+**Overrides**: [<code>setPollingFrequency</code>](#ConnectionBasesetPollingFrequency)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
 
 | Param | Type |
 | --- | --- |
-| mode | <code>Boolean</code> | 
+| pollingFrequency | <code>number</code> \| <code>null</code> | 
 
->When set to true, additional properties properties become
-available on [Profile](/content/sdk/marketstate?id=profile) instances (e.g. future contract
-expiration date). This is accomplished by making additional
-out-of-band queries to Barchart services.
+>Sets the polling frequency, in milliseconds. A null value indicates
+streaming market updates (where polling is not used).
 
 
 * * *
@@ -171,8 +161,10 @@ out-of-band queries to Barchart services.
 **Overrides**: [<code>getExtendedProfileMode</code>](#ConnectionBasegetExtendedProfileMode)  
 **Returns**: <code>boolean</code>  
 **Access**: public  
->Indicates if additional [Profile](/content/sdk/marketstate?id=profile) data (e.g. future contract
-expiration dates) should be loaded (via out-of-band queries).
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>Indicates if additional profile data (e.g. future contract expiration dates
+should be loaded when subscribing to to market data).
 
 
 * * *
@@ -181,10 +173,10 @@ expiration dates) should be loaded (via out-of-band queries).
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
 **Overrides**: [<code>getMarketState</code>](#ConnectionBasegetMarketState)  
 **Returns**: <code>MarketState</code>  
-**Access**: public  
->Returns the [MarketState](/content/sdk/marketstate?id=marketstate) singleton -- which can be used to access
-[Quote](/content/sdk/marketstate?id=quote), [Profile](/content/sdk/marketstate?id=profile), and [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) instances
-for any symbol subscribed symbol.
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>Returns the [MarketState](/content/sdk/marketstate?id=marketstate) singleton, used to access [Quote](/content/sdk/marketstate?id=quote), 
+[Profile](/content/sdk/marketstate?id=profile), and [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) objects.
 
 
 * * *
@@ -194,8 +186,8 @@ for any symbol subscribed symbol.
 **Overrides**: [<code>getServer</code>](#ConnectionBasegetServer)  
 **Returns**: <code>null</code> \| <code>string</code>  
 **Access**: public  
->The Barchart hostname.
-
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
 
 * * *
 
@@ -204,8 +196,8 @@ for any symbol subscribed symbol.
 **Overrides**: [<code>getPassword</code>](#ConnectionBasegetPassword)  
 **Returns**: <code>null</code> \| <code>string</code>  
 **Access**: public  
->The password used to authenticate to Barchart.
-
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
 
 * * *
 
@@ -214,13 +206,228 @@ for any symbol subscribed symbol.
 **Overrides**: [<code>getUsername</code>](#ConnectionBasegetUsername)  
 **Returns**: <code>null</code> \| <code>string</code>  
 **Access**: public  
->The username used to authenticate to Barchart.
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+
+* * *
+
+### connection.\_getInstance() :id=connection_getinstance
+**Kind**: instance method of [<code>Connection</code>](#Connection)  
+**Overrides**: [<code>\_getInstance</code>](#ConnectionBase_getInstance)  
+**Returns**: <code>Number</code>  
+**Access**: protected  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>Get an unique identifier for the current instance.
+
+
+* * *
+
+## ConnectionBase :id=connectionbase
+**Kind**: global class  
+**Access**: protected  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>Contract for communicating with remove market data servers and
+querying current market state.
+
+
+* [ConnectionBase](#ConnectionBase)
+    * [.connect(server, username, password, [webSocketAdapterFactory])](#ConnectionBaseconnect)
+    * [.disconnect()](#ConnectionBasedisconnect)
+    * [.pause()](#ConnectionBasepause)
+    * [.resume()](#ConnectionBaseresume)
+    * [.on(subscriptionType, callback, [symbol])](#ConnectionBaseon)
+    * [.off(subscriptionType, callback, [symbol])](#ConnectionBaseoff)
+    * [.getPollingFrequency()](#ConnectionBasegetPollingFrequency) ⇒ <code>number</code> \| <code>null</code>
+    * [.setPollingFrequency(pollingFrequency)](#ConnectionBasesetPollingFrequency)
+    * [.getExtendedProfileMode()](#ConnectionBasegetExtendedProfileMode) ⇒ <code>boolean</code>
+    * [.getMarketState()](#ConnectionBasegetMarketState) ⇒ <code>MarketState</code>
+    * [.getServer()](#ConnectionBasegetServer) ⇒ <code>null</code> \| <code>string</code>
+    * [.getPassword()](#ConnectionBasegetPassword) ⇒ <code>null</code> \| <code>string</code>
+    * [.getUsername()](#ConnectionBasegetUsername) ⇒ <code>null</code> \| <code>string</code>
+    * [._getInstance()](#ConnectionBase_getInstance) ⇒ <code>Number</code>
+
+
+* * *
+
+### connectionBase.connect(server, username, password, [webSocketAdapterFactory]) :id=connectionbaseconnect
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+
+| Param | Type |
+| --- | --- |
+| server | <code>string</code> | 
+| username | <code>string</code> | 
+| password | <code>string</code> | 
+| [webSocketAdapterFactory] | <code>WebSocketAdapterFactory</code> | 
+
+>Connects to the given server with username and password.
+
+
+* * *
+
+### connectionBase.disconnect() :id=connectionbasedisconnect
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>Forces a disconnect from the server.
+
+
+* * *
+
+### connectionBase.pause() :id=connectionbasepause
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>Causes the market state to stop updating. All subscriptions are maintained.
+
+
+* * *
+
+### connectionBase.resume() :id=connectionbaseresume
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>Causes the market state to begin updating again (after [pause](#ConnectionBasepause) has been called).
+
+
+* * *
+
+### connectionBase.on(subscriptionType, callback, [symbol]) :id=connectionbaseon
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) |  |
+| callback | [<code>MarketDepthCallback</code>](#CallbacksMarketDepthCallback) | notified each time the event occurs |
+| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#EnumsSubscriptionType) |
+
+>Initiates a subscription to an [SubscriptionType](#EnumsSubscriptionType) and
+registers the callback for notifications.
+
+
+* * *
+
+### connectionBase.off(subscriptionType, callback, [symbol]) :id=connectionbaseoff
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) | the [SubscriptionType](#EnumsSubscriptionType) which was passed to [on](#ConnectionBaseon) |
+| callback | <code>function</code> | the callback which was passed to [on](#ConnectionBaseon) |
+| [symbol] | <code>String</code> | A symbol, if applicable, to the given [SubscriptionType](#EnumsSubscriptionType) |
+
+>Stops notification of the callback for the [SubscriptionType](#EnumsSubscriptionType).
+See [on](#ConnectionBaseon).
+
+
+* * *
+
+### connectionBase.getPollingFrequency() :id=connectionbasegetpollingfrequency
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Returns**: <code>number</code> \| <code>null</code>  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>The frequency, in milliseconds, used to poll for changes to [Quote](/content/sdk/marketstate?id=quote)
+objects. A null value indicates streaming updates (default).
+
+
+* * *
+
+### connectionBase.setPollingFrequency(pollingFrequency) :id=connectionbasesetpollingfrequency
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+
+| Param | Type |
+| --- | --- |
+| pollingFrequency | <code>number</code> \| <code>null</code> | 
+
+>Sets the polling frequency, in milliseconds. A null value indicates
+streaming market updates (where polling is not used).
+
+
+* * *
+
+### connectionBase.getExtendedProfileMode() :id=connectionbasegetextendedprofilemode
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Returns**: <code>boolean</code>  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>Indicates if additional profile data (e.g. future contract expiration dates
+should be loaded when subscribing to to market data).
+
+
+* * *
+
+### connectionBase.getMarketState() :id=connectionbasegetmarketstate
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Returns**: <code>MarketState</code>  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>Returns the [MarketState](/content/sdk/marketstate?id=marketstate) singleton, used to access [Quote](/content/sdk/marketstate?id=quote), 
+[Profile](/content/sdk/marketstate?id=profile), and [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) objects.
+
+
+* * *
+
+### connectionBase.getServer() :id=connectionbasegetserver
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Returns**: <code>null</code> \| <code>string</code>  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+
+* * *
+
+### connectionBase.getPassword() :id=connectionbasegetpassword
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Returns**: <code>null</code> \| <code>string</code>  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+
+* * *
+
+### connectionBase.getUsername() :id=connectionbasegetusername
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Returns**: <code>null</code> \| <code>string</code>  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+
+* * *
+
+### connectionBase.\_getInstance() :id=connectionbase_getinstance
+**Kind**: instance method of [<code>ConnectionBase</code>](#ConnectionBase)  
+**Returns**: <code>Number</code>  
+**Access**: protected  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
+**File**: ./lib/connection/ConnectionBase.js  
+>Get an unique identifier for the current instance.
 
 
 * * *
 
 ## Enums :id=enums
 **Kind**: global namespace  
+**Import**: @barchart/marketdata-api-js/lib/connection/meta  
+**File**: ./lib/connection/meta.js  
 >A namespace for enumerations.
 
 
@@ -234,6 +441,8 @@ for any symbol subscribed symbol.
 ### Enums.ConnectionEventType :id=enumsconnectioneventtype
 **Kind**: static enum of [<code>Enums</code>](#Enums)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionEventType  
+**File**: ./lib/connection/ConnectionEventType.js  
 **Read only**: true  
 **Properties**
 
@@ -254,16 +463,18 @@ for any symbol subscribed symbol.
 ### Enums.SubscriptionType :id=enumssubscriptiontype
 **Kind**: static enum of [<code>Enums</code>](#Enums)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/SubscriptionType  
+**File**: ./lib/connection/SubscriptionType.js  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
 | Events | <code>string</code> | <code>&quot;events&quot;</code> | A subscription to connection status |
-| Timestamp | <code>string</code> | <code>&quot;timestamp&quot;</code> | A subscription to the remote server's heartbeat |
-| MarketUpdate | <code>string</code> | <code>&quot;marketUpdate&quot;</code> | A Level I market data subscription |
 | MarketDepth | <code>string</code> | <code>&quot;marketDepth&quot;</code> | A Level II market data subscription |
+| MarketUpdate | <code>string</code> | <code>&quot;marketUpdate&quot;</code> | A Level I market data subscription |
 | CumulativeVolume | <code>string</code> | <code>&quot;cumulativeVolume&quot;</code> | A subscription for aggregate volume |
+| Timestamp | <code>string</code> | <code>&quot;timestamp&quot;</code> | A subscription to the remote server's heartbeat |
 
 >An enumeration of subscriptions supported by a [Connection](/content/sdk/connection?id=connection).
 
@@ -272,57 +483,17 @@ for any symbol subscribed symbol.
 
 ## Callbacks :id=callbacks
 **Kind**: global namespace  
->A meta namespace containing signatures of anonymous functions.
+**Import**: @barchart/marketdata-api-js/lib/connection/meta  
+**File**: ./lib/connection/meta.js  
+>A meta namespace for signatures of anonymous functions.
 
 
 * [Callbacks](#Callbacks) : <code>object</code>
-    * [.EventsCallback](#CallbacksEventsCallback) : <code>function</code>
-    * [.TimestampCallback](#CallbacksTimestampCallback) : <code>function</code>
-    * [.MarketUpdateCallback](#CallbacksMarketUpdateCallback) : <code>function</code>
     * [.MarketDepthCallback](#CallbacksMarketDepthCallback) : <code>function</code>
+    * [.MarketUpdateCallback](#CallbacksMarketUpdateCallback) : <code>function</code>
     * [.CumulativeVolumeCallback](#CallbacksCumulativeVolumeCallback) : <code>function</code>
-
-
-* * *
-
-### Callbacks.EventsCallback :id=callbackseventscallback
-**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
-**Access**: public  
-
-| Param | Type |
-| --- | --- |
-| event | [<code>EventsEvent</code>](#SchemaEventsEvent) | 
-
->The signature of a function which accepts events generated by an
-**Events** subscription (see [SubscriptionType](#EnumsSubscriptionType)).
-
-
-* * *
-
-### Callbacks.TimestampCallback :id=callbackstimestampcallback
-**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
-**Access**: public  
-
-| Param | Type |
-| --- | --- |
-| event | <code>Date</code> | 
-
->The signature of a function which accepts events generated by a
-**Timestamp** subscription (see [SubscriptionType](#EnumsSubscriptionType)).
-
-
-* * *
-
-### Callbacks.MarketUpdateCallback :id=callbacksmarketupdatecallback
-**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
-**Access**: public  
-
-| Param | Type |
-| --- | --- |
-| event | [<code>MarketUpdateEvent</code>](#SchemaMarketUpdateEvent) | 
-
->The signature of a function which accepts events generated by a
-**MarketUpdate** subscription (see [SubscriptionType](#EnumsSubscriptionType)).
+    * [.TimestampCallback](#CallbacksTimestampCallback) : <code>function</code>
+    * [.EventsCallback](#CallbacksEventsCallback) : <code>function</code>
 
 
 * * *
@@ -330,13 +501,31 @@ for any symbol subscribed symbol.
 ### Callbacks.MarketDepthCallback :id=callbacksmarketdepthcallback
 **Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/meta  
+**File**: ./lib/connection/meta.js  
 
 | Param | Type |
 | --- | --- |
-| event | [<code>MarketDepthEvent</code>](#SchemaMarketDepthEvent) | 
+| book | <code>Schema.Book</code> | 
 
 >The signature of a function which accepts events generated by a
-**MarketDepth** subscription (see [SubscriptionType](#EnumsSubscriptionType)).
+MarketDepth subscription (see [SubscriptionType](#EnumsSubscriptionType)).
+
+
+* * *
+
+### Callbacks.MarketUpdateCallback :id=callbacksmarketupdatecallback
+**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/meta  
+**File**: ./lib/connection/meta.js  
+
+| Param | Type |
+| --- | --- |
+| data | <code>Object</code> | 
+
+>The signature of a function which accepts events generated by a
+MarketUpdate subscription (see [SubscriptionType](#EnumsSubscriptionType)).
 
 
 * * *
@@ -344,105 +533,47 @@ for any symbol subscribed symbol.
 ### Callbacks.CumulativeVolumeCallback :id=callbackscumulativevolumecallback
 **Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/meta  
+**File**: ./lib/connection/meta.js  
 
 | Param | Type |
 | --- | --- |
-| event | [<code>CumulativeVolumeEvent</code>](#SchemaCumulativeVolumeEvent) | 
+| data | <code>Object</code> | 
 
 >The signature of a function which accepts events generated by a
-**CumulativeVolume** subscription (see [SubscriptionType](#EnumsSubscriptionType)).
+CumulativeVolume subscription (see [SubscriptionType](#EnumsSubscriptionType)).
 
 
 * * *
 
-## Schema :id=schema
-**Kind**: global namespace  
->A meta namespace containing structural contracts of anonymous objects.
+### Callbacks.TimestampCallback :id=callbackstimestampcallback
+**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/meta  
+**File**: ./lib/connection/meta.js  
 
+| Param | Type |
+| --- | --- |
+| date | <code>Date</code> | 
 
-* [Schema](#Schema) : <code>object</code>
-    * [.EventsEvent](#SchemaEventsEvent) : <code>Object</code>
-    * [.MarketUpdateEvent](#SchemaMarketUpdateEvent) : <code>Object</code>
-    * [.MarketDepthEvent](#SchemaMarketDepthEvent) : <code>Object</code>
-    * [.MarketDepthLevel](#SchemaMarketDepthLevel) : <code>Object</code>
-    * [.CumulativeVolumeEvent](#SchemaCumulativeVolumeEvent) : <code>Object</code>
-
-
-* * *
-
-### Schema.EventsEvent :id=schemaeventsevent
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
-**Properties**
-
-| Name | Type | Description |
-| --- | --- | --- |
-| event | [<code>ConnectionEventType</code>](#EnumsConnectionEventType) | The event type. |
-
->The object passed to a [EventsCallback](#CallbacksEventsCallback).
+>The signature of a function which accepts events generated by a
+Timestamp subscription (see [SubscriptionType](#EnumsSubscriptionType)).
 
 
 * * *
 
-### Schema.MarketUpdateEvent :id=schemamarketupdateevent
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
-**Properties**
+### Callbacks.EventsCallback :id=callbackseventscallback
+**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/meta  
+**File**: ./lib/connection/meta.js  
 
-| Name | Type | Description |
-| --- | --- | --- |
-| symbol | <code>string</code> | The symbol. |
-| type | <code>string</code> | The message type (e.g. 'TRADE') |
+| Param | Type |
+| --- | --- |
+| data | [<code>ConnectionEventType</code>](#EnumsConnectionEventType) | 
 
->The object passed to a [MarketUpdateCallback](#CallbacksMarketUpdateCallback). This object
-represents a change to the [Quote](/content/sdk/marketstate?id=quote) state. It could be a trade, a
-change to the top of book, etc.
-
-
-* * *
-
-### Schema.MarketDepthEvent :id=schemamarketdepthevent
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
-**Properties**
-
-| Name | Type | Description |
-| --- | --- | --- |
-| symbol | <code>string</code> | The symbol. |
-| bids | [<code>Array.&lt;MarketDepthLevel&gt;</code>](#SchemaMarketDepthLevel) | The price levels for buy orders. |
-| asks | [<code>Array.&lt;MarketDepthLevel&gt;</code>](#SchemaMarketDepthLevel) | The price levels for sell orders. |
-
->The object passed to a [MarketDepthCallback](#CallbacksMarketDepthCallback). This object represents
-an aggregated order book. In other words, the total size of all orders (bid and ask) at
-every price.
-
-
-* * *
-
-### Schema.MarketDepthLevel :id=schemamarketdepthlevel
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
-**Properties**
-
-| Name | Type | Description |
-| --- | --- | --- |
-| price | <code>number</code> | The price level. |
-| size | <code>number</code> | The quantity available at the price level. |
-
->The definition of one price level within the *bids* or *asks* array of a
-[MarketDepthEvent](#SchemaMarketDepthEvent).
-
-
-* * *
-
-### Schema.CumulativeVolumeEvent :id=schemacumulativevolumeevent
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
-**Properties**
-
-| Name | Type | Description |
-| --- | --- | --- |
-| event | <code>String</code> | Either "update" or "reset". |
-| container | <code>CumulativeVolume</code> | Complete cumulative volume state. |
-| [price] | <code>number</code> | The price level (for "update" events only). |
-| [volume] | <code>number</code> | The  new aggregate volume (for "update" events only). |
-
->The object passed to a [CumulativeVolumeCallback](#CallbacksCumulativeVolumeCallback).
+>The signature of a function which accepts events generated by an
+Events subscription (see [SubscriptionType](#EnumsSubscriptionType)).
 
 
 * * *

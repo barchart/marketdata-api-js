@@ -10,10 +10,13 @@
 
 * [Quote](#Quote) 
 
+* [Schema](#Schema) 
+
 ## CumulativeVolume :id=cumulativevolume
 **Kind**: global class  
 **Access**: public  
- **Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
+**Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
+**File**: ./lib/marketState/CumulativeVolume.js  
 >An aggregation of the total volume traded at each price level for a
 single instrument.
 
@@ -28,6 +31,8 @@ single instrument.
 
 ### cumulativeVolume.symbol :id=cumulativevolumesymbol
 **Kind**: instance property of [<code>CumulativeVolume</code>](#CumulativeVolume)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
+**File**: ./lib/marketState/CumulativeVolume.js  
 **Properties**
 
 | Name | Type |
@@ -41,6 +46,8 @@ single instrument.
 **Kind**: instance method of [<code>CumulativeVolume</code>](#CumulativeVolume)  
 **Returns**: <code>number</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
+**File**: ./lib/marketState/CumulativeVolume.js  
 
 | Param | Type |
 | --- | --- |
@@ -54,6 +61,8 @@ single instrument.
 ### cumulativeVolume.toArray() :id=cumulativevolumetoarray
 **Kind**: instance method of [<code>CumulativeVolume</code>](#CumulativeVolume)  
 **Returns**: [<code>Array.&lt;PriceLevel&gt;</code>](#PriceLevel)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
+**File**: ./lib/marketState/CumulativeVolume.js  
 >Returns an array of all price levels. This is an expensive operation. Observing
 an ongoing subscription is preferred (see [Connection#on](/content/sdk/connection?id=connectionon)).
 
@@ -63,7 +72,8 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/connectio
 ## Exchange :id=exchange
 **Kind**: global class  
 **Access**: public  
- **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
+**File**: ./lib/marketState/Exchange.js  
 >Describes an exchange.
 
 
@@ -80,6 +90,8 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/connectio
 
 ### exchange.id :id=exchangeid
 **Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
+**File**: ./lib/marketState/Exchange.js  
 **Properties**
 
 | Name | Type | Description |
@@ -91,6 +103,8 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/connectio
 
 ### exchange.name :id=exchangename
 **Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
+**File**: ./lib/marketState/Exchange.js  
 **Properties**
 
 | Name | Type | Description |
@@ -102,6 +116,8 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/connectio
 
 ### exchange.timezoneDdf :id=exchangetimezoneddf
 **Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
+**File**: ./lib/marketState/Exchange.js  
 **Properties**
 
 | Name | Type | Description |
@@ -113,6 +129,8 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/connectio
 
 ### exchange.offsetDdf :id=exchangeoffsetddf
 **Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
+**File**: ./lib/marketState/Exchange.js  
 **Properties**
 
 | Name | Type | Description |
@@ -124,6 +142,8 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/connectio
 
 ### exchange.timezoneExchange :id=exchangetimezoneexchange
 **Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
+**File**: ./lib/marketState/Exchange.js  
 **Properties**
 
 | Name | Type | Description |
@@ -135,6 +155,8 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/connectio
 
 ### exchange.offsetExchange :id=exchangeoffsetexchange
 **Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
+**File**: ./lib/marketState/Exchange.js  
 **Properties**
 
 | Name | Type | Description |
@@ -147,7 +169,8 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/connectio
 ## MarketState :id=marketstate
 **Kind**: global class  
 **Access**: public  
- **Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
+**Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
+**File**: ./lib/marketState/MarketState.js  
 >Repository for current market state. This repository will only contain
 data for an instrument after a subscription has been established using
 the [Connection#on](/content/sdk/connection?id=connectionon) function.
@@ -170,6 +193,8 @@ function.
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
 **Returns**: [<code>Promise.&lt;Profile&gt;</code>](#Profile) - The [Profile](/content/sdk/marketstate?id=profile) instance, as a promise.  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
+**File**: ./lib/marketState/MarketState.js  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -183,6 +208,8 @@ function.
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
 **Returns**: [<code>Quote</code>](#Quote)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
+**File**: ./lib/marketState/MarketState.js  
 
 | Param | Type |
 | --- | --- |
@@ -195,6 +222,8 @@ function.
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
 **Returns**: <code>Book</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
+**File**: ./lib/marketState/MarketState.js  
 
 | Param | Type |
 | --- | --- |
@@ -207,6 +236,8 @@ function.
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
 **Returns**: [<code>Promise.&lt;CumulativeVolume&gt;</code>](#CumulativeVolume) - The [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) instance, as a promise  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
+**File**: ./lib/marketState/MarketState.js  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -220,6 +251,8 @@ function.
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
 **Returns**: <code>Date</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
+**File**: ./lib/marketState/MarketState.js  
 >Returns the time the most recent market data message was received.
 
 
@@ -228,7 +261,8 @@ function.
 ## Profile :id=profile
 **Kind**: global class  
 **Access**: public  
- **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 >Describes an instrument.
 
 
@@ -256,6 +290,8 @@ function.
 
 ### profile.symbol :id=profilesymbol
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 **Properties**
 
 | Name | Type | Description |
@@ -267,6 +303,8 @@ function.
 
 ### profile.name :id=profilename
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 **Properties**
 
 | Name | Type | Description |
@@ -278,6 +316,8 @@ function.
 
 ### profile.exchange :id=profileexchange
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 **Properties**
 
 | Name | Type | Description |
@@ -289,6 +329,8 @@ function.
 
 ### profile.unitCode :id=profileunitcode
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 **Properties**
 
 | Name | Type | Description |
@@ -300,6 +342,8 @@ function.
 
 ### profile.pointValue :id=profilepointvalue
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 **Properties**
 
 | Name | Type | Description |
@@ -311,6 +355,8 @@ function.
 
 ### profile.tickIncrement :id=profiletickincrement
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 **Properties**
 
 | Name | Type | Description |
@@ -322,6 +368,8 @@ function.
 
 ### profile.exchangeRef :id=profileexchangeref
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 **Properties**
 
 | Name | Type |
@@ -333,6 +381,8 @@ function.
 
 ### profile.root :id=profileroot
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 **Properties**
 
 | Name | Type | Description |
@@ -344,6 +394,8 @@ function.
 
 ### profile.month :id=profilemonth
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 **Properties**
 
 | Name | Type | Description |
@@ -355,6 +407,8 @@ function.
 
 ### profile.year :id=profileyear
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 **Properties**
 
 | Name | Type | Description |
@@ -366,6 +420,8 @@ function.
 
 ### profile.expiration :id=profileexpiration
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 **Properties**
 
 | Name | Type | Description |
@@ -377,6 +433,8 @@ function.
 
 ### profile.firstNotice :id=profilefirstnotice
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 **Properties**
 
 | Name | Type | Description |
@@ -390,6 +448,8 @@ function.
 **Kind**: instance method of [<code>Profile</code>](#Profile)  
 **Returns**: <code>string</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 
 | Param | Type |
 | --- | --- |
@@ -403,6 +463,8 @@ function.
 ### Profile.setPriceFormatter(fractionSeparator, specialFractions, [thousandsSeparator]) :id=profilesetpriceformatter
 **Kind**: static method of [<code>Profile</code>](#Profile)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -420,6 +482,8 @@ function.
 
 **Kind**: static method of [<code>Profile</code>](#Profile)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
 **See**: [setPriceFormatter](#ProfilesetPriceFormatter)  
 >Alias for [setPriceFormatter](#ProfilesetPriceFormatter) function.
 
@@ -429,7 +493,8 @@ function.
 ## Quote :id=quote
 **Kind**: global class  
 **Access**: public  
- **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 >Current market conditions for an instrument.
 
 
@@ -458,6 +523,8 @@ function.
 
 ### quote.symbol :id=quotesymbol
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -469,6 +536,8 @@ function.
 
 ### quote.message :id=quotemessage
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -480,6 +549,8 @@ function.
 
 ### quote.flag :id=quoteflag
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -491,6 +562,8 @@ function.
 
 ### quote.day :id=quoteday
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -502,6 +575,8 @@ function.
 
 ### quote.dayNum :id=quotedaynum
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -513,6 +588,8 @@ function.
 
 ### quote.lastUpdate :id=quotelastupdate
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -524,6 +601,8 @@ function.
 
 ### quote.bidPrice :id=quotebidprice
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -535,6 +614,8 @@ function.
 
 ### quote.bidSize :id=quotebidsize
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -546,6 +627,8 @@ function.
 
 ### quote.askPrice :id=quoteaskprice
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -557,6 +640,8 @@ function.
 
 ### quote.askSize :id=quoteasksize
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -568,6 +653,8 @@ function.
 
 ### quote.lastPrice :id=quotelastprice
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -579,6 +666,8 @@ function.
 
 ### quote.tradePrice :id=quotetradeprice
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -590,6 +679,8 @@ function.
 
 ### quote.tradeSize :id=quotetradesize
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -601,6 +692,8 @@ function.
 
 ### quote.blockTrade :id=quoteblocktrade
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -612,6 +705,8 @@ function.
 
 ### quote.settlementPrice :id=quotesettlementprice
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type |
@@ -623,6 +718,8 @@ function.
 
 ### quote.previousPrice :id=quotepreviousprice
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -634,6 +731,8 @@ function.
 
 ### quote.time :id=quotetime
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -645,6 +744,8 @@ function.
 
 ### quote.profile :id=quoteprofile
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: ./lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
@@ -654,8 +755,60 @@ function.
 
 * * *
 
+## Schema :id=schema
+**Kind**: global namespace  
+**Import**: @barchart/marketdata-api-js/lib/marketState/meta  
+**File**: ./lib/marketState/meta.js  
+>A meta namespace for structural contracts of anonymous objects.
+
+
+* [Schema](#Schema) : <code>object</code>
+    * [.BookPriceLevel](#SchemaBookPriceLevel) : <code>Object</code>
+    * [.Book](#SchemaBook) : <code>Object</code>
+
+
+* * *
+
+### Schema.BookPriceLevel :id=schemabookpricelevel
+**Kind**: static typedef of [<code>Schema</code>](#Schema)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/meta  
+**File**: ./lib/marketState/meta.js  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| price | <code>number</code> | The price level. |
+| size | <code>number</code> | The quantity available at the price level. |
+
+>The definition of an anonymous object representing one level within a
+[Book](#SchemaBook).
+
+
+* * *
+
+### Schema.Book :id=schemabook
+**Kind**: static typedef of [<code>Schema</code>](#Schema)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/meta  
+**File**: ./lib/marketState/meta.js  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| symbol | <code>string</code> | The symbol. |
+| bids | [<code>Array.&lt;BookPriceLevel&gt;</code>](#SchemaBookPriceLevel) | The price levels for buy orders. |
+| asks | [<code>Array.&lt;BookPriceLevel&gt;</code>](#SchemaBookPriceLevel) | The price levels for sell orders. |
+
+>The definition of an anonymous object representing an aggregate order
+book. In other words, the total size of all orders (bid or ask) at
+every price.
+
+
+* * *
+
 ## ~PriceLevel :id=pricelevel
 **Kind**: inner typedef  
+**Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
+**File**: ./lib/marketState/CumulativeVolume.js  
 **Properties**
 
 | Name | Type |

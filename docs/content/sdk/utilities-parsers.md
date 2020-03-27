@@ -1,7 +1,8 @@
 ## SymbolParser :id=symbolparser
 **Kind**: global class  
 **Access**: public  
- **Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 >Static utilities for parsing symbols.
 
 
@@ -29,6 +30,8 @@
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>Object</code> \| <code>null</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |
@@ -45,6 +48,8 @@ symbol, a null value is returned.
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>String</code> \| <code>null</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |
@@ -59,6 +64,8 @@ symbol, a null value is returned.
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>String</code> \| <code>null</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |
@@ -74,6 +81,8 @@ symbol, a null value is returned.
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>Boolean</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |
@@ -89,6 +98,8 @@ false.
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>Boolean</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |
@@ -103,6 +114,8 @@ false.
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>Boolean</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |
@@ -117,6 +130,8 @@ false.
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>Boolean</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |
@@ -131,6 +146,8 @@ false.
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>Boolean</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |
@@ -146,6 +163,8 @@ otherwise.
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>Boolean</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |
@@ -161,6 +180,8 @@ false otherwise.
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>Boolean</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |
@@ -176,6 +197,8 @@ Industrials); false otherwise.
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>Boolean</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |
@@ -191,6 +214,8 @@ index; false otherwise.
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>Boolean</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |
@@ -206,6 +231,8 @@ index; false otherwise.
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>Boolean</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |
@@ -220,6 +247,8 @@ index; false otherwise.
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>Boolean</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |
@@ -235,6 +264,8 @@ to be expired (e.g. a future for a past year).
 **Kind**: static method of [<code>SymbolParser</code>](#SymbolParser)  
 **Returns**: <code>Boolean</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parsers/SymbolParser  
+**File**: ./lib/utilities/parsers/SymbolParser.js  
 
 | Param | Type |
 | --- | --- |

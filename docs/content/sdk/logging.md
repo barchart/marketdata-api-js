@@ -9,7 +9,8 @@
 ## Logger :id=logger
 **Kind**: global class  
 **Access**: public  
- **Import**: @barchart/marketdata-api-js/lib/logging/Logger  
+**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
+**File**: ./lib/logging/Logger.js  
 >An interface for writing log messages.
 
 
@@ -27,6 +28,8 @@
 ### logger.log() :id=loggerlog
 **Kind**: instance method of [<code>Logger</code>](#Logger)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
+**File**: ./lib/logging/Logger.js  
 >Writes a log message.
 
 
@@ -35,6 +38,8 @@
 ### logger.trace() :id=loggertrace
 **Kind**: instance method of [<code>Logger</code>](#Logger)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
+**File**: ./lib/logging/Logger.js  
 >Writes a log message, at "trace" level.
 
 
@@ -43,6 +48,8 @@
 ### logger.debug() :id=loggerdebug
 **Kind**: instance method of [<code>Logger</code>](#Logger)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
+**File**: ./lib/logging/Logger.js  
 >Writes a log message, at "debug" level.
 
 
@@ -51,6 +58,8 @@
 ### logger.info() :id=loggerinfo
 **Kind**: instance method of [<code>Logger</code>](#Logger)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
+**File**: ./lib/logging/Logger.js  
 >Writes a log message, at "info" level.
 
 
@@ -59,6 +68,8 @@
 ### logger.warn() :id=loggerwarn
 **Kind**: instance method of [<code>Logger</code>](#Logger)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
+**File**: ./lib/logging/Logger.js  
 >Writes a log message, at "warn" level.
 
 
@@ -67,6 +78,8 @@
 ### logger.error() :id=loggererror
 **Kind**: instance method of [<code>Logger</code>](#Logger)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
+**File**: ./lib/logging/Logger.js  
 >Writes a log message, at "error" level.
 
 
@@ -75,7 +88,8 @@
 ## LoggerFactory :id=loggerfactory
 **Kind**: global class  
 **Access**: public  
- **Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
+**Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
+**File**: ./lib/logging/LoggerFactory.js  
 >Static utilities for interacting with the log system.
 
 
@@ -91,6 +105,8 @@
 ### LoggerFactory.configureForConsole() :id=loggerfactoryconfigureforconsole
 **Kind**: static method of [<code>LoggerFactory</code>](#LoggerFactory)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
+**File**: ./lib/logging/LoggerFactory.js  
 >Configures the library to write log messages to the console.
 
 
@@ -99,6 +115,8 @@
 ### LoggerFactory.configureForSilence() :id=loggerfactoryconfigureforsilence
 **Kind**: static method of [<code>LoggerFactory</code>](#LoggerFactory)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
+**File**: ./lib/logging/LoggerFactory.js  
 >Configures the library to mute all log messages.
 
 
@@ -107,6 +125,8 @@
 ### LoggerFactory.configure(provider) :id=loggerfactoryconfigure
 **Kind**: static method of [<code>LoggerFactory</code>](#LoggerFactory)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
+**File**: ./lib/logging/LoggerFactory.js  
 
 | Param | Type |
 | --- | --- |
@@ -122,6 +142,8 @@ implementation of the [LoggerProvider](/content/sdk/logging?id=loggerprovider) i
 **Kind**: static method of [<code>LoggerFactory</code>](#LoggerFactory)  
 **Returns**: [<code>Logger</code>](#Logger)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
+**File**: ./lib/logging/LoggerFactory.js  
 
 | Param | Type |
 | --- | --- |
@@ -135,7 +157,8 @@ implementation of the [LoggerProvider](/content/sdk/logging?id=loggerprovider) i
 ## LoggerProvider :id=loggerprovider
 **Kind**: global class  
 **Access**: public  
- **Import**: @barchart/marketdata-api-js/lib/logging/LoggerProvider  
+**Import**: @barchart/marketdata-api-js/lib/logging/LoggerProvider  
+**File**: ./lib/logging/LoggerProvider.js  
 >An interface for generating [Logger](/content/sdk/logging?id=logger) instances.
 
 
@@ -145,6 +168,8 @@ implementation of the [LoggerProvider](/content/sdk/logging?id=loggerprovider) i
 **Kind**: instance method of [<code>LoggerProvider</code>](#LoggerProvider)  
 **Returns**: [<code>Logger</code>](#Logger)  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/logging/LoggerProvider  
+**File**: ./lib/logging/LoggerProvider.js  
 
 | Param | Type |
 | --- | --- |
