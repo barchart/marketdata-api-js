@@ -10,13 +10,16 @@
 
 * [Quote](#Quote) 
 
+* [Schema](#Schema) 
+
 ## CumulativeVolume :id=cumulativevolume
 **Kind**: global class  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
 **File**: ./lib/marketState/CumulativeVolume.js  
 >An aggregation of the total volume traded at each price level for a
-single instrument.
+single instrument, constructed from **CumulativeVolume** subscription
+(see [Enums.SubscriptionType](/content/sdk/connection?id=enumssubscriptiontype)).
 
 
 * [CumulativeVolume](#CumulativeVolume)
@@ -88,78 +91,90 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/connectio
 
 ### exchange.id :id=exchangeid
 **Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
 **File**: ./lib/marketState/Exchange.js  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | <code>string</code> | the code used to identify the exchange |
+| id | <code>string</code> | Barchart code for the exchange |
 
 
 * * *
 
 ### exchange.name :id=exchangename
 **Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
 **File**: ./lib/marketState/Exchange.js  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| name | <code>string</code> | the name of the exchange |
+| name | <code>string</code> | Name of the exchange |
 
 
 * * *
 
 ### exchange.timezoneDdf :id=exchangetimezoneddf
 **Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
 **File**: ./lib/marketState/Exchange.js  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| timezoneDdf | <code>string</code> \| <code>null</code> | the timezone used by DDF for this exchange (should conform to a TZ database name) |
+| timezoneDdf | <code>string</code> \| <code>null</code> | Implied timezone of DDF messages for this exchange (conforms to a TZ database name) |
 
 
 * * *
 
 ### exchange.offsetDdf :id=exchangeoffsetddf
 **Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
 **File**: ./lib/marketState/Exchange.js  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| offsetDdf | <code>number</code> \| <code>null</code> | the UTC offset, in milliseconds, for DDF purposes. |
+| offsetDdf | <code>number</code> \| <code>null</code> | The offset, in milliseconds, between a DDF time and UTC. |
 
 
 * * *
 
 ### exchange.timezoneExchange :id=exchangetimezoneexchange
 **Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
 **File**: ./lib/marketState/Exchange.js  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| timezoneLocal | <code>string</code> | the actual timezone of the exchange (should conform to a TZ database name) |
+| timezoneLocal | <code>string</code> | Timezone exchange is physically located in (conforms to a TZ database name). |
 
 
 * * *
 
 ### exchange.offsetExchange :id=exchangeoffsetexchange
 **Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
 **File**: ./lib/marketState/Exchange.js  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| offsetExchange | <code>number</code> | - the UTC offset, in milliseconds, of the exchange's local time. |
+| offsetExchange | <code>number</code> | - The offset, in milliseconds, between exchange time and UTC. |
 
 
 * * *
@@ -170,17 +185,17 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/connectio
 **Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
 **File**: ./lib/marketState/MarketState.js  
 >Repository for current market state. This repository will only contain
-data for an instrument after a subscription has been established using
+data for an symbol after a subscription has been established using
 the [Connection#on](/content/sdk/connection?id=connectionon) function.
 
-Access the singleton instance using the [ConnectionBase#getMarketState](/content/sdk/connection?id=connectionbasegetmarketstate)
+Access the singleton instance using the [Connection#getMarketState](/content/sdk/connection?id=connectiongetmarketstate)
 function.
 
 
 * [MarketState](#MarketState)
     * [.getProfile(symbol, [callback])](#MarketStategetProfile) ⇒ [<code>Promise.&lt;Profile&gt;</code>](#Profile)
-    * [.getQuote(symbol)](#MarketStategetQuote) ⇒ [<code>Quote</code>](#Quote)
-    * [.getBook(symbol)](#MarketStategetBook) ⇒ <code>Book</code>
+    * [.getQuote(symbol)](#MarketStategetQuote) ⇒ [<code>Quote</code>](#Quote) \| <code>undefined</code>
+    * [.getBook(symbol)](#MarketStategetBook) ⇒ [<code>Book</code>](#SchemaBook) \| <code>undefined</code>
     * [.getCumulativeVolume(symbol, [callback])](#MarketStategetCumulativeVolume) ⇒ [<code>Promise.&lt;CumulativeVolume&gt;</code>](#CumulativeVolume)
     * [.getTimestamp()](#MarketStategetTimestamp) ⇒ <code>Date</code>
 
@@ -189,7 +204,7 @@ function.
 
 ### marketState.getProfile(symbol, [callback]) :id=marketstategetprofile
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
-**Returns**: [<code>Promise.&lt;Profile&gt;</code>](#Profile) - The [Profile](/content/sdk/marketstate?id=profile) instance, as a promise.  
+**Returns**: [<code>Promise.&lt;Profile&gt;</code>](#Profile)  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
 **File**: ./lib/marketState/MarketState.js  
@@ -197,14 +212,16 @@ function.
 | Param | Type | Description |
 | --- | --- | --- |
 | symbol | <code>string</code> |  |
-| [callback] | <code>function</code> | invoked when the [Profile](/content/sdk/marketstate?id=profile) instance becomes available |
+| [callback] | <code>function</code> | Invoked when the [Profile](/content/sdk/marketstate?id=profile) instance becomes available |
+
+>Returns a promise for the [Profile](/content/sdk/marketstate?id=profile) instance matching the symbol provided.
 
 
 * * *
 
 ### marketState.getQuote(symbol) :id=marketstategetquote
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
-**Returns**: [<code>Quote</code>](#Quote)  
+**Returns**: [<code>Quote</code>](#Quote) \| <code>undefined</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
 **File**: ./lib/marketState/MarketState.js  
@@ -212,13 +229,17 @@ function.
 | Param | Type |
 | --- | --- |
 | symbol | <code>string</code> | 
+
+>Synchronously returns the [Quote](/content/sdk/marketstate?id=quote) instance for a symbol. If no **MarketUpdate**
+subscription has been established for the symbol, an undefined value will be returned
+(see [Enums.SubscriptionType](/content/sdk/connection?id=enumssubscriptiontype)).
 
 
 * * *
 
 ### marketState.getBook(symbol) :id=marketstategetbook
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
-**Returns**: <code>Book</code>  
+**Returns**: [<code>Book</code>](#SchemaBook) \| <code>undefined</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
 **File**: ./lib/marketState/MarketState.js  
@@ -226,6 +247,10 @@ function.
 | Param | Type |
 | --- | --- |
 | symbol | <code>string</code> | 
+
+>Synchronously returns a [Book](Book) object for a symbol. If no **MarketDepth**
+subscription has been established for the symbol, an undefined value will be returned
+(see [Enums.SubscriptionType](/content/sdk/connection?id=enumssubscriptiontype)).
 
 
 * * *
@@ -240,7 +265,11 @@ function.
 | Param | Type | Description |
 | --- | --- | --- |
 | symbol | <code>string</code> |  |
-| [callback] | <code>function</code> | invoked when the [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) instance becomes available |
+| [callback] | <code>function</code> | Invoked when the [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) instance becomes available |
+
+>Returns a promise for the [CumulativeVolume](/content/sdk/marketstate?id=cumulativevolume) volume instance matching the symbol
+provided. The promise will not be fulfilled until a **CumulativeVolume** subscription
+has been established (see [Enums.SubscriptionType](/content/sdk/connection?id=enumssubscriptiontype)).
 
 
 * * *
@@ -251,7 +280,7 @@ function.
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
 **File**: ./lib/marketState/MarketState.js  
->Returns the time the most recent market data message was received.
+>Returns the time of the most recent server heartbeat.
 
 
 * * *
@@ -261,7 +290,7 @@ function.
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: ./lib/marketState/Profile.js  
->Describes an instrument.
+>Metadata for an instrument (represented by a unique symbol).
 
 
 * [Profile](#Profile)
@@ -269,10 +298,10 @@ function.
         * [.symbol](#Profilesymbol)
         * [.name](#Profilename)
         * [.exchange](#Profileexchange)
+        * [.exchangeRef](#ProfileexchangeRef)
         * [.unitCode](#ProfileunitCode)
         * [.pointValue](#ProfilepointValue)
         * [.tickIncrement](#ProfiletickIncrement)
-        * [.exchangeRef](#ProfileexchangeRef)
         * [.root](#Profileroot)
         * [.month](#Profilemonth)
         * [.year](#Profileyear)
@@ -281,111 +310,126 @@ function.
         * [.formatPrice(price)](#ProfileformatPrice) ⇒ <code>string</code>
     * _static_
         * [.setPriceFormatter(fractionSeparator, specialFractions, [thousandsSeparator])](#ProfilesetPriceFormatter)
-        * ~~[.PriceFormatter()](#ProfilePriceFormatter)~~
 
 
 * * *
 
 ### profile.symbol :id=profilesymbol
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: ./lib/marketState/Profile.js  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| symbol | <code>string</code> | the symbol of the instrument. |
+| symbol | <code>string</code> | Symbol of the instrument. |
 
 
 * * *
 
 ### profile.name :id=profilename
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: ./lib/marketState/Profile.js  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| name | <code>string</code> | the name of the instrument. |
+| name | <code>string</code> | Name of the instrument. |
 
 
 * * *
 
 ### profile.exchange :id=profileexchange
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: ./lib/marketState/Profile.js  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| exchange | <code>string</code> | code of the listing exchange. |
-
-
-* * *
-
-### profile.unitCode :id=profileunitcode
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
-**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
-**File**: ./lib/marketState/Profile.js  
-**Properties**
-
-| Name | Type | Description |
-| --- | --- | --- |
-| unitCode | <code>string</code> | code indicating how a prices for the instrument should be formatted. |
-
-
-* * *
-
-### profile.pointValue :id=profilepointvalue
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
-**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
-**File**: ./lib/marketState/Profile.js  
-**Properties**
-
-| Name | Type | Description |
-| --- | --- | --- |
-| pointValue | <code>string</code> | the change in value for a one point change in price. |
-
-
-* * *
-
-### profile.tickIncrement :id=profiletickincrement
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
-**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
-**File**: ./lib/marketState/Profile.js  
-**Properties**
-
-| Name | Type | Description |
-| --- | --- | --- |
-| tickIncrement | <code>number</code> | the minimum price movement. |
+| exchange | <code>string</code> | Code for the listing exchange. |
 
 
 * * *
 
 ### profile.exchangeRef :id=profileexchangeref
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: ./lib/marketState/Profile.js  
+**Read only**: true  
 **Properties**
 
-| Name | Type |
-| --- | --- |
-| exchangeRef | [<code>Exchange</code>](#Exchange) \| <code>null</code> | 
+| Name | Type | Description |
+| --- | --- | --- |
+| exchangeRef | [<code>Exchange</code>](#Exchange) \| <code>null</code> | The [Exchange](/content/sdk/marketstate?id=exchange). |
+
+
+* * *
+
+### profile.unitCode :id=profileunitcode
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
+**Read only**: true  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| unitCode | <code>string</code> | Code indicating how a prices should be formatted. |
+
+
+* * *
+
+### profile.pointValue :id=profilepointvalue
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
+**Read only**: true  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| pointValue | <code>string</code> | The change in value for a one point change in price. |
+
+
+* * *
+
+### profile.tickIncrement :id=profiletickincrement
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: ./lib/marketState/Profile.js  
+**Read only**: true  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| tickIncrement | <code>number</code> | The minimum price movement. |
 
 
 * * *
 
 ### profile.root :id=profileroot
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: ./lib/marketState/Profile.js  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| root | <code>string</code> \| <code>undefined</code> | the root symbol, if a future; otherwise undefined. |
+| root | <code>string</code> \| <code>undefined</code> | Root symbol (futures only). |
 
 
 * * *
@@ -398,7 +442,7 @@ function.
 
 | Name | Type | Description |
 | --- | --- | --- |
-| month | <code>string</code> \| <code>undefined</code> | the month code, if a future; otherwise undefined. |
+| month | <code>string</code> \| <code>undefined</code> | Month code (futures only). |
 
 
 * * *
@@ -411,7 +455,7 @@ function.
 
 | Name | Type | Description |
 | --- | --- | --- |
-| year | <code>undefined</code> \| <code>number</code> | the expiration year, if a future; otherwise undefined. |
+| year | <code>number</code> \| <code>undefined</code> | Expiration year (futures only). |
 
 
 * * *
@@ -424,7 +468,7 @@ function.
 
 | Name | Type | Description |
 | --- | --- | --- |
-| expiration | <code>string</code> \| <code>undefined</code> | the expiration date, as a string, formatted YYYY-MM-DD. |
+| expiration | <code>string</code> \| <code>undefined</code> | Expiration date, formatted as YYYY-MM-DD (futures only). |
 
 
 * * *
@@ -437,7 +481,7 @@ function.
 
 | Name | Type | Description |
 | --- | --- | --- |
-| expiration | <code>string</code> \| <code>undefined</code> | the first notice date, as a string, formatted YYYY-MM-DD. |
+| expiration | <code>string</code> \| <code>undefined</code> | First notice date, formatted as YYYY-MM-DD (futures only). |
 
 
 * * *
@@ -453,7 +497,7 @@ function.
 | --- | --- |
 | price | <code>number</code> | 
 
->Given a numeric price, returns a human-readable price.
+>Given a price, returns a the human-readable string representation.
 
 
 * * *
@@ -475,25 +519,13 @@ function.
 
 * * *
 
-### ~~Profile.PriceFormatter()~~ :id=profilepriceformatter
-***Deprecated***
-
-**Kind**: static method of [<code>Profile</code>](#Profile)  
-**Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
-**File**: ./lib/marketState/Profile.js  
-**See**: [setPriceFormatter](#ProfilesetPriceFormatter)  
->Alias for [setPriceFormatter](#ProfilesetPriceFormatter) function.
-
-
-* * *
-
 ## Quote :id=quote
 **Kind**: global class  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: ./lib/marketState/Quote.js  
->Current market conditions for an instrument.
+>Current market conditions for an instrument, constructed from **MarketUpdate**
+subscription (see [Enums.SubscriptionType](/content/sdk/connection?id=enumssubscriptiontype)).
 
 
 * [Quote](#Quote)
@@ -749,6 +781,56 @@ function.
 | Name | Type | Description |
 | --- | --- | --- |
 | profile | [<code>Profile</code>](#Profile) \| <code>null</code> | metadata regarding the quoted instrument. |
+
+
+* * *
+
+## Schema :id=schema
+**Kind**: global namespace  
+**Import**: @barchart/marketdata-api-js/lib/marketState/meta  
+**File**: ./lib/marketState/meta.js  
+>A meta namespace containing structural contracts of anonymous objects.
+
+
+* [Schema](#Schema) : <code>object</code>
+    * [.Book](#SchemaBook) : <code>Object</code>
+    * [.BookLevel](#SchemaBookLevel) : <code>Object</code>
+
+
+* * *
+
+### Schema.Book :id=schemabook
+**Kind**: static typedef of [<code>Schema</code>](#Schema)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/meta  
+**File**: ./lib/marketState/meta.js  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| symbol | <code>string</code> | The symbol. |
+| bids | [<code>Array.&lt;BookLevel&gt;</code>](#SchemaBookLevel) | The price levels for buy orders. |
+| asks | [<code>Array.&lt;BookLevel&gt;</code>](#SchemaBookLevel) | The price levels for sell orders. |
+
+>This object represents an aggregated order book. In other words, the total size
+of all orders (bid and ask) at every price. Constructed from **MarketDepth**
+subscription (see [Enums.SubscriptionType](/content/sdk/connection?id=enumssubscriptiontype)).
+
+
+* * *
+
+### Schema.BookLevel :id=schemabooklevel
+**Kind**: static typedef of [<code>Schema</code>](#Schema)  
+**Import**: @barchart/marketdata-api-js/lib/marketState/meta  
+**File**: ./lib/marketState/meta.js  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| price | <code>number</code> | The price level. |
+| size | <code>number</code> | The quantity available at the price level. |
+
+>The definition of one price level within the *bids* or *asks* array of a
+[Book](#SchemaBook).
 
 
 * * *
