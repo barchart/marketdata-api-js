@@ -10,8 +10,6 @@
 
 * [Quote](#Quote) 
 
-* [Schema](#Schema) 
-
 ## CumulativeVolume :id=cumulativevolume
 **Kind**: global class  
 **Access**: public  
@@ -751,56 +749,6 @@ function.
 | Name | Type | Description |
 | --- | --- | --- |
 | profile | [<code>Profile</code>](#Profile) \| <code>null</code> | metadata regarding the quoted instrument. |
-
-
-* * *
-
-## Schema :id=schema
-**Kind**: global namespace  
-**Import**: @barchart/marketdata-api-js/lib/marketState/meta  
-**File**: ./lib/marketState/meta.js  
->A meta namespace for structural contracts of anonymous objects.
-
-
-* [Schema](#Schema) : <code>object</code>
-    * [.BookPriceLevel](#SchemaBookPriceLevel) : <code>Object</code>
-    * [.Book](#SchemaBook) : <code>Object</code>
-
-
-* * *
-
-### Schema.BookPriceLevel :id=schemabookpricelevel
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
-**Import**: @barchart/marketdata-api-js/lib/marketState/meta  
-**File**: ./lib/marketState/meta.js  
-**Properties**
-
-| Name | Type | Description |
-| --- | --- | --- |
-| price | <code>number</code> | The price level. |
-| size | <code>number</code> | The quantity available at the price level. |
-
->The definition of an anonymous object representing one level within a
-[Book](#SchemaBook).
-
-
-* * *
-
-### Schema.Book :id=schemabook
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
-**Import**: @barchart/marketdata-api-js/lib/marketState/meta  
-**File**: ./lib/marketState/meta.js  
-**Properties**
-
-| Name | Type | Description |
-| --- | --- | --- |
-| symbol | <code>string</code> | The symbol. |
-| bids | [<code>Array.&lt;BookPriceLevel&gt;</code>](#SchemaBookPriceLevel) | The price levels for buy orders. |
-| asks | [<code>Array.&lt;BookPriceLevel&gt;</code>](#SchemaBookPriceLevel) | The price levels for sell orders. |
-
->The definition of an anonymous object representing an aggregate order
-book. In other words, the total size of all orders (bid or ask) at
-every price.
 
 
 * * *
