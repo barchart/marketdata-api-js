@@ -25,7 +25,7 @@ will need to implement this class.
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactory  
 **File**: ./lib/connection/adapter/WebSocketAdapterFactory.js  
->An abstract definition for an object that builds [WebSocketAdapter](/content/sdk/connection-adapter?id=websocketadapter)
+>An abstract definition for an factory that builds [WebSocketAdapter](/content/sdk/connection-adapter?id=websocketadapter)
 instances. It is unlikely that SDK consumers will need to implement this class.
 
 
