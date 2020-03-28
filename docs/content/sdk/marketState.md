@@ -25,7 +25,7 @@ single instrument, constructed from **CumulativeVolume** subscription
 * [CumulativeVolume](#CumulativeVolume)
     * [.symbol](#CumulativeVolumesymbol)
     * [.getVolume(price)](#CumulativeVolumegetVolume) ⇒ <code>number</code>
-    * [.toArray()](#CumulativeVolumetoArray) ⇒ [<code>Array.&lt;PriceLevel&gt;</code>](#PriceLevel)
+    * [.toArray()](#CumulativeVolumetoArray) ⇒ [<code>Array.&lt;BookLevel&gt;</code>](#SchemaBookLevel)
 
 
 * * *
@@ -61,7 +61,7 @@ single instrument, constructed from **CumulativeVolume** subscription
 
 ### cumulativeVolume.toArray() :id=cumulativevolumetoarray
 **Kind**: instance method of [<code>CumulativeVolume</code>](#CumulativeVolume)  
-**Returns**: [<code>Array.&lt;PriceLevel&gt;</code>](#PriceLevel)  
+**Returns**: [<code>Array.&lt;BookLevel&gt;</code>](#SchemaBookLevel)  
 **Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
 **File**: ./lib/marketState/CumulativeVolume.js  
 >Returns an array of all price levels. This is an expensive operation. Observing
@@ -831,20 +831,6 @@ subscription (see [Enums.SubscriptionType](/content/sdk/connection?id=enumssubsc
 
 >The definition of one price level within the *bids* or *asks* array of a
 [Book](#SchemaBook).
-
-
-* * *
-
-## ~PriceLevel :id=pricelevel
-**Kind**: inner typedef  
-**Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
-**File**: ./lib/marketState/CumulativeVolume.js  
-**Properties**
-
-| Name | Type |
-| --- | --- |
-| price | <code>number</code> | 
-| volume | <code>number</code> | 
 
 
 * * *
