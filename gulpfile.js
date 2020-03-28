@@ -39,13 +39,15 @@ function prepareLinkForDocs(path, tab) {
 }
 
 function generateDocs(inputFiles = 'lib/**/*.js') {
+	global.packageName = '@barchart/marketdata-api-js';
+
 	const docFolder = `${__dirname}/docs`;
 	const contentDir = `${docFolder}/content`;
 	const sdkDir = `${contentDir}/sdk`;
 	const template = `{{>main}}`;
+
 	let sdkReference = docsifyTemplates.sdkReference;
 	let sdkSidebar = docsifyTemplates.sdkSidebar;
-	global.packageName = '@barchart/marketdata-api-js';
 
 	return jsdoc2md.clear().then(() => {
 		return jsdoc2md.getTemplateData({
@@ -58,7 +60,7 @@ function generateDocs(inputFiles = 'lib/**/*.js') {
 
 				const path = identifier.meta.path;
 				const arrayFilePath = path.split('lib/');
-				const filePath = arrayFilePath[1].replace(/\//g, '-');
+				const filePath = 'lib-' + arrayFilePath[1].replace(/\//g, '-');
 
 				if (!templateGroups.dataByPath[filePath]) {
 					templateGroups.dataByPath[filePath] = [];
@@ -74,6 +76,8 @@ function generateDocs(inputFiles = 'lib/**/*.js') {
 
 			const keys = Object.keys(templateGroups.dataByPath).sort();
 			keys.forEach((filePath) => {
+				console.log(filePath);
+
 				const data = templateGroups.dataByPath[filePath];
 
 				const output = jsdoc2md.renderSync({

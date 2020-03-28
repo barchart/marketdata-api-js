@@ -1,7 +1,7 @@
 # SDK Reference
-* [connection](/content/sdk/connection)
-* [connection/adapter](/content/sdk/connection-adapter)
-* [logging](/content/sdk/logging)
-* [marketState](/content/sdk/marketstate)
-* [utilities/data](/content/sdk/utilities-data)
-* [utilities/parsers](/content/sdk/utilities-parsers)
+* [lib/connection](/content/sdk/lib-connection)
+* [lib/connection/adapter](/content/sdk/lib-connection-adapter)
+* [lib/logging](/content/sdk/lib-logging)
+* [lib/marketState](/content/sdk/lib-marketstate)
+* [lib/utilities/data](/content/sdk/lib-utilities-data)
+* [lib/utilities/parsers](/content/sdk/lib-utilities-parsers)

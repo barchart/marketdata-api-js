@@ -18,44 +18,44 @@ connection.off(subscriptionType, handler, symbol);
 
 ### Subscription Types
 
-A subscription type is a ```String``` value. The possible values are enumerated in the ```lib/connection/SubscriptionType``` object. There are five types of subscription, grouped into two categories:
+A subscription type is a ```String``` value. The possible values are enumerated in the [```lib/connection/SubscriptionType```](/content/sdk/lib-connection?id=enumssubscriptiontype) object. There are five types of subscription, grouped into two categories:
 
 * **Metadata**
-  * *timestamp* - Current time on Barchart's network
-  * *events* - Network and system related notifications (e.g. login success)
+  * [Heartbeat](#heartbeat) - Current time on Barchart's network
+  * [System Events](#system-status) - Network and system related notifications (e.g. login success)
 * **Market Data**
-  * *marketUpdate* - Level I market data (e.g. latest trades, best prices)
-  * *marketDepth* - Level II market data (e.g. the order book)
-  * *cumulativeVolume* - Daily summation of quantity traded at every price level
+  * [Level I](#level-i-market-data) - Latest trades, best prices
+  * [Level II](#level-ii-market-data) - Order book with aggregate sizes
+  * [Cumulative Volume](#cumulative-volume) - Volume traded at every price level
 
 Metadata subscriptions *do not* require a symbol to be provided. Market data subscriptions *do*.
 
 ### Callbacks
 
-Every subscription requires a callback -- a function the SDK invokes each time new data is available. When you start a start a subscription, you must supply a callback. Again, when you stop the subscription, you must supply the *same* callback.
+Every subscription requires a callback -- a function the SDK invokes each time new data is available. When you start a start a subscription, you must supply a callback. When you stop the subscription, you must supply the *same* callback.
 
 ### Symbols
 
-For market data subscriptions, you must supply a symbol. A symbol is a ```String``` which references an instrument. For example, AAPL is the symbol for Apple's common stock.
+For market data subscriptions, you must supply a symbol. A symbol is a unique ```String``` reference to an instrument. For example, ```"AAPL"``` is the symbol for Apple's common stock.
 
-The symbol for Apple common stock is widely accepted. However, in some cases, symbols are not universal. In these cases, Barchart defines their own *symbology*; here are some examples:
+Apple's stock symbol is widely accepted. However, in some cases, symbols are not universal. In these cases, Barchart defines their own *symbology*; here are some examples:
 
-* Forex - Begins with a caret (e.g. ^EURUSD)
-* Indices - Begins with a dollar sign (e.g. $SPX -- the S&P 500)
+* Forex - Begins with a caret (e.g. ```"^EURUSD"``` — Euro/US Dollar)
+* Indices - Begins with a dollar sign (e.g. ```"$SPX"``` — S&P 500)
 
 ## Heartbeat
 
-The ```SubscriptionType.Timestamp``` subscription is the simple.
+The ```SubscriptionType.Timestamp``` — or ```"timestamp"``` — subscription is the simple. The server sends its timestamp every second.
 
 #### Callback
 
-The callback should expect a ```Date``` argument.
+The callback expects a ```Date``` argument. See [```Callbacks.TimestampCallback```](/content/sdk/lib-connection?id=callbackstimestampcallback) for a formal description of he callback.
 
 #### Example
 
 ```js
-const timestampHandler = (date) => {
-	console.log(`Server time is ${date.getHours()}:${date.getMinutes()}`);
+const timestampHandler = (event) => {
+	console.log(`Server time is ${event.getHours()}:${event.getMinutes()}`);
 };
 
 connection.on(SubscriptionType.Timestamp, timestampHandler);
@@ -69,7 +69,7 @@ connection.off(SubscriptionType.Timestamp, timestampHandler);
 
 ## System Status
 
-The ```SubscriptionType.Events``` subscription notifies you when the state of your ```Connection``` changes.
+The ```SubscriptionType.Events``` — or ```"events"``` — subscription notifies you when the status of your ```Connection``` changes.
 
 #### Callback
 
@@ -81,20 +81,13 @@ The callback should expect a JavaScript ```Object``` with a single ```String``` 
 }
 ```
 
-Possible ```String``` values of the ```event``` property are:
-
-* *login success* - Generated after calling ```Connection.connect```, remote server accepted credentials
-* *login fail* - Generated after calling ```Connection.connect```, remote server rejected credentials
-* *disconnecting* - Generated after calling ```Connection.disconnect```
-* *disconnect* - Generated after loss of connection -- whether intentional or not
-* *feed paused* - Generated after calling ```Connection.pause```
-* *feed resumed* - Generated after calling ```Connection.resume```
+See [```lib/connection/ConnectionEventType```](/content/sdk/lib-connection?id=enumsconnectioneventtype) for a listing of possible events and [```Callbacks.EventsCallback```](/content/sdk/lib-connection?id=callbackseventscallback) for a formal description of he callback
 
 #### Example
 
 ```js
-const eventsHandler = (data) => {
-	console.log(data.event);
+const eventsHandler = (event) => {
+	console.log(event.event);
 };
 
 connection.on(SubscriptionType.Events, eventsHandler);
@@ -108,7 +101,7 @@ connection.off(SubscriptionType.Events, eventsHandler);
 
 ## Level I Market Data
 
-A ```SubscriptionType.MarketUpdate``` subscription notifies you of market events as they occur (e.g. trade, top of book changed, etc).
+A ```SubscriptionType.MarketUpdate``` — or ```"marketUpdate"``` — subscription notifies you of market-related events as they occur (e.g. trade, top of book changed, etc).
 
 #### Availability
 
@@ -116,9 +109,7 @@ Level I market data is available for all symbols.
 
 #### Callback
 
-The callback receives an ```Object``` representing a market event. See the [Data Structures Section](/content/data_structures?id=market-updates) for a complete schema.
-
-Regardless, here is an sample market update for a *trade* event:
+The callback receives an ```Object``` representing a market update event. Here an example *trade* event:
 
 ```js
 { 
@@ -138,11 +129,15 @@ Regardless, here is an sample market update for a *trade* event:
 }
 ```
 
-In addition to providing your callback with market updates, the SDK independently maintains state for each symbol using instances of the ```lib/marketState/Quote``` class. These steps are followed when processing Level I market data:
+See [```Callbacks.MarketUpdateCallback```](/content/sdk/lib-connection?id=callbacksmarketupdatecallback) for a formal description of he callback.
 
-1. Market data event is received from server.
-2. Market data event is parsed, producing a market update ```Object```.
-3. Appropriate ```Quote``` instance is updated, based on the market update ```Object```.
+#### State Tracking
+
+In addition to providing your callback with market updates, the SDK independently maintains state for each symbol using instances of the [```lib/marketState/Quote```](/content/sdk/lib-connection?id=connection) class. The SDK followed these steps:
+
+1. Level I market data event is received from server.
+2. Level I market data event is parsed, producing a market update ```Object```.
+3. The appropriate ```Quote``` instance is updated, based on the market update ```Object```.
 4. Your callback is invoked and passed the market update ```Object``` (from step 2).
 
 #### Examples
@@ -153,15 +148,15 @@ Here are two strategies for processing callback notifications:
 2. Query the ```Quote``` instance (relying on the SDK to maintain state).
 
 ```js
-const handleUsingEvent = (data) => {
-	if (data.type === 'TRADE') {
-		console.log(`${data.symbol} just traded for ${data.tradePrice}`);
+const handleUsingEvent = (event) => {
+	if (event.type === 'TRADE') {
+		console.log(`${event.symbol} just traded for ${event.tradePrice}`);
 	}
 };
 
-const handleUsingQuote = (data) => {
-	if (data.symbol) {
-		const quote = connection.getMarketState().getQuote(data.symbol);
+const handleUsingQuote = (event) => {
+	if (event.symbol) {
+		const quote = connection.getMarketState().getQuote(event.symbol);
 
 		console.log(`${quote.symbol} recently traded for ${quote.tradePrice}`;
 	}
@@ -180,7 +175,7 @@ connection.off(SubscriptionType.MarketUpdate, 'AAPL', handleUsingQuote);
 
 ## Level II Market Data
 
-A ```SubscriptionType.MarketDepth``` subscription gives you a snapshot of the aggregated order book, each time the book changes.
+A ```SubscriptionType.MarketDepth``` — or ```"marketDepth"``` — subscription gives you a snapshot of the aggregated order book, each time the book changes.
 
 #### Availability
 
@@ -190,8 +185,8 @@ Level II market data is available for futures contracts.
 
 The callback receives an ```Object``` with:
 
-* a **bids** property is an ordered ```Array``` of ```BookPriceLevel``` objects, and
-* a **asks** property is an ordered ```Array``` of ```BookPriceLevel``` objects.
+* An ordered ```Array``` of ```MarketDepthLevel``` objects called *bids*, and
+* An ordered ```Array``` of ```MarketDepthLevel``` objects called *asks*.
 
 ```js
 	{
@@ -200,7 +195,7 @@ The callback receives an ```Object``` with:
 	}
 ```
 
-Each ```BookPriceLevel``` has a *price* and a *size* property, as follows:
+Each ```MarketDepthLevel``` has a *price* and a *size* property, as follows:
 
 ```js
 	{
@@ -209,17 +204,17 @@ Each ```BookPriceLevel``` has a *price* and a *size* property, as follows:
 	}
 ```
 
-The SDK does not attempt to maintain book state and each time your callback is invoked, a completely new ```Object``` is passed.
+See [```Callbacks.MarketDepthCallback```](/content/sdk/lib-connection?id=callbacksmarketdepthcallback) for a formal description of he callback.
 
 #### Examples
 
 ```js
-const handleMarketDepth = (book) => {
-	book.asks.forEach((level) => {
+const handleMarketDepth = (event) => {
+	event.asks.forEach((level) => {
 		console.log(`${level.size} unit(s) are available at ${level.price}`);
 	});
 
-	book.bids.forEach((level) => {
+	event.bids.forEach((level) => {
 		console.log(`${level.size} unit(s) are wanted at ${level.price}`);
 	});
 };
@@ -235,7 +230,7 @@ connection.off(SubscriptionType.MarketDepth, handleMarketDepth, 'ESM0');
 
 ## Cumulative Volume
 
-A ```SubscriptionType.CumulativeVolume``` reports the total volume traded, at each price level, for the current trading session.
+A ```SubscriptionType.CumulativeVolume``` — or ```"cumulativeVolume"``` — subscription reports the total volume traded, at each price level, for the current trading session.
 
 #### Availability
 
@@ -254,16 +249,18 @@ The **price** property is a ```Number``` that indicates the price level which ch
 
 The **volume** property is a ```Number``` that indicates the current aggregate volume at the given **price** level.  This property does not exist for *reset* events.
 
-The **container** property is an instance of the ```lib/marketState/CumulativeVolume``` class. It tracks the current volume traded for all price levels.
+The **container** property is an instance of the [```lib/marketState/CumulativeVolume```](/content/sdk/lib-marketstate?id=cumulativevolume) class. It tracks the current volume traded for all price levels.
+
+See [```Callbacks.CumulativeVolumeCallback```](/content/sdk/lib-connection?id=callbackscumulativevolumecallback) for a formal description of he callback.
 
 #### Examples
 
 ```js
-const handleCumulativeVolume = (data) => {
-	if (data.event === 'update') {
-		console.log(`Volume at ${data.price} increased to ${data.volume}for ${data.container.symbol}`;
-	} else if (data.event === 'reset') {
-		console.log(`Volume statistics for ${data.container.symbol} has been cleared`;
+const handleCumulativeVolume = (event) => {
+	if (event.event === 'update') {
+		console.log(`Volume at ${event.price} increased to ${event.volume} for ${event.container.symbol}`;
+	} else if (event.event === 'reset') {
+		console.log(`Volume statistics for ${event.container.symbol} has been cleared`;
 	}
 };
 

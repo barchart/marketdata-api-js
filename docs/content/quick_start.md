@@ -48,10 +48,10 @@ const WebSocketFactory = require('@barchart/marketdata-api-js/lib/connection/ada
 
 connection = new Connection();
 
-connection.on('events', (data) => {
-	if (data.event === 'login success') {
+connection.on('events', (event) => {
+	if (event.event === 'login success') {
 		console.log('You are logged in.');
-	} else if (data.event === 'login fail') {
+	} else if (event.event === 'login fail') {
 		console.log('You are not logged in. Please check your credentials');
 	}
 });
@@ -68,12 +68,10 @@ connection.connect(server, username, password, new WebSocketFactory());
 After a connection has been established, let's subscribe to the Level I data for Apple stock, as follows:
 
 ```js
-const symbol = 'AAPL';
-
 let previousPrice = null;
 
-const handleMarketUpdate = (data) => {
-	const price = connection.getMarketState().getQuote(symbol).lastPrice;
+const handleMarketUpdate = (event) => {
+	const price = connection.getMarketState().getQuote(event.symbol).lastPrice;
 
 	if (previousPrice !== price) {
 		console.log(`${symbol} price changed from ${previousPrice} to ${price}`);
@@ -82,7 +80,7 @@ const handleMarketUpdate = (data) => {
 	}
 };
 
-connection.on('marketUpdate', handleMarketUpdate, symbol);
+connection.on('marketUpdate', handleMarketUpdate, 'AAPL');
 ```
 
 ## Demos

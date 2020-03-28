@@ -1,6 +1,6 @@
 ## Fundamentals
 
-The ```lib/connection/Connection``` class is central to the SDK's object model. It allows you to:
+The [```lib/connection/Connection```](/content/sdk/connection?id=connection) class is central to the SDK's object model. It allows you to:
 
 * Open and close WebSocket connections to Barchart's servers,
 * Subscribe and unsubscribe from market data streams,
@@ -13,11 +13,11 @@ The ```Connection``` class constructor does not accept any arguments:
 const connection = new Connection();
 ```
 
-In general, you'll want to treat the ```Connection``` as a singleton. Only one instance is needed. In fact, Barchart's servers typically reject simultaneous connections using the same credentials.
+In general, you'll want to treat the ```Connection``` as a singleton. Only one instance is needed. In fact, Barchart's servers reject simultaneous connections using the same credentials.
 
 ## Monitoring
 
-After you create a connection, you'll probably want to monitor state changes. Additional details can be found in [System Status](content/subscriptions?id=system-status) documentation. Here's the short version:
+After you create a connection, you'll probably want to monitor the state of the connection. Additional details can be found in [System Status](/content/concepts/subscriptions?id=system-status) subscription documentation. Here's the short version:
 
 ```js
 const eventsHandler = (data) => {
@@ -33,10 +33,10 @@ Calling ```Connection.connect``` opens a connection. The function requires that 
 
 **Contact Barchart at solutions@barchart.com or (866) 333-7587 to obtain the correct hostname and a free username/password.**
 
-You'll also need to provide a strategy for creating WebSocket connections. Depending on your environment, different strategies are used. The ```lib/connection/adapter/WebSocketAdapterFactory``` provides an interface for this purpose. Two implementations exist in the SDK:
+You'll also need to provide a strategy for creating WebSocket connections. Depending on your environment, different strategies are used. Two implementations exist in the SDK:
 
-* ```lib/connection/adapter/WebSocketAdapterFactoryForBrowsers``` - For web browsers
-* ```lib/connection/adapter/WebSocketAdapterFactoryForNode``` - For Node.js
+* [```lib/connection/adapter/WebSocketAdapterFactoryForBrowsers```](/content/sdk/lib-connection-adapter?id=websocketadapterfactoryforbrowsers) - For web browsers
+* [```lib/connection/adapter/WebSocketAdapterFactoryForNode```](/content/sdk/lib-connection-adapter?id=websocketadapterfactoryfornode) - For Node.js
 
 By default, the ```Connection``` class assumes you're running in a web browser. However, there is nothing wrong with being explicit.
 
@@ -64,8 +64,8 @@ This causes the WebSocket connection to be severed. It also clears **all** exist
 
 ## Reconnecting
 
-Unexpected network conditions may cause the WebSocket connection to close. When this happens, a *disconnect* event will be generated (see the [System Status](content/subscriptions?id=system-status)). The SDK will **automatically** begin attempting to reestablish the connection.
+Unexpected network conditions may cause the WebSocket connection to close. When this happens, a **Disconnect** event will be generated (see the [System Status](/content/concepts/subscriptions?id=system-status) subscription). The SDK will **automatically** begin attempting to reestablish the connection.
 
-Once the connection is reestablished, a *login success* event will be generated and subscriptions will be automatically restarted. However, market state should be considered to be outdated until you receive the first notification for each subscription.
+Once the connection is reestablished, a **LoginSuccess** event will be generated and subscriptions will be automatically restarted. However, market state should be considered to be outdated until you receive the first notification for each subscription.
 
 To abort the automated reconnection process, simply call the ```Connection.disconnect``` function.
