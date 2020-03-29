@@ -49,7 +49,7 @@ The ```SubscriptionType.Timestamp``` — or ```"timestamp"``` — subscription i
 
 #### Callback
 
-The callback expects a ```Date``` argument. See [```Callbacks.TimestampCallback```](/content/sdk/lib-connection?id=callbackstimestampcallback) for a formal description of he callback.
+The callback expects a ```Date``` argument. See [```Callbacks.TimestampCallback```](/content/sdk/lib-connection?id=callbackstimestampcallback) for a formal description of the callback.
 
 #### Example
 
@@ -129,7 +129,7 @@ The callback receives an ```Object``` representing a market update event. Here a
 }
 ```
 
-See [```Callbacks.MarketUpdateCallback```](/content/sdk/lib-connection?id=callbacksmarketupdatecallback) for a formal description of he callback.
+See [```Callbacks.MarketUpdateCallback```](/content/sdk/lib-connection?id=callbacksmarketupdatecallback) for a formal description of the callback.
 
 #### State Tracking
 
@@ -204,7 +204,7 @@ Each ```MarketDepthLevel``` has a *price* and a *size* property, as follows:
 	}
 ```
 
-See [```Callbacks.MarketDepthCallback```](/content/sdk/lib-connection?id=callbacksmarketdepthcallback) for a formal description of he callback.
+See [```Callbacks.MarketDepthCallback```](/content/sdk/lib-connection?id=callbacksmarketdepthcallback) for a formal description of the callback.
 
 #### Examples
 
@@ -251,7 +251,7 @@ The **volume** property is a ```Number``` that indicates the current aggregate v
 
 The **container** property is an instance of the [```lib/marketState/CumulativeVolume```](/content/sdk/lib-marketstate?id=cumulativevolume) class. It tracks the current volume traded for all price levels.
 
-See [```Callbacks.CumulativeVolumeCallback```](/content/sdk/lib-connection?id=callbackscumulativevolumecallback) for a formal description of he callback.
+See [```Callbacks.CumulativeVolumeCallback```](/content/sdk/lib-connection?id=callbackscumulativevolumecallback) for a formal description of the callback.
 
 #### Examples
 
