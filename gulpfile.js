@@ -89,7 +89,7 @@ function generateDocs(inputFiles = 'lib/**/*.js') {
 				if (output) {
 					sdkReference += prepareLinkForDocs(filePath);
 					sdkSidebar += prepareLinkForDocs(filePath, true);
-					fs.writeFileSync(path.resolve(sdkDir, `${filePath}.md`), output);
+					fs.writeFileSync(path.resolve(sdkDir, `${filePath.toLowerCase()}.md`), output);
 				}
 			});
 
