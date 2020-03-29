@@ -520,7 +520,7 @@ module.exports = (() => {
 
 
     toArray() {
-      const array = object.keysˆ(this._priceLevels).map(p => {
+      const array = object.keys(this._priceLevels).map(p => {
         const priceLevel = this._priceLevels[p];
         return {
           price: priceLevel.price,
