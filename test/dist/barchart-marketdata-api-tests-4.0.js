@@ -2,10 +2,11 @@
 module.exports = (() => {
   'use strict';
   /**
-   * An interface for writing log messages.
+   * An interface for writing log messages. An implementation of this
+   * class is returned by {@link LoggerProvider.getLogger}.
    *
    * @public
-   * @interface
+   * @abstract
    */
 
   class Logger {
@@ -14,6 +15,8 @@ module.exports = (() => {
      * Writes a log message.
      *
      * @public
+     * @abstract
+     * @param {...Schema.Loggable}
      */
 
 
@@ -21,9 +24,11 @@ module.exports = (() => {
       return;
     }
     /**
-     * Writes a log message, at "trace" level.
+     * Writes a log message at "trace" level.
      *
      * @public
+     * @abstract
+     * @param {...Schema.Loggable}
      */
 
 
@@ -31,9 +36,11 @@ module.exports = (() => {
       return;
     }
     /**
-     * Writes a log message, at "debug" level.
+     * Writes a log message at "debug" level.
      *
      * @public
+     * @abstract
+     * @param {...Schema.Loggable}
      */
 
 
@@ -41,9 +48,11 @@ module.exports = (() => {
       return;
     }
     /**
-     * Writes a log message, at "info" level.
+     * Writes a log message at "info" level.
      *
      * @public
+     * @abstract
+     * @param {...Schema.Loggable}
      */
 
 
@@ -51,9 +60,11 @@ module.exports = (() => {
       return;
     }
     /**
-     * Writes a log message, at "warn" level.
+     * Writes a log message at "warn" level.
      *
      * @public
+     * @abstract
+     * @param {...Schema.Loggable}
      */
 
 
@@ -61,9 +72,11 @@ module.exports = (() => {
       return;
     }
     /**
-     * Writes a log message, at "error" level.
+     * Writes a log message at "error" level.
      *
      * @public
+     * @abstract
+     * @param {...Schema.Loggable}
      */
 
 
@@ -89,16 +102,15 @@ module.exports = (() => {
 
   let __provider = null;
   /**
-   * Static utilities for interacting with the log system.
+   * Container for static functions which control logging within the SDK.
    *
    * @public
-   * @interface
    */
 
   class LoggerFactory {
     constructor() {}
     /**
-     * Configures the library to write log messages to the console.
+     * Configures the SDK to write log messages to the console.
      *
      * @public
      * @static
@@ -109,7 +121,7 @@ module.exports = (() => {
       LoggerFactory.configure(new ConsoleLoggerProvider());
     }
     /**
-     * Configures the mute all log messages.
+     * Configures the SDK to mute all log messages.
      *
      * @public
      * @static
@@ -121,7 +133,7 @@ module.exports = (() => {
     }
     /**
      * Configures the library to delegate any log messages to a custom
-     * implementation of the {@link LoggerProvider} interface.
+     * implementation of the {@link LoggerProvider} class.
      *
      * @public
      * @static
@@ -140,7 +152,7 @@ module.exports = (() => {
      * @public
      * @static
      * @param {String} category
-     * @return {Logger}
+     * @returns {Logger}
      */
 
 
@@ -289,10 +301,12 @@ module.exports = (() => {
 module.exports = (() => {
   'use strict';
   /**
-   * An interface for generating {@link Logger} instances.
+   * A contract for generating {@link Logger} instances. For custom logging
+   * the SDK consumer should implement this class and pass it to the
+   * {@link LoggerFactory.configure} function.
    *
    * @public
-   * @interface
+   * @abstract
    */
 
   class LoggerProvider {
@@ -333,16 +347,9 @@ module.exports = (() => {
     reset: 'reset'
   };
   /**
-   * @typedef PriceLevel
-   * @inner
-   * @type Object
-   * @property {number} price
-   * @property {number} volume
-   */
-
-  /**
    * An aggregation of the total volume traded at each price level for a
-   * single instrument.
+   * single instrument, mutates as **CumulativeVolume** subscription updates
+   * are processed (see {@link Enums.SubscriptionType}).
    *
    * @public
    */
@@ -350,7 +357,9 @@ module.exports = (() => {
   class CumulativeVolume {
     constructor(symbol, tickIncrement) {
       /**
-       * @property {string} symbol
+       * @property {string} symbol - Symbol of the cumulative volume.
+       * @public
+       * @readonly
        */
       this.symbol = symbol;
       this._tickIncrement = tickIncrement;
@@ -506,12 +515,12 @@ module.exports = (() => {
      * Returns an array of all price levels. This is an expensive operation. Observing
      * an ongoing subscription is preferred (see {@link Connection#on}).
      *
-     * @return {PriceLevel[]}
+     * @returns {Schema.VolumeLevel[]}
      */
 
 
     toArray() {
-      const array = object.keys(this._priceLevels).map(p => {
+      const array = object.keysˆ(this._priceLevels).map(p => {
         const priceLevel = this._priceLevels[p];
         return {
           price: priceLevel.price,
@@ -537,7 +546,7 @@ module.exports = (() => {
      * @ignore
      * @param {string} symbol - The symbol to assign to the cloned instance.
      * @param {CumulativeVolume} source - The instance to copy.
-     * @return {CumulativeVolume}
+     * @returns {CumulativeVolume}
      */
 
 
@@ -596,80 +605,88 @@ module.exports = (() => {
   let profiles = {};
   let formatter = buildPriceFormatter('-', true, ',');
   /**
-   * Describes an instrument.
+   * Describes an instrument (associated with a unique symbol).
    *
    * @public
-   * @param {string} symbol
-   * @param {name} name
-   * @param {string} exchangeId
-   * @param {string} unitCode
-   * @param {string} pointValue
-   * @param {number} tickIncrement
-   * @param {Exchange=} exchange
-   * @param {Object=} additional
    */
 
   class Profile {
     constructor(symbol, name, exchangeId, unitCode, pointValue, tickIncrement, exchange, additional) {
       /**
-       * @property {string} symbol - the symbol of the instrument.
+       * @property {string} symbol - Symbol of the instrument.
+       * @public
+       * @readonly
        */
       this.symbol = symbol;
       /**
-       * @property {string} name - the name of the instrument.
+       * @property {string} name - Name of the instrument.
+       * @public
+       * @readonly
        */
 
       this.name = name;
       /**
-       * @property {string} exchange - code of the listing exchange.
+       * @property {string} exchange - Code for the listing exchange.
+       * @public
+       * @readonly
        */
 
       this.exchange = exchangeId;
       /**
-       * @property {string} unitCode - code indicating how a prices for the instrument should be formatted.
+       * @property {Exchange|null} exchangeRef - The {@link Exchange}.
+       * @public
+       * @readonly
+       */
+
+      this.exchangeRef = exchange || null;
+      /**
+       * @property {string} unitCode - Code indicating how a prices should be formatted.
+       * @public
+       * @readonly
        */
 
       this.unitCode = unitCode;
       /**
-       * @property {string} pointValue - the change in value for a one point change in price.
+       * @property {string} pointValue - The change in value for a one point change in price.
+       * @public
+       * @readonly
        */
 
       this.pointValue = pointValue;
       /**
-       * @property {number} tickIncrement - the minimum price movement.
+       * @property {number} tickIncrement - The minimum price movement.
+       * @public
+       * @readonly
        */
 
       this.tickIncrement = tickIncrement;
-      /**
-       * @property {Exchange|null} exchangeRef
-       */
-
-      this.exchangeRef = exchange || null;
       const info = SymbolParser.parseInstrumentType(this.symbol);
 
       if (info) {
         if (info.type === 'future') {
           /**
-           * @property {string|undefined} root - the root symbol, if a future; otherwise undefined.
+           * @property {string|undefined} root - Root symbol (futures only).
+           * @public
+           * @readonly
            */
           this.root = info.root;
           /**
-           * @property {string|undefined} month - the month code, if a future; otherwise undefined.
+           * @property {string|undefined} month - Month code (futures only).
            */
 
           this.month = info.month;
           /**
-           * @property {undefined|number} year - the expiration year, if a future; otherwise undefined.
+           * @property {number|undefined} year - Expiration year (futures only).
            */
 
           this.year = info.year;
           /**
-           * @property {string|undefined} expiration - the expiration date, as a string, formatted YYYY-MM-DD.
+           * @property {string|undefined} expiration - Expiration date, formatted as YYYY-MM-DD (futures only).
            */
 
           this.expiration = null;
           /**
-           * @property {string|undefined} expiration - the first notice date, as a string, formatted YYYY-MM-DD.
+           * @property {string|undefined} expiration - First notice date, formatted as YYYY-MM-DD (futures only).
            */
 
           this.firstNotice = null;
@@ -685,7 +702,7 @@ module.exports = (() => {
       profiles[symbol] = this;
     }
     /**
-     * Given a numeric price, returns a human-readable price.
+     * Given a price, returns a the human-readable string representation.
      *
      * @public
      * @param {number} price
@@ -712,8 +729,10 @@ module.exports = (() => {
     /**
      * Alias for {@link Profile.setPriceFormatter} function.
      *
-     * @deprecated
      * @public
+     * @static
+     * @ignore
+     * @deprecated
      * @see {@link Profile.setPriceFormatter}
      */
 
@@ -744,14 +763,16 @@ module.exports = (() => {
 module.exports = (() => {
   'use strict';
   /**
-   * Converts a base code into a unit code.
+   * Converts a Barchart "base" code into a Barchart "unit" code.
    *
    * @function
+   * @memberOf Convert
+   * @ignore
    * @param {Number} baseCode
-   * @return {String}
+   * @returns {String}
    */
 
-  function convertBaseCodeToUnitCode(baseCode) {
+  function baseCodeToUnitCode(baseCode) {
     switch (baseCode) {
       case -1:
         return '2';
@@ -800,7 +821,7 @@ module.exports = (() => {
     }
   }
 
-  return convertBaseCodeToUnitCode;
+  return baseCodeToUnitCode;
 })();
 
 },{}],7:[function(require,module,exports){
@@ -813,11 +834,13 @@ module.exports = (() => {
    * and returns the day code for the day of the month.
    *
    * @function
+   * @memberOf Convert
+   * @ignore
    * @param {Date} date
    * @returns {String|null}
    */
 
-  function convertDateToDayCode(date) {
+  function dateToDayCode(date) {
     if (date === null || date === undefined) {
       return null;
     }
@@ -825,7 +848,7 @@ module.exports = (() => {
     return convertNumberToDayCode(date.getDate());
   }
 
-  return convertDateToDayCode;
+  return dateToDayCode;
 })();
 
 },{"./numberToDayCode":9}],8:[function(require,module,exports){
@@ -837,6 +860,8 @@ module.exports = (() => {
    * Converts a day code (e.g. "A" ) to a day number (e.g. 11).
    *
    * @function
+   * @memberOf Convert
+   * @ignore
    * @param {String} dayCode
    * @returns {Number|null}
    */
@@ -870,15 +895,17 @@ module.exports = (() => {
   const ASCII_A = 'A'.charCodeAt(0);
   /**
    * Converts a day number to a single character day code (e.g. 1 is
-   * converted to "1" and 10 is converted to "0" and 11 is converted
+   * converted to "1", and 10 is converted to "0", and 11 is converted
    * to "A").
    *
    * @function
+   * @memberOf Convert
+   * @ignore
    * @param {Number} d
    * @returns {String}
    */
 
-  function convertNumberToDayCode(d) {
+  function numberToDayCode(d) {
     if (!is.integer(d)) {
       return null;
     }
@@ -892,7 +919,7 @@ module.exports = (() => {
     }
   }
 
-  return convertNumberToDayCode;
+  return numberToDayCode;
 })();
 
 },{"@barchart/common-js/lang/is":29}],10:[function(require,module,exports){
@@ -905,12 +932,14 @@ module.exports = (() => {
    * Converts a unit code into a base code.
    *
    * @function
+   * @memberOf Convert
+   * @ignore
    * @param {String} value
    * @param {String} unitcode
-   * @return {Number}
+   * @returns {Number}
    */
 
-  function convertStringToDecimal(value, unitcode) {
+  function stringToDecimal(value, unitcode) {
     let baseCode = convertUnitCodeToBaseCode(unitcode);
     let is_negative = false;
 
@@ -949,21 +978,23 @@ module.exports = (() => {
     }
   }
 
-  return convertStringToDecimal;
+  return stringToDecimal;
 })();
 
 },{"./unitCodeToBaseCode":11}],11:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
-   * Converts a unit code into a base code.
+   * Converts a Barchart "unit" code into a Barchart "base" code.
    *
    * @function
+   * @memberOf Convert
+   * @ignore
    * @param {String} unitCode
-   * @return {Number}
+   * @returns {Number}
    */
 
-  function convertUnitCodeToBaseCode(unitCode) {
+  function unitCodeToBaseCode(unitCode) {
     switch (unitCode) {
       case '2':
         return -1;
@@ -1012,7 +1043,7 @@ module.exports = (() => {
     }
   }
 
-  return convertUnitCodeToBaseCode;
+  return unitCodeToBaseCode;
 })();
 
 },{}],12:[function(require,module,exports){
@@ -2592,6 +2623,7 @@ module.exports = (() => {
    * Static utilities for parsing symbols.
    *
    * @public
+   * @ignore
    */
 
 
@@ -2629,7 +2661,7 @@ module.exports = (() => {
      * @public
      * @static
      * @param {String} symbol
-     * @return {String|null}
+     * @returns {String|null}
      */
 
 
@@ -2948,6 +2980,7 @@ module.exports = (() => {
      * item's value. If no matching item can be found, a null value is returned.
      *
      * @public
+     * @static
      * @param {Function} type - The enumeration type.
      * @param {String} code - The enumeration item's code.
      * @returns {*|null}
@@ -2961,6 +2994,7 @@ module.exports = (() => {
      * Returns all of the enumeration's items (given an enumeration type).
      *
      * @public
+     * @static
      * @param {Function} type - The enumeration to list.
      * @returns {Array}
      */
