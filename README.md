@@ -12,9 +12,9 @@
 
 Complete documentation for this SDK can be found here: http://barchart.github.io/marketdata-api-js/
 
-### Examples
+### Demos
 
-Working examples are available for web browser and Node.js environments. Please refer to the [documentation](http://barchart.github.io/marketdata-api-js/).
+Working demos are available for web browser and Node.js environments. Please refer to the [documentation](http://barchart.github.io/marketdata-api-js/).
 
 ### Package Managers
 
