@@ -1,6 +1,6 @@
 ## Fundamentals
 
-The [```lib/connection/Connection```](/content/sdk/connection?id=connection) class is central to the SDK's object model. It allows you to:
+The [```lib/connection/Connection```](/content/sdk/lib-connection?id=connection) class is central to the SDK's object model. It allows you to:
 
 * Open and close WebSocket connections to Barchart's servers,
 * Subscribe and unsubscribe from market data streams,

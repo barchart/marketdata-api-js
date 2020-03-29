@@ -133,7 +133,7 @@ See [```Callbacks.MarketUpdateCallback```](/content/sdk/lib-connection?id=callba
 
 #### State Tracking
 
-In addition to providing your callback with market updates, the SDK independently maintains state for each symbol using instances of the [```lib/marketState/Quote```](/content/sdk/lib-connection?id=connection) class. The SDK followed these steps:
+In addition to providing your callback with market updates, the SDK independently maintains state for each symbol using instances of the [```lib/marketState/Quote```](/content/sdk/lib-marketstate?id=quote) class. The SDK followed these steps:
 
 1. Level I market data event is received from server.
 2. Level I market data event is parsed, producing a market update ```Object```.
