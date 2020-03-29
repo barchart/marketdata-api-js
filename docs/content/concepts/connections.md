@@ -29,7 +29,7 @@ connection.on(SubscriptionType.Events, eventsHandler);
 
 ## Opening
 
-Calling ```Connection.connect``` opens a connection. The function requires that you specify a hostname for Barchart's servers and credentials.
+Calling ```Connection.connect``` opens a connection. The function requires a hostname for Barchart's servers and credentials.
 
 **Contact Barchart at solutions@barchart.com or (866) 333-7587 to obtain the correct hostname and a free username/password.**
 
