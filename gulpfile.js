@@ -76,8 +76,6 @@ function generateDocs(inputFiles = 'lib/**/*.js') {
 
 			const keys = Object.keys(templateGroups.dataByPath).sort();
 			keys.forEach((filePath) => {
-				console.log(filePath);
-
 				const data = templateGroups.dataByPath[filePath];
 
 				const output = jsdoc2md.renderSync({

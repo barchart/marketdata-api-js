@@ -4,4 +4,4 @@
 * [lib/logging](/content/sdk/lib-logging)
 * [lib/marketState](/content/sdk/lib-marketstate)
 * [lib/utilities/data](/content/sdk/lib-utilities-data)
-* [lib/utilities/parsers](/content/sdk/lib-utilities-parsers)
+* [lib/utilities/format](/content/sdk/lib-utilities-format)

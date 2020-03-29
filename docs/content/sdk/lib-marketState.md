@@ -195,7 +195,7 @@ function.
 
 
 * [MarketState](#MarketState)
-    * [.getProfile(symbol, [callback])](#MarketStategetProfile) ⇒ [<code>Promise.&lt;Profile&gt;</code>](#Profile)
+    * [.getProfile(symbol, [callback])](#MarketStategetProfile) ⇒ <code>Promise.&lt;(Profile\|null)&gt;</code>
     * [.getQuote(symbol)](#MarketStategetQuote) ⇒ [<code>Quote</code>](#Quote) \| <code>undefined</code>
     * [.getBook(symbol)](#MarketStategetBook) ⇒ [<code>Book</code>](#SchemaBook) \| <code>undefined</code>
     * [.getCumulativeVolume(symbol, [callback])](#MarketStategetCumulativeVolume) ⇒ [<code>Promise.&lt;CumulativeVolume&gt;</code>](#CumulativeVolume)
@@ -206,7 +206,7 @@ function.
 
 ### marketState.getProfile(symbol, [callback]) :id=marketstategetprofile
 **Kind**: instance method of [<code>MarketState</code>](#MarketState)  
-**Returns**: [<code>Promise.&lt;Profile&gt;</code>](#Profile)  
+**Returns**: <code>Promise.&lt;(Profile\|null)&gt;</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
 **File**: /lib/marketState/MarketState.js  
