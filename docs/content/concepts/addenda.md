@@ -42,8 +42,5 @@ You can find an example in the Node.js sample script. You'll see a ```LoggingPro
 
 ## Utilities
 
-This SDK also contains a number of "pure" utility functions.
-
-Please browse the *utilities* section of SDK Reference for more information.
-
+This SDK also contains a number of "pure" utility functions. typically, these functions are used to format values for display. Many of the functions are undocumented because the average SDK user will not require them. Browse the source code in */lib/utilities/* if you're curious.
 
