@@ -81,7 +81,7 @@ The callback should expect a JavaScript ```Object``` with a single ```String``` 
 }
 ```
 
-See [```lib/connection/ConnectionEventType```](/content/sdk/lib-connection?id=enumsconnectioneventtype) for a listing of possible values for the *event* property and [```Callbacks.EventsCallback```](/content/sdk/lib-connection?id=callbackseventscallback) for a formal description of the callback
+See [```lib/connection/ConnectionEventType```](/content/sdk/lib-connection?id=enumsconnectioneventtype) for a listing of possible values for the *event* property and [```Callbacks.EventsCallback```](/content/sdk/lib-connection?id=callbackseventscallback) for a formal description of the callback.
 
 #### Example
 
