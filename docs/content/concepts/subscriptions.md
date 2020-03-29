@@ -4,7 +4,7 @@
 
 The ```Connection.on``` function is used to establish new subscriptions. Conversely, the ```Connection.off``` function is used to stop existing subscriptions.
 
-The ```Connection.on``` requires a *subscription type*, a *callback*, and in some cases, and a *symbol*. Here's the function signature:
+The ```Connection.on``` function requires a *subscription type*, a *callback*, and in some cases, and a *symbol*. Here's the function signature:
 
 ```js
 connection.on(subscriptionType, handler, symbol);
