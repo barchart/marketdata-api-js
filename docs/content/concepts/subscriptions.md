@@ -10,7 +10,7 @@ The ```Connection.on``` requires a subscription type, a callback, and in some ca
 connection.on(subscriptionType, handler, symbol);
 ```
 
-The function signature for ```Connection.off``` is the same. It requires that you store and pass the *same* function reference used to establish the original subscription. Here is the function's signature:
+The function signature of ```Connection.off``` is identical. It requires that you store and pass the *same* function reference used to establish the original subscription. Here is the function's signature:
 
 ```js
 connection.off(subscriptionType, handler, symbol);
