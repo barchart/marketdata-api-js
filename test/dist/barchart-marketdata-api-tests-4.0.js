@@ -766,13 +766,13 @@ module.exports = (() => {
    * Converts a Barchart "base" code into a Barchart "unit" code.
    *
    * @function
-   * @memberOf Convert
+   * @memberOf Functions
    * @ignore
    * @param {Number} baseCode
    * @returns {String}
    */
 
-  function baseCodeToUnitCode(baseCode) {
+  function convertBaseCodeToUnitCode(baseCode) {
     switch (baseCode) {
       case -1:
         return '2';
@@ -821,7 +821,7 @@ module.exports = (() => {
     }
   }
 
-  return baseCodeToUnitCode;
+  return convertBaseCodeToUnitCode;
 })();
 
 },{}],7:[function(require,module,exports){
@@ -834,13 +834,13 @@ module.exports = (() => {
    * and returns the day code for the day of the month.
    *
    * @function
-   * @memberOf Convert
+   * @memberOf Functions
    * @ignore
    * @param {Date} date
    * @returns {String|null}
    */
 
-  function dateToDayCode(date) {
+  function convertDateToDayCode(date) {
     if (date === null || date === undefined) {
       return null;
     }
@@ -848,7 +848,7 @@ module.exports = (() => {
     return convertNumberToDayCode(date.getDate());
   }
 
-  return dateToDayCode;
+  return convertDateToDayCode;
 })();
 
 },{"./numberToDayCode":9}],8:[function(require,module,exports){
@@ -860,7 +860,7 @@ module.exports = (() => {
    * Converts a day code (e.g. "A" ) to a day number (e.g. 11).
    *
    * @function
-   * @memberOf Convert
+   * @memberOf Functions
    * @ignore
    * @param {String} dayCode
    * @returns {Number|null}
@@ -899,13 +899,13 @@ module.exports = (() => {
    * to "A").
    *
    * @function
-   * @memberOf Convert
+   * @memberOf Functions
    * @ignore
    * @param {Number} d
    * @returns {String}
    */
 
-  function numberToDayCode(d) {
+  function convertNumberToDayCode(d) {
     if (!is.integer(d)) {
       return null;
     }
@@ -919,7 +919,7 @@ module.exports = (() => {
     }
   }
 
-  return numberToDayCode;
+  return convertNumberToDayCode;
 })();
 
 },{"@barchart/common-js/lang/is":29}],10:[function(require,module,exports){
@@ -932,14 +932,14 @@ module.exports = (() => {
    * Converts a unit code into a base code.
    *
    * @function
-   * @memberOf Convert
+   * @memberOf Functions
    * @ignore
    * @param {String} value
    * @param {String} unitcode
    * @returns {Number}
    */
 
-  function stringToDecimal(value, unitcode) {
+  function convertStringToDecimal(value, unitcode) {
     let baseCode = convertUnitCodeToBaseCode(unitcode);
     let is_negative = false;
 
@@ -978,7 +978,7 @@ module.exports = (() => {
     }
   }
 
-  return stringToDecimal;
+  return convertStringToDecimal;
 })();
 
 },{"./unitCodeToBaseCode":11}],11:[function(require,module,exports){
@@ -988,13 +988,13 @@ module.exports = (() => {
    * Converts a Barchart "unit" code into a Barchart "base" code.
    *
    * @function
-   * @memberOf Convert
+   * @memberOf Functions
    * @ignore
    * @param {String} unitCode
    * @returns {Number}
    */
 
-  function unitCodeToBaseCode(unitCode) {
+  function convertUnitCodeToBaseCode(unitCode) {
     switch (unitCode) {
       case '2':
         return -1;
@@ -1043,7 +1043,7 @@ module.exports = (() => {
     }
   }
 
-  return unitCodeToBaseCode;
+  return convertUnitCodeToBaseCode;
 })();
 
 },{}],12:[function(require,module,exports){
@@ -15995,11 +15995,11 @@ describe('When getting a producer symbol', () => {
   it('ZWK465C should map to ZWK465C', () => {
     expect(SymbolParser.getProducerSymbol('ZWK465C')).toEqual('ZWK465C');
   });
-  it('ZWK19465C should map to ZWK465C', () => {
-    expect(SymbolParser.getProducerSymbol('ZWK19465C')).toEqual('ZWK465C');
+  it('ZWK29465C should map to ZWK465L', () => {
+    expect(SymbolParser.getProducerSymbol('ZWK29465C')).toEqual('ZWK465L');
   });
-  it('ZWK0|465P should map to ZWK465Q', () => {
-    expect(SymbolParser.getProducerSymbol('ZWK0|465P')).toEqual('ZWK465Q');
+  it('ZWK9|465P should map to ZWK465Y', () => {
+    expect(SymbolParser.getProducerSymbol('ZWK9|465P')).toEqual('ZWK465Y');
   });
   it('BZ6N8|25C should map to BZ6N8|25C', () => {
     expect(SymbolParser.getProducerSymbol('BZ6N8|25C')).toEqual('BZ6N8|25C');
