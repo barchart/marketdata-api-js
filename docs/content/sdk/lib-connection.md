@@ -20,27 +20,27 @@ state. The SDK consumer should use one instance at a time.
 
 
 * [Connection](#Connection) ⇐ <code>ConnectionBase</code>
-    * [.connect(server, username, password, [webSocketAdapterFactory])](#ConnectionBaseconnect)
-    * [.disconnect()](#ConnectionBasedisconnect)
-    * [.on(subscriptionType, callback, [symbol])](#ConnectionBaseon)
-    * [.off(subscriptionType, callback, [symbol])](#ConnectionBaseoff)
-    * [.pause()](#ConnectionBasepause)
-    * [.resume()](#ConnectionBaseresume)
-    * [.setPollingFrequency(pollingFrequency)](#ConnectionBasesetPollingFrequency)
-    * [.getPollingFrequency()](#ConnectionBasegetPollingFrequency) ⇒ <code>number</code> \| <code>null</code>
-    * [.setExtendedProfileMode(mode)](#ConnectionBasesetExtendedProfileMode)
-    * [.getExtendedProfileMode()](#ConnectionBasegetExtendedProfileMode) ⇒ <code>boolean</code>
-    * [.getMarketState()](#ConnectionBasegetMarketState) ⇒ <code>MarketState</code>
-    * [.getServer()](#ConnectionBasegetServer) ⇒ <code>null</code> \| <code>string</code>
-    * [.getPassword()](#ConnectionBasegetPassword) ⇒ <code>null</code> \| <code>string</code>
-    * [.getUsername()](#ConnectionBasegetUsername) ⇒ <code>null</code> \| <code>string</code>
+    * [.connect(server, username, password, [webSocketAdapterFactory])](#Connectionconnect)
+    * [.disconnect()](#Connectiondisconnect)
+    * [.on(subscriptionType, callback, [symbol])](#Connectionon)
+    * [.off(subscriptionType, callback, [symbol])](#Connectionoff)
+    * [.pause()](#Connectionpause)
+    * [.resume()](#Connectionresume)
+    * [.setPollingFrequency(pollingFrequency)](#ConnectionsetPollingFrequency)
+    * [.getPollingFrequency()](#ConnectiongetPollingFrequency) ⇒ <code>number</code> \| <code>null</code>
+    * [.setExtendedProfileMode(mode)](#ConnectionsetExtendedProfileMode)
+    * [.getExtendedProfileMode()](#ConnectiongetExtendedProfileMode) ⇒ <code>boolean</code>
+    * [.getMarketState()](#ConnectiongetMarketState) ⇒ <code>MarketState</code>
+    * [.getServer()](#ConnectiongetServer) ⇒ <code>null</code> \| <code>string</code>
+    * [.getPassword()](#ConnectiongetPassword) ⇒ <code>null</code> \| <code>string</code>
+    * [.getUsername()](#ConnectiongetUsername) ⇒ <code>null</code> \| <code>string</code>
 
 
 * * *
 
 ### connection.connect(server, username, password, [webSocketAdapterFactory]) :id=connectionconnect
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>connect</code>](#ConnectionBaseconnect)  
+**Kind**: instance method of <code>Connection</code>  
+**Overrides**: <code>ConnectionBase#connect</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
 **File**: /lib/connection/ConnectionBase.js  
@@ -60,8 +60,8 @@ or failure is reported asynchronously by the **Events** subscription (see
 * * *
 
 ### connection.disconnect() :id=connectiondisconnect
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>disconnect</code>](#ConnectionBasedisconnect)  
+**Kind**: instance method of <code>Connection</code>  
+**Overrides**: <code>ConnectionBase#disconnect</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
 **File**: /lib/connection/ConnectionBase.js  
@@ -71,8 +71,8 @@ or failure is reported asynchronously by the **Events** subscription (see
 * * *
 
 ### connection.on(subscriptionType, callback, [symbol]) :id=connectionon
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>on</code>](#ConnectionBaseon)  
+**Kind**: instance method of <code>Connection</code>  
+**Overrides**: <code>ConnectionBase#on</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
 **File**: /lib/connection/ConnectionBase.js  
@@ -89,8 +89,8 @@ or failure is reported asynchronously by the **Events** subscription (see
 * * *
 
 ### connection.off(subscriptionType, callback, [symbol]) :id=connectionoff
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>off</code>](#ConnectionBaseoff)  
+**Kind**: instance method of <code>Connection</code>  
+**Overrides**: <code>ConnectionBase#off</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
 **File**: /lib/connection/ConnectionBase.js  
@@ -98,17 +98,17 @@ or failure is reported asynchronously by the **Events** subscription (see
 | Param | Type | Description |
 | --- | --- | --- |
 | subscriptionType | [<code>SubscriptionType</code>](#EnumsSubscriptionType) | The type of subscription |
-| callback | [<code>MarketDepthCallback</code>](#CallbacksMarketDepthCallback) \| [<code>MarketUpdateCallback</code>](#CallbacksMarketUpdateCallback) \| [<code>CumulativeVolumeCallback</code>](#CallbacksCumulativeVolumeCallback) \| [<code>TimestampCallback</code>](#CallbacksTimestampCallback) \| [<code>EventsCallback</code>](#CallbacksEventsCallback) | The **same** function which was passed to [on](#ConnectionBaseon) |
+| callback | [<code>MarketDepthCallback</code>](#CallbacksMarketDepthCallback) \| [<code>MarketUpdateCallback</code>](#CallbacksMarketUpdateCallback) \| [<code>CumulativeVolumeCallback</code>](#CallbacksCumulativeVolumeCallback) \| [<code>TimestampCallback</code>](#CallbacksTimestampCallback) \| [<code>EventsCallback</code>](#CallbacksEventsCallback) | The **same** function which was passed to [ConnectionBase#on](/content/sdk/lib-connection?id=connectionbaseon) |
 | [symbol] | <code>String</code> | The symbol (only applicable for market data subscriptions) |
 
->Drops a subscription (see [on](#ConnectionBaseon)).
+>Drops a subscription (see [ConnectionBase#on](/content/sdk/lib-connection?id=connectionbaseon)).
 
 
 * * *
 
 ### connection.pause() :id=connectionpause
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>pause</code>](#ConnectionBasepause)  
+**Kind**: instance method of <code>Connection</code>  
+**Overrides**: <code>ConnectionBase#pause</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
 **File**: /lib/connection/ConnectionBase.js  
@@ -119,8 +119,8 @@ however, callbacks will cease to be invoked.
 * * *
 
 ### connection.resume() :id=connectionresume
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>resume</code>](#ConnectionBaseresume)  
+**Kind**: instance method of <code>Connection</code>  
+**Overrides**: <code>ConnectionBase#resume</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
 **File**: /lib/connection/ConnectionBase.js  
@@ -131,8 +131,8 @@ again be invoked.
 * * *
 
 ### connection.setPollingFrequency(pollingFrequency) :id=connectionsetpollingfrequency
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>setPollingFrequency</code>](#ConnectionBasesetPollingFrequency)  
+**Kind**: instance method of <code>Connection</code>  
+**Overrides**: <code>ConnectionBase#setPollingFrequency</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
 **File**: /lib/connection/ConnectionBase.js  
@@ -151,8 +151,8 @@ value will cause to SDK to resume normal operation.
 * * *
 
 ### connection.getPollingFrequency() :id=connectiongetpollingfrequency
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>getPollingFrequency</code>](#ConnectionBasegetPollingFrequency)  
+**Kind**: instance method of <code>Connection</code>  
+**Overrides**: <code>ConnectionBase#getPollingFrequency</code>  
 **Returns**: <code>number</code> \| <code>null</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
@@ -167,8 +167,8 @@ a null value will be returned.
 * * *
 
 ### connection.setExtendedProfileMode(mode) :id=connectionsetextendedprofilemode
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>setExtendedProfileMode</code>](#ConnectionBasesetExtendedProfileMode)  
+**Kind**: instance method of <code>Connection</code>  
+**Overrides**: <code>ConnectionBase#setExtendedProfileMode</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
 **File**: /lib/connection/ConnectionBase.js  
@@ -186,8 +186,8 @@ out-of-band queries to Barchart services.
 * * *
 
 ### connection.getExtendedProfileMode() :id=connectiongetextendedprofilemode
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>getExtendedProfileMode</code>](#ConnectionBasegetExtendedProfileMode)  
+**Kind**: instance method of <code>Connection</code>  
+**Overrides**: <code>ConnectionBase#getExtendedProfileMode</code>  
 **Returns**: <code>boolean</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
@@ -199,8 +199,8 @@ expiration dates) should be loaded (via out-of-band queries).
 * * *
 
 ### connection.getMarketState() :id=connectiongetmarketstate
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>getMarketState</code>](#ConnectionBasegetMarketState)  
+**Kind**: instance method of <code>Connection</code>  
+**Overrides**: <code>ConnectionBase#getMarketState</code>  
 **Returns**: <code>MarketState</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
@@ -213,8 +213,8 @@ for any symbol subscribed symbol.
 * * *
 
 ### connection.getServer() :id=connectiongetserver
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>getServer</code>](#ConnectionBasegetServer)  
+**Kind**: instance method of <code>Connection</code>  
+**Overrides**: <code>ConnectionBase#getServer</code>  
 **Returns**: <code>null</code> \| <code>string</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
@@ -225,8 +225,8 @@ for any symbol subscribed symbol.
 * * *
 
 ### connection.getPassword() :id=connectiongetpassword
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>getPassword</code>](#ConnectionBasegetPassword)  
+**Kind**: instance method of <code>Connection</code>  
+**Overrides**: <code>ConnectionBase#getPassword</code>  
 **Returns**: <code>null</code> \| <code>string</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
@@ -237,8 +237,8 @@ for any symbol subscribed symbol.
 * * *
 
 ### connection.getUsername() :id=connectiongetusername
-**Kind**: instance method of [<code>Connection</code>](#Connection)  
-**Overrides**: [<code>getUsername</code>](#ConnectionBasegetUsername)  
+**Kind**: instance method of <code>Connection</code>  
+**Overrides**: <code>ConnectionBase#getUsername</code>  
 **Returns**: <code>null</code> \| <code>string</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
@@ -263,7 +263,7 @@ for any symbol subscribed symbol.
 * * *
 
 ### Enums.ConnectionEventType :id=enumsconnectioneventtype
-**Kind**: static enum of [<code>Enums</code>](#Enums)  
+**Kind**: static enum of <code>Enums</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/ConnectionEventType  
 **File**: /lib/connection/ConnectionEventType.js  
@@ -274,10 +274,10 @@ for any symbol subscribed symbol.
 | --- | --- | --- | --- |
 | LoginSuccess | <code>string</code> | <code>&quot;login success&quot;</code> | Remote server accepted your credentials |
 | LoginFail | <code>string</code> | <code>&quot;login fail&quot;</code> | Remote server rejected your credentials |
-| Disconnecting | <code>string</code> | <code>&quot;disconnecting&quot;</code> | Generated after [disconnect](#ConnectionBasedisconnect) is called |
+| Disconnecting | <code>string</code> | <code>&quot;disconnecting&quot;</code> | Generated after [disconnect](#Connectiondisconnect) is called |
 | Disconnect | <code>string</code> | <code>&quot;disconnect&quot;</code> | Connection to remote server lost |
-| FeedPaused | <code>string</code> | <code>&quot;feed paused&quot;</code> | Generated after [pause](#ConnectionBasepause) is called |
-| FeedResumed | <code>string</code> | <code>&quot;feed resumed&quot;</code> | Generated after [resume](#ConnectionBaseresume) is called |
+| FeedPaused | <code>string</code> | <code>&quot;feed paused&quot;</code> | Generated after [pause](#Connectionpause) is called |
+| FeedResumed | <code>string</code> | <code>&quot;feed resumed&quot;</code> | Generated after [resume](#Connectionresume) is called |
 
 >An enumeration of events which can occur during the life of a [Connection](/content/sdk/lib-connection?id=connection).
 
@@ -285,7 +285,7 @@ for any symbol subscribed symbol.
 * * *
 
 ### Enums.SubscriptionType :id=enumssubscriptiontype
-**Kind**: static enum of [<code>Enums</code>](#Enums)  
+**Kind**: static enum of <code>Enums</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/SubscriptionType  
 **File**: /lib/connection/SubscriptionType.js  
@@ -323,7 +323,7 @@ for any symbol subscribed symbol.
 * * *
 
 ### Callbacks.EventsCallback :id=callbackseventscallback
-**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Kind**: static typedef of <code>Callbacks</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/meta  
 **File**: /lib/connection/meta.js  
@@ -339,7 +339,7 @@ for any symbol subscribed symbol.
 * * *
 
 ### Callbacks.TimestampCallback :id=callbackstimestampcallback
-**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Kind**: static typedef of <code>Callbacks</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/meta  
 **File**: /lib/connection/meta.js  
@@ -355,7 +355,7 @@ for any symbol subscribed symbol.
 * * *
 
 ### Callbacks.MarketUpdateCallback :id=callbacksmarketupdatecallback
-**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Kind**: static typedef of <code>Callbacks</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/meta  
 **File**: /lib/connection/meta.js  
@@ -371,7 +371,7 @@ for any symbol subscribed symbol.
 * * *
 
 ### Callbacks.MarketDepthCallback :id=callbacksmarketdepthcallback
-**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Kind**: static typedef of <code>Callbacks</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/meta  
 **File**: /lib/connection/meta.js  
@@ -387,7 +387,7 @@ for any symbol subscribed symbol.
 * * *
 
 ### Callbacks.CumulativeVolumeCallback :id=callbackscumulativevolumecallback
-**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Kind**: static typedef of <code>Callbacks</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/meta  
 **File**: /lib/connection/meta.js  
@@ -420,7 +420,7 @@ for any symbol subscribed symbol.
 * * *
 
 ### Schema.EventsEvent :id=schemaeventsevent
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
+**Kind**: static typedef of <code>Schema</code>  
 **Import**: @barchart/marketdata-api-js/lib/connection/meta  
 **File**: /lib/connection/meta.js  
 **Properties**
@@ -435,7 +435,7 @@ for any symbol subscribed symbol.
 * * *
 
 ### Schema.MarketUpdateEvent :id=schemamarketupdateevent
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
+**Kind**: static typedef of <code>Schema</code>  
 **Import**: @barchart/marketdata-api-js/lib/connection/meta  
 **File**: /lib/connection/meta.js  
 **Properties**
@@ -453,7 +453,7 @@ change to the top of book, etc.
 * * *
 
 ### Schema.MarketDepthEvent :id=schemamarketdepthevent
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
+**Kind**: static typedef of <code>Schema</code>  
 **Import**: @barchart/marketdata-api-js/lib/connection/meta  
 **File**: /lib/connection/meta.js  
 **Properties**
@@ -472,7 +472,7 @@ every price.
 * * *
 
 ### Schema.MarketDepthLevel :id=schemamarketdepthlevel
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
+**Kind**: static typedef of <code>Schema</code>  
 **Import**: @barchart/marketdata-api-js/lib/connection/meta  
 **File**: /lib/connection/meta.js  
 **Properties**
@@ -489,7 +489,7 @@ every price.
 * * *
 
 ### Schema.CumulativeVolumeEvent :id=schemacumulativevolumeevent
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
+**Kind**: static typedef of <code>Schema</code>  
 **Import**: @barchart/marketdata-api-js/lib/connection/meta  
 **File**: /lib/connection/meta.js  
 **Properties**

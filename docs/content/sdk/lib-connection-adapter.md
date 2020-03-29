@@ -32,8 +32,8 @@ instances. It is unlikely that SDK consumers will need to implement this class.
 * * *
 
 ### webSocketAdapterFactory.build(host) :id=websocketadapterfactorybuild
-**Kind**: instance abstract method of [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  
-**Returns**: [<code>WebSocketAdapter</code>](#WebSocketAdapter)  
+**Kind**: instance abstract method of <code>WebSocketAdapterFactory</code>  
+**Returns**: <code>WebSocketAdapter</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactory  
 **File**: /lib/connection/adapter/WebSocketAdapterFactory.js  
@@ -49,7 +49,7 @@ instances. It is unlikely that SDK consumers will need to implement this class.
 
 ## WebSocketAdapterFactoryForBrowsers :id=websocketadapterfactoryforbrowsers
 **Kind**: global class  
-**Extends**: [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  
+**Extends**: <code>WebSocketAdapterFactory</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForBrowsers  
 **File**: /lib/connection/adapter/WebSocketAdapterFactoryForBrowsers.js  
@@ -60,9 +60,9 @@ this strategy is used by the [Connection](/content/sdk/lib-connection?id=connect
 * * *
 
 ### webSocketAdapterFactoryForBrowsers.build(host) :id=websocketadapterfactoryforbrowsersbuild
-**Kind**: instance method of [<code>WebSocketAdapterFactoryForBrowsers</code>](#WebSocketAdapterFactoryForBrowsers)  
+**Kind**: instance method of <code>WebSocketAdapterFactoryForBrowsers</code>  
 **Overrides**: [<code>build</code>](#WebSocketAdapterFactorybuild)  
-**Returns**: [<code>WebSocketAdapter</code>](#WebSocketAdapter)  
+**Returns**: <code>WebSocketAdapter</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForBrowsers  
 **File**: /lib/connection/adapter/WebSocketAdapterFactoryForBrowsers.js  
@@ -79,7 +79,7 @@ with a web browser.
 
 ## WebSocketAdapterFactoryForNode :id=websocketadapterfactoryfornode
 **Kind**: global class  
-**Extends**: [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  
+**Extends**: <code>WebSocketAdapterFactory</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForNode  
 **File**: /lib/connection/adapter/WebSocketAdapterFactoryForNode.js  
@@ -91,9 +91,9 @@ environment.
 * * *
 
 ### webSocketAdapterFactoryForNode.build(host) :id=websocketadapterfactoryfornodebuild
-**Kind**: instance method of [<code>WebSocketAdapterFactoryForNode</code>](#WebSocketAdapterFactoryForNode)  
+**Kind**: instance method of <code>WebSocketAdapterFactoryForNode</code>  
 **Overrides**: [<code>build</code>](#WebSocketAdapterFactorybuild)  
-**Returns**: [<code>WebSocketAdapter</code>](#WebSocketAdapter)  
+**Returns**: <code>WebSocketAdapter</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForNode  
 **File**: /lib/connection/adapter/WebSocketAdapterFactoryForNode.js  

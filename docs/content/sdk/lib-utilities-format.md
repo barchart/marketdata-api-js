@@ -17,7 +17,7 @@
 * * *
 
 ### Functions.formatDate([date], [utc]) :id=functionsformatdate
-**Kind**: static method of [<code>Functions</code>](#Functions)  
+**Kind**: static method of <code>Functions</code>  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/date  
 **File**: /lib/utilities/format/date.js  
@@ -33,7 +33,7 @@
 * * *
 
 ### Functions.formatDecimal(value, digits, [thousandsSeparator], [useParenthesis]) :id=functionsformatdecimal
-**Kind**: static method of [<code>Functions</code>](#Functions)  
+**Kind**: static method of <code>Functions</code>  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/decimal  
 **File**: /lib/utilities/format/decimal.js  
@@ -51,7 +51,7 @@
 * * *
 
 ### Functions.formatPrice(value, unitcode, [fractionSeparator], [specialFractions], [thousandsSeparator], [useParenthesis]) :id=functionsformatprice
-**Kind**: static method of [<code>Functions</code>](#Functions)  
+**Kind**: static method of <code>Functions</code>  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/price  
 **File**: /lib/utilities/format/price.js  
@@ -71,7 +71,7 @@
 * * *
 
 ### Functions.formatQuoteDateTime(quote, [useTwelveHourClock], [short], [timezone]) :id=functionsformatquotedatetime
-**Kind**: static method of [<code>Functions</code>](#Functions)  
+**Kind**: static method of <code>Functions</code>  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/quote  
 **File**: /lib/utilities/format/quote.js  
@@ -91,7 +91,7 @@ is returned. Otherwise, the formatted date is returned.
 * * *
 
 ### Functions.formatSymbol(symbol) :id=functionsformatsymbol
-**Kind**: static method of [<code>Functions</code>](#Functions)  
+**Kind**: static method of <code>Functions</code>  
 **Returns**: <code>String</code> \| <code>\*</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/symbol  
 **File**: /lib/utilities/format/symbol.js  
@@ -107,7 +107,7 @@ is passed, the argument is returned without modification.
 * * *
 
 ### Functions.formatTime(date, [timezone], [useTwelveHourClock], [short], [utc]) :id=functionsformattime
-**Kind**: static method of [<code>Functions</code>](#Functions)  
+**Kind**: static method of <code>Functions</code>  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/time  
 **File**: /lib/utilities/format/time.js  

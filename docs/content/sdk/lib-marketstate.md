@@ -31,7 +31,7 @@ are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enums
 * * *
 
 ### cumulativeVolume.symbol :id=cumulativevolumesymbol
-**Kind**: instance property of [<code>CumulativeVolume</code>](#CumulativeVolume)  
+**Kind**: instance property of <code>CumulativeVolume</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
 **File**: /lib/marketState/CumulativeVolume.js  
@@ -46,7 +46,7 @@ are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enums
 * * *
 
 ### cumulativeVolume.getVolume(price) :id=cumulativevolumegetvolume
-**Kind**: instance method of [<code>CumulativeVolume</code>](#CumulativeVolume)  
+**Kind**: instance method of <code>CumulativeVolume</code>  
 **Returns**: <code>number</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
@@ -62,7 +62,7 @@ are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enums
 * * *
 
 ### cumulativeVolume.toArray() :id=cumulativevolumetoarray
-**Kind**: instance method of [<code>CumulativeVolume</code>](#CumulativeVolume)  
+**Kind**: instance method of <code>CumulativeVolume</code>  
 **Returns**: [<code>Array.&lt;VolumeLevel&gt;</code>](#SchemaVolumeLevel)  
 **Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
 **File**: /lib/marketState/CumulativeVolume.js  
@@ -92,7 +92,7 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-conne
 * * *
 
 ### exchange.id :id=exchangeid
-**Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Kind**: instance property of <code>Exchange</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
 **File**: /lib/marketState/Exchange.js  
@@ -107,7 +107,7 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-conne
 * * *
 
 ### exchange.name :id=exchangename
-**Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Kind**: instance property of <code>Exchange</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
 **File**: /lib/marketState/Exchange.js  
@@ -122,7 +122,7 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-conne
 * * *
 
 ### exchange.timezoneDdf :id=exchangetimezoneddf
-**Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Kind**: instance property of <code>Exchange</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
 **File**: /lib/marketState/Exchange.js  
@@ -137,7 +137,7 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-conne
 * * *
 
 ### exchange.offsetDdf :id=exchangeoffsetddf
-**Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Kind**: instance property of <code>Exchange</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
 **File**: /lib/marketState/Exchange.js  
@@ -152,7 +152,7 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-conne
 * * *
 
 ### exchange.timezoneExchange :id=exchangetimezoneexchange
-**Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Kind**: instance property of <code>Exchange</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
 **File**: /lib/marketState/Exchange.js  
@@ -167,7 +167,7 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-conne
 * * *
 
 ### exchange.offsetExchange :id=exchangeoffsetexchange
-**Kind**: instance property of [<code>Exchange</code>](#Exchange)  
+**Kind**: instance property of <code>Exchange</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
 **File**: /lib/marketState/Exchange.js  
@@ -196,16 +196,16 @@ function.
 
 * [MarketState](#MarketState)
     * [.getProfile(symbol, [callback])](#MarketStategetProfile) ⇒ <code>Promise.&lt;(Profile\|null)&gt;</code>
-    * [.getQuote(symbol)](#MarketStategetQuote) ⇒ [<code>Quote</code>](#Quote) \| <code>undefined</code>
+    * [.getQuote(symbol)](#MarketStategetQuote) ⇒ <code>Quote</code> \| <code>undefined</code>
     * [.getBook(symbol)](#MarketStategetBook) ⇒ [<code>Book</code>](#SchemaBook) \| <code>undefined</code>
-    * [.getCumulativeVolume(symbol, [callback])](#MarketStategetCumulativeVolume) ⇒ [<code>Promise.&lt;CumulativeVolume&gt;</code>](#CumulativeVolume)
+    * [.getCumulativeVolume(symbol, [callback])](#MarketStategetCumulativeVolume) ⇒ <code>Promise.&lt;CumulativeVolume&gt;</code>
     * [.getTimestamp()](#MarketStategetTimestamp) ⇒ <code>Date</code>
 
 
 * * *
 
 ### marketState.getProfile(symbol, [callback]) :id=marketstategetprofile
-**Kind**: instance method of [<code>MarketState</code>](#MarketState)  
+**Kind**: instance method of <code>MarketState</code>  
 **Returns**: <code>Promise.&lt;(Profile\|null)&gt;</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
@@ -222,8 +222,8 @@ function.
 * * *
 
 ### marketState.getQuote(symbol) :id=marketstategetquote
-**Kind**: instance method of [<code>MarketState</code>](#MarketState)  
-**Returns**: [<code>Quote</code>](#Quote) \| <code>undefined</code>  
+**Kind**: instance method of <code>MarketState</code>  
+**Returns**: <code>Quote</code> \| <code>undefined</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
 **File**: /lib/marketState/MarketState.js  
@@ -240,7 +240,7 @@ subscription has been established for the symbol, an undefined value will be ret
 * * *
 
 ### marketState.getBook(symbol) :id=marketstategetbook
-**Kind**: instance method of [<code>MarketState</code>](#MarketState)  
+**Kind**: instance method of <code>MarketState</code>  
 **Returns**: [<code>Book</code>](#SchemaBook) \| <code>undefined</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
@@ -258,8 +258,8 @@ subscription has been established for the symbol, an undefined value will be ret
 * * *
 
 ### marketState.getCumulativeVolume(symbol, [callback]) :id=marketstategetcumulativevolume
-**Kind**: instance method of [<code>MarketState</code>](#MarketState)  
-**Returns**: [<code>Promise.&lt;CumulativeVolume&gt;</code>](#CumulativeVolume) - The [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) instance, as a promise  
+**Kind**: instance method of <code>MarketState</code>  
+**Returns**: <code>Promise.&lt;CumulativeVolume&gt;</code> - The [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) instance, as a promise  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
 **File**: /lib/marketState/MarketState.js  
@@ -277,7 +277,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### marketState.getTimestamp() :id=marketstategettimestamp
-**Kind**: instance method of [<code>MarketState</code>](#MarketState)  
+**Kind**: instance method of <code>MarketState</code>  
 **Returns**: <code>Date</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
@@ -317,7 +317,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### profile.symbol :id=profilesymbol
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Kind**: instance property of <code>Profile</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: /lib/marketState/Profile.js  
@@ -332,7 +332,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### profile.name :id=profilename
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Kind**: instance property of <code>Profile</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: /lib/marketState/Profile.js  
@@ -347,7 +347,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### profile.exchange :id=profileexchange
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Kind**: instance property of <code>Profile</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: /lib/marketState/Profile.js  
@@ -362,7 +362,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### profile.exchangeRef :id=profileexchangeref
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Kind**: instance property of <code>Profile</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: /lib/marketState/Profile.js  
@@ -371,13 +371,13 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 
 | Name | Type | Description |
 | --- | --- | --- |
-| exchangeRef | [<code>Exchange</code>](#Exchange) \| <code>null</code> | The [Exchange](/content/sdk/lib-marketstate?id=exchange). |
+| exchangeRef | <code>Exchange</code> \| <code>null</code> | The [Exchange](/content/sdk/lib-marketstate?id=exchange). |
 
 
 * * *
 
 ### profile.unitCode :id=profileunitcode
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Kind**: instance property of <code>Profile</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: /lib/marketState/Profile.js  
@@ -392,7 +392,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### profile.pointValue :id=profilepointvalue
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Kind**: instance property of <code>Profile</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: /lib/marketState/Profile.js  
@@ -407,7 +407,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### profile.tickIncrement :id=profiletickincrement
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Kind**: instance property of <code>Profile</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: /lib/marketState/Profile.js  
@@ -422,7 +422,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### profile.root :id=profileroot
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Kind**: instance property of <code>Profile</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: /lib/marketState/Profile.js  
@@ -437,7 +437,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### profile.month :id=profilemonth
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Kind**: instance property of <code>Profile</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: /lib/marketState/Profile.js  
 **Properties**
@@ -450,7 +450,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### profile.year :id=profileyear
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Kind**: instance property of <code>Profile</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: /lib/marketState/Profile.js  
 **Properties**
@@ -463,7 +463,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### profile.expiration :id=profileexpiration
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Kind**: instance property of <code>Profile</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: /lib/marketState/Profile.js  
 **Properties**
@@ -476,7 +476,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### profile.firstNotice :id=profilefirstnotice
-**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Kind**: instance property of <code>Profile</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: /lib/marketState/Profile.js  
 **Properties**
@@ -489,7 +489,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### profile.formatPrice(price) :id=profileformatprice
-**Kind**: instance method of [<code>Profile</code>](#Profile)  
+**Kind**: instance method of <code>Profile</code>  
 **Returns**: <code>string</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
@@ -505,7 +505,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### Profile.setPriceFormatter(fractionSeparator, specialFractions, [thousandsSeparator]) :id=profilesetpriceformatter
-**Kind**: static method of [<code>Profile</code>](#Profile)  
+**Kind**: static method of <code>Profile</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: /lib/marketState/Profile.js  
@@ -557,7 +557,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.symbol :id=quotesymbol
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
@@ -571,7 +571,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.message :id=quotemessage
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
@@ -585,7 +585,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.flag :id=quoteflag
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
@@ -599,7 +599,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.mode :id=quotemode
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
 **Properties**
@@ -612,7 +612,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.day :id=quoteday
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
@@ -626,7 +626,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.dayNum :id=quotedaynum
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
@@ -640,7 +640,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.session :id=quotesession
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
@@ -654,7 +654,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.lastUpdate :id=quotelastupdate
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
@@ -668,7 +668,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.lastUpdateUtc :id=quotelastupdateutc
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
 **Properties**
@@ -681,7 +681,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.bidPrice :id=quotebidprice
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
 **Properties**
@@ -694,7 +694,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.bidSize :id=quotebidsize
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
 **Properties**
@@ -707,7 +707,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.askPrice :id=quoteaskprice
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
 **Properties**
@@ -720,7 +720,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.askSize :id=quoteasksize
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
 **Properties**
@@ -733,7 +733,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.lastPrice :id=quotelastprice
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
 **Properties**
@@ -746,7 +746,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.tradePrice :id=quotetradeprice
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
 **Properties**
@@ -759,7 +759,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.tradeSize :id=quotetradesize
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
 **Properties**
@@ -772,7 +772,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.blockTrade :id=quoteblocktrade
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
 **Properties**
@@ -785,7 +785,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.settlementPrice :id=quotesettlementprice
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
 **Properties**
@@ -798,7 +798,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.previousPrice :id=quotepreviousprice
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
 **Properties**
@@ -811,7 +811,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.time :id=quotetime
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
 **Properties**
@@ -824,14 +824,14 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.profile :id=quoteprofile
-**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Kind**: instance property of <code>Quote</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| profile | [<code>Profile</code>](#Profile) \| <code>null</code> | metadata regarding the quoted instrument. |
+| profile | <code>Profile</code> \| <code>null</code> | metadata regarding the quoted instrument. |
 
 
 * * *
@@ -852,7 +852,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### Schema.Book :id=schemabook
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
+**Kind**: static typedef of <code>Schema</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/meta  
 **File**: /lib/marketState/meta.js  
 **Properties**
@@ -871,7 +871,7 @@ subscription (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumss
 * * *
 
 ### Schema.BookLevel :id=schemabooklevel
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
+**Kind**: static typedef of <code>Schema</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/meta  
 **File**: /lib/marketState/meta.js  
 **Properties**
@@ -888,7 +888,7 @@ subscription (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumss
 * * *
 
 ### Schema.VolumeLevel :id=schemavolumelevel
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
+**Kind**: static typedef of <code>Schema</code>  
 **Import**: @barchart/marketdata-api-js/lib/marketState/meta  
 **File**: /lib/marketState/meta.js  
 **Properties**

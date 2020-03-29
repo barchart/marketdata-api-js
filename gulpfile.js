@@ -67,7 +67,9 @@ function generateDocs(inputFiles = 'lib/**/*.js') {
 				}
 
 				templateGroups.dataByPath[filePath].push(identifier);
-				templateGroups.pathById[identifier.id] = preparePathForDocs(filePath).toLocaleLowerCase();
+				if (!identifier.ignore) {
+					templateGroups.pathById[identifier.id] = preparePathForDocs(filePath).toLocaleLowerCase();
+				}
 
 				return templateGroups;
 			}, {dataByPath: {}, pathById: {}});

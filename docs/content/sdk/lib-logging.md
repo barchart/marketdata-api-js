@@ -29,7 +29,7 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 * * *
 
 ### logger.log() :id=loggerlog
-**Kind**: instance abstract method of [<code>Logger</code>](#Logger)  
+**Kind**: instance abstract method of <code>Logger</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/logging/Logger  
 **File**: /lib/logging/Logger.js  
@@ -44,7 +44,7 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 * * *
 
 ### logger.trace() :id=loggertrace
-**Kind**: instance abstract method of [<code>Logger</code>](#Logger)  
+**Kind**: instance abstract method of <code>Logger</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/logging/Logger  
 **File**: /lib/logging/Logger.js  
@@ -59,7 +59,7 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 * * *
 
 ### logger.debug() :id=loggerdebug
-**Kind**: instance abstract method of [<code>Logger</code>](#Logger)  
+**Kind**: instance abstract method of <code>Logger</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/logging/Logger  
 **File**: /lib/logging/Logger.js  
@@ -74,7 +74,7 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 * * *
 
 ### logger.info() :id=loggerinfo
-**Kind**: instance abstract method of [<code>Logger</code>](#Logger)  
+**Kind**: instance abstract method of <code>Logger</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/logging/Logger  
 **File**: /lib/logging/Logger.js  
@@ -89,7 +89,7 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 * * *
 
 ### logger.warn() :id=loggerwarn
-**Kind**: instance abstract method of [<code>Logger</code>](#Logger)  
+**Kind**: instance abstract method of <code>Logger</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/logging/Logger  
 **File**: /lib/logging/Logger.js  
@@ -104,7 +104,7 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 * * *
 
 ### logger.error() :id=loggererror
-**Kind**: instance abstract method of [<code>Logger</code>](#Logger)  
+**Kind**: instance abstract method of <code>Logger</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/logging/Logger  
 **File**: /lib/logging/Logger.js  
@@ -130,13 +130,13 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
     * [.configureForConsole()](#LoggerFactoryconfigureForConsole)
     * [.configureForSilence()](#LoggerFactoryconfigureForSilence)
     * [.configure(provider)](#LoggerFactoryconfigure)
-    * [.getLogger(category)](#LoggerFactorygetLogger) ⇒ [<code>Logger</code>](#Logger)
+    * [.getLogger(category)](#LoggerFactorygetLogger) ⇒ <code>Logger</code>
 
 
 * * *
 
 ### LoggerFactory.configureForConsole() :id=loggerfactoryconfigureforconsole
-**Kind**: static method of [<code>LoggerFactory</code>](#LoggerFactory)  
+**Kind**: static method of <code>LoggerFactory</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
 **File**: /lib/logging/LoggerFactory.js  
@@ -146,7 +146,7 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 * * *
 
 ### LoggerFactory.configureForSilence() :id=loggerfactoryconfigureforsilence
-**Kind**: static method of [<code>LoggerFactory</code>](#LoggerFactory)  
+**Kind**: static method of <code>LoggerFactory</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
 **File**: /lib/logging/LoggerFactory.js  
@@ -156,14 +156,14 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 * * *
 
 ### LoggerFactory.configure(provider) :id=loggerfactoryconfigure
-**Kind**: static method of [<code>LoggerFactory</code>](#LoggerFactory)  
+**Kind**: static method of <code>LoggerFactory</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
 **File**: /lib/logging/LoggerFactory.js  
 
 | Param | Type |
 | --- | --- |
-| provider | [<code>LoggerProvider</code>](#LoggerProvider) | 
+| provider | <code>LoggerProvider</code> | 
 
 >Configures the library to delegate any log messages to a custom
 implementation of the [LoggerProvider](/content/sdk/lib-logging?id=loggerprovider) class.
@@ -172,8 +172,8 @@ implementation of the [LoggerProvider](/content/sdk/lib-logging?id=loggerprovide
 * * *
 
 ### LoggerFactory.getLogger(category) :id=loggerfactorygetlogger
-**Kind**: static method of [<code>LoggerFactory</code>](#LoggerFactory)  
-**Returns**: [<code>Logger</code>](#Logger)  
+**Kind**: static method of <code>LoggerFactory</code>  
+**Returns**: <code>Logger</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
 **File**: /lib/logging/LoggerFactory.js  
@@ -200,8 +200,8 @@ the SDK consumer should implement this class and pass it to the
 * * *
 
 ### loggerProvider.getLogger(category) :id=loggerprovidergetlogger
-**Kind**: instance method of [<code>LoggerProvider</code>](#LoggerProvider)  
-**Returns**: [<code>Logger</code>](#Logger)  
+**Kind**: instance method of <code>LoggerProvider</code>  
+**Returns**: <code>Logger</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/logging/LoggerProvider  
 **File**: /lib/logging/LoggerProvider.js  
@@ -225,7 +225,7 @@ the SDK consumer should implement this class and pass it to the
 * * *
 
 ### Schema.Loggable :id=schemaloggable
-**Kind**: static typedef of [<code>Schema</code>](#Schema)  
+**Kind**: static typedef of <code>Schema</code>  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/logging/meta  
 **File**: /lib/logging/meta.js  
