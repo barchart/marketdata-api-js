@@ -75,4 +75,19 @@ if (quote) {
 
 ## Cumulative Volume
 
+After a ```SubscriptionType.CumulativeVolume``` subscription is established and the SDK receives data from the server, a ```[/lib/marketState/CumulativeVolume]```(/content/sdk/lib-marketstate?id=cumulativevolume) instance is created.
+
+You can access a ```CumulativeVolume``` instance as follows:
+
+```js
+connection.getMarketState().getCumulativeVolume('AAPL')
+	.then((profile) => {
+		console.log(JSON.stringify(profile, null, 2));
+	});
+```
+
+Notice ```MarketState.getCumulativeVolume``` returns asynchronously. If you have recently subscribed, the function will wait until the SDK receives data from the server.
+
+
+
 ...
