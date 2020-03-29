@@ -44,6 +44,6 @@ You can find an example in the Node.js sample script. You'll see a ```LoggingPro
 
 This SDK also contains a number of "pure" utility functions.
 
-Please browse the *utilities* in the SDK Reference section for more information.
+Please browse the *utilities* section of SDK Reference for more information.
 
 
