@@ -1,6 +1,6 @@
 ## Fundamentals
 
-As you establish subscriptions, the market data begins streaming. The SDK processes stream and builds an in-memory cache of state. This in-memory cache consists of:
+As you establish subscriptions, market data begins streaming. The SDK processes stream and builds an in-memory cache of state. This in-memory cache consists of:
 
 * [Profiles](#profiles) are general descriptions of symbols.
 * [Quotes](#quotes) track Level I market data subscriptions.
