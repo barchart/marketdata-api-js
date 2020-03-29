@@ -44,8 +44,8 @@ describe('When parsing a symbol for instrument type', () => {
 			expect(instrumentType.month).toEqual('Z');
 		});
 
-		it('the "year" should be 2019', () => {
-			expect(instrumentType.year).toEqual(2019);
+		it('the "year" should be 2029', () => {
+			expect(instrumentType.year).toEqual(2029);
 		});
 	});
 
@@ -412,8 +412,8 @@ describe('When parsing a symbol for instrument type', () => {
 			expect(instrumentType.month).toEqual('H');
 		});
 
-		it('the "year" should be 2019', () => {
-			expect(instrumentType.year).toEqual(2019);
+		it('the "year" should be 2029', () => {
+			expect(instrumentType.year).toEqual(2029);
 		});
 
 		it('the "strike" should be 470', () => {
