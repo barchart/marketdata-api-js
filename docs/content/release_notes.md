@@ -10,6 +10,6 @@
 
 [filename](releases/4.0.3.md ':include')
 
-## 3.3.6 (and prior)
+## Prior
 
 Any release prior to major version four is unsupported. Please upgrade as soon as possible.
