@@ -12,8 +12,6 @@
 **Kind**: global class  
 **Extends**: <code>ConnectionBase</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/Connection  
-**File**: /lib/connection/Connection.js  
 >This class is the **central component of the SDK**. It is responsible for connecting to
 Barchart's servers, maintaining market data subscriptions, and maintaining market
 state. The SDK consumer should use one instance at a time.
@@ -42,8 +40,6 @@ state. The SDK consumer should use one instance at a time.
 **Kind**: instance method of <code>Connection</code>  
 **Overrides**: <code>ConnectionBase#connect</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
-**File**: /lib/connection/ConnectionBase.js  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -63,8 +59,6 @@ or failure is reported asynchronously by the **Events** subscription (see
 **Kind**: instance method of <code>Connection</code>  
 **Overrides**: <code>ConnectionBase#disconnect</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
-**File**: /lib/connection/ConnectionBase.js  
 >Forces a disconnect from the server. All subscriptions are discarded.
 
 
@@ -74,8 +68,6 @@ or failure is reported asynchronously by the **Events** subscription (see
 **Kind**: instance method of <code>Connection</code>  
 **Overrides**: <code>ConnectionBase#on</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
-**File**: /lib/connection/ConnectionBase.js  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -92,8 +84,6 @@ or failure is reported asynchronously by the **Events** subscription (see
 **Kind**: instance method of <code>Connection</code>  
 **Overrides**: <code>ConnectionBase#off</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
-**File**: /lib/connection/ConnectionBase.js  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -110,8 +100,6 @@ or failure is reported asynchronously by the **Events** subscription (see
 **Kind**: instance method of <code>Connection</code>  
 **Overrides**: <code>ConnectionBase#pause</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
-**File**: /lib/connection/ConnectionBase.js  
 >Pauses the data flow over the network. All subscriptions are maintained;
 however, callbacks will cease to be invoked.
 
@@ -122,8 +110,6 @@ however, callbacks will cease to be invoked.
 **Kind**: instance method of <code>Connection</code>  
 **Overrides**: <code>ConnectionBase#resume</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
-**File**: /lib/connection/ConnectionBase.js  
 >Restarts the flow of data over the network. Subscription callbacks will once
 again be invoked.
 
@@ -134,8 +120,6 @@ again be invoked.
 **Kind**: instance method of <code>Connection</code>  
 **Overrides**: <code>ConnectionBase#setPollingFrequency</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
-**File**: /lib/connection/ConnectionBase.js  
 
 | Param | Type |
 | --- | --- |
@@ -155,8 +139,6 @@ value will cause to SDK to resume normal operation.
 **Overrides**: <code>ConnectionBase#getPollingFrequency</code>  
 **Returns**: <code>number</code> \| <code>null</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
-**File**: /lib/connection/ConnectionBase.js  
 >By default, the server pushes data to the SDK. However, to save network
 bandwidth, the SDK can operate in a polling mode -- only updating
 periodically. If the SDK is configured for polling, the frequency, in
@@ -170,8 +152,6 @@ a null value will be returned.
 **Kind**: instance method of <code>Connection</code>  
 **Overrides**: <code>ConnectionBase#setExtendedProfileMode</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
-**File**: /lib/connection/ConnectionBase.js  
 
 | Param | Type |
 | --- | --- |
@@ -190,8 +170,6 @@ out-of-band queries to Barchart services.
 **Overrides**: <code>ConnectionBase#getExtendedProfileMode</code>  
 **Returns**: <code>boolean</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
-**File**: /lib/connection/ConnectionBase.js  
 >Indicates if additional [Profile](/content/sdk/lib-marketstate?id=profile) data (e.g. future contract
 expiration dates) should be loaded (via out-of-band queries).
 
@@ -203,8 +181,6 @@ expiration dates) should be loaded (via out-of-band queries).
 **Overrides**: <code>ConnectionBase#getMarketState</code>  
 **Returns**: <code>MarketState</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
-**File**: /lib/connection/ConnectionBase.js  
 >Returns the [MarketState](/content/sdk/lib-marketstate?id=marketstate) singleton -- which can be used to access
 [Quote](/content/sdk/lib-marketstate?id=quote), [Profile](/content/sdk/lib-marketstate?id=profile), and [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) instances
 for any symbol subscribed symbol.
@@ -217,8 +193,6 @@ for any symbol subscribed symbol.
 **Overrides**: <code>ConnectionBase#getServer</code>  
 **Returns**: <code>null</code> \| <code>string</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
-**File**: /lib/connection/ConnectionBase.js  
 >The Barchart hostname.
 
 
@@ -229,8 +203,6 @@ for any symbol subscribed symbol.
 **Overrides**: <code>ConnectionBase#getPassword</code>  
 **Returns**: <code>null</code> \| <code>string</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
-**File**: /lib/connection/ConnectionBase.js  
 >The password used to authenticate to Barchart.
 
 
@@ -241,8 +213,6 @@ for any symbol subscribed symbol.
 **Overrides**: <code>ConnectionBase#getUsername</code>  
 **Returns**: <code>null</code> \| <code>string</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionBase  
-**File**: /lib/connection/ConnectionBase.js  
 >The username used to authenticate to Barchart.
 
 
@@ -250,8 +220,6 @@ for any symbol subscribed symbol.
 
 ## Enums :id=enums
 **Kind**: global namespace  
-**Import**: @barchart/marketdata-api-js/lib/connection/meta  
-**File**: /lib/connection/meta.js  
 >A namespace for enumerations.
 
 
@@ -265,8 +233,6 @@ for any symbol subscribed symbol.
 ### Enums.ConnectionEventType :id=enumsconnectioneventtype
 **Kind**: static enum of <code>Enums</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionEventType  
-**File**: /lib/connection/ConnectionEventType.js  
 **Read only**: true  
 **Properties**
 
@@ -290,6 +256,7 @@ for any symbol subscribed symbol.
 **Import**: @barchart/marketdata-api-js/lib/connection/SubscriptionType  
 **File**: /lib/connection/SubscriptionType.js  
 **Read only**: true  
+**Test**:   
 **Properties**
 
 | Name | Type | Default | Description |
@@ -307,8 +274,6 @@ for any symbol subscribed symbol.
 
 ## Callbacks :id=callbacks
 **Kind**: global namespace  
-**Import**: @barchart/marketdata-api-js/lib/connection/meta  
-**File**: /lib/connection/meta.js  
 >A meta namespace containing signatures of anonymous functions.
 
 
@@ -325,8 +290,6 @@ for any symbol subscribed symbol.
 ### Callbacks.EventsCallback :id=callbackseventscallback
 **Kind**: static typedef of <code>Callbacks</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/meta  
-**File**: /lib/connection/meta.js  
 
 | Param | Type |
 | --- | --- |
@@ -341,8 +304,6 @@ for any symbol subscribed symbol.
 ### Callbacks.TimestampCallback :id=callbackstimestampcallback
 **Kind**: static typedef of <code>Callbacks</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/meta  
-**File**: /lib/connection/meta.js  
 
 | Param | Type |
 | --- | --- |
@@ -357,8 +318,6 @@ for any symbol subscribed symbol.
 ### Callbacks.MarketUpdateCallback :id=callbacksmarketupdatecallback
 **Kind**: static typedef of <code>Callbacks</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/meta  
-**File**: /lib/connection/meta.js  
 
 | Param | Type |
 | --- | --- |
@@ -373,8 +332,6 @@ for any symbol subscribed symbol.
 ### Callbacks.MarketDepthCallback :id=callbacksmarketdepthcallback
 **Kind**: static typedef of <code>Callbacks</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/meta  
-**File**: /lib/connection/meta.js  
 
 | Param | Type |
 | --- | --- |
@@ -389,8 +346,6 @@ for any symbol subscribed symbol.
 ### Callbacks.CumulativeVolumeCallback :id=callbackscumulativevolumecallback
 **Kind**: static typedef of <code>Callbacks</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/meta  
-**File**: /lib/connection/meta.js  
 
 | Param | Type |
 | --- | --- |
@@ -404,8 +359,6 @@ for any symbol subscribed symbol.
 
 ## Schema :id=schema
 **Kind**: global namespace  
-**Import**: @barchart/marketdata-api-js/lib/connection/meta  
-**File**: /lib/connection/meta.js  
 >A meta namespace containing structural contracts of anonymous objects.
 
 
@@ -421,8 +374,6 @@ for any symbol subscribed symbol.
 
 ### Schema.EventsEvent :id=schemaeventsevent
 **Kind**: static typedef of <code>Schema</code>  
-**Import**: @barchart/marketdata-api-js/lib/connection/meta  
-**File**: /lib/connection/meta.js  
 **Properties**
 
 | Name | Type | Description |
@@ -436,8 +387,6 @@ for any symbol subscribed symbol.
 
 ### Schema.MarketUpdateEvent :id=schemamarketupdateevent
 **Kind**: static typedef of <code>Schema</code>  
-**Import**: @barchart/marketdata-api-js/lib/connection/meta  
-**File**: /lib/connection/meta.js  
 **Properties**
 
 | Name | Type | Description |
@@ -454,8 +403,6 @@ change to the top of book, etc.
 
 ### Schema.MarketDepthEvent :id=schemamarketdepthevent
 **Kind**: static typedef of <code>Schema</code>  
-**Import**: @barchart/marketdata-api-js/lib/connection/meta  
-**File**: /lib/connection/meta.js  
 **Properties**
 
 | Name | Type | Description |
@@ -473,8 +420,6 @@ every price.
 
 ### Schema.MarketDepthLevel :id=schemamarketdepthlevel
 **Kind**: static typedef of <code>Schema</code>  
-**Import**: @barchart/marketdata-api-js/lib/connection/meta  
-**File**: /lib/connection/meta.js  
 **Properties**
 
 | Name | Type | Description |
@@ -490,8 +435,6 @@ every price.
 
 ### Schema.CumulativeVolumeEvent :id=schemacumulativevolumeevent
 **Kind**: static typedef of <code>Schema</code>  
-**Import**: @barchart/marketdata-api-js/lib/connection/meta  
-**File**: /lib/connection/meta.js  
 **Properties**
 
 | Name | Type | Description |

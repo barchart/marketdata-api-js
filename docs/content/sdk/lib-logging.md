@@ -11,8 +11,6 @@
 ## Logger :id=logger
 **Kind**: global abstract class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
-**File**: /lib/logging/Logger.js  
 >An interface for writing log messages. An implementation of this
 class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 
@@ -31,8 +29,6 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 ### logger.log() :id=loggerlog
 **Kind**: instance abstract method of <code>Logger</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
-**File**: /lib/logging/Logger.js  
 
 | Param | Type |
 | --- | --- |
@@ -46,8 +42,6 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 ### logger.trace() :id=loggertrace
 **Kind**: instance abstract method of <code>Logger</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
-**File**: /lib/logging/Logger.js  
 
 | Param | Type |
 | --- | --- |
@@ -61,8 +55,6 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 ### logger.debug() :id=loggerdebug
 **Kind**: instance abstract method of <code>Logger</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
-**File**: /lib/logging/Logger.js  
 
 | Param | Type |
 | --- | --- |
@@ -76,8 +68,6 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 ### logger.info() :id=loggerinfo
 **Kind**: instance abstract method of <code>Logger</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
-**File**: /lib/logging/Logger.js  
 
 | Param | Type |
 | --- | --- |
@@ -91,8 +81,6 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 ### logger.warn() :id=loggerwarn
 **Kind**: instance abstract method of <code>Logger</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
-**File**: /lib/logging/Logger.js  
 
 | Param | Type |
 | --- | --- |
@@ -106,8 +94,6 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 ### logger.error() :id=loggererror
 **Kind**: instance abstract method of <code>Logger</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
-**File**: /lib/logging/Logger.js  
 
 | Param | Type |
 | --- | --- |
@@ -121,8 +107,6 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 ## LoggerFactory :id=loggerfactory
 **Kind**: global class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
-**File**: /lib/logging/LoggerFactory.js  
 >Container for static functions which control logging within the SDK.
 
 
@@ -138,8 +122,6 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 ### LoggerFactory.configureForConsole() :id=loggerfactoryconfigureforconsole
 **Kind**: static method of <code>LoggerFactory</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
-**File**: /lib/logging/LoggerFactory.js  
 >Configures the SDK to write log messages to the console.
 
 
@@ -148,8 +130,6 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 ### LoggerFactory.configureForSilence() :id=loggerfactoryconfigureforsilence
 **Kind**: static method of <code>LoggerFactory</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
-**File**: /lib/logging/LoggerFactory.js  
 >Configures the SDK to mute all log messages.
 
 
@@ -158,8 +138,6 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 ### LoggerFactory.configure(provider) :id=loggerfactoryconfigure
 **Kind**: static method of <code>LoggerFactory</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
-**File**: /lib/logging/LoggerFactory.js  
 
 | Param | Type |
 | --- | --- |
@@ -175,8 +153,6 @@ implementation of the [LoggerProvider](/content/sdk/lib-logging?id=loggerprovide
 **Kind**: static method of <code>LoggerFactory</code>  
 **Returns**: <code>Logger</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
-**File**: /lib/logging/LoggerFactory.js  
 
 | Param | Type |
 | --- | --- |
@@ -190,8 +166,6 @@ implementation of the [LoggerProvider](/content/sdk/lib-logging?id=loggerprovide
 ## LoggerProvider :id=loggerprovider
 **Kind**: global abstract class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/LoggerProvider  
-**File**: /lib/logging/LoggerProvider.js  
 >A contract for generating [Logger](/content/sdk/lib-logging?id=logger) instances. For custom logging
 the SDK consumer should implement this class and pass it to the
 [configure](#LoggerFactoryconfigure) function.
@@ -203,8 +177,6 @@ the SDK consumer should implement this class and pass it to the
 **Kind**: instance method of <code>LoggerProvider</code>  
 **Returns**: <code>Logger</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/LoggerProvider  
-**File**: /lib/logging/LoggerProvider.js  
 
 | Param | Type |
 | --- | --- |
@@ -217,8 +189,6 @@ the SDK consumer should implement this class and pass it to the
 
 ## Schema :id=schema
 **Kind**: global namespace  
-**Import**: @barchart/marketdata-api-js/lib/logging/meta  
-**File**: /lib/logging/meta.js  
 >A meta namespace containing structural contracts of anonymous objects.
 
 
@@ -227,8 +197,6 @@ the SDK consumer should implement this class and pass it to the
 ### Schema.Loggable :id=schemaloggable
 **Kind**: static typedef of <code>Schema</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/logging/meta  
-**File**: /lib/logging/meta.js  
 >Something which can be logged (e.g. ```String```, ```Number```, or ```Object```). Ultimately,
 the [Logger](/content/sdk/lib-logging?id=logger) implementation will determine the method (e.g. using ```JSON.stringify``` or
 ```toString```).

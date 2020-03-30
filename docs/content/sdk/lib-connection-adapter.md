@@ -11,8 +11,6 @@
 ## WebSocketAdapter :id=websocketadapter
 **Kind**: global abstract class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapter  
-**File**: /lib/connection/adapter/WebSocketAdapter.js  
 >The abstract definition for an object which can establish and
 communicate over a WebSocket. It is unlikely that SDK consumers
 will need to implement this class.
@@ -23,8 +21,6 @@ will need to implement this class.
 ## WebSocketAdapterFactory :id=websocketadapterfactory
 **Kind**: global abstract class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactory  
-**File**: /lib/connection/adapter/WebSocketAdapterFactory.js  
 >An abstract definition for an factory that builds [WebSocketAdapter](/content/sdk/lib-connection-adapter?id=websocketadapter)
 instances. It is unlikely that SDK consumers will need to implement this class.
 
@@ -35,8 +31,6 @@ instances. It is unlikely that SDK consumers will need to implement this class.
 **Kind**: instance abstract method of <code>WebSocketAdapterFactory</code>  
 **Returns**: <code>WebSocketAdapter</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactory  
-**File**: /lib/connection/adapter/WebSocketAdapterFactory.js  
 
 | Param | Type |
 | --- | --- |
@@ -51,8 +45,6 @@ instances. It is unlikely that SDK consumers will need to implement this class.
 **Kind**: global class  
 **Extends**: <code>WebSocketAdapterFactory</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForBrowsers  
-**File**: /lib/connection/adapter/WebSocketAdapterFactoryForBrowsers.js  
 >An implementation of [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) for use with web browsers. By default,
 this strategy is used by the [Connection](/content/sdk/lib-connection?id=connection) class.
 
@@ -64,8 +56,6 @@ this strategy is used by the [Connection](/content/sdk/lib-connection?id=connect
 **Overrides**: [<code>build</code>](#WebSocketAdapterFactorybuild)  
 **Returns**: <code>WebSocketAdapter</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForBrowsers  
-**File**: /lib/connection/adapter/WebSocketAdapterFactoryForBrowsers.js  
 
 | Param | Type |
 | --- | --- |
@@ -81,8 +71,6 @@ with a web browser.
 **Kind**: global class  
 **Extends**: <code>WebSocketAdapterFactory</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForNode  
-**File**: /lib/connection/adapter/WebSocketAdapterFactoryForNode.js  
 >An implementation of [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) for use by Node.js servers. Pass
 an instance of this class to [Connection.connect](Connection.connect) when operating in a Node.js
 environment.
@@ -95,8 +83,6 @@ environment.
 **Overrides**: [<code>build</code>](#WebSocketAdapterFactorybuild)  
 **Returns**: <code>WebSocketAdapter</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForNode  
-**File**: /lib/connection/adapter/WebSocketAdapterFactoryForNode.js  
 
 | Param | Type |
 | --- | --- |
