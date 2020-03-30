@@ -41,8 +41,10 @@ function prepareLinkForDocs(path, tab) {
 function generateDocs(inputFiles = 'lib/**/*.js') {
 	global.packageName = '@barchart/marketdata-api-js';
 
-	const docFolder = `${__dirname}/docs`;
-	const contentDir = `${docFolder}/content`;
+	const docDir = `${__dirname}/docs`;
+	const contentDir = `${docDir}/content`;
+	const conceptsDir = `${contentDir}/concepts`;
+	const releasesDir = `${contentDir}/releases`;
 	const sdkDir = `${contentDir}/sdk`;
 	const template = `{{>main}}`;
 
@@ -99,9 +101,14 @@ function generateDocs(inputFiles = 'lib/**/*.js') {
 
 			fs.writeFileSync(path.resolve(contentDir, `sdk_reference.md`), sdkReference);
 
-			gulp.src([`${docFolder}/_sidebar.md`], {allowEmpty: true})
+			gulp.src([`${docDir}/_sidebar.md`], {allowEmpty: true})
 				.pipe(replace(/(<!--- sdk_open -->(\s|.)*<!--- sdk_close -->)/gm, sdkSidebar))
 				.pipe(gulp.dest(sdkDir));
+
+			gulp.src([`${docDir}/_sidebar.md`])
+				.pipe(gulp.dest(contentDir))
+				.pipe(gulp.dest(conceptsDir))
+				.pipe(gulp.dest(releasesDir));
 		});
 	});
 }
