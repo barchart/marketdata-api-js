@@ -15,9 +15,11 @@ const AWS = require('aws-sdk'),
 	jshint = require('gulp-jshint'),
 	merge = require('merge-stream'),
 	path = require('path'),
+	prompt = require('gulp-prompt'),
 	rename = require('gulp-rename'),
 	replace = require('gulp-replace'),
-	source = require('vinyl-source-stream');
+	source = require('vinyl-source-stream'),
+	spawn = require('child_process').spawn;
 
 const docsifyTemplates = require('./docsifyTemplates');
 
@@ -184,9 +186,24 @@ gulp.task('ensure-clean-working-directory', (cb) => {
 	});
 });
 
+gulp.task('bump-choice', (cb) => {
+	const processor = prompt.prompt({
+		type: 'list',
+		name: 'bump',
+		message: 'What type of bump would you like to do?',
+		choices: ['patch', 'minor', 'major'],
+	}, (res) => {
+		global.bump = res.bump;
+
+		return cb();
+	});
+
+	return gulp.src([ './package.json' ]).pipe(processor);
+});
+
 gulp.task('bump-version', () => {
 	return gulp.src(['./package.json'])
-		.pipe(bump({type: 'patch'}))
+		.pipe(bump({ type: global.bump }))
 		.pipe(gulp.dest('./'));
 });
 
@@ -276,15 +293,51 @@ gulp.task('test', gulp.series(
 	'execute-node-tests'
 ));
 
-gulp.task('release', gulp.series(
+gulp.task('create-release', (cb) => {
+	const version = getVersionFromPackage();
+
+	const processor = prompt.prompt({
+		type: 'input',
+		name: 'path',
+		message: 'Please enter release notes path (relative to gulpfile.js):'
+	}, (res) => {
+		const path = res.path;
+
+		if (!fs.existsSync(path)) {
+			return cb(new Error(`Release markdown file not found: ${path}`));
+		}
+
+		const child = spawn(`hub release create -f ${path} ${version}`, {
+			stdio: 'inherit',
+			shell: true,
+		});
+
+		child.on('error', (error) => {
+			console.log(error);
+
+			cb(error);
+		});
+
+		child.on('exit', () => {
+			cb();
+		});
+	});
+
+	return gulp.src('./package.json').pipe(processor);
+});
+
+gulp.task('bump-and-tag', gulp.series(
 	'ensure-clean-working-directory',
+	'bump-choice',
 	'bump-version',
-	'embed-version',
-	'build',
-	'build-browser-tests',
 	'commit-changes',
 	'push-changes',
 	'create-tag'
+));
+
+gulp.task('release', gulp.series(
+	'ensure-clean-working-directory',
+	'create-release'
 ));
 
 gulp.task('watch', () => {

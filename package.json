@@ -60,6 +60,7 @@
     "gulp-git": "^2.5.1",
     "gulp-jasmine": "^2.2.1",
     "gulp-jshint": "~2.1.0",
+    "gulp-prompt": "^1.2.0",
     "gulp-rename": "^1.4.0",
     "gulp-replace": "^0.5.4",
     "jsdoc-to-markdown": "^5.0.3",
