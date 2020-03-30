@@ -6,6 +6,7 @@ module.exports = (() => {
    * class is returned by {@link LoggerProvider.getLogger}.
    *
    * @public
+   * @exported
    * @abstract
    */
 
@@ -105,6 +106,7 @@ module.exports = (() => {
    * Container for static functions which control logging within the SDK.
    *
    * @public
+   * @exported
    */
 
   class LoggerFactory {
@@ -306,6 +308,7 @@ module.exports = (() => {
    * {@link LoggerFactory.configure} function.
    *
    * @public
+   * @exported
    * @abstract
    */
 
@@ -352,6 +355,7 @@ module.exports = (() => {
    * are processed (see {@link Enums.SubscriptionType}).
    *
    * @public
+   * @exported
    */
 
   class CumulativeVolume {
@@ -608,6 +612,7 @@ module.exports = (() => {
    * Describes an instrument (associated with a unique symbol).
    *
    * @public
+   * @exported
    */
 
   class Profile {
@@ -768,6 +773,7 @@ module.exports = (() => {
    * @function
    * @memberOf Functions
    * @ignore
+   * @exported
    * @param {Number} baseCode
    * @returns {String}
    */
@@ -836,6 +842,7 @@ module.exports = (() => {
    * @function
    * @memberOf Functions
    * @ignore
+   * @exported
    * @param {Date} date
    * @returns {String|null}
    */
@@ -862,6 +869,7 @@ module.exports = (() => {
    * @function
    * @memberOf Functions
    * @ignore
+   * @exported
    * @param {String} dayCode
    * @returns {Number|null}
    */
@@ -901,6 +909,7 @@ module.exports = (() => {
    * @function
    * @memberOf Functions
    * @ignore
+   * @exported
    * @param {Number} d
    * @returns {String}
    */
@@ -934,6 +943,7 @@ module.exports = (() => {
    * @function
    * @memberOf Functions
    * @ignore
+   * @exported
    * @param {String} value
    * @param {String} unitcode
    * @returns {Number}
@@ -990,6 +1000,7 @@ module.exports = (() => {
    * @function
    * @memberOf Functions
    * @ignore
+   * @exported
    * @param {String} unitCode
    * @returns {Number}
    */
@@ -1091,7 +1102,9 @@ module.exports = (() => {
   /**
    * Formats a {@link Date} instance as a string (using a MM/DD/YY pattern).
    *
+   * @exported
    * @function
+   * @memberOf Functions
    * @param {Date=} date
    * @param {Boolean=} utc
    * @returns {String}
@@ -1121,7 +1134,9 @@ module.exports = (() => {
   /**
    * Formats a number as a string.
    *
+   * @exported
    * @function
+   * @memberOf Functions
    * @param {Number} value
    * @param {Number} digits
    * @param {String=} thousandsSeparator
@@ -1190,6 +1205,7 @@ module.exports = (() => {
    * Returns a {@link PriceFormatterFactory~formatPrice} which uses
    * the configuration supplied to this function as parameters.
    *
+   * @exported
    * @function
    * @param {String=} fractionSeparator
    * @param {Boolean=} specialFractions
@@ -1225,6 +1241,7 @@ module.exports = (() => {
    * Returns a {@link QuoteFormatterFactory~formatQuote} which uses
    * the configuration supplied to this function as parameters.
    *
+   * @exported
    * @function
    * @param {Boolean=} useTwelveHourClock
    * @param {Boolean=} short
@@ -1273,7 +1290,9 @@ module.exports = (() => {
   /**
    * Formats a number as a string.
    *
+   * @exported
    * @function
+   * @memberOf Functions
    * @param {Number} value
    * @param {String} unitcode
    * @param {String=} fractionSeparator
@@ -1419,7 +1438,9 @@ module.exports = (() => {
    * state. If the market is open, and a trade has occurred, then the formatted time
    * is returned. Otherwise, the formatted date is returned.
    *
+   * @exported
    * @function
+   * @memberOf Functions
    * @param {Quote} quote
    * @param {Boolean=} useTwelveHourClock
    * @param {Boolean=} short
@@ -1492,7 +1513,9 @@ module.exports = (() => {
    * Formats a string (by capitalizing it). If anything other than a string
    * is passed, the argument is returned without modification.
    * 
+   * @exported
    * @function
+   * @memberOf Functions
    * @param {String|*} symbol
    * @returns {String|*}
    */
@@ -1616,7 +1639,9 @@ module.exports = (() => {
   /**
    * Formats a {@link Date} instance's time component as a string.
    *
+   * @exported
    * @function
+   * @memberOf Functions
    * @param {Date} date
    * @param {String=} timezone
    * @param {Boolean=} useTwelveHourClock
@@ -1698,6 +1723,7 @@ module.exports = (() => {
    * Parses a DDF message, returning a JavaScript object representing the
    * content of the message.
    *
+    * @exported
    * @function
    * @param {String} msg
    * @returns {Object}
@@ -2228,6 +2254,7 @@ module.exports = (() => {
    * a quote for IBM, having a date of September 26 at 13:15 refers to September 26
    * at 13:15 in America/New_York not America/Belize or Asia/Tokyo.
    *
+   * @exported
    * @function
    * @param {String} bytes
    * @returns {Date}
@@ -2280,6 +2307,7 @@ module.exports = (() => {
   /**
    * Parses DDF price.
    *
+   * @exported
    * @function
    * @param {String} str
    * @param {String} unitcode
@@ -2622,6 +2650,7 @@ module.exports = (() => {
   /**
    * Static utilities for parsing symbols.
    *
+   * @exported
    * @public
    * @ignore
    */

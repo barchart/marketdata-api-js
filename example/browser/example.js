@@ -465,7 +465,7 @@ module.exports = (() => {
     lf: '\x0A',
     dc4: '\x14'
   };
-  const eventTypes = {
+  const subscriptionTypes = {
     events: {
       requiresSymbol: false
     },
@@ -834,6 +834,13 @@ module.exports = (() => {
     // Functions used to maintain exchange metadata
     //
 
+    /**
+     * Runs out-of-band query for exchange metadata and forwards it to the
+     * {@link MarketState} instance.
+     *
+     * @private
+     */
+
 
     function ensureExchangeMetadata() {
       if (__exchangeMetadataPromise !== null) {
@@ -871,32 +878,32 @@ module.exports = (() => {
      * the event type, a callback, and a symbol (if necessary).
      *
      * @private
-     * @param {Subscription.EventType} eventType
+     * @param {Enums.SubscriptionType} subscriptionType
      * @param {Function} handler
      * @param {String=} symbol
      */
 
 
-    function on(eventType, handler, symbol) {
-      if (typeof eventType !== 'string') {
-        throw new Error('The "eventType" argument must be a string.');
+    function on(subscriptionType, handler, symbol) {
+      if (typeof subscriptionType !== 'string') {
+        throw new Error('The "subscriptionType" argument must be a string.');
       }
 
       if (typeof handler !== 'function') {
         throw new Error('The "handler" argument must be a function.');
       }
 
-      if (!eventTypes.hasOwnProperty(eventType)) {
-        __logger.log(`Consumer [ ${__instance} ]: Unable to process "on" event, event type is not recognized.`);
+      if (!subscriptionTypes.hasOwnProperty(subscriptionType)) {
+        __logger.log(`Consumer [ ${__instance} ]: Unable to process "on" command, subscription type is not recognized.`);
 
         return;
       }
 
-      const eventData = eventTypes[eventType];
+      const subscriptionData = subscriptionTypes[subscriptionType];
 
-      if (eventData.requiresSymbol) {
+      if (subscriptionData.requiresSymbol) {
         if (typeof symbol !== 'string') {
-          throw new Error(`The "symbol" argument must be a string for [ ${eventType} ] events.`);
+          throw new Error(`The "symbol" argument must be a string for [ ${subscriptionType} ] subscriptions.`);
         }
 
         symbol = symbol.toUpperCase().trim();
@@ -958,7 +965,7 @@ module.exports = (() => {
         return true;
       };
 
-      switch (eventType) {
+      switch (subscriptionType) {
         case 'events':
           __listeners.events = addListener(__listeners.events);
           break;
@@ -1007,34 +1014,34 @@ module.exports = (() => {
      * handler) exist, the subscription will continue to operate for other handlers.
      *
      * @private
-     * @param {Subscription.EventType} eventType
+     * @param {Enums.SubscriptionType} subscriptionType
      * @param {Function} handler
      * @param {String=} symbol
      */
 
 
-    function off(eventType, handler, symbol) {
-      if (typeof eventType !== 'string') {
-        throw new Error('The "eventType" argument must be a string.');
+    function off(subscriptionType, handler, symbol) {
+      if (typeof subscriptionType !== 'string') {
+        throw new Error('The "subscriptionType" argument must be a string.');
       }
 
       if (typeof handler !== 'function') {
         throw new Error('The "handler" argument must be a function.');
       }
 
-      if (!eventTypes.hasOwnProperty(eventType)) {
-        __logger.log(`Consumer [ ${__instance} ]: Unable to process "off" command, event type is not supported [ ${eventType} ].`);
+      if (!subscriptionTypes.hasOwnProperty(subscriptionType)) {
+        __logger.log(`Consumer [ ${__instance} ]: Unable to process "off" command, subscription type is not supported [ ${subscriptionType} ].`);
 
         __logger.trace();
 
         return;
       }
 
-      const eventData = eventTypes[eventType];
+      const subscriptionData = subscriptionTypes[subscriptionType];
 
-      if (eventData.requiresSymbol) {
+      if (subscriptionData.requiresSymbol) {
         if (typeof symbol !== 'string') {
-          throw new Error(`The "symbol" argument must be a string for [ ${eventType} ] events.`);
+          throw new Error(`The "symbol" argument must be a string for [ ${subscriptionType} ] subscriptions.`);
         }
 
         symbol = symbol.toUpperCase().trim();
@@ -1078,7 +1085,7 @@ module.exports = (() => {
         }
       };
 
-      switch (eventType) {
+      switch (subscriptionType) {
         case 'events':
           __listeners.events = removeHandler(__listeners.events);
           break;
@@ -1405,24 +1412,24 @@ module.exports = (() => {
      * state updates, heartbeats, connection status changes, etc).
      *
      * @private
-     * @param {String} eventType
+     * @param {String} subscriptionType
      * @param {Object} message
      */
 
 
-    function broadcastEvent(eventType, message) {
+    function broadcastEvent(subscriptionType, message) {
       let listeners;
 
-      if (eventType === 'events') {
+      if (subscriptionType === 'events') {
         listeners = __listeners.events;
-      } else if (eventType === 'marketDepth') {
+      } else if (subscriptionType === 'marketDepth') {
         listeners = __listeners.marketDepth[message.symbol];
-      } else if (eventType === 'marketUpdate') {
+      } else if (subscriptionType === 'marketUpdate') {
         listeners = __listeners.marketUpdate[message.symbol];
-      } else if (eventType === 'timestamp') {
+      } else if (subscriptionType === 'timestamp') {
         listeners = __listeners.timestamp;
       } else {
-        __logger.warn(`Broadcast [ ${__instance} ]: Unable to notify subscribers of [ ${eventType} ] event.`);
+        __logger.warn(`Broadcast [ ${__instance} ]: Unable to notify subscribers of [ ${subscriptionType} ].`);
 
         listeners = null;
       }
@@ -1432,7 +1439,7 @@ module.exports = (() => {
           try {
             listener(message);
           } catch (e) {
-            __logger.warn(`Broadcast [ ${__instance} ]:: A consumer-supplied listener for [ ${eventType} ] events threw an error. Continuing.`, e);
+            __logger.warn(`Broadcast [ ${__instance} ]:: A consumer-supplied listener for [ ${subscriptionType} ] threw an error. Continuing.`, e);
           }
         });
       }
@@ -2053,9 +2060,12 @@ module.exports = (() => {
     };
   }
   /**
-   * Object used to connect to Barchart servers and subscribe to market data.
+   * This class is the **central component of the SDK**. It is responsible for connecting to
+   * Barchart's servers, maintaining market data subscriptions, and maintaining market
+   * state. The SDK consumer should use one instance at a time.
    *
    * @public
+   * @exported
    * @extends {ConnectionBase}
    */
 
@@ -2129,7 +2139,9 @@ module.exports = (() => {
    * querying current market state.
    *
    * @protected
-   * @interface
+   * @abstract
+   * @exported
+   * @ignore
    */
 
   class ConnectionBase {
@@ -2143,13 +2155,15 @@ module.exports = (() => {
       this._instance = ++instanceCounter;
     }
     /**
-     * Connects to the given server with username and password.
+     * Establishes WebSocket connection to Barchart's servers and authenticates. Success
+     * or failure is reported asynchronously by the **Events** subscription (see
+     * {@link Enums.SubscriptionType}).
      *
      * @public
-     * @param {string} server
-     * @param {string} username
-     * @param {string} password
-     * @param {WebSocketAdapterFactory=} webSocketAdapterFactory
+     * @param {string} server - Barchart hostname (contact solutions@barchart.com)
+     * @param {string} username - Your username (contact solutions@barchart.com)
+     * @param {string} password - Your password (contact solutions@barchart.com)
+     * @param {WebSocketAdapterFactory=} webSocketAdapterFactory - Strategy for creating a WebSocket (required for Node.js)
      */
 
 
@@ -2171,7 +2185,7 @@ module.exports = (() => {
       return;
     }
     /**
-     * Forces a disconnect from the server.
+     * Forces a disconnect from the server. All subscriptions are discarded.
      *
      * @public
      */
@@ -2194,7 +2208,52 @@ module.exports = (() => {
       return;
     }
     /**
-     * Causes the market state to stop updating. All subscriptions are maintained.
+     * Initiates a subscription, registering a callback for event notifications.
+     *
+     * @public
+     * @param {Enums.SubscriptionType} subscriptionType - The type of subscription
+     * @param {Callbacks.MarketDepthCallback|Callbacks.MarketUpdateCallback|Callbacks.CumulativeVolumeCallback|Callbacks.TimestampCallback|Callbacks.EventsCallback} callback - A function which will be invoked each time the event occurs
+     * @param {String=} symbol - A symbol (only applicable for market data subscriptions)
+     */
+
+
+    on() {
+      this._on.apply(this, arguments);
+    }
+    /**
+     * @protected
+     * @ignore
+     */
+
+
+    _on() {
+      return;
+    }
+    /**
+     * Drops a subscription (see {@link ConnectionBase#on}).
+     *
+     * @public
+     * @param {Enums.SubscriptionType} subscriptionType - The type of subscription
+     * @param {Callbacks.MarketDepthCallback|Callbacks.MarketUpdateCallback|Callbacks.CumulativeVolumeCallback|Callbacks.TimestampCallback|Callbacks.EventsCallback} callback - The **same** function which was passed to {@link ConnectionBase#on}
+     * @param {String=} symbol - The symbol (only applicable for market data subscriptions)
+     */
+
+
+    off() {
+      this._off.apply(this, arguments);
+    }
+    /**
+     * @protected
+     * @ignore
+     */
+
+
+    _off() {
+      return;
+    }
+    /**
+     * Pauses the data flow over the network. All subscriptions are maintained;
+     * however, callbacks will cease to be invoked.
      *
      * @public
      */
@@ -2213,7 +2272,8 @@ module.exports = (() => {
       return;
     }
     /**
-     * Causes the market state to begin updating again (after {@link ConnectionBase#pause} has been called).
+     * Restarts the flow of data over the network. Subscription callbacks will once
+     * again be invoked.
      *
      * @public
      */
@@ -2231,52 +2291,6 @@ module.exports = (() => {
     _resume() {
       return;
     }
-    /**
-     * Initiates a subscription to an {@link Subscription.EventType} and
-     * registers the callback for notifications.
-     *
-     * @public
-     * @param {Subscription.EventType} eventType
-     * @param {function} callback - notified each time the event occurs
-     * @param {String=} symbol - A symbol, if applicable, to the given {@link Subscription.EventType}
-     */
-
-
-    on() {
-      this._on.apply(this, arguments);
-    }
-    /**
-     * @protected
-     * @ignore
-     */
-
-
-    _on() {
-      return;
-    }
-    /**
-     * Stops notification of the callback for the {@link Subscription.EventType}.
-     * See {@link ConnectionBase#on}.
-     *
-     * @public
-     * @param {Subscription.EventType} eventType - the {@link Subscription.EventType} which was passed to {@link ConnectionBase#on}
-     * @param {function} callback - the callback which was passed to {@link ConnectionBase#on}
-     * @param {String=} symbol - A symbol, if applicable, to the given {@link Subscription.EventType}
-     */
-
-
-    off() {
-      this._off.apply(this, arguments);
-    }
-    /**
-     * @protected
-     * @ignore
-     */
-
-
-    _off() {
-      return;
-    }
 
     getActiveSymbolCount() {
       return this._getActiveSymbolCount();
@@ -2286,20 +2300,11 @@ module.exports = (() => {
       return null;
     }
     /**
-     * The frequency, in milliseconds, used to poll for changes to {@link Quote}
-     * objects. A null value indicates streaming updates (default).
-     *
-     * @public
-     * @returns {number|null}
-     */
-
-
-    getPollingFrequency() {
-      return this._pollingFrequency;
-    }
-    /**
-     * Sets the polling frequency, in milliseconds. A null value indicates
-     * streaming market updates (where polling is not used).
+     * By default, the server pushes data to the SDK. However, to save network
+     * bandwidth, the SDK can operate in a polling mode -- only updating
+     * periodically. Calling this function with a positive number will
+     * cause the SDK to begin polling. Calling this function with a null
+     * value will cause to SDK to resume normal operation.
      *
      * @public
      * @param {number|null} pollingFrequency
@@ -2327,17 +2332,30 @@ module.exports = (() => {
       return;
     }
     /**
-     * Indicates if additional profile data (e.g. future contract expiration dates
-     * should be loaded when subscribing to to market data).
+     * By default, the server pushes data to the SDK. However, to save network
+     * bandwidth, the SDK can operate in a polling mode -- only updating
+     * periodically. If the SDK is configured for polling, the frequency, in
+     * milliseconds will be returned. If the SDK is configured for normal operation,
+     * a null value will be returned.
      *
      * @public
-     * @return {boolean}
+     * @returns {number|null}
      */
 
 
-    getExtendedProfileMode() {
-      return this._extendedProfileMode;
+    getPollingFrequency() {
+      return this._pollingFrequency;
     }
+    /**
+     * When set to true, additional properties properties become
+     * available on {@link Profile} instances (e.g. future contract
+     * expiration date). This is accomplished by making additional
+     * out-of-band queries to Barchart services.
+     *
+     * @public
+     * @param {Boolean}
+     */
+
 
     setExtendedProfileMode(mode) {
       if (is.boolean(mode) && this._extendedProfileMode !== mode) {
@@ -2356,8 +2374,21 @@ module.exports = (() => {
       return;
     }
     /**
+     * Indicates if additional {@link Profile} data (e.g. future contract
+     * expiration dates) should be loaded (via out-of-band queries).
+     *
+     * @public
+     * @returns {boolean}
+     */
+
+
+    getExtendedProfileMode() {
+      return this._extendedProfileMode;
+    }
+    /**
      * @protected
      * @ignore
+     * @param {String}
      */
 
 
@@ -2365,9 +2396,11 @@ module.exports = (() => {
       return;
     }
     /**
-     * Returns the {@link MarketState} singleton, used to access {@link Quote}, 
-     * {@link Profile}, and {@link CumulativeVolume} objects.
+     * Returns the {@link MarketState} singleton -- which can be used to access
+     * {@link Quote}, {@link Profile}, and {@link CumulativeVolume} instances
+     * for any symbol subscribed symbol.
      *
+     * @public
      * @returns {MarketState}
      */
 
@@ -2376,6 +2409,8 @@ module.exports = (() => {
       return this._marketState;
     }
     /**
+     * The Barchart hostname.
+     *
      * @public
      * @returns {null|string}
      */
@@ -2385,6 +2420,8 @@ module.exports = (() => {
       return this._server;
     }
     /**
+     * The password used to authenticate to Barchart.
+     *
      * @public
      * @returns {null|string}
      */
@@ -2394,6 +2431,8 @@ module.exports = (() => {
       return this._password;
     }
     /**
+     * The username used to authenticate to Barchart.
+     *
      * @public
      * @returns {null|string}
      */
@@ -2403,9 +2442,10 @@ module.exports = (() => {
       return this._username;
     }
     /**
-     * Get an unique identifier for the current instance.
+     * Gets a unique identifier for the current instance.
      *
      * @protected
+     * @ignore
      * @returns {Number}
      */
 
@@ -2427,10 +2467,13 @@ module.exports = (() => {
 module.exports = (() => {
   'use strict';
   /**
-   * An interface for establishing and interacting with a WebSocket connection.
+   * The abstract definition for an object which can establish and
+   * communicate over a WebSocket. It is unlikely that SDK consumers
+   * will need to implement this class.
    *
    * @public
-   * @interface
+   * @exported
+   * @abstract
    */
 
   class WebSocketAdapter {
@@ -2517,10 +2560,12 @@ module.exports = (() => {
 module.exports = (() => {
   'use strict';
   /**
-   * An interface for creating WebSocket {@link WebSocketAdapter} instances.
+   * An abstract definition for an factory that builds {@link WebSocketAdapter}
+   * instances. It is unlikely that SDK consumers will need to implement this class.
    *
    * @public
-   * @interface
+   * @exported
+   * @abstract
    */
 
   class WebSocketAdapterFactory {
@@ -2529,8 +2574,9 @@ module.exports = (() => {
      * Returns a new {@link WebSocketAdapter} instance.
      *
      * @public
+     * @abstract
      * @param {String} host
-     * @returns {null}
+     * @returns {WebSocketAdapter}
      */
 
 
@@ -2564,10 +2610,12 @@ module.exports = (() => {
     __window = null;
   }
   /**
-   * An implementation of {@link WebSocketAdapterFactory} for use with web browsers.
+   * An implementation of {@link WebSocketAdapterFactory} for use with web browsers. By default,
+   * this strategy is used by the {@link Connection} class.
    *
    * @public
    * @extends {WebSocketAdapterFactory}
+   * @exported
    */
 
 
@@ -2576,6 +2624,15 @@ module.exports = (() => {
       super();
       this._logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
     }
+    /**
+     * Returns a new {@link WebSocketAdapter} instance suitable for use
+     * with a web browser.
+     *
+     * @public
+     * @param {String} host
+     * @returns {WebSocketAdapter}
+     */
+
 
     build(host) {
       if (!__window || !__window.WebSocket) {
@@ -2702,6 +2759,8 @@ module.exports = (() => {
    * Executes an HTTP request for exchange metadata.
    *
    * @function
+   * @ignore
+   * @exported
    * @returns {Promise<ExchangeMetadata[]>}
    */
 
@@ -2729,6 +2788,7 @@ module.exports = (() => {
    *
    * @typedef ExchangeMetadata
    * @type {Object}
+   * @ignore
    * @property {String} id
    * @property {String} description
    * @property {String} timezoneExchange
@@ -2756,6 +2816,8 @@ module.exports = (() => {
    * Executes an HTTP request for profile data.
    *
    * @function
+   * @ignore
+   * @exported
    * @param {String[]} symbols
    * @returns {Promise<ProfileExtension[]>}
    */
@@ -2801,6 +2863,7 @@ module.exports = (() => {
    *
    * @typedef ProfileExtension
    * @type {Object}
+   * @ignore
    * @property {String} symbol
    * @property {String=} expiration
    * @property {String=} firstNotice
@@ -2843,6 +2906,8 @@ module.exports = (() => {
    * the {@link MarketState#processMessage} function).
    *
    * @function
+   * @ignore
+   * @exported
    * @param {String|Array<String>} symbols
    * @param {String} username
    * @param {String} password
@@ -3079,6 +3144,8 @@ module.exports = (() => {
    * to the front month for the ES contract -- e.g. ESZ19 -- not a concrete symbol).
    *
    * @function
+   * @ignore
+   * @exported
    * @param {String} symbol - The symbol to lookup (i.e. the alias).
    * @returns {Promise<String>}
    */
@@ -3114,10 +3181,12 @@ module.exports = (() => {
 module.exports = (() => {
   'use strict';
   /**
-   * An interface for writing log messages.
+   * An interface for writing log messages. An implementation of this
+   * class is returned by {@link LoggerProvider.getLogger}.
    *
    * @public
-   * @interface
+   * @exported
+   * @abstract
    */
 
   class Logger {
@@ -3126,6 +3195,8 @@ module.exports = (() => {
      * Writes a log message.
      *
      * @public
+     * @abstract
+     * @param {...Schema.Loggable}
      */
 
 
@@ -3133,9 +3204,11 @@ module.exports = (() => {
       return;
     }
     /**
-     * Writes a log message, at "trace" level.
+     * Writes a log message at "trace" level.
      *
      * @public
+     * @abstract
+     * @param {...Schema.Loggable}
      */
 
 
@@ -3143,9 +3216,11 @@ module.exports = (() => {
       return;
     }
     /**
-     * Writes a log message, at "debug" level.
+     * Writes a log message at "debug" level.
      *
      * @public
+     * @abstract
+     * @param {...Schema.Loggable}
      */
 
 
@@ -3153,9 +3228,11 @@ module.exports = (() => {
       return;
     }
     /**
-     * Writes a log message, at "info" level.
+     * Writes a log message at "info" level.
      *
      * @public
+     * @abstract
+     * @param {...Schema.Loggable}
      */
 
 
@@ -3163,9 +3240,11 @@ module.exports = (() => {
       return;
     }
     /**
-     * Writes a log message, at "warn" level.
+     * Writes a log message at "warn" level.
      *
      * @public
+     * @abstract
+     * @param {...Schema.Loggable}
      */
 
 
@@ -3173,9 +3252,11 @@ module.exports = (() => {
       return;
     }
     /**
-     * Writes a log message, at "error" level.
+     * Writes a log message at "error" level.
      *
      * @public
+     * @abstract
+     * @param {...Schema.Loggable}
      */
 
 
@@ -3201,16 +3282,16 @@ module.exports = (() => {
 
   let __provider = null;
   /**
-   * Static utilities for interacting with the log system.
+   * Container for static functions which control logging within the SDK.
    *
    * @public
-   * @interface
+   * @exported
    */
 
   class LoggerFactory {
     constructor() {}
     /**
-     * Configures the library to write log messages to the console.
+     * Configures the SDK to write log messages to the console.
      *
      * @public
      * @static
@@ -3221,7 +3302,7 @@ module.exports = (() => {
       LoggerFactory.configure(new ConsoleLoggerProvider());
     }
     /**
-     * Configures the mute all log messages.
+     * Configures the SDK to mute all log messages.
      *
      * @public
      * @static
@@ -3233,7 +3314,7 @@ module.exports = (() => {
     }
     /**
      * Configures the library to delegate any log messages to a custom
-     * implementation of the {@link LoggerProvider} interface.
+     * implementation of the {@link LoggerProvider} class.
      *
      * @public
      * @static
@@ -3252,7 +3333,7 @@ module.exports = (() => {
      * @public
      * @static
      * @param {String} category
-     * @return {Logger}
+     * @returns {Logger}
      */
 
 
@@ -3401,10 +3482,13 @@ module.exports = (() => {
 module.exports = (() => {
   'use strict';
   /**
-   * An interface for generating {@link Logger} instances.
+   * A contract for generating {@link Logger} instances. For custom logging
+   * the SDK consumer should implement this class and pass it to the
+   * {@link LoggerFactory.configure} function.
    *
    * @public
-   * @interface
+   * @exported
+   * @abstract
    */
 
   class LoggerProvider {
@@ -3445,24 +3529,20 @@ module.exports = (() => {
     reset: 'reset'
   };
   /**
-   * @typedef PriceLevel
-   * @inner
-   * @type Object
-   * @property {number} price
-   * @property {number} volume
-   */
-
-  /**
    * An aggregation of the total volume traded at each price level for a
-   * single instrument.
+   * single instrument, mutates as **CumulativeVolume** subscription updates
+   * are processed (see {@link Enums.SubscriptionType}).
    *
    * @public
+   * @exported
    */
 
   class CumulativeVolume {
     constructor(symbol, tickIncrement) {
       /**
-       * @property {string} symbol
+       * @property {string} symbol - Symbol of the cumulative volume.
+       * @public
+       * @readonly
        */
       this.symbol = symbol;
       this._tickIncrement = tickIncrement;
@@ -3618,7 +3698,7 @@ module.exports = (() => {
      * Returns an array of all price levels. This is an expensive operation. Observing
      * an ongoing subscription is preferred (see {@link Connection#on}).
      *
-     * @return {PriceLevel[]}
+     * @returns {Schema.VolumeLevel[]}
      */
 
 
@@ -3649,7 +3729,7 @@ module.exports = (() => {
      * @ignore
      * @param {string} symbol - The symbol to assign to the cloned instance.
      * @param {CumulativeVolume} source - The instance to copy.
-     * @return {CumulativeVolume}
+     * @returns {CumulativeVolume}
      */
 
 
@@ -3707,36 +3787,49 @@ module.exports = (() => {
    * Describes an exchange.
    *
    * @public
+   * @exported
    */
 
   class Exchange {
     constructor(id, name, timezoneDdf, timezoneExchange) {
       /**
-       * @property {string} id - the code used to identify the exchange
+       * @property {string} id - Barchart code for the exchange
+       * @public
+       * @readonly
        */
       this.id = id;
       /**
-       * @property {string} name - the name of the exchange
+       * @property {string} name - Name of the exchange
+       * @public
+       * @readonly
        */
 
       this.name = name;
       /**
-       * @property {string|null} timezoneDdf - the timezone used by DDF for this exchange (should conform to a TZ database name)
+       * @property {string|null} timezoneDdf - Implied timezone of DDF messages for this exchange (conforms to a TZ database name)
+       * @public
+       * @readonly
        */
 
       this.timezoneDdf = null;
       /**
-       * @property {number|null} offsetDdf - the UTC offset, in milliseconds, for DDF purposes.
+       * @property {number|null} offsetDdf - The offset, in milliseconds, between a DDF time and UTC.
+       * @public
+       * @readonly
        */
 
       this.offsetDdf = null;
       /**
-       * @property {string} timezoneLocal - the actual timezone of the exchange (should conform to a TZ database name)
+       * @property {string} timezoneLocal - Timezone exchange is physically located in (conforms to a TZ database name).
+       * @public
+       * @readonly
        */
 
       this.timezoneExchange = null;
       /**
-       * @property {number} offsetExchange -- the UTC offset, in milliseconds, of the exchange's local time.
+       * @property {number} offsetExchange -- The offset, in milliseconds, between exchange time and UTC.
+       * @public
+       * @readonly
        */
 
       this.offsetExchange = null;
@@ -4393,22 +4486,15 @@ module.exports = (() => {
     };
   }
   /**
-   * @typedef Book
-   * @type Object
-   * @property {string} symbol
-   * @property {Object[]} bids
-   * @property {Object[]} asks
-   */
-
-  /**
    * Repository for current market state. This repository will only contain
-   * data for an instrument after a subscription has been established using
+   * data for an symbol after a subscription has been established using
    * the {@link Connection#on} function.
    *
-   * Access the singleton instance using the {@link ConnectionBase#getMarketState}
+   * Access the singleton instance using the {@link Connection#getMarketState}
    * function.
    *
    * @public
+   * @exported
    */
 
 
@@ -4417,10 +4503,12 @@ module.exports = (() => {
       this._internal = MarketStateInternal(handleProfileRequest, ++instanceCounter);
     }
     /**
+     * Returns a promise for the {@link Profile} instance matching the symbol provided.
+     *
      * @public
      * @param {string} symbol
-     * @param {function=} callback - invoked when the {@link Profile} instance becomes available
-     * @returns {Promise<Profile>} The {@link Profile} instance, as a promise.
+     * @param {function=} callback - Invoked when the {@link Profile} instance becomes available
+     * @returns {Promise<Profile|null>}
      */
 
 
@@ -4428,9 +4516,13 @@ module.exports = (() => {
       return this._internal.getProfile(symbol, callback);
     }
     /**
+     * Synchronously returns the {@link Quote} instance for a symbol. If no **MarketUpdate**
+     * subscription has been established for the symbol, an undefined value will be returned
+     * (see {@link Enums.SubscriptionType}).
+     *
      * @public
      * @param {string} symbol
-     * @returns {Quote}
+     * @returns {Quote|undefined}
      */
 
 
@@ -4438,9 +4530,13 @@ module.exports = (() => {
       return this._internal.getQuote(symbol);
     }
     /**
+     * Synchronously returns a {@link Book} object for a symbol. If no **MarketDepth**
+     * subscription has been established for the symbol, an undefined value will be returned
+     * (see {@link Enums.SubscriptionType}).
+     *
      * @public
      * @param {string} symbol
-     * @returns {Book}
+     * @returns {Schema.Book|undefined}
      */
 
 
@@ -4448,9 +4544,13 @@ module.exports = (() => {
       return this._internal.getBook(symbol);
     }
     /**
+     * Returns a promise for the {@link CumulativeVolume} volume instance matching the symbol
+     * provided. The promise will not be fulfilled until a **CumulativeVolume** subscription
+     * has been established (see {@link Enums.SubscriptionType}).
+     *
      * @public
      * @param {string} symbol
-     * @param {function=} callback - invoked when the {@link CumulativeVolume} instance becomes available
+     * @param {function=} callback - Invoked when the {@link CumulativeVolume} instance becomes available
      * @returns {Promise<CumulativeVolume>} The {@link CumulativeVolume} instance, as a promise
      */
 
@@ -4459,7 +4559,7 @@ module.exports = (() => {
       return this._internal.getCumulativeVolume(symbol, callback);
     }
     /**
-     * Returns the time the most recent market data message was received.
+     * Returns the time of the most recent server heartbeat.
      *
      * @public
      * @returns {Date}
@@ -4529,80 +4629,89 @@ module.exports = (() => {
   let profiles = {};
   let formatter = buildPriceFormatter('-', true, ',');
   /**
-   * Describes an instrument.
+   * Describes an instrument (associated with a unique symbol).
    *
    * @public
-   * @param {string} symbol
-   * @param {name} name
-   * @param {string} exchangeId
-   * @param {string} unitCode
-   * @param {string} pointValue
-   * @param {number} tickIncrement
-   * @param {Exchange=} exchange
-   * @param {Object=} additional
+   * @exported
    */
 
   class Profile {
     constructor(symbol, name, exchangeId, unitCode, pointValue, tickIncrement, exchange, additional) {
       /**
-       * @property {string} symbol - the symbol of the instrument.
+       * @property {string} symbol - Symbol of the instrument.
+       * @public
+       * @readonly
        */
       this.symbol = symbol;
       /**
-       * @property {string} name - the name of the instrument.
+       * @property {string} name - Name of the instrument.
+       * @public
+       * @readonly
        */
 
       this.name = name;
       /**
-       * @property {string} exchange - code of the listing exchange.
+       * @property {string} exchange - Code for the listing exchange.
+       * @public
+       * @readonly
        */
 
       this.exchange = exchangeId;
       /**
-       * @property {string} unitCode - code indicating how a prices for the instrument should be formatted.
+       * @property {Exchange|null} exchangeRef - The {@link Exchange}.
+       * @public
+       * @readonly
+       */
+
+      this.exchangeRef = exchange || null;
+      /**
+       * @property {string} unitCode - Code indicating how a prices should be formatted.
+       * @public
+       * @readonly
        */
 
       this.unitCode = unitCode;
       /**
-       * @property {string} pointValue - the change in value for a one point change in price.
+       * @property {string} pointValue - The change in value for a one point change in price.
+       * @public
+       * @readonly
        */
 
       this.pointValue = pointValue;
       /**
-       * @property {number} tickIncrement - the minimum price movement.
+       * @property {number} tickIncrement - The minimum price movement.
+       * @public
+       * @readonly
        */
 
       this.tickIncrement = tickIncrement;
-      /**
-       * @property {Exchange|null} exchangeRef
-       */
-
-      this.exchangeRef = exchange || null;
       const info = SymbolParser.parseInstrumentType(this.symbol);
 
       if (info) {
         if (info.type === 'future') {
           /**
-           * @property {string|undefined} root - the root symbol, if a future; otherwise undefined.
+           * @property {string|undefined} root - Root symbol (futures only).
+           * @public
+           * @readonly
            */
           this.root = info.root;
           /**
-           * @property {string|undefined} month - the month code, if a future; otherwise undefined.
+           * @property {string|undefined} month - Month code (futures only).
            */
 
           this.month = info.month;
           /**
-           * @property {undefined|number} year - the expiration year, if a future; otherwise undefined.
+           * @property {number|undefined} year - Expiration year (futures only).
            */
 
           this.year = info.year;
           /**
-           * @property {string|undefined} expiration - the expiration date, as a string, formatted YYYY-MM-DD.
+           * @property {string|undefined} expiration - Expiration date, formatted as YYYY-MM-DD (futures only).
            */
 
           this.expiration = null;
           /**
-           * @property {string|undefined} expiration - the first notice date, as a string, formatted YYYY-MM-DD.
+           * @property {string|undefined} expiration - First notice date, formatted as YYYY-MM-DD (futures only).
            */
 
           this.firstNotice = null;
@@ -4618,7 +4727,7 @@ module.exports = (() => {
       profiles[symbol] = this;
     }
     /**
-     * Given a numeric price, returns a human-readable price.
+     * Given a price, returns a the human-readable string representation.
      *
      * @public
      * @param {number} price
@@ -4645,8 +4754,10 @@ module.exports = (() => {
     /**
      * Alias for {@link Profile.setPriceFormatter} function.
      *
-     * @deprecated
      * @public
+     * @static
+     * @ignore
+     * @deprecated
      * @see {@link Profile.setPriceFormatter}
      */
 
@@ -4677,45 +4788,66 @@ module.exports = (() => {
 module.exports = (() => {
   'use strict';
   /**
-   * Current market conditions for an instrument.
+   * Current market conditions for an instrument, mutates as **MarketUpdate**
+   * subscription updates are processed (see {@link Enums.SubscriptionType}).
    *
    * @public
-   * @param {String=} symbol
+   * @exported
    */
 
   class Quote {
     constructor(symbol) {
       /**
-       * @property {string} symbol - the symbol of the quoted instrument.
+       * @property {string} symbol - Symbol of the quoted instrument.
+       * @public
        */
       this.symbol = symbol || null;
       /**
-       * @property {string} message - last DDF message that caused a mutation to this instance.
+       * @property {string} message - Most recent DDF message to cause a this instance to mutate.
+       * @public
        */
 
       this.message = null;
       /**
-       * @property {string} flag - market status, will have one of three values: p, s, or undefined.
+       * @property {string|undefined} flag - Market status, will have one of three values: "p", "s", or undefined.
+       * @public
        */
 
       this.flag = null;
+      /**
+       * @property {string} - One of two values, "I" or "R" -- indicating delayed or realtime data, respectively.
+       * @type {null}
+       */
+
       this.mode = null;
       /**
-       * @property {string} day - one character code that indicates day of the month of the current trading session.
+       * @property {string} day - One character code indicating the day of the month of the current trading session.
+       * @public
        */
 
       this.day = null;
       /**
-       * @property {number} dayNum - day of the month of the current trading session.
+       * @property {number} dayNum - Day of the month of the current trading session.
+       * @public
        */
 
       this.dayNum = 0;
+      /**
+       * @property {string|null} session
+       * @public
+       */
+
       this.session = null;
       /**
-       * @property {Date|null} lastUpdate - the most recent refresh. this date instance stores the hours and minutes for the exchange time (without proper timezone adjustment). use caution.
+       * @property {Date|null} lastUpdate - The most recent refresh date. Caution should be used. This date was created from hours, minutes, and seconds without regard for the current machine's timezone. As such, it is only safe to read time-related values (e.g. ```Date.getHours```, ```Date.getMinutes```, etc). Do not attempt to compare. Do not attempt to convert.
+       * @public
        */
 
       this.lastUpdate = null;
+      /**
+       * @property {Date|null} lastUpdate - The most recent refresh date.
+       */
+
       this.lastUpdateUtc = null;
       /**
        * @property {number} bidPrice - top-of-book price on the buy side.
@@ -4758,7 +4890,7 @@ module.exports = (() => {
       this.vwap2 = null; // Calculated
 
       /**
-       * @property {number} blockTrade - most recent block trade price.
+       * @property {number} blockTrade - Most recent block trade price.
        */
 
       this.blockTrade = null;
@@ -4811,7 +4943,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.22'
+    version: '4.0.23'
   };
 })();
 
@@ -4819,11 +4951,14 @@ module.exports = (() => {
 module.exports = (() => {
   'use strict';
   /**
-   * Converts a base code into a unit code.
+   * Converts a Barchart "base" code into a Barchart "unit" code.
    *
    * @function
+   * @memberOf Functions
+   * @ignore
+   * @exported
    * @param {Number} baseCode
-   * @return {String}
+   * @returns {String}
    */
 
   function convertBaseCodeToUnitCode(baseCode) {
@@ -4888,6 +5023,9 @@ module.exports = (() => {
    * and returns the day code for the day of the month.
    *
    * @function
+   * @memberOf Functions
+   * @ignore
+   * @exported
    * @param {Date} date
    * @returns {String|null}
    */
@@ -4912,6 +5050,9 @@ module.exports = (() => {
    * Converts a day code (e.g. "A" ) to a day number (e.g. 11).
    *
    * @function
+   * @memberOf Functions
+   * @ignore
+   * @exported
    * @param {String} dayCode
    * @returns {Number|null}
    */
@@ -4945,10 +5086,13 @@ module.exports = (() => {
   const ASCII_A = 'A'.charCodeAt(0);
   /**
    * Converts a day number to a single character day code (e.g. 1 is
-   * converted to "1" and 10 is converted to "0" and 11 is converted
+   * converted to "1", and 10 is converted to "0", and 11 is converted
    * to "A").
    *
    * @function
+   * @memberOf Functions
+   * @ignore
+   * @exported
    * @param {Number} d
    * @returns {String}
    */
@@ -4983,6 +5127,7 @@ module.exports = (() => {
      *
      * @public
      * @static
+     * @exported
      * @returns {Array<String>}
      */
     getTimezones() {
@@ -4994,6 +5139,7 @@ module.exports = (() => {
      *
      * @public
      * @static
+     * @exported
      * @returns {String|null}
      */
     guessTimezone() {
@@ -5013,7 +5159,9 @@ module.exports = (() => {
   /**
    * Formats a {@link Date} instance as a string (using a MM/DD/YY pattern).
    *
+   * @exported
    * @function
+   * @memberOf Functions
    * @param {Date=} date
    * @param {Boolean=} utc
    * @returns {String}
@@ -5043,7 +5191,9 @@ module.exports = (() => {
   /**
    * Formats a number as a string.
    *
+   * @exported
    * @function
+   * @memberOf Functions
    * @param {Number} value
    * @param {Number} digits
    * @param {String=} thousandsSeparator
@@ -5112,6 +5262,7 @@ module.exports = (() => {
    * Returns a {@link PriceFormatterFactory~formatPrice} which uses
    * the configuration supplied to this function as parameters.
    *
+   * @exported
    * @function
    * @param {String=} fractionSeparator
    * @param {Boolean=} specialFractions
@@ -5162,7 +5313,9 @@ module.exports = (() => {
   /**
    * Formats a number as a string.
    *
+   * @exported
    * @function
+   * @memberOf Functions
    * @param {Number} value
    * @param {String} unitcode
    * @param {String=} fractionSeparator
@@ -5308,7 +5461,9 @@ module.exports = (() => {
    * state. If the market is open, and a trade has occurred, then the formatted time
    * is returned. Otherwise, the formatted date is returned.
    *
+   * @exported
    * @function
+   * @memberOf Functions
    * @param {Quote} quote
    * @param {Boolean=} useTwelveHourClock
    * @param {Boolean=} short
@@ -5482,7 +5637,9 @@ module.exports = (() => {
   /**
    * Formats a {@link Date} instance's time component as a string.
    *
+   * @exported
    * @function
+   * @memberOf Functions
    * @param {Date} date
    * @param {String=} timezone
    * @param {Boolean=} useTwelveHourClock
@@ -5564,6 +5721,7 @@ module.exports = (() => {
    * Parses a DDF message, returning a JavaScript object representing the
    * content of the message.
    *
+    * @exported
    * @function
    * @param {String} msg
    * @returns {Object}
@@ -6094,6 +6252,7 @@ module.exports = (() => {
    * a quote for IBM, having a date of September 26 at 13:15 refers to September 26
    * at 13:15 in America/New_York not America/Belize or Asia/Tokyo.
    *
+   * @exported
    * @function
    * @param {String} bytes
    * @returns {Date}
@@ -6146,6 +6305,7 @@ module.exports = (() => {
   /**
    * Parses DDF price.
    *
+   * @exported
    * @function
    * @param {String} str
    * @param {String} unitcode
@@ -6488,7 +6648,9 @@ module.exports = (() => {
   /**
    * Static utilities for parsing symbols.
    *
+   * @exported
    * @public
+   * @ignore
    */
 
 
@@ -6526,7 +6688,7 @@ module.exports = (() => {
      * @public
      * @static
      * @param {String} symbol
-     * @return {String|null}
+     * @returns {String|null}
      */
 
 
