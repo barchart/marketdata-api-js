@@ -15,6 +15,8 @@
 ## CumulativeVolume :id=cumulativevolume
 **Kind**: global class  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
+**File**: /lib/marketState/CumulativeVolume.js  
 >An aggregation of the total volume traded at each price level for a
 single instrument, mutates as **CumulativeVolume** subscription updates
 are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
@@ -67,6 +69,8 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-conne
 ## Exchange :id=exchange
 **Kind**: global class  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
+**File**: /lib/marketState/Exchange.js  
 >Describes an exchange.
 
 
@@ -162,6 +166,8 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-conne
 ## MarketState :id=marketstate
 **Kind**: global class  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
+**File**: /lib/marketState/MarketState.js  
 >Repository for current market state. This repository will only contain
 data for an symbol after a subscription has been established using
 the [Connection#on](/content/sdk/lib-connection?id=connectionon) function.
@@ -256,6 +262,8 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 ## Profile :id=profile
 **Kind**: global class  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
+**File**: /lib/marketState/Profile.js  
 >Describes an instrument (associated with a unique symbol).
 
 
@@ -460,6 +468,8 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 ## Quote :id=quote
 **Kind**: global class  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
+**File**: /lib/marketState/Quote.js  
 >Current market conditions for an instrument, mutates as **MarketUpdate**
 subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
 

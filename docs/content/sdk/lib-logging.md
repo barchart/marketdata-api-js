@@ -11,6 +11,8 @@
 ## Logger :id=logger
 **Kind**: global abstract class  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
+**File**: /lib/logging/Logger.js  
 >An interface for writing log messages. An implementation of this
 class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 
@@ -107,6 +109,8 @@ class is returned by [LoggerProvider.getLogger](LoggerProvider.getLogger).
 ## LoggerFactory :id=loggerfactory
 **Kind**: global class  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
+**File**: /lib/logging/LoggerFactory.js  
 >Container for static functions which control logging within the SDK.
 
 
@@ -166,6 +170,8 @@ implementation of the [LoggerProvider](/content/sdk/lib-logging?id=loggerprovide
 ## LoggerProvider :id=loggerprovider
 **Kind**: global abstract class  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/logging/LoggerProvider  
+**File**: /lib/logging/LoggerProvider.js  
 >A contract for generating [Logger](/content/sdk/lib-logging?id=logger) instances. For custom logging
 the SDK consumer should implement this class and pass it to the
 [configure](#LoggerFactoryconfigure) function.

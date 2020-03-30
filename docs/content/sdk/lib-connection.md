@@ -12,6 +12,8 @@
 **Kind**: global class  
 **Extends**: <code>ConnectionBase</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/Connection  
+**File**: /lib/connection/Connection.js  
 >This class is the **central component of the SDK**. It is responsible for connecting to
 Barchart's servers, maintaining market data subscriptions, and maintaining market
 state. The SDK consumer should use one instance at a time.
@@ -233,6 +235,8 @@ for any symbol subscribed symbol.
 ### Enums.ConnectionEventType :id=enumsconnectioneventtype
 **Kind**: static enum of <code>Enums</code>  
 **Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionEventType  
+**File**: /lib/connection/ConnectionEventType.js  
 **Read only**: true  
 **Properties**
 
@@ -256,7 +260,6 @@ for any symbol subscribed symbol.
 **Import**: @barchart/marketdata-api-js/lib/connection/SubscriptionType  
 **File**: /lib/connection/SubscriptionType.js  
 **Read only**: true  
-**Test**:   
 **Properties**
 
 | Name | Type | Default | Description |
