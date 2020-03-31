@@ -1,16 +1,15 @@
 <!-- releases_open -->
-## 4.0.23
 
+## 4.0.23
 **No functional changes.**
 
 * Added formal documentation
   * Documentation published to [GitHub Pages](https://barchart.github.io/marketdata-api-js/#/)
-  * Removed GitHub all wiki documents
+  * Removed wiki documents from GitHub (replaced by documentation)
 * Updated, corrected and modernized JDSoc comments
 * Added ```lib/connection/ConnectionEventType``` as an alternative to literal ```String``` values
 
 ## 4.0.18
-
 **Added better support for timezones.**
 
 * Exchange timezones are now downloaded on ```Connection.connect```.
@@ -19,10 +18,9 @@
 * The ```format/quote``` function now accepts a fourth ```timezone``` parameter allowing the date/time to be shown in any desired timezone.
 
 ## 4.0.3
-
 **Features from the deprecated [@barchart/marketdata-utilities-js](https://github.com/barchart/marketdata-utilities-js) library have been incorporated here. As a result, several breaking changes have been introduced.**
 
-* Many object and functions have been renamed or moved
+* Many objects and functions have been renamed or moved
   * The ```Connection``` class was moved
 * The library now includes features from @barchart/marketdata-utilities-js
   * Utilities have been placed in the ```/lib/utilities```folder

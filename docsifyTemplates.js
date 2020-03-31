@@ -1,12 +1,13 @@
 module.exports = {
 	indexHTMLHead: '  <link rel="stylesheet" type="text/css" href="styles/override.css">\n</head>',
 	sdkReference: '# SDK Reference\n',
-	sdkSidebar: '<!--- sdk_open -->\n* [SDK Reference](/content/sdk_reference)\n',
+	releasesTemplate: '<!-- releases_open -->\n',
+	sdkSidebar: '<!-- sdk_open -->\n* [SDK Reference](/content/sdk_reference)\n',
 	sidebar: `* [Overview](/content/product_overview)
 * [Quick Start](/content/quick_start)
-<!--- sdk_open -->
+<!-- sdk_open -->
 * [SDK Reference](/content/sdk_reference)
-<!--- sdk_close -->
+<!-- sdk_close -->
 * [Release Notes](/content/release_notes)`,
 	coverPage: (version) => {
 		return `# Barchart Market Data SDK <small>JavaScript ${version}</small>
@@ -34,5 +35,5 @@ module.exports = {
 	styles: '.sidebar .app-name {\n\ttext-align: left;\n\n\tmargin-left: 15px;\n}\n\nh2#contents + ul p {\n\tmargin: 0;\n}',
 	quickStart: '# Quick Start',
 	productOverview: '# Overview',
-	releaseNotes: '# Release Notes',
+	releaseNotes: '# Release Notes\n<!-- releases_open -->\n<!-- releases_close -->',
 };

@@ -5,7 +5,7 @@
   * - [Subscriptions](/content/concepts/subscriptions)
   * - [Data Structures](/content/concepts/data_structures)
   * - [Addenda](/content/concepts/addenda)
-<!--- sdk_open -->
+<!-- sdk_open -->
 * [SDK Reference](/content/sdk_reference)
-<!--- sdk_close -->
+<!-- sdk_close -->
 * [Release Notes](/content/release_notes)

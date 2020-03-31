@@ -3,6 +3,7 @@ const AWS = require('aws-sdk'),
 	browserify = require('browserify'),
 	buffer = require('vinyl-buffer'),
 	bump = require('gulp-bump'),
+	compareVersions = require('compare-versions'),
 	docsify = require('docsify-cli/lib/commands/init'),
 	file = require('gulp-file'),
 	fs = require('fs'),
@@ -40,6 +41,37 @@ function prepareLinkForDocs(path, tab) {
 	return `${tab ? '\t' : ''}* [${name}](${preparePathForDocs(path)})\n`;
 }
 
+function generateReleaseNotes() {
+	const contentDir = `${__dirname}/docs/content`;
+	const releasesDir = `${contentDir}/releases`;
+	let releasesTemplate = docsifyTemplates.releasesTemplate;
+	let releaseNotes = [];
+
+	try	{
+		const releaseFiles = fs.readdirSync(releasesDir);
+		releaseNotes = releaseFiles
+			.filter((file) => file !== '_sidebar.md')
+			.map((file) => file.replace('.md', ''))
+			.sort(compareVersions)
+			.reverse();
+	} catch (e) {
+		console.log(`Unable to scan directory [ ${releasesDir} ]: ${e}`);
+	}
+
+	releaseNotes.forEach((file) => {
+		const release = fs.readFileSync(`${releasesDir}/${file}.md`).toString();
+		if (release){
+			releasesTemplate += `\n## ${file}\n${release}\n`;
+		}
+	});
+
+	releasesTemplate += '\n<!-- releases_close -->';
+
+	gulp.src([`${contentDir}/release_notes.md`])
+		.pipe(replace(/(<!-- releases_open -->(\s|.)*<!-- releases_close -->)/gm, releasesTemplate))
+		.pipe(gulp.dest(contentDir));
+}
+
 function generateDocs(inputFiles = 'lib/**/*.js') {
 	global.packageName = '@barchart/marketdata-api-js';
 
@@ -52,7 +84,7 @@ function generateDocs(inputFiles = 'lib/**/*.js') {
 
 	let sdkReference = docsifyTemplates.sdkReference;
 	let sdkSidebar = docsifyTemplates.sdkSidebar;
-
+	
 	return jsdoc2md.clear().then(() => {
 		return jsdoc2md.getTemplateData({
 			files: inputFiles
@@ -99,18 +131,20 @@ function generateDocs(inputFiles = 'lib/**/*.js') {
 				}
 			});
 
-			sdkSidebar += '<!--- sdk_close -->';
+			sdkSidebar += '<!-- sdk_close -->';
 
 			fs.writeFileSync(path.resolve(contentDir, `sdk_reference.md`), sdkReference);
 
 			gulp.src([`${docDir}/_sidebar.md`], {allowEmpty: true})
-				.pipe(replace(/(<!--- sdk_open -->(\s|.)*<!--- sdk_close -->)/gm, sdkSidebar))
+				.pipe(replace(/(<!-- sdk_open -->(\s|.)*<!-- sdk_close -->)/gm, sdkSidebar))
 				.pipe(gulp.dest(sdkDir));
 
 			gulp.src([`${docDir}/_sidebar.md`])
 				.pipe(gulp.dest(contentDir))
 				.pipe(gulp.dest(conceptsDir))
 				.pipe(gulp.dest(releasesDir));
+
+			generateReleaseNotes();
 		});
 	});
 }
@@ -198,12 +232,12 @@ gulp.task('bump-choice', (cb) => {
 		return cb();
 	});
 
-	return gulp.src([ './package.json' ]).pipe(processor);
+	return gulp.src(['./package.json']).pipe(processor);
 });
 
 gulp.task('bump-version', () => {
 	return gulp.src(['./package.json'])
-		.pipe(bump({ type: global.bump }))
+		.pipe(bump({type: global.bump}))
 		.pipe(gulp.dest('./'));
 });
 
