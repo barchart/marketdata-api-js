@@ -84,7 +84,7 @@ function generateDocs(inputFiles = 'lib/**/*.js') {
 
 	let sdkReference = docsifyTemplates.sdkReference;
 	let sdkSidebar = docsifyTemplates.sdkSidebar;
-	
+
 	return jsdoc2md.clear().then(() => {
 		return jsdoc2md.getTemplateData({
 			files: inputFiles
@@ -364,6 +364,9 @@ gulp.task('bump-and-tag', gulp.series(
 	'ensure-clean-working-directory',
 	'bump-choice',
 	'bump-version',
+	'embed-version',
+	'build',
+	'build-browser-tests',
 	'commit-changes',
 	'push-changes',
 	'create-tag'
