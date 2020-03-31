@@ -5,3 +5,4 @@
 * [lib/marketState](/content/sdk/lib-marketstate)
 * [lib/utilities/data](/content/sdk/lib-utilities-data)
 * [lib/utilities/format](/content/sdk/lib-utilities-format)
+* [lib/utilities/parse](/content/sdk/lib-utilities-parse)
