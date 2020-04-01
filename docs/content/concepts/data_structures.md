@@ -9,7 +9,7 @@ As you establish subscriptions, market data begins streaming. The SDK processes 
 
 #### Accessing State
 
-The [```lib/marketState/MarketState```](/content/sdk/lib-marketstate?id=marketstate) is the repository for state. The SDK maintains a single instance of this class which can be accessed from the ```Connection``` instance, as follows:
+The [```lib/marketState/MarketState```](/content/sdk/lib-marketstate?id=marketstate) is the repository for state. The SDK maintains a single instance which can be accessed from the ```Connection``` instance, as follows:
 
 ```js
 const state = connection.getMarketState();
@@ -28,13 +28,13 @@ connection.getMarketState().getProfile('AAPL')
 	});
 ```
 
-Notice ```MarketState.getProfile``` returns asynchronously. This allows the SDK to download required information if the ```Profile``` has not already been cached.  No market data subscription is required.
+Notice ```MarketState.getProfile``` returns asynchronously -- this allows the SDK to download information that hasn't already been cached.  No market data subscription is required.
 
-**Note**: Additional out-of-band data will be downloaded if you invoke ```Connection.setExtendedProfileMode``` passing a ```true``` value immediately after instantiating your ```Connection```.
+**Note**: Additional out-of-band data will be downloaded if you invoke ```Connection.setExtendedProfileMode``` passing a ```true``` value immediately after your ```Connection``` has been instantiated.
 
 ## Quotes
 
-After the server acknowledges a ```SubscriptionType.MarketUpdate``` subscription, a [```lib/marketState/Quote```](/content/sdk/lib-marketstate?id=marketstate) instance is created. With each new message received for a ```SubscriptionType.MarketUpdate``` subscription, the ```Quote``` instance is updated.
+After the server acknowledges a ```SubscriptionType.MarketUpdate``` subscription, a [```lib/marketState/Quote```](/content/sdk/lib-marketstate?id=marketstate) instance is created. With each new message received, the ```Quote``` instance is updated.
 
 The ```Quote``` contains the following types of information:
 
@@ -52,7 +52,7 @@ const quote = connection.getMarketState().getQuote('AAPL');
 if (quote) {
 	console.log(JSON.stringify(quote, null, 2);
 } else {
-	console.log('A "marketUpdate" subscription must be established, or the server has not yet responded');
+	console.log('A "marketUpdate" subscription has not established, or the server has not yet responded');
 }
 ```
 
@@ -68,14 +68,14 @@ const quote = connection.getMarketState().getBook('ESM0');
 if (quote) {
 	console.log(JSON.stringify(quote, null, 2);
 } else {
-	console.log('A "marketUpdate" subscription must be established, or the server has not yet responded');
+	console.log('A "marketUpdate" subscription has not established, or the server has not yet responded');
 }
 
 ```
 
 ## Cumulative Volume
 
-After a ```SubscriptionType.CumulativeVolume``` subscription is established and the SDK receives data from the server, a ```[/lib/marketState/CumulativeVolume]```(/content/sdk/lib-marketstate?id=cumulativevolume) instance is created.
+After a ```SubscriptionType.CumulativeVolume``` subscription is established and the SDK receives data from the server, a [```/lib/marketState/CumulativeVolume```](/content/sdk/lib-marketstate?id=cumulativevolume) instance is created.
 
 You can access a ```CumulativeVolume``` instance as follows:
 

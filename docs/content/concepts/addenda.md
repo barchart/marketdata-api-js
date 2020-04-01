@@ -36,11 +36,11 @@ LoggerFactory.configure(new MyLoggerProvider());
 const connection = new Connection();
 ```
 
-You can find an example in the Node.js sample script. You'll see a ```LoggingProvider``` implemented to use [log4js](https://www.npmjs.com/package/log4js) here:
+You can find an example in the Node.js sample code. You'll see a ```LoggingProvider``` implemented to use [log4js](https://www.npmjs.com/package/log4js) here:
 
 > /example/node/logging/CustomLoggingProvider.js
 
 ## Utilities
 
-This SDK also contains a number of "pure" utility functions. typically, these functions are used to format values for display. Many of the functions are undocumented because the average SDK user will not require them. Browse the source code in */lib/utilities/* if you're curious.
+This SDK also contains a number of "pure" utility functions. For example, functions to format prices in a human-readable fashion exist. Many of the functions are undocumented because the average SDK user will not require them. Browse the source code in */lib/utilities/* if you're curious.
 

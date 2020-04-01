@@ -38,11 +38,11 @@ Sometimes referred to as "top of book," this subscription will provide the most 
 
 **Level II Data**
 
-Sometimes referred to as "market depth," this subscription will aggregate open, unfilled orders on both sides of the market. In other words, this subscription will tell us the total quantity that can be bought or sold at any given price.
+Sometimes referred to as "market depth," this subscription will aggregate open, unfilled orders on both sides of the market. In other words, this subscription provides the total quantity available for purchase (or sale) at various price points.
 
 **Cumulative Volume Data**
 
-This subscription provides the total volume of trades (i.e. size) which has occurred at each discrete price level for the current day.
+This subscription provides the total volume traded (i.e. size) at each discrete price level during the current day.
 
 ## Supported Environments
 

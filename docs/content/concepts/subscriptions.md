@@ -1,5 +1,7 @@
 ## Fundamentals
 
+Once you've connected, you're ready to subscribe to market data.
+
 ### Start/Stop
 
 The ```Connection.on``` function is used to establish new subscriptions. Conversely, the ```Connection.off``` function is used to stop existing subscriptions.
@@ -10,7 +12,7 @@ The ```Connection.on``` function requires a *subscription type*, a *callback*, a
 connection.on(subscriptionType, handler, symbol);
 ```
 
-The function signature of ```Connection.off``` is identical. The *callback* parameter must be a reference to the **same** function which was originally passed to the ```Connection.on``` function. Here's the signature:
+The signature for ```Connection.off``` is identical. The *callback* parameter must be a reference to the **same** function which was originally passed to the ```Connection.on``` function. Here's the signature:
 
 ```js
 connection.off(subscriptionType, handler, symbol);
@@ -36,7 +38,7 @@ Every subscription requires a callback -- a function the SDK invokes each time n
 
 ### Symbols
 
-For market data subscriptions, you must supply a symbol. A symbol is a unique ```String``` reference to an instrument. For example, ```"AAPL"``` is the symbol for Apple's common stock.
+For market data subscriptions, you must supply a symbol. A symbol is a ```String``` used to reference to a unique instrument. For example, ```"AAPL"``` is the symbol for Apple's common stock.
 
 Apple's stock symbol is widely accepted. However, in some cases, symbols are not universal. In these cases, Barchart defines their own *symbology*; here are some examples:
 
@@ -155,11 +157,9 @@ const handleUsingEvent = (event) => {
 };
 
 const handleUsingQuote = (event) => {
-	if (event.symbol) {
-		const quote = connection.getMarketState().getQuote(event.symbol);
+	const quote = connection.getMarketState().getQuote(event.symbol);
 
-		console.log(`${quote.symbol} recently traded for ${quote.tradePrice}`;
-	}
+	console.log(`${quote.symbol} recently traded for ${quote.tradePrice}`;
 };
 
 connection.on(SubscriptionType.MarketUpdate, 'AAPL', handleUsingEvent);
@@ -175,7 +175,7 @@ connection.off(SubscriptionType.MarketUpdate, 'AAPL', handleUsingQuote);
 
 ## Level II Market Data
 
-A ```SubscriptionType.MarketDepth``` — or ```"marketDepth"``` — subscription gives you a snapshot of the aggregated order book, each time the book changes.
+A ```SubscriptionType.MarketDepth``` — or ```"marketDepth"``` — subscription gives you a snapshot of the order book, aggregated by price level.
 
 #### Availability
 
@@ -240,14 +240,14 @@ Cumulative market is available for futures contracts.
 
 The callback receives an ```Object``` with several notable properties:
 
-The **event** property is a ```String```. It has one of two possible values:
+The **event** property is a ```String``` having one of two possible values:
 
   * *update* - Indicates the volume at one price level has changed (or a new price level has been added).
   * *reset* - Indicates the entire structure has been cleared, leaving no price levels.
 
-The **price** property is a ```Number``` that indicates the price level which changed. This property does not exist for *reset* events.
+The **price** property is a ```Number``` indicating the price level which changed. This property does not exist for *reset* events.
 
-The **volume** property is a ```Number``` that indicates the current aggregate volume at the given **price** level.  This property does not exist for *reset* events.
+The **volume** property is a ```Number``` indicating the current aggregate volume at the given **price** level.  This property does not exist for *reset* events.
 
 The **container** property is an instance of the [```lib/marketState/CumulativeVolume```](/content/sdk/lib-marketstate?id=cumulativevolume) class. It tracks the current volume traded for all price levels.
 

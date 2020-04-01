@@ -12,7 +12,8 @@ If you aren't using NPM, you can download the SDK directly from GitHub at https:
 
 Before you can subscribe to market data, you'll need to establish a WebSocket connection to Barchart's quote servers.
 
-Barchart does not permit anonymous connections. Please contact solutions@barchart.com to *obtain a free username and password*.
+Barchart does not permit anonymous connections. **Contact Barchart at solutions@barchart.com or (866) 333-7587 to obtain the correct hostname and a free username/password.**
+
 
 ### From a Web Browser
 
@@ -65,7 +66,7 @@ connection.connect(server, username, password, new WebSocketFactory());
 
 ## Subscribing
 
-After a connection has been established, let's subscribe to the Level I data for Apple stock, as follows:
+After a connection has been established, let's subscribe to the Level I data for Apple's stock, as follows:
 
 ```js
 let previousPrice = null;
@@ -89,7 +90,7 @@ Two pre-built applications should provide some insight into the features and usa
 
 ### Web Browsers
 
-A single-page HTML application allows users to enter symbols, subscribe to Level I data, unsubscribe, and observe data changes on screen.
+A single-page HTML application allows users to enter symbols, subscribe to Level I data, unsubscribe from to Level I data, and observe data changes on screen.
 
 You can find the source code in the */example/browser* folder. The application is also hosted here:
 
