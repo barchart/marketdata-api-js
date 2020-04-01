@@ -86,8 +86,4 @@ connection.getMarketState().getCumulativeVolume('AAPL')
 	});
 ```
 
-Notice ```MarketState.getCumulativeVolume``` returns asynchronously. If you have recently subscribed, the function will wait until the SDK receives data from the server.
-
-
-
-...
+Notice ```MarketState.getCumulativeVolume``` returns asynchronously. If you have recently subscribed, response will wait until the SDK receives data from the server.
