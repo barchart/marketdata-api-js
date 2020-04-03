@@ -24,3 +24,4 @@ This library has been published as a public module to NPM as [@barchart/marketda
 
     > npm install @barchart/marketdata-api-js -S
 
+
