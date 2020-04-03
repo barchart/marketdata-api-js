@@ -1,0 +1,14 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 12.x
+
+  pre_build:
+    commands:
+      - npm install
+
+  build:
+    commands:
+      - ./node_modules/.bin/gulp lint

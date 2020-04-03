@@ -384,7 +384,8 @@ gulp.task('watch', () => {
 gulp.task('lint', () => {
 	return gulp.src(['./lib/**/*.js', './test/specs/**/*.js'])
 		.pipe(jshint({'esversion': 6}))
-		.pipe(jshint.reporter('default'));
+		.pipe(jshint.reporter('default'))
+		.pipe(jshint.reporter('fail'));
 });
 
 gulp.task('default', gulp.series('lint'));
