@@ -12,3 +12,4 @@ phases:
   build:
     commands:
       - ./node_modules/.bin/gulp lint
+      - ./node_modules/.bin/gulp test

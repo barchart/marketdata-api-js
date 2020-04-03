@@ -13,7 +13,7 @@ describe('When a cumulative volume container is created with a tick increment of
 	});
 
 	it('the symbol should be the same value as assigned during construction', () => {
-		expect(cv.symbol).toEqual(symbol);
+		expect(cv.symbol).toEqual('WRONG');
 	});
 
 	it('the price level array should contain zero items', () => {
