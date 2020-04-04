@@ -1,8 +1,8 @@
 # @barchart/marketdata-api-js
 
-### Overview
-
 [![AWS CodeBuild](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiY1VDTWRsRHkwK0NRYnJNZk95WjVEMzR3QW9EbUtTRG9yNExRSk0yVTI1MEtWWGlDOXUvQU1xTmNuTUxNd0REZ1VlZkc2WXRPMXZ2SWpOSW83UkdYc3c4PSIsIml2UGFyYW1ldGVyU3BlYyI6IjhUTXBaL1E4RW5WRGlKTjIiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)](https://github.com/barchart/marketdata-api-js)
+
+### Overview
 
 [Barchart](https://www.barchart.com) offers an exhaustive array of market data for multiple asset classes from exchanges around the world. **This SDK enables your applications to consume real-time market data**, as follows:
 
