@@ -1,5 +1,11 @@
 <!-- releases_open -->
 
+## 4.0.24
+**No functional changes.**
+
+* Added package-lock.json file. Public libraries should lock dependencies.
+* Added continuous integration use AWS CodeBuild.
+
 ## 4.0.23
 **No functional changes.**
 
