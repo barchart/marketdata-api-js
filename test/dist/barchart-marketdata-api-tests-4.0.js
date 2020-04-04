@@ -764,7 +764,9 @@ module.exports = (() => {
   return Profile;
 })();
 
-},{"../utilities/format/factories/price":15,"./../utilities/parsers/SymbolParser":24}],6:[function(require,module,exports){
+},{"../utilities/format/factories/price":14,"./../utilities/parsers/SymbolParser":24}],6:[function(require,module,exports){
+const is = require('@barchart/common-js/lang/is');
+
 module.exports = (() => {
   'use strict';
   /**
@@ -779,6 +781,10 @@ module.exports = (() => {
    */
 
   function convertBaseCodeToUnitCode(baseCode) {
+    if (!is.number(baseCode)) {
+      return '0';
+    }
+
     switch (baseCode) {
       case -1:
         return '2';
@@ -823,14 +829,14 @@ module.exports = (() => {
         return 'F';
 
       default:
-        return 0;
+        return '0';
     }
   }
 
   return convertBaseCodeToUnitCode;
 })();
 
-},{}],7:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":29}],7:[function(require,module,exports){
 const convertNumberToDayCode = require('./numberToDayCode');
 
 module.exports = (() => {
@@ -932,66 +938,8 @@ module.exports = (() => {
 })();
 
 },{"@barchart/common-js/lang/is":29}],10:[function(require,module,exports){
-const convertUnitCodeToBaseCode = require('./unitCodeToBaseCode');
+const is = require('@barchart/common-js/lang/is');
 
-module.exports = (() => {
-  'use strict'; // Adapted from legacy code at https://github.com/barchart/php-jscharts/blob/372deb9b4d9ee678f32b6f8c4268434249c1b4ac/chart_package/webroot/js/deps/ddfplus/com.ddfplus.js
-
-  /**
-   * Converts a unit code into a base code.
-   *
-   * @function
-   * @memberOf Functions
-   * @ignore
-   * @exported
-   * @param {String} value
-   * @param {String} unitcode
-   * @returns {Number}
-   */
-
-  function convertStringToDecimal(value, unitcode) {
-    let baseCode = convertUnitCodeToBaseCode(unitcode);
-    let is_negative = false;
-
-    if (value.match(/^-/)) {
-      is_negative = true;
-      value = value.slice(1);
-    } // Fix for 10-Yr T-Notes
-
-
-    if (baseCode === -4 && (value.length === 7 || value.length === 6 && value.charAt(0) !== '1')) {
-      baseCode -= 1;
-    }
-
-    if (baseCode >= 0) {
-      const ival = value * 1;
-      return Math.round(ival * Math.pow(10, baseCode)) / Math.pow(10, baseCode);
-    } else {
-      const has_dash = value.match(/-/);
-      let divisor = Math.pow(2, Math.abs(baseCode) + 2);
-      const fracsize = String(divisor).length;
-      const denomstart = value.length - fracsize;
-      let numerend = denomstart;
-
-      if (value.substring(numerend - 1, numerend) === '-') {
-        numerend--;
-      }
-
-      const numerator = value.substring(0, numerend) * 1;
-      const denominator = value.substring(denomstart, value.length) * 1;
-
-      if (baseCode === -5) {
-        divisor = has_dash ? 320 : 128;
-      }
-
-      return (numerator + denominator / divisor) * (is_negative ? -1 : 1);
-    }
-  }
-
-  return convertStringToDecimal;
-})();
-
-},{"./unitCodeToBaseCode":11}],11:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -1006,6 +954,10 @@ module.exports = (() => {
    */
 
   function convertUnitCodeToBaseCode(unitCode) {
+    if (!is.string(unitCode)) {
+      return 0;
+    }
+
     switch (unitCode) {
       case '2':
         return -1;
@@ -1057,7 +1009,7 @@ module.exports = (() => {
   return convertUnitCodeToBaseCode;
 })();
 
-},{}],12:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":29}],11:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1092,7 +1044,7 @@ module.exports = (() => {
   };
 })();
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1126,7 +1078,7 @@ module.exports = (() => {
   return formatDate;
 })();
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -1196,7 +1148,7 @@ module.exports = (() => {
   return formatDecimal;
 })();
 
-},{"@barchart/common-js/lang/is":29}],15:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":29}],14:[function(require,module,exports){
 const formatPrice = require('./../price');
 
 module.exports = (() => {
@@ -1232,7 +1184,7 @@ module.exports = (() => {
   return buildPriceFormatter;
 })();
 
-},{"./../price":17}],16:[function(require,module,exports){
+},{"./../price":16}],15:[function(require,module,exports){
 const formatQuote = require('./../quote');
 
 module.exports = (() => {
@@ -1266,7 +1218,7 @@ module.exports = (() => {
   return buildQuoteFormatter;
 })();
 
-},{"./../quote":18}],17:[function(require,module,exports){
+},{"./../quote":17}],16:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDecimal = require('./decimal');
@@ -1421,7 +1373,7 @@ module.exports = (() => {
   return formatPrice;
 })();
 
-},{"./decimal":14,"@barchart/common-js/lang/is":29}],18:[function(require,module,exports){
+},{"./decimal":13,"@barchart/common-js/lang/is":29}],17:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDate = require('./date'),
@@ -1506,7 +1458,7 @@ module.exports = (() => {
   return formatQuoteDateTime;
 })();
 
-},{"./date":13,"./time":20,"@barchart/common-js/lang/Timezones":26,"@barchart/common-js/lang/is":29}],19:[function(require,module,exports){
+},{"./date":12,"./time":19,"@barchart/common-js/lang/Timezones":26,"@barchart/common-js/lang/is":29}],18:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -1531,7 +1483,7 @@ module.exports = (() => {
   return formatSymbol;
 })();
 
-},{}],20:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1684,7 +1636,7 @@ module.exports = (() => {
   return formatTime;
 })();
 
-},{}],21:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 const xmlDom = require('xmldom');
 
 const parseValue = require('./value'),
@@ -2237,7 +2189,7 @@ module.exports = (() => {
   return parseMessage;
 })();
 
-},{"./timestamp":22,"./value":23,"xmldom":34}],22:[function(require,module,exports){
+},{"./timestamp":21,"./value":22,"xmldom":34}],21:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -2291,7 +2243,7 @@ module.exports = (() => {
   return parseTimestamp;
 })();
 
-},{}],23:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -2391,7 +2343,66 @@ module.exports = (() => {
   return parseValue;
 })();
 
-},{}],24:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
+const convertUnitCodeToBaseCode = require('./../convert/unitCodeToBaseCode');
+
+module.exports = (() => {
+  'use strict'; // Adapted from legacy code at https://github.com/barchart/php-jscharts/blob/372deb9b4d9ee678f32b6f8c4268434249c1b4ac/chart_package/webroot/js/deps/ddfplus/com.ddfplus.js
+
+  /**
+   * Converts a string-formatted price into a number.
+   *
+   * @function
+   * @memberOf Functions
+   * @exported
+   * @param {String} value
+   * @param {String} unitCode
+   * @returns {Number}
+   */
+
+  function parsePrice(value, unitCode) {
+    let baseCode = convertUnitCodeToBaseCode(unitCode);
+    let is_negative = false;
+
+    if (value.match(/^-/)) {
+      is_negative = true;
+      value = value.slice(1);
+    } // Fix for 10-Yr T-Notes
+
+
+    if (baseCode === -4 && (value.length === 7 || value.length === 6 && value.charAt(0) !== '1')) {
+      baseCode -= 1;
+    }
+
+    if (baseCode >= 0) {
+      const ival = value * 1;
+      return Math.round(ival * Math.pow(10, baseCode)) / Math.pow(10, baseCode);
+    } else {
+      const has_dash = value.match(/-/);
+      let divisor = Math.pow(2, Math.abs(baseCode) + 2);
+      const fracsize = String(divisor).length;
+      const denomstart = value.length - fracsize;
+      let numerend = denomstart;
+
+      if (value.substring(numerend - 1, numerend) === '-') {
+        numerend--;
+      }
+
+      const numerator = value.substring(0, numerend) * 1;
+      const denominator = value.substring(denomstart, value.length) * 1;
+
+      if (baseCode === -5) {
+        divisor = has_dash ? 320 : 128;
+      }
+
+      return (numerator + denominator / divisor) * (is_negative ? -1 : 1);
+    }
+  }
+
+  return parsePrice;
+})();
+
+},{"./../convert/unitCodeToBaseCode":10}],24:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -12538,14 +12549,14 @@ describe('When converting a baseCode to a unitCode', () => {
   it('7 should translate to "F"', () => {
     expect(convertBaseCodeToUnitCode(7)).toEqual('F');
   });
-  it('"-1" should translate to 0', () => {
-    expect(convertBaseCodeToUnitCode("-1")).toEqual(0);
+  it('"-1" should translate to "0"', () => {
+    expect(convertBaseCodeToUnitCode("-1")).toEqual("0");
   });
-  it('A null value should translate to 0', () => {
-    expect(convertBaseCodeToUnitCode(null)).toEqual(0);
+  it('A null value should translate to "0"', () => {
+    expect(convertBaseCodeToUnitCode(null)).toEqual("0");
   });
-  it('An undefined value should translate to 0', () => {
-    expect(convertBaseCodeToUnitCode(undefined)).toEqual(0);
+  it('An undefined value should translate to "0"', () => {
+    expect(convertBaseCodeToUnitCode(undefined)).toEqual("0");
   });
 });
 
@@ -12931,28 +12942,6 @@ describe('When converting a number to a dayCode', () => {
 });
 
 },{"./../../../../lib/utilities/convert/numberToDayCode":9}],43:[function(require,module,exports){
-const convertStringToDecimal = require('./../../../../lib/utilities/convert/stringToDecimal');
-
-describe('when parsing prices', () => {
-  'use strict';
-
-  describe('with a fractional separator', () => {
-    it('returns 125.625 (with unit code 2) when parsing "125-5"', () => {
-      expect(convertStringToDecimal('125-5', '2')).toEqual(125.625);
-    });
-    it('returns -125.625 (with unit code 2) when parsing "-125-5"', () => {
-      expect(convertStringToDecimal('-125-5', '2')).toEqual(-125.625);
-    });
-    it('returns 125.625 (with unit code 5) when parsing "125-240"', () => {
-      expect(convertStringToDecimal('125-240', '5')).toEqual(125.75);
-    });
-    it('returns -125.625 (with unit code 5) when parsing "-125-240"', () => {
-      expect(convertStringToDecimal('-125-240', '5')).toEqual(-125.75);
-    });
-  });
-});
-
-},{"./../../../../lib/utilities/convert/stringToDecimal":10}],44:[function(require,module,exports){
 const convertUnitCodeToBaseCode = require('./../../../../lib/utilities/convert/unitCodeToBaseCode');
 
 describe('When converting a unitCode to a baseCode', () => {
@@ -13009,7 +12998,7 @@ describe('When converting a unitCode to a baseCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":11}],45:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":10}],44:[function(require,module,exports){
 const monthCodes = require('../../../../lib/utilities/data/monthCodes');
 
 describe('When looking up a month name by code', () => {
@@ -13097,7 +13086,7 @@ describe('When looking up a month number by code', () => {
   });
 });
 
-},{"../../../../lib/utilities/data/monthCodes":12}],46:[function(require,module,exports){
+},{"../../../../lib/utilities/data/monthCodes":11}],45:[function(require,module,exports){
 const formatDate = require('./../../../../lib/utilities/format/date');
 
 describe('when using the date formatter', () => {
@@ -13109,7 +13098,7 @@ describe('when using the date formatter', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/date":13}],47:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/date":12}],46:[function(require,module,exports){
 const formatDecimal = require('./../../../../lib/utilities/format/decimal');
 
 describe('when formatting invalid values', () => {
@@ -13247,7 +13236,7 @@ describe('when formatting decimal values to format with parenthesis and no thous
   });
 });
 
-},{"./../../../../lib/utilities/format/decimal":14}],48:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/decimal":13}],47:[function(require,module,exports){
 const buildPriceFormatter = require('./../../../../../lib/utilities/format/factories/price');
 
 describe('When a price formatter is created', () => {
@@ -13607,7 +13596,7 @@ describe('When a price formatter is created', () => {
   });
 });
 
-},{"./../../../../../lib/utilities/format/factories/price":15}],49:[function(require,module,exports){
+},{"./../../../../../lib/utilities/format/factories/price":14}],48:[function(require,module,exports){
 const buildQuoteFormatter = require('./../../../../../lib/utilities/format/factories/quote');
 
 describe('When a time formatter is created (without specifying the clock)', () => {
@@ -14050,7 +14039,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../../lib/utilities/format/factories/quote":16}],50:[function(require,module,exports){
+},{"./../../../../../lib/utilities/format/factories/quote":15}],49:[function(require,module,exports){
 const formatPrice = require('./../../../../lib/utilities/format/price');
 
 describe('When a price formatter is created', () => {
@@ -14373,7 +14362,7 @@ describe('When a price formatter is created', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/price":17}],51:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/price":16}],50:[function(require,module,exports){
 const formatQuote = require('./../../../../lib/utilities/format/quote');
 
 describe('When a quote formatter is used (without specifying the clock)', () => {
@@ -14796,7 +14785,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../lib/utilities/format/quote":18}],52:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/quote":17}],51:[function(require,module,exports){
 const formatSymbol = require('./../../../../lib/utilities/format/symbol');
 
 describe('When a lowercase string is formatted as a symbol', () => {
@@ -14883,9 +14872,9 @@ describe('When an null value is formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/symbol":19}],53:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/symbol":18}],52:[function(require,module,exports){
 
-},{}],54:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 const parseMessage = require('../../../../../lib/utilities/parse/ddf/message');
 
 describe('when parsing an XML refresh message', () => {
@@ -15092,7 +15081,7 @@ describe('when parsing a DDF message', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/message":21}],55:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/message":20}],54:[function(require,module,exports){
 const parseValue = require('../../../../../lib/utilities/parse/ddf/value');
 
 describe('when parsing prices', () => {
@@ -15195,7 +15184,29 @@ describe('when parsing prices', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/value":23}],56:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/value":22}],55:[function(require,module,exports){
+const parsePrice = require('../../../../lib/utilities/parse/price');
+
+describe('when parsing prices', () => {
+  'use strict';
+
+  describe('with a fractional separator', () => {
+    it('returns 125.625 (with unit code 2) when parsing "125-5"', () => {
+      expect(parsePrice('125-5', '2')).toEqual(125.625);
+    });
+    it('returns -125.625 (with unit code 2) when parsing "-125-5"', () => {
+      expect(parsePrice('-125-5', '2')).toEqual(-125.625);
+    });
+    it('returns 125.625 (with unit code 5) when parsing "125-240"', () => {
+      expect(parsePrice('125-240', '5')).toEqual(125.75);
+    });
+    it('returns -125.625 (with unit code 5) when parsing "-125-240"', () => {
+      expect(parsePrice('-125-240', '5')).toEqual(-125.75);
+    });
+  });
+});
+
+},{"../../../../lib/utilities/parse/price":23}],56:[function(require,module,exports){
 const SymbolParser = require('../../../../lib/utilities/parsers/SymbolParser');
 
 describe('When parsing a symbol for instrument type', () => {

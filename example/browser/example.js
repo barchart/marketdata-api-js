@@ -4943,11 +4943,13 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.23'
+    version: '4.0.24'
   };
 })();
 
 },{}],20:[function(require,module,exports){
+const is = require('@barchart/common-js/lang/is');
+
 module.exports = (() => {
   'use strict';
   /**
@@ -4962,6 +4964,10 @@ module.exports = (() => {
    */
 
   function convertBaseCodeToUnitCode(baseCode) {
+    if (!is.number(baseCode)) {
+      return '0';
+    }
+
     switch (baseCode) {
       case -1:
         return '2';
@@ -5006,14 +5012,14 @@ module.exports = (() => {
         return 'F';
 
       default:
-        return 0;
+        return '0';
     }
   }
 
   return convertBaseCodeToUnitCode;
 })();
 
-},{}],21:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":42}],21:[function(require,module,exports){
 const convertNumberToDayCode = require('./numberToDayCode');
 
 module.exports = (() => {
