@@ -1,5 +1,8 @@
 <!-- releases_open -->
 
+## 4.0.25
+* Added parsing logic for equity options.
+
 ## 4.0.24
 **No functional changes.**
 
