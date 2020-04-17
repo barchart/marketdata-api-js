@@ -2449,6 +2449,8 @@ module.exports = (() => {
   types.futures.options.short = /^([A-Z][A-Z0-9\$\-!\.]?)([A-Z])([0-9]{1,4})([A-Z])$/i;
   types.futures.options.long = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i;
   types.futures.options.historical = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{2})([0-9]{1,5})(C|P)$/i;
+  types.equities = {};
+  types.equities.options = /^([A-Z\$][A-Z\.\-]{0,})([0-9]?)\|([[0-9]{4})([[0-9]{2})([[0-9]{2})\|([0-9]+\.[0-9]+)[P|W]?(C|P)/i;
   types.indicies = {};
   types.indicies.external = /^\$(.*)$/i;
   types.indicies.sector = /^\-(.*)$/i;
@@ -2503,6 +2505,25 @@ module.exports = (() => {
       definition = {};
       definition.symbol = symbol;
       definition.type = 'forex';
+    }
+
+    return definition;
+  });
+  parsers.push(symbol => {
+    let definition = null;
+    const match = symbol.match(types.equities.options);
+
+    if (match !== null) {
+      definition = {};
+      definition.symbol = symbol;
+      definition.type = 'equity_option';
+      definition.option_type = match[7] === 'C' ? 'call' : 'put';
+      definition.strike = parseFloat(match[6]);
+      definition.root = match[1];
+      definition.month = parseInt(match[4]);
+      definition.day = parseInt(match[5]);
+      definition.year = parseInt(match[3]);
+      definition.adjusted = match[2] !== '';
     }
 
     return definition;
@@ -2876,6 +2897,20 @@ module.exports = (() => {
 
     static getIsBats(symbol) {
       return is.string(symbol) && predicates.bats.test(symbol);
+    }
+    /**
+     * Returns true if the symbol represents an option on an equity or index; false
+     * otherwise.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsEquityOption(symbol) {
+      return is.string(symbol) && types.equities.options.test(symbol);
     }
     /**
      * Returns true if the symbol has an expiration and the symbol appears
@@ -15548,6 +15583,78 @@ describe('When parsing a symbol for instrument type', () => {
       expect(instrumentType.type).toEqual('future_spread');
     });
   });
+  describe('and the symbol is AAPL1|20200515|250.00C', () => {
+    let instrumentType;
+    beforeEach(() => {
+      instrumentType = SymbolParser.parseInstrumentType('AAPL1|20200515|250.00C');
+    });
+    it('the result should not be null', () => {
+      expect(instrumentType).not.toBe(null);
+    });
+    it('the "symbol" should be "AAPL1|20200515|250.00C"', () => {
+      expect(instrumentType.symbol).toEqual('AAPL1|20200515|250.00C');
+    });
+    it('the "type" should be "equity_option"', () => {
+      expect(instrumentType.type).toEqual('equity_option');
+    });
+    it('the "root" should be "AAPL"', () => {
+      expect(instrumentType.root).toEqual('AAPL');
+    });
+    it('the "month" should be 5', () => {
+      expect(instrumentType.month).toEqual(5);
+    });
+    it('the "day" should be 15', () => {
+      expect(instrumentType.day).toEqual(15);
+    });
+    it('the "year" should be 2020', () => {
+      expect(instrumentType.year).toEqual(2020);
+    });
+    it('the "strike" should be 250', () => {
+      expect(instrumentType.strike).toEqual(250);
+    });
+    it('the "option_type" should be "call"', () => {
+      expect(instrumentType.option_type).toEqual('call');
+    });
+    it('the "adjusted" flag should be true', () => {
+      expect(instrumentType.adjusted).toEqual(true);
+    });
+  });
+  describe('and the symbol is $VIX|20200422|20.00WP', () => {
+    let instrumentType;
+    beforeEach(() => {
+      instrumentType = SymbolParser.parseInstrumentType('$VIX|20200422|20.00WP');
+    });
+    it('the result should not be null', () => {
+      expect(instrumentType).not.toBe(null);
+    });
+    it('the "symbol" should be "$VIX|20200422|20.00WP"', () => {
+      expect(instrumentType.symbol).toEqual('$VIX|20200422|20.00WP');
+    });
+    it('the "type" should be "equity_option"', () => {
+      expect(instrumentType.type).toEqual('equity_option');
+    });
+    it('the "root" should be "$VIX"', () => {
+      expect(instrumentType.root).toEqual('$VIX');
+    });
+    it('the "month" should be 4', () => {
+      expect(instrumentType.month).toEqual(4);
+    });
+    it('the "day" should be 22', () => {
+      expect(instrumentType.day).toEqual(22);
+    });
+    it('the "year" should be 2020', () => {
+      expect(instrumentType.year).toEqual(2020);
+    });
+    it('the "strike" should be 20', () => {
+      expect(instrumentType.strike).toEqual(20);
+    });
+    it('the "option_type" should be "put"', () => {
+      expect(instrumentType.option_type).toEqual('put');
+    });
+    it('the "adjusted" flag should be false', () => {
+      expect(instrumentType.adjusted).toEqual(false);
+    });
+  });
 });
 describe('When checking to see if a symbol is a future', () => {
   it('the symbol "ES*1" should return true', () => {
@@ -15609,6 +15716,12 @@ describe('When checking to see if a symbol is a future', () => {
   });
   it('the symbol "ZCPAUS.CM" should return false', () => {
     expect(SymbolParser.getIsFuture('ZCPAUS.CM')).toEqual(false);
+  });
+  it('the symbol "AAPL|20200515|250.00C" should return false', () => {
+    expect(SymbolParser.getIsFuture('AAPL|20200515|250.00C')).toEqual(false);
+  });
+  it('the symbol "$VIX|20200422|20.00WP" should return false', () => {
+    expect(SymbolParser.getIsFuture('$VIX|20200422|20.00WP')).toEqual(false);
   });
 });
 describe('When checking to see if a symbol is a "concrete" future', () => {
@@ -15715,6 +15828,12 @@ describe('When checking to see if a symbol is sector', () => {
   it('the symbol "ZCPAUS.CM" should return false', () => {
     expect(SymbolParser.getIsSector('ZCPAUS.CM')).toEqual(false);
   });
+  it('the symbol "AAPL|20200515|250.00C" should return false', () => {
+    expect(SymbolParser.getIsSector('AAPL|20200515|250.00C')).toEqual(false);
+  });
+  it('the symbol "$VIX|20200422|20.00WP" should return false', () => {
+    expect(SymbolParser.getIsSector('$VIX|20200422|20.00WP')).toEqual(false);
+  });
 });
 describe('When checking to see if a symbol is forex', () => {
   it('the symbol "ES*1" should return false', () => {
@@ -15782,6 +15901,12 @@ describe('When checking to see if a symbol is forex', () => {
   });
   it('the symbol "ZCPAUS.CM" should return false', () => {
     expect(SymbolParser.getIsForex('ZCPAUS.CM')).toEqual(false);
+  });
+  it('the symbol "AAPL|20200515|250.00C" should return false', () => {
+    expect(SymbolParser.getIsForex('AAPL|20200515|250.00C')).toEqual(false);
+  });
+  it('the symbol "$VIX|20200422|20.00WP" should return false', () => {
+    expect(SymbolParser.getIsForex('$VIX|20200422|20.00WP')).toEqual(false);
   });
 });
 describe('When checking to see if a symbol is a future spread', () => {
@@ -15851,6 +15976,12 @@ describe('When checking to see if a symbol is a future spread', () => {
   it('the symbol "ZCPAUS.CM" should return false', () => {
     expect(SymbolParser.getIsFutureSpread('ZCPAUS.CM')).toEqual(false);
   });
+  it('the symbol "AAPL|20200515|250.00C" should return false', () => {
+    expect(SymbolParser.getIsFutureSpread('AAPL|20200515|250.00C')).toEqual(false);
+  });
+  it('the symbol "$VIX|20200422|20.00WP" should return false', () => {
+    expect(SymbolParser.getIsFutureSpread('$VIX|20200422|20.00WP')).toEqual(false);
+  });
 });
 describe('When checking to see if a symbol is a future option', () => {
   it('the symbol "ES*1" should return false', () => {
@@ -15919,6 +16050,12 @@ describe('When checking to see if a symbol is a future option', () => {
   it('the symbol "ZCPAUS.CM" should return false', () => {
     expect(SymbolParser.getIsFutureOption('ZCPAUS.CM')).toEqual(false);
   });
+  it('the symbol "AAPL|20200515|250.00C" should return false', () => {
+    expect(SymbolParser.getIsFutureOption('AAPL|20200515|250.00C')).toEqual(false);
+  });
+  it('the symbol "$VIX|20200422|20.00WP" should return false', () => {
+    expect(SymbolParser.getIsFutureOption('$VIX|20200422|20.00WP')).toEqual(false);
+  });
 });
 describe('When checking to see if a symbol is a cmdty index option', () => {
   it('the symbol "ES*1" should return false', () => {
@@ -15986,6 +16123,86 @@ describe('When checking to see if a symbol is a cmdty index option', () => {
   });
   it('the symbol "ZCPAUS.CM" should return true', () => {
     expect(SymbolParser.getIsCmdty('ZCPAUS.CM')).toEqual(true);
+  });
+  it('the symbol "AAPL|20200515|250.00C" should return false', () => {
+    expect(SymbolParser.getIsCmdty('AAPL|20200515|250.00C')).toEqual(false);
+  });
+  it('the symbol "$VIX|20200422|20.00WP" should return false', () => {
+    expect(SymbolParser.getIsCmdty('$VIX|20200422|20.00WP')).toEqual(false);
+  });
+});
+describe('When checking to see if a symbol is a equity option', () => {
+  it('the symbol "ES*1" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('ES*1')).toEqual(false);
+  });
+  it('the symbol "NG*13" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('NG*13')).toEqual(false);
+  });
+  it('the symbol "ESZ6" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('ESZ6')).toEqual(false);
+  });
+  it('the symbol "ESZ16" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('ESZ16')).toEqual(false);
+  });
+  it('the symbol "ESZ2016" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('ESZ2016')).toEqual(false);
+  });
+  it('the symbol "ESZ016" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('ESZ016')).toEqual(false);
+  });
+  it('the symbol "O!H7" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('O!H7')).toEqual(false);
+  });
+  it('the symbol "O!H17" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('O!H17')).toEqual(false);
+  });
+  it('the symbol "O!H2017" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('O!H2017')).toEqual(false);
+  });
+  it('the symbol "IBM" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('IBM')).toEqual(false);
+  });
+  it('the symbol "^EURUSD" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('^EURUSD')).toEqual(false);
+  });
+  it('the symbol "-001A" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('-001A')).toEqual(false);
+  });
+  it('the symbol "$DOWI" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('$DOWI')).toEqual(false);
+  });
+  it('the symbol "$S1GE" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('$S1GE')).toEqual(false);
+  });
+  it('the symbol "_S_SP_ZCH7_ZCK7" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('_S_SP_ZCH7_ZCK7')).toEqual(false);
+  });
+  it('the symbol "ESZ2660Q" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('ESZ2660Q')).toEqual(false);
+  });
+  it('the symbol "ZWH9|470C" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('ZWH9|470C')).toEqual(false);
+  });
+  it('the symbol "BB1F8|12050C" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('BB1F8|12050C')).toEqual(false);
+  });
+  it('the symbol "ZWK18465C" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('ZWK18465C')).toEqual(false);
+  });
+  it('the symbol "PLATTS:AAVSV00C" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('PLATTS:AAVSV00C')).toEqual(false);
+  });
+  it('the symbol "PLATTS:AAVSV00" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('PLATTS:AAVSV00')).toEqual(false);
+  });
+  it('the symbol "ZCPAUS.CM" should return true', () => {
+    expect(SymbolParser.getIsEquityOption('ZCPAUS.CM')).toEqual(false);
+  });
+  it('the symbol "AAPL|20200515|250.00C" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('AAPL|20200515|250.00C')).toEqual(true);
+  });
+  it('the symbol "$VIX|20200422|20.00WP" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('$VIX|20200422|20.00WP')).toEqual(true);
   });
 });
 describe('When checking to see if a symbol is a BATS listing', () => {
