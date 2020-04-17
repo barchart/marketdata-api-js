@@ -76,7 +76,6 @@ module.exports = (() => {
 
     var handleEvents = function (data) {
       if (data.event) {
-        debugger;
         var event = data.event;
 
         if (event === 'login success') {
@@ -4943,7 +4942,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '4.0.24'
+    version: '4.0.25'
   };
 })();
 
@@ -6442,6 +6441,8 @@ module.exports = (() => {
   types.futures.options.short = /^([A-Z][A-Z0-9\$\-!\.]?)([A-Z])([0-9]{1,4})([A-Z])$/i;
   types.futures.options.long = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i;
   types.futures.options.historical = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{2})([0-9]{1,5})(C|P)$/i;
+  types.equities = {};
+  types.equities.options = /^([A-Z\$][A-Z\.\-]{0,})([0-9]?)\|([[0-9]{4})([[0-9]{2})([[0-9]{2})\|([0-9]+\.[0-9]+)[P|W]?(C|P)/i;
   types.indicies = {};
   types.indicies.external = /^\$(.*)$/i;
   types.indicies.sector = /^\-(.*)$/i;
@@ -6496,6 +6497,25 @@ module.exports = (() => {
       definition = {};
       definition.symbol = symbol;
       definition.type = 'forex';
+    }
+
+    return definition;
+  });
+  parsers.push(symbol => {
+    let definition = null;
+    const match = symbol.match(types.equities.options);
+
+    if (match !== null) {
+      definition = {};
+      definition.symbol = symbol;
+      definition.type = 'equity_option';
+      definition.option_type = match[7] === 'C' ? 'call' : 'put';
+      definition.strike = parseFloat(match[6]);
+      definition.root = match[1];
+      definition.month = parseInt(match[4]);
+      definition.day = parseInt(match[5]);
+      definition.year = parseInt(match[3]);
+      definition.adjusted = match[2] !== '';
     }
 
     return definition;
@@ -6869,6 +6889,20 @@ module.exports = (() => {
 
     static getIsBats(symbol) {
       return is.string(symbol) && predicates.bats.test(symbol);
+    }
+    /**
+     * Returns true if the symbol represents an option on an equity or index; false
+     * otherwise.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsEquityOption(symbol) {
+      return is.string(symbol) && types.equities.options.test(symbol);
     }
     /**
      * Returns true if the symbol has an expiration and the symbol appears
