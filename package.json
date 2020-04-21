@@ -1,6 +1,6 @@
 {
   "name": "@barchart/marketdata-api-js",
-  "version": "4.0.25",
+  "version": "4.1.0",
   "description": "SDK for streaming market data from Barchart.com",
   "author": {
     "name": "Eero Pikat",
@@ -39,7 +39,7 @@
     "Forex"
   ],
   "dependencies": {
-    "@barchart/common-js": "~3.3.68",
+    "@barchart/common-js": "~3.3.112",
     "axios": "^0.19.0",
     "ws": "7.0.1",
     "xmldom": "0.1.27"
