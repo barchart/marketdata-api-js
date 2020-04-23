@@ -48,6 +48,16 @@ describe('when valid prices are formatted', () => {
 	});
 	
 	describe('with a unit code of "2"', () => {
+		describe('with default arguments', () => {
+			it('formats 0 as "0.000"', () => {
+				expect(formatPrice(0, '2')).toEqual('0.000');
+			});
+
+			it('formats 377 as "377.000"', () => {
+				expect(formatPrice(377, '2')).toEqual('377.000');
+			});
+		});
+
 		describe('with a decimal fraction separator', () => {
 			it('formats 0 as "0.000"', () => {
 				expect(formatPrice(0, '2', '.')).toEqual('0.000');
