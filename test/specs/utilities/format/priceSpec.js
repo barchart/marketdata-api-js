@@ -1,6 +1,24 @@
 const formatPrice = require('./../../../../lib/utilities/format/price');
 
-describe('When a price formatter is created', () => {
+describe('when invalid prices are formatted (regardless of other settings)', () => {
+	it('formats an undefined value as a zero-length string', () => {
+		expect(formatPrice()).toEqual('');
+	});
+
+	it('formats a null value as a zero-length string', () => {
+		expect(formatPrice(null)).toEqual('');
+	});
+
+	it('formats a Number.NaN value as a zero-length string', () => {
+		expect(formatPrice(Number.NaN)).toEqual('');
+	});
+
+	it('formats a zero-length string as a zero-length string', () => {
+		expect(formatPrice('')).toEqual('');
+	});
+});
+
+describe('when valid prices are formatted', () => {
 	describe('with a decimal fraction separator', () => {
 		it('formats 377 (with unit code 2) as "377.000"', () => {
 			expect(formatPrice(377, '2', '.')).toEqual('377.000');
@@ -40,18 +58,6 @@ describe('When a price formatter is created', () => {
 
 		it('formats 0 (with unit code 2) as "0.000"', () => {
 			expect(formatPrice(0, '2', '.')).toEqual('0.000');
-		});
-
-		it('formats undefined (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(undefined, '2', '.')).toEqual('');
-		});
-
-		it('formats null (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(null, '2', '.')).toEqual('');
-		});
-
-		it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(Number.NaN, '2', '.')).toEqual('');
 		});
 
 		it('formats 0 (with unit code 8) as "0"', () => {
@@ -108,18 +114,6 @@ describe('When a price formatter is created', () => {
 			expect(formatPrice(0, '2', '.', false, ',')).toEqual('0.000');
 		});
 
-		it('formats undefined (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(undefined, '2', '.', false, ',')).toEqual('');
-		});
-
-		it('formats null (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(null, '2', '.', false, ',')).toEqual('');
-		});
-
-		it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(Number.NaN, '2', '.', false, ',')).toEqual('');
-		});
-
 		it('formats 0 (with unit code 8) as "0"', () => {
 			expect(formatPrice(0, '8', '.', false, ',')).toEqual('0');
 		});
@@ -152,22 +146,6 @@ describe('When a price formatter is created', () => {
 
 		it('formats 0 (with unit code 2) as "0-0"', () => {
 			expect(formatPrice(0, '2', '-', false)).toEqual('0-0');
-		});
-
-		it('formats zero-length string (with unit code 2) as zero-length string', () => {
-			expect(formatPrice('', '2', '-', false)).toEqual('');
-		});
-
-		it('formats undefined (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(undefined, '2', '-', false)).toEqual('');
-		});
-
-		it('formats null (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(null, '2', '-', false)).toEqual('');
-		});
-
-		it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(Number.NaN, '2', '-', false)).toEqual('');
 		});
 
 		it('formats 123 (with unit code A) as "123.00"', () => {
@@ -249,22 +227,6 @@ describe('When a price formatter is created', () => {
 		it('formats 0 (with unit code 2) as "0\'0"', () => {
 			expect(formatPrice(0, '2', '\'', false)).toEqual('0\'0');
 		});
-
-		it('formats zero-length string (with unit code 2) as zero-length string', () => {
-			expect(formatPrice('', '2', '\'', false)).toEqual('');
-		});
-
-		it('formats undefined (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(undefined, '2', '\'', false)).toEqual('');
-		});
-
-		it('formats null (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(null, '2', '\'', false)).toEqual('');
-		});
-
-		it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(Number.NaN, '2', '\'', false)).toEqual('');
-		});
 	});
 
 	describe('with no separator and no special fractions', () => {
@@ -282,22 +244,6 @@ describe('When a price formatter is created', () => {
 
 		it('formats 0 (with unit code 2) as "0"', () => {
 			expect(formatPrice(0, '2', '', false)).toEqual('0');
-		});
-
-		it('formats zero-length string (with unit code 2) as zero-length string', () => {
-			expect(formatPrice('', '2', '', false)).toEqual('');
-		});
-
-		it('formats undefined (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(undefined, '2', '', false)).toEqual('');
-		});
-
-		it('formats null (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(null, '2', '', false)).toEqual('');
-		});
-
-		it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-			expect(formatPrice(Number.NaN, '2', '', false)).toEqual('');
 		});
 	});
 
