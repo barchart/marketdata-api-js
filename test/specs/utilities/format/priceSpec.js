@@ -31,6 +31,42 @@ describe('when invalid prices are formatted (regardless of other settings)', () 
 });
 
 describe('when valid prices are formatted', () => {
+	describe('with an invalid unit code', () => {
+		it('formats 377 (with unit code "999") as ""', () => {
+			expect(formatPrice(377, '999', '.')).toEqual('');
+		});
+
+		it('formats -377 (with unit code "999") as ""', () => {
+			expect(formatPrice(-377, '999', '.')).toEqual('');
+		});
+
+		it('formats 377.5 (with unit code "999") as ""', () => {
+			expect(formatPrice(377.5, '999', '.')).toEqual('');
+		});
+
+		it('formats 377.75 (with unit code "999") as ""', () => {
+			expect(formatPrice(377.75, '999', '.')).toEqual('');
+		});
+
+		// //
+
+		it('formats 377 (with unit code "999") as ""', () => {
+			expect(formatPrice(377, '999')).toEqual('');
+		});
+
+		it('formats -377 (with unit code "999") as "-"', () => {
+			expect(formatPrice(-377, '999')).toEqual('');
+		});
+
+		it('formats 377.5 (with unit code "999") as ""', () => {
+			expect(formatPrice(377.5, '999')).toEqual('');
+		});
+
+		it('formats 377.75 (with unit code "999") as ""', () => {
+			expect(formatPrice(377.75, '999')).toEqual('');
+		});
+	});
+	
 	describe('with a decimal fraction separator', () => {
 		it('formats 377 (with unit code 2) as "377.000"', () => {
 			expect(formatPrice(377, '2', '.')).toEqual('377.000');
