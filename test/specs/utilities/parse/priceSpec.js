@@ -3,21 +3,21 @@ const parsePrice = require('../../../../lib/utilities/parse/price');
 describe('when parsing prices', () => {
 	'use strict';
 
-	describe('when parsing invalid values', () => {
+	describe('when parsing invalid values (regardless of unit code)', () => {
 		it('returns NaN when parsing a zero-length string', () => {
-			expect(parsePrice('', '2')).toEqual(Number.NaN);
+			expect(parsePrice('')).toEqual(Number.NaN);
 		});
 
 		it('returns NaN when parsing a non-numeric string', () => {
-			expect(parsePrice('bob', '2')).toEqual(Number.NaN);
+			expect(parsePrice('bob')).toEqual(Number.NaN);
 		});
 
 		it('returns NaN when parsing an undefined value', () => {
-			expect(parsePrice(undefined, '2')).toEqual(Number.NaN);
+			expect(parsePrice(undefined)).toEqual(Number.NaN);
 		});
 
 		it('returns NaN when parsing an null value', () => {
-			expect(parsePrice(null, '2')).toEqual(Number.NaN);
+			expect(parsePrice(null)).toEqual(Number.NaN);
 		});
 	});
 
