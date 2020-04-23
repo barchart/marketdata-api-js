@@ -16,6 +16,18 @@ describe('when invalid prices are formatted (regardless of other settings)', () 
 	it('formats a zero-length string as a zero-length string', () => {
 		expect(formatPrice('')).toEqual('');
 	});
+
+	it('formats the string "bob" as a zero-length string', () => {
+		expect(formatPrice('bob')).toEqual('');
+	});
+
+	it('formats the string "123" as a zero-length string', () => {
+		expect(formatPrice('123')).toEqual('');
+	});
+
+	it('formats an empty object as a zero-length string', () => {
+		expect(formatPrice({ })).toEqual('');
+	});
 });
 
 describe('when valid prices are formatted', () => {
