@@ -406,40 +406,32 @@ describe('when valid prices are formatted', () => {
 	});
 
 	describe('with an invalid unit code', () => {
-		describe('with a decimal fraction separator', () => {
-			it('formats 377 as ""', () => {
-				expect(formatPrice(377, '999', '.')).toEqual('');
-			});
-
-			it('formats -377 as ""', () => {
-				expect(formatPrice(-377, '999', '.')).toEqual('');
-			});
-
-			it('formats 377.5 as ""', () => {
-				expect(formatPrice(377.5, '999', '.')).toEqual('');
-			});
-
-			it('formats 377.75 as ""', () => {
-				expect(formatPrice(377.75, '999', '.')).toEqual('');
-			});
+		it('formats 377 as "" (when omitted)', () => {
+			expect(formatPrice(377)).toEqual('');
 		});
-		
-		describe('with default arguments', () => {
-			it('formats 377 as ""', () => {
-				expect(formatPrice(377, '999')).toEqual('');
-			});
 
-			it('formats -377 as "-"', () => {
-				expect(formatPrice(-377, '999')).toEqual('');
-			});
+		it('formats 377 as "" (when null)', () => {
+			expect(formatPrice(377, null)).toEqual('');
+		});
 
-			it('formats 377.5 as ""', () => {
-				expect(formatPrice(377.5, '999')).toEqual('');
-			});
+		it('formats 377 as "" (when numeric)', () => {
+			expect(formatPrice(377, 2)).toEqual('');
+		});
 
-			it('formats 377.75 as ""', () => {
-				expect(formatPrice(377.75, '999')).toEqual('');
-			});
+		it('formats 377 as "999" (when multiple characters are used)', () => {
+			expect(formatPrice(377, '999')).toEqual('');
+		});
+
+		it('formats 377 as "999" (when a single character -- but an invalid unit code -- "1")', () => {
+			expect(formatPrice(377, '1')).toEqual('');
+		});
+
+		it('formats 377 as "999" (when a single character -- but an invalid unit code -- "F")', () => {
+			expect(formatPrice(377, 'F')).toEqual('');
+		});
+
+		it('formats 377 as "999" (when a single character -- but an invalid unit code -- "a")', () => {
+			expect(formatPrice(377, 'a')).toEqual('');
 		});
 	});
 });
