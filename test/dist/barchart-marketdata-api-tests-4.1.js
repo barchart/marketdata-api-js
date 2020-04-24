@@ -1167,7 +1167,7 @@ module.exports = (() => {
    */
 
   function buildPriceFormatter(fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
-    return (value, unitcode) => formatPrice(value, unitcode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis);
+    return (value, unitCode) => formatPrice(value, unitCode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis);
   }
   /**
    * Accepts a numeric value and a unit code, and returns a formatted
@@ -1176,7 +1176,7 @@ module.exports = (() => {
    * @public
    * @callback PriceFormatterFactory~formatPrice
    * @param {Number} value
-   * @param {String} unitcode
+   * @param {String} unitCode
    * @returns {String}
    */
 
@@ -1246,22 +1246,37 @@ module.exports = (() => {
    * @function
    * @memberOf Functions
    * @param {Number} value
-   * @param {String} unitcode
-   * @param {String=} fractionSeparator
+   * @param {String} unitCode
+   * @param {String=} fractionSeparator - Can be zero or one character in length. If invalid or omitted, a decimal point (i.e. dot) is assumed.
    * @param {Boolean=} specialFractions
-   * @param {String=} thousandsSeparator
-   * @param {Boolean=} useParenthesis
+   * @param {String=} thousandsSeparator - Can be zero or one character in length. If invalid or omitted, a zero-length string is used.
+   * @param {Boolean=} useParenthesis - If true, negative values will be represented with parenthesis (instead of a leading minus sign).
    * @returns {String}
    */
 
 
-  function formatPrice(value, unitcode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
-    if (value === undefined || value === null || is.nan(value) || value === '') {
+  function formatPrice(value, unitCode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
+    if (!is.number(value)) {
       return '';
     }
 
+    if (!is.string(unitCode) || unitCode.length !== 1) {
+      return '';
+    }
+
+    if (!is.string(fractionSeparator) || fractionSeparator.length > 1) {
+      fractionSeparator = '.';
+    }
+
+    if (!is.string(thousandsSeparator) || thousandsSeparator.length > 1) {
+      thousandsSeparator = '';
+    }
+
+    specialFractions = is.boolean(specialFractions) && specialFractions;
+    useParenthesis = is.boolean(useParenthesis) && useParenthesis;
+
     if (fractionSeparator === '.') {
-      switch (unitcode) {
+      switch (unitCode) {
         case '2':
           return formatDecimal(value, 3, thousandsSeparator, useParenthesis);
 
@@ -1302,7 +1317,7 @@ module.exports = (() => {
           return formatDecimal(value, 6, thousandsSeparator, useParenthesis);
 
         default:
-          return value;
+          return '';
       }
     } else {
       const originalValue = value;
@@ -1312,7 +1327,7 @@ module.exports = (() => {
       let suffix;
 
       if (negative) {
-        if (useParenthesis === true) {
+        if (useParenthesis) {
           prefix = '(';
           suffix = ')';
         } else {
@@ -1324,7 +1339,7 @@ module.exports = (() => {
         suffix = '';
       }
 
-      switch (unitcode) {
+      switch (unitCode) {
         case '2':
           return [prefix, getWholeNumberAsString(absoluteValue, fractionSeparator), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 8, 1), suffix].join('');
 
@@ -1365,7 +1380,7 @@ module.exports = (() => {
           return formatDecimal(originalValue, 6, thousandsSeparator, useParenthesis);
 
         default:
-          return originalValue;
+          return '';
       }
     }
   }
@@ -2262,13 +2277,13 @@ module.exports = (() => {
    * @exported
    * @function
    * @param {String} str
-   * @param {String} unitcode
+   * @param {String} unitCode
    * @param {String=} thousandsSeparator
    * @returns {Number}
    */
 
 
-  function parseValue(str, unitcode, thousandsSeparator) {
+  function parseValue(str, unitCode, thousandsSeparator) {
     if (str.length < 1) {
       return undefined;
     } else if (str === '-') {
@@ -2289,7 +2304,7 @@ module.exports = (() => {
       str = str.substr(1);
     }
 
-    switch (unitcode) {
+    switch (unitCode) {
       case '2':
         // 8ths
         return sign * ((str.length > 1 ? parseInt(str.substr(0, str.length - 1)) : 0) + parseInt(str.substr(-1)) / 8);
@@ -2357,22 +2372,35 @@ module.exports = (() => {
    * @function
    * @memberOf Functions
    * @exported
-   * @param {String} value
-   * @param {String=} unitCode
+   * @param {String|Number} value
+   * @param {String=} unitCode - If not specified, a unit code of "8" is assumed.
+   * @param {String=} fractionSeparator
+   * @param {Boolean=} specialFractions
+   * @param {String=} thousandsSeparator
+   * @param {Boolean=} useParenthesis
    * @returns {Number}
    */
 
-  function parsePrice(value, unitCode) {
-    if (is.null(value) || is.undefined(value) || is.zeroLengthString(value)) {
+  function parsePrice(value, unitCode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
+    if (is.number(value)) {
+      return value;
+    }
+
+    if (!is.string(value) || value.length === 0) {
       return Number.NaN;
     }
 
     let baseCode = convertUnitCodeToBaseCode(unitCode);
-    let is_negative = false;
+    let negative;
 
-    if (value.match(/^-/)) {
-      is_negative = true;
+    if (value.startsWith('(') && value.endsWith(')')) {
+      negative = true;
+      value = value.slice(1, -1);
+    } else if (value.startsWith('-')) {
+      negative = true;
       value = value.slice(1);
+    } else {
+      negative = false;
     } // Fix for 10-Yr T-Notes
 
 
@@ -2381,7 +2409,8 @@ module.exports = (() => {
     }
 
     if (baseCode >= 0) {
-      const ival = value * 1;
+      const ival = value * 1; //console.log(`${value} == ${Math.round(ival * Math.pow(10, baseCode)) / Math.pow(10, baseCode)}`)
+
       return Math.round(ival * Math.pow(10, baseCode)) / Math.pow(10, baseCode);
     } else {
       const has_dash = value.match(/-/);
@@ -2399,9 +2428,10 @@ module.exports = (() => {
 
       if (baseCode === -5) {
         divisor = has_dash ? 320 : 128;
-      }
+      } //console.log(`${value} == ${(numerator + (denominator / divisor)) * (negative ? -1 : 1)}`)
 
-      return (numerator + denominator / divisor) * (is_negative ? -1 : 1);
+
+      return (numerator + denominator / divisor) * (negative ? -1 : 1);
     }
   }
 
@@ -14095,282 +14125,288 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 },{"./../../../../../lib/utilities/format/factories/quote":15}],49:[function(require,module,exports){
 const formatPrice = require('./../../../../lib/utilities/format/price');
 
-describe('When a price formatter is created', () => {
-  describe('with a decimal fraction separator', () => {
-    it('formats 377 (with unit code 2) as "377.000"', () => {
-      expect(formatPrice(377, '2', '.')).toEqual('377.000');
-    });
-    it('formats -377 (with unit code 2) as "-377.000"', () => {
-      expect(formatPrice(-377, '2', '.')).toEqual('-377.000');
-    });
-    it('formats 377.5 (with unit code 2) as "377.500"', () => {
-      expect(formatPrice(377.5, '2', '.')).toEqual('377.500');
-    });
-    it('formats 377.75 (with unit code 2) as "377.750"', () => {
-      expect(formatPrice(377.75, '2', '.')).toEqual('377.750');
-    });
-    it('formats 3770.75 (with unit code 2) as "3770.750"', () => {
-      expect(formatPrice(3770.75, '2', '.')).toEqual('3770.750');
-    });
-    it('formats 37700.75 (with unit code 2) as "37700.750"', () => {
-      expect(formatPrice(37700.75, '2', '.')).toEqual('37700.750');
-    });
-    it('formats 377000.75 (with unit code 2) as "377000.750"', () => {
-      expect(formatPrice(377000.75, '2', '.')).toEqual('377000.750');
-    });
-    it('formats 3770000.75 (with unit code 2) as "3770000.750"', () => {
-      expect(formatPrice(3770000.75, '2', '.')).toEqual('3770000.750');
-    });
-    it('formats 3770000 (with unit code 2) as "3770000.000"', () => {
-      expect(formatPrice(3770000, '2', '.')).toEqual('3770000.000');
-    });
-    it('formats 0 (with unit code 2) as "0.000"', () => {
-      expect(formatPrice(0, '2', '.')).toEqual('0.000');
-    });
-    it('formats undefined (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(undefined, '2', '.')).toEqual('');
-    });
-    it('formats null (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(null, '2', '.')).toEqual('');
-    });
-    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(Number.NaN, '2', '.')).toEqual('');
-    });
-    it('formats 0 (with unit code 8) as "0"', () => {
-      expect(formatPrice(0, '8', '.')).toEqual('0');
-    });
-    it('formats 1000 (with unit code 8) as "1000"', () => {
-      expect(formatPrice(1000, '8', '.')).toEqual('1000');
-    });
+describe('when invalid prices are formatted (regardless of other settings)', () => {
+  it('formats an undefined value as a zero-length string', () => {
+    expect(formatPrice()).toEqual('');
   });
-  describe('with a decimal separator, no special fractions, and a thousands separator', () => {
-    it('formats 377 (with unit code 2) as "377.000"', () => {
-      expect(formatPrice(377, '2', '.', false, ',')).toEqual('377.000');
-    });
-    it('formats -377 (with unit code 2) as "-377.000"', () => {
-      expect(formatPrice(-377, '2', '.', false, ',')).toEqual('-377.000');
-    });
-    it('formats 377.5 (with unit code 2) as "377.500"', () => {
-      expect(formatPrice(377.5, '2', '.', false, ',')).toEqual('377.500');
-    });
-    it('formats 377.75 (with unit code 2) as "377.750"', () => {
-      expect(formatPrice(377.75, '2', '.', false, ',')).toEqual('377.750');
-    });
-    it('formats 3770.75 (with unit code 2) as "3,770.750"', () => {
-      expect(formatPrice(3770.75, '2', '.', false, ',')).toEqual('3,770.750');
-    });
-    it('formats 37700.75 (with unit code 2) as "37,700.750"', () => {
-      expect(formatPrice(37700.75, '2', '.', false, ',')).toEqual('37,700.750');
-    });
-    it('formats 377000.75 (with unit code 2) as "377,000.750"', () => {
-      expect(formatPrice(377000.75, '2', '.', false, ',')).toEqual('377,000.750');
-    });
-    it('formats -377000.75 (with unit code 2) as "-377,000.750"', () => {
-      expect(formatPrice(-377000.75, '2', '.', false, ',')).toEqual('-377,000.750');
-    });
-    it('formats 3770000.75 (with unit code 2) as "3,770,000.750"', () => {
-      expect(formatPrice(3770000.75, '2', '.', false, ',')).toEqual('3,770,000.750');
-    });
-    it('formats 3770000 (with unit code 2) as "3,770,000.000"', () => {
-      expect(formatPrice(3770000, '2', '.', false, ',')).toEqual('3,770,000.000');
-    });
-    it('formats 0 (with unit code 2) as "0.000"', () => {
-      expect(formatPrice(0, '2', '.', false, ',')).toEqual('0.000');
-    });
-    it('formats undefined (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(undefined, '2', '.', false, ',')).toEqual('');
-    });
-    it('formats null (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(null, '2', '.', false, ',')).toEqual('');
-    });
-    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(Number.NaN, '2', '.', false, ',')).toEqual('');
-    });
-    it('formats 0 (with unit code 8) as "0"', () => {
-      expect(formatPrice(0, '8', '.', false, ',')).toEqual('0');
-    });
-    it('formats 1000 (with unit code 8) as "1,000"', () => {
-      expect(formatPrice(1000, '8', '.', false, ',')).toEqual('1,000');
-    });
+  it('formats a null value as a zero-length string', () => {
+    expect(formatPrice(null)).toEqual('');
   });
-  describe('with a dash separator and no special fractions', () => {
-    it('formats 123 (with unit code 2) as "123-0"', () => {
-      expect(formatPrice(123, '2', '-', false)).toEqual('123-0');
-    });
-    it('formats -123 (with unit code 2) as "-123-0"', () => {
-      expect(formatPrice(-123, '2', '-', false)).toEqual('-123-0');
-    });
-    it('formats 123.5 (with unit code 2) as "123-4"', () => {
-      expect(formatPrice(123.5, '2', '-', false)).toEqual('123-4');
-    });
-    it('formats -123.5 (with unit code 2) as "-123-4"', () => {
-      expect(formatPrice(-123.5, '2', '-', false)).toEqual('-123-4');
-    });
-    it('formats 0.5 (with unit code 2) as "0-4"', () => {
-      expect(formatPrice(0.5, '2', '-', false)).toEqual('0-4');
-    });
-    it('formats 0 (with unit code 2) as "0-0"', () => {
-      expect(formatPrice(0, '2', '-', false)).toEqual('0-0');
-    });
-    it('formats zero-length string (with unit code 2) as zero-length string', () => {
-      expect(formatPrice('', '2', '-', false)).toEqual('');
-    });
-    it('formats undefined (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(undefined, '2', '-', false)).toEqual('');
-    });
-    it('formats null (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(null, '2', '-', false)).toEqual('');
-    });
-    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(Number.NaN, '2', '-', false)).toEqual('');
-    });
-    it('formats 123 (with unit code A) as "123.00"', () => {
-      expect(formatPrice(123, 'A', '-', false)).toEqual('123.00');
-    });
-    it('formats 123.5 (with unit code A) as "123.50"', () => {
-      expect(formatPrice(123.5, 'A', '-', false)).toEqual('123.50');
-    });
-    it('formats 123.555 (with unit code A) as "123.56"', () => {
-      expect(formatPrice(123.555, 'A', '-', false)).toEqual('123.56');
-    });
+  it('formats a Number.NaN value as a zero-length string', () => {
+    expect(formatPrice(Number.NaN)).toEqual('');
   });
-  describe('with a dash separator and special fractions', () => {
-    it('formats 123.625 (with unit code 5) as "123-200"', () => {
-      expect(formatPrice(123.625, '5', '-', true)).toEqual('123-200');
-    });
-    it('formats -123.625 (with unit code 5) as "-123-200"', () => {
-      expect(formatPrice(-123.625, '5', '-', true)).toEqual('-123-200');
-    });
-    it('formats 123.640625 (with unit code 5) as "123-205"', () => {
-      expect(formatPrice(123.640625, '5', '-', true)).toEqual('123-205');
-    });
-    it('formats -123.640625 (with unit code 5) as "-123-205"', () => {
-      expect(formatPrice(-123.640625, '5', '-', true)).toEqual('-123-205');
-    });
-    it('formats 114.5156 (with unit code 6) as "114-165"', () => {
-      expect(formatPrice(114.5156, '6', '-', true)).toEqual('114-165');
-    });
-    it('formats 114.7891 (with unit code 6) as "114-252"', () => {
-      expect(formatPrice(114.7891, '6', '-', true)).toEqual('114-252');
-    });
-    it('formats 114.8438 (with unit code 6) as "114-270"', () => {
-      expect(formatPrice(114.8438, '6', '-', true)).toEqual('114-270');
-    });
-    it('formats 114.75 (with unit code 6) as "114-240"', () => {
-      expect(formatPrice(114.75, '6', '-', true)).toEqual('114-240');
-    });
-    it('formats 122.7031 (with unit code 5) as "122-225"', () => {
-      expect(formatPrice(122.7031, '5', '-', true)).toEqual('122-225');
-    });
-    it('formats 0 (with unit code 2) as "0"', function () {
-      expect(formatPrice(0, '2', '-', true)).toEqual('0-0');
-    });
+  it('formats a zero-length string as a zero-length string', () => {
+    expect(formatPrice('')).toEqual('');
   });
-  describe('with a tick separator and no special fractions', () => {
-    it('formats 123 (with unit code 2) as "123\'0"', () => {
-      expect(formatPrice(123, '2', '\'', false)).toEqual('123\'0');
-    });
-    it('formats 123.5 (with unit code 2) as "123\'4"', () => {
-      expect(formatPrice(123.5, '2', '\'', false)).toEqual('123\'4');
-    });
-    it('formats -123.5 (with unit code 2) as "-123\'4"', () => {
-      expect(formatPrice(-123.5, '2', '\'', false)).toEqual('-123\'4');
-    });
-    it('formats 0.5 (with unit code 2) as "0\'4"', () => {
-      expect(formatPrice(0.5, '2', '\'', false)).toEqual('0\'4');
-    });
-    it('formats -0.5 (with unit code 2) as "-0\'4"', () => {
-      expect(formatPrice(-0.5, '2', '\'', false)).toEqual('-0\'4');
-    });
-    it('formats 0 (with unit code 2) as "0\'0"', () => {
-      expect(formatPrice(0, '2', '\'', false)).toEqual('0\'0');
-    });
-    it('formats zero-length string (with unit code 2) as zero-length string', () => {
-      expect(formatPrice('', '2', '\'', false)).toEqual('');
-    });
-    it('formats undefined (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(undefined, '2', '\'', false)).toEqual('');
-    });
-    it('formats null (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(null, '2', '\'', false)).toEqual('');
-    });
-    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(Number.NaN, '2', '\'', false)).toEqual('');
-    });
+  it('formats the string "bob" as a zero-length string', () => {
+    expect(formatPrice('bob')).toEqual('');
   });
-  describe('with no separator and no special fractions', () => {
-    it('formats 123 (with unit code 2) as "1230"', () => {
-      expect(formatPrice(123, '2', '', false)).toEqual('1230');
-    });
-    it('formats 123.5 (with unit code 2) as "1234"', () => {
-      expect(formatPrice(123.5, '2', '', false)).toEqual('1234');
-    });
-    it('formats 0.5 (with unit code 2) as "4"', () => {
-      expect(formatPrice(0.5, '2', '', false)).toEqual('4');
-    });
-    it('formats 0 (with unit code 2) as "0"', () => {
-      expect(formatPrice(0, '2', '', false)).toEqual('0');
-    });
-    it('formats zero-length string (with unit code 2) as zero-length string', () => {
-      expect(formatPrice('', '2', '', false)).toEqual('');
-    });
-    it('formats undefined (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(undefined, '2', '', false)).toEqual('');
-    });
-    it('formats null (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(null, '2', '', false)).toEqual('');
-    });
-    it('formats Number.NaN (with unit code 2) as zero-length string', () => {
-      expect(formatPrice(Number.NaN, '2', '', false)).toEqual('');
-    });
+  it('formats the string "123" as a zero-length string', () => {
+    expect(formatPrice('123')).toEqual('');
   });
-  describe('with parenthetical negatives', () => {
-    describe('and a decimal separator, no special fractions, and no thousands separator', () => {
-      it('formats 3770.75 (with unit code 2) as "3770.750"', () => {
-        expect(formatPrice(3770.75, '2', '.', false, '', true)).toEqual('3770.750');
+  it('formats an empty object as a zero-length string', () => {
+    expect(formatPrice({})).toEqual('');
+  });
+});
+describe('when valid prices are formatted', () => {
+  describe('with a unit code of "A"', () => {
+    describe('with a decimal fraction separator', () => {
+      it('formats 0 as "0.00"', () => {
+        expect(formatPrice(0, 'A', '.', false)).toEqual('0.00');
       });
-      it('formats -3770.75 (with unit code 2) as "(3770.750)"', () => {
-        expect(formatPrice(-3770.75, '2', '.', false, '', true)).toEqual('(3770.750)');
+      it('formats 123 as "123.00"', () => {
+        expect(formatPrice(123, 'A', '.', false)).toEqual('123.00');
       });
-      it('formats 0 (with unit code 2) as "0.000"', () => {
-        expect(formatPrice(0, '2', '.', false, '', true)).toEqual('0.000');
+      it('formats 123.5 as "123.50"', () => {
+        expect(formatPrice(123.5, 'A', '.', false)).toEqual('123.50');
+      });
+      it('formats 123.555 as "123.56"', () => {
+        expect(formatPrice(123.555, 'A', '.', false)).toEqual('123.56');
       });
     });
-    describe('with a decimal separator, no special fractions, and a thousands separator', () => {
-      it('formats 3770.75 (with unit code 2) as "3,770.750"', () => {
+    describe('with a dash fraction separator', () => {
+      it('formats 0 as "0.00"', () => {
+        expect(formatPrice(0, 'A', '-', false)).toEqual('0.00');
+      });
+      it('formats 123 as "123.00"', () => {
+        expect(formatPrice(123, 'A', '-', false)).toEqual('123.00');
+      });
+      it('formats 123.5 as "123.50"', () => {
+        expect(formatPrice(123.5, 'A', '-', false)).toEqual('123.50');
+      });
+      it('formats 123.555 as "123.56"', () => {
+        expect(formatPrice(123.555, 'A', '-', false)).toEqual('123.56');
+      });
+    });
+  });
+  describe('with a unit code of "2"', () => {
+    describe('with default arguments', () => {
+      it('formats 0 as "0.000"', () => {
+        expect(formatPrice(0, '2')).toEqual('0.000');
+      });
+      it('formats 377 as "377.000"', () => {
+        expect(formatPrice(377, '2')).toEqual('377.000');
+      });
+    });
+    describe('with a decimal fraction separator', () => {
+      it('formats 0 as "0.000"', () => {
+        expect(formatPrice(0, '2', '.')).toEqual('0.000');
+      });
+      it('formats 377 as "377.000"', () => {
+        expect(formatPrice(377, '2', '.')).toEqual('377.000');
+      });
+      it('formats -377 as "-377.000"', () => {
+        expect(formatPrice(-377, '2', '.')).toEqual('-377.000');
+      });
+      it('formats 377.5 as "377.500"', () => {
+        expect(formatPrice(377.5, '2', '.')).toEqual('377.500');
+      });
+      it('formats 377.75 as "377.750"', () => {
+        expect(formatPrice(377.75, '2', '.')).toEqual('377.750');
+      });
+      it('formats 3770.75 as "3770.750"', () => {
+        expect(formatPrice(3770.75, '2', '.')).toEqual('3770.750');
+      });
+      it('formats 37700.75 as "37700.750"', () => {
+        expect(formatPrice(37700.75, '2', '.')).toEqual('37700.750');
+      });
+      it('formats 377000.75 as "377000.750"', () => {
+        expect(formatPrice(377000.75, '2', '.')).toEqual('377000.750');
+      });
+      it('formats 3770000.75 as "3770000.750"', () => {
+        expect(formatPrice(3770000.75, '2', '.')).toEqual('3770000.750');
+      });
+      it('formats 3770000 as "3770000.000"', () => {
+        expect(formatPrice(3770000, '2', '.')).toEqual('3770000.000');
+      });
+    });
+    describe('with a decimal fraction separator and a thousands separator', () => {
+      it('formats 377  as "377.000"', () => {
+        expect(formatPrice(377, '2', '.', false, ',')).toEqual('377.000');
+      });
+      it('formats -377  as "-377.000"', () => {
+        expect(formatPrice(-377, '2', '.', false, ',')).toEqual('-377.000');
+      });
+      it('formats 377.5  as "377.500"', () => {
+        expect(formatPrice(377.5, '2', '.', false, ',')).toEqual('377.500');
+      });
+      it('formats 377.75  as "377.750"', () => {
+        expect(formatPrice(377.75, '2', '.', false, ',')).toEqual('377.750');
+      });
+      it('formats 3770.75  as "3,770.750"', () => {
+        expect(formatPrice(3770.75, '2', '.', false, ',')).toEqual('3,770.750');
+      });
+      it('formats 37700.75  as "37,700.750"', () => {
+        expect(formatPrice(37700.75, '2', '.', false, ',')).toEqual('37,700.750');
+      });
+      it('formats 377000.75  as "377,000.750"', () => {
+        expect(formatPrice(377000.75, '2', '.', false, ',')).toEqual('377,000.750');
+      });
+      it('formats -377000.75  as "-377,000.750"', () => {
+        expect(formatPrice(-377000.75, '2', '.', false, ',')).toEqual('-377,000.750');
+      });
+      it('formats 3770000.75  as "3,770,000.750"', () => {
+        expect(formatPrice(3770000.75, '2', '.', false, ',')).toEqual('3,770,000.750');
+      });
+      it('formats 3770000  as "3,770,000.000"', () => {
+        expect(formatPrice(3770000, '2', '.', false, ',')).toEqual('3,770,000.000');
+      });
+      it('formats 0  as "0.000"', () => {
+        expect(formatPrice(0, '2', '.', false, ',')).toEqual('0.000');
+      });
+    });
+    describe('with a decimal fraction separator and a thousands separator and parenthetical negatives', () => {
+      it('formats 3770.75 as "3,770.750"', () => {
         expect(formatPrice(3770.75, '2', '.', false, ',', true)).toEqual('3,770.750');
       });
-      it('formats -3770.75 (with unit code 2) as "(3,770.750)"', () => {
+      it('formats -3770.75 as "(3,770.750)"', () => {
         expect(formatPrice(-3770.75, '2', '.', false, ',', true)).toEqual('(3,770.750)');
       });
-      it('formats 0 (with unit code 2) as "0.000"', () => {
+      it('formats 0 as "0.000"', () => {
         expect(formatPrice(0, '2', '.', false, ',', true)).toEqual('0.000');
       });
     });
-    describe('with a dash separator and no special fractions', () => {
-      it('formats 123 (with unit code 2) as "123-0"', function () {
+    describe('with a decimal separator and parenthetical negatives', () => {
+      it('formats 3770.75 as "3770.750"', () => {
+        expect(formatPrice(3770.75, '2', '.', false, '', true)).toEqual('3770.750');
+      });
+      it('formats -3770.75 as "(3770.750)"', () => {
+        expect(formatPrice(-3770.75, '2', '.', false, '', true)).toEqual('(3770.750)');
+      });
+      it('formats 0 as "0.000"', () => {
+        expect(formatPrice(0, '2', '.', false, '', true)).toEqual('0.000');
+      });
+    });
+    describe('with a dash fraction separator', () => {
+      it('formats 123 as "123-0"', () => {
+        expect(formatPrice(123, '2', '-')).toEqual('123-0');
+      });
+      it('formats -123 as "-123-0"', () => {
+        expect(formatPrice(-123, '2', '-')).toEqual('-123-0');
+      });
+      it('formats 123.5 as "123-4"', () => {
+        expect(formatPrice(123.5, '2', '-')).toEqual('123-4');
+      });
+      it('formats -123.5 as "-123-4"', () => {
+        expect(formatPrice(-123.5, '2', '-')).toEqual('-123-4');
+      });
+      it('formats 0.5 as "0-4"', () => {
+        expect(formatPrice(0.5, '2', '-')).toEqual('0-4');
+      });
+      it('formats 0 as "0-0"', () => {
+        expect(formatPrice(0, '2', '-')).toEqual('0-0');
+      });
+    });
+    describe('with a dash fraction separator and parenthetical negatives', () => {
+      it('formats 123 as "123-0"', () => {
         expect(formatPrice(123, '2', '-', false, '', true)).toEqual('123-0');
       });
-      it('formats -123 (with unit code 2) as "(123-0)"', function () {
+      it('formats -123 as "(123-0)"', () => {
         expect(formatPrice(-123, '2', '-', false, '', true)).toEqual('(123-0)');
       });
-      it('formats 123.5 (with unit code 2) as "123-4"', function () {
+      it('formats 123.5 as "123-4"', () => {
         expect(formatPrice(123.5, '2', '-', false, '', true)).toEqual('123-4');
       });
-      it('formats -123.5 (with unit code 2) as "(123-4)"', function () {
+      it('formats -123.5 as "(123-4)"', () => {
         expect(formatPrice(-123.5, '2', '-', false, '', true)).toEqual('(123-4)');
       });
-      it('formats 0.5 (with unit code 2) as "0-4"', () => {
+      it('formats 0.5 as "0-4"', () => {
         expect(formatPrice(0.5, '2', '-', false, '', true)).toEqual('0-4');
       });
-      it('formats -0.5 (with unit code 2) as "(0-4)"', () => {
+      it('formats -0.5 as "(0-4)"', () => {
         expect(formatPrice(-0.5, '2', '-', false, '', true)).toEqual('(0-4)');
       });
-      it('formats 0 (with unit code 2) as "0"', function () {
+      it('formats 0 as "0"', () => {
         expect(formatPrice(0, '2', '-', false, '', true)).toEqual('0-0');
       });
     });
-    describe('with a dash separator and special fractions', () => {
+    describe('with a tick separator', () => {
+      it('formats 123 as "123\'0"', () => {
+        expect(formatPrice(123, '2', '\'')).toEqual('123\'0');
+      });
+      it('formats 123.5 as "123\'4"', () => {
+        expect(formatPrice(123.5, '2', '\'')).toEqual('123\'4');
+      });
+      it('formats -123.5 as "-123\'4"', () => {
+        expect(formatPrice(-123.5, '2', '\'')).toEqual('-123\'4');
+      });
+      it('formats 0.5 as "0\'4"', () => {
+        expect(formatPrice(0.5, '2', '\'')).toEqual('0\'4');
+      });
+      it('formats -0.5 as "-0\'4"', () => {
+        expect(formatPrice(-0.5, '2', '\'')).toEqual('-0\'4');
+      });
+      it('formats 0 as "0\'0"', () => {
+        expect(formatPrice(0, '2', '\'')).toEqual('0\'0');
+      });
+    });
+    describe('with a tick separator and parenthetical negatives', () => {
+      it('formats 123.5 as "123\'4"', () => {
+        expect(formatPrice(123.5, '2', '\'', false, '', true)).toEqual('123\'4');
+      });
+      it('formats -123.5 as "(123\'4)"', () => {
+        expect(formatPrice(-123.5, '2', '\'', false, '', true)).toEqual('(123\'4)');
+      });
+      it('formats 0.5 as "0\'4"', () => {
+        expect(formatPrice(0.5, '2', '\'', false, '', true)).toEqual('0\'4');
+      });
+      it('formats -0.5 as "(0\'4)"', () => {
+        expect(formatPrice(-0.5, '2', '\'', false, '', true)).toEqual('(0\'4)');
+      });
+      it('formats 0 as "0\'0"', () => {
+        expect(formatPrice(0, '2', '\'', false, '', true)).toEqual('0\'0');
+      });
+    });
+    describe('with a zero-length separator', () => {
+      it('formats 123 as "1230"', () => {
+        expect(formatPrice(123, '2', '')).toEqual('1230');
+      });
+      it('formats 123.5 as "1234"', () => {
+        expect(formatPrice(123.5, '2', '')).toEqual('1234');
+      });
+      it('formats 0.5 as "4"', () => {
+        expect(formatPrice(0.5, '2', '')).toEqual('4');
+      });
+      it('formats 0 as "0"', () => {
+        expect(formatPrice(0, '2', '')).toEqual('0');
+      });
+    });
+    describe('with a zero-length separator and parenthetical negatives', () => {
+      describe('with no separator and no special fractions', () => {
+        it('formats 0.5 as "4"', () => {
+          expect(formatPrice(0.5, '2', '', false, '', true)).toEqual('4');
+        });
+        it('formats -0.5 as "(4)"', () => {
+          expect(formatPrice(-0.5, '2', '', false, '', true)).toEqual('(4)');
+        });
+        it('formats 0 as "0"', () => {
+          expect(formatPrice(0, '2', '', false, '', true)).toEqual('0');
+        });
+      });
+    });
+  });
+  describe('with a unit code of "5"', () => {
+    describe('with a dash fraction separator and special fractions', () => {
+      it('formats 123.625 as "123-200"', () => {
+        expect(formatPrice(123.625, '5', '-', true)).toEqual('123-200');
+      });
+      it('formats -123.625 as "-123-200"', () => {
+        expect(formatPrice(-123.625, '5', '-', true)).toEqual('-123-200');
+      });
+      it('formats 123.640625 as "123-205"', () => {
+        expect(formatPrice(123.640625, '5', '-', true)).toEqual('123-205');
+      });
+      it('formats -123.640625 as "-123-205"', () => {
+        expect(formatPrice(-123.640625, '5', '-', true)).toEqual('-123-205');
+      });
+      it('formats 122.7031 (with unit code 5) as "122-225"', () => {
+        expect(formatPrice(122.7031, '5', '-', true)).toEqual('122-225');
+      });
+      it('formats 0 as "0-000"', () => {
+        expect(formatPrice(0, '5', '-', true)).toEqual('0-000');
+      });
+    });
+    describe('with a dash fraction separator and special fractions and parenthetical negatives', () => {
       it('formats 123.625 (with unit code 5) as "123-200"', () => {
         expect(formatPrice(123.625, '5', '-', true, '', true)).toEqual('123-200');
       });
@@ -14384,33 +14420,65 @@ describe('When a price formatter is created', () => {
         expect(formatPrice(-123.640625, '5', '-', true, '', true)).toEqual('(123-205)');
       });
     });
-    describe('with a tick separator and no special fractions', () => {
-      it('formats 123.5 (with unit code 2) as "123\'4"', function () {
-        expect(formatPrice(123.5, '2', '\'', false, '', true)).toEqual('123\'4');
+  });
+  describe('with a unit code of "6"', () => {
+    describe('with a dash fraction separator and special fractions', () => {
+      it('formats 114.5156 (with unit code 6) as "114-165"', () => {
+        expect(formatPrice(114.5156, '6', '-', true)).toEqual('114-165');
       });
-      it('formats -123.5 (with unit code 2) as "(123\'4)"', function () {
-        expect(formatPrice(-123.5, '2', '\'', false, '', true)).toEqual('(123\'4)');
+      it('formats 114.7891 (with unit code 6) as "114-252"', () => {
+        expect(formatPrice(114.7891, '6', '-', true)).toEqual('114-252');
       });
-      it('formats 0.5 (with unit code 2) as "0\'4"', () => {
-        expect(formatPrice(0.5, '2', '\'', false, '', true)).toEqual('0\'4');
+      it('formats 114.8438 (with unit code 6) as "114-270"', () => {
+        expect(formatPrice(114.8438, '6', '-', true)).toEqual('114-270');
       });
-      it('formats -0.5 (with unit code 2) as "(0\'4)"', () => {
-        expect(formatPrice(-0.5, '2', '\'', false, '', true)).toEqual('(0\'4)');
+      it('formats 114.75 (with unit code 6) as "114-240"', () => {
+        expect(formatPrice(114.75, '6', '-', true)).toEqual('114-240');
       });
-      it('formats 0 (with unit code 2) as "0\'0"', () => {
-        expect(formatPrice(0, '2', '\'', false, '', true)).toEqual('0\'0');
+      it('formats 0 as "0-000"', () => {
+        expect(formatPrice(0, '6', '-', true)).toEqual('0-000');
       });
     });
-    describe('with no separator and no special fractions', () => {
-      it('formats 0.5 (with unit code 2) as "4"', function () {
-        expect(formatPrice(0.5, '2', '', false, '', true)).toEqual('4');
+  });
+  describe('with a unit code of "8"', () => {
+    describe('with a decimal fraction separator', () => {
+      it('formats 0 as "0"', () => {
+        expect(formatPrice(0, '8', '.')).toEqual('0');
       });
-      it('formats -0.5 (with unit code 2) as "(4)"', function () {
-        expect(formatPrice(-0.5, '2', '', false, '', true)).toEqual('(4)');
+      it('formats 1000 as "1000"', () => {
+        expect(formatPrice(1000, '8', '.')).toEqual('1000');
       });
-      it('formats 0 (with unit code 2) as "0"', function () {
-        expect(formatPrice(0, '2', '', false, '', true)).toEqual('0');
+    });
+    describe('with a decimal separator and a thousands separator', () => {
+      it('formats 0 as "0"', () => {
+        expect(formatPrice(0, '8', '.', false, ',')).toEqual('0');
       });
+      it('formats 1000 as "1,000"', () => {
+        expect(formatPrice(1000, '8', '.', false, ',')).toEqual('1,000');
+      });
+    });
+  });
+  describe('with an invalid unit code', () => {
+    it('formats 377 as "" (when omitted)', () => {
+      expect(formatPrice(377)).toEqual('');
+    });
+    it('formats 377 as "" (when null)', () => {
+      expect(formatPrice(377, null)).toEqual('');
+    });
+    it('formats 377 as "" (when numeric)', () => {
+      expect(formatPrice(377, 2)).toEqual('');
+    });
+    it('formats 377 as "999" (when multiple characters are used)', () => {
+      expect(formatPrice(377, '999')).toEqual('');
+    });
+    it('formats 377 as "999" (when a single character -- but an invalid unit code -- "1")', () => {
+      expect(formatPrice(377, '1')).toEqual('');
+    });
+    it('formats 377 as "999" (when a single character -- but an invalid unit code -- "F")', () => {
+      expect(formatPrice(377, 'F')).toEqual('');
+    });
+    it('formats 377 as "999" (when a single character -- but an invalid unit code -- "a")', () => {
+      expect(formatPrice(377, 'a')).toEqual('');
     });
   });
 });
@@ -15240,84 +15308,80 @@ describe('when parsing prices', () => {
 },{"../../../../../lib/utilities/parse/ddf/value":22}],55:[function(require,module,exports){
 const parsePrice = require('../../../../lib/utilities/parse/price');
 
-describe('when parsing prices', () => {
+describe('when parsing invalid values', () => {
   'use strict';
 
-  describe('when parsing invalid values (regardless of unit code)', () => {
-    it('returns NaN when parsing a zero-length string', () => {
-      expect(parsePrice('')).toEqual(Number.NaN);
+  describe('with a unit code of "A"', () => {
+    it('parses a zero-length string as Number.NaN', () => {
+      expect(parsePrice('', 'A')).toEqual(Number.NaN);
     });
-    it('returns NaN when parsing a non-numeric string', () => {
-      expect(parsePrice('bob')).toEqual(Number.NaN);
+    it('parses a non-numeric string as Number.NaN', () => {
+      expect(parsePrice('bob', 'A')).toEqual(Number.NaN);
     });
-    it('returns NaN when parsing an undefined value', () => {
-      expect(parsePrice(undefined)).toEqual(Number.NaN);
+    it('parses an undefined value as Number.NaN', () => {
+      expect(parsePrice(undefined, 'A')).toEqual(Number.NaN);
     });
-    it('returns NaN when parsing an null value', () => {
-      expect(parsePrice(null)).toEqual(Number.NaN);
+    it('parses a null value as Number.NaN', () => {
+      expect(parsePrice(null, 'A')).toEqual(Number.NaN);
+    });
+    it('parses "123A456" as Number.NaM', () => {
+      expect(parsePrice('123A456', 'A')).toEqual(Number.NaN);
     });
   });
-  describe('with an implied, non-decimal fraction separator', () => {
-    it('returns 125.625 (with unit code 2) when parsing "125-5"', () => {
-      expect(parsePrice('125-5', '2')).toEqual(125.625);
+  describe('with a unit code of "2"', () => {
+    it('parses a zero-length string as Number.NaN', () => {
+      expect(parsePrice('', '2')).toEqual(Number.NaN);
     });
-    it('returns -125.625 (with unit code 2) when parsing "-125-5"', () => {
-      expect(parsePrice('-125-5', '2')).toEqual(-125.625);
+    it('parses a non-numeric string as Number.NaN', () => {
+      expect(parsePrice('bob', '2')).toEqual(Number.NaN);
     });
-    it('returns 125.625 (with unit code 5) when parsing "125-240"', () => {
-      expect(parsePrice('125-240', '5')).toEqual(125.75);
+    it('parses an undefined value as Number.NaN', () => {
+      expect(parsePrice(undefined, '2')).toEqual(Number.NaN);
     });
-    it('returns -125.625 (with unit code 5) when parsing "-125-240"', () => {
-      expect(parsePrice('-125-240', '5')).toEqual(-125.75);
+    it('parses a null value as Number.NaN', () => {
+      expect(parsePrice(null, '2')).toEqual(Number.NaN);
+    });
+    it('parses "123A456" as Number.NaM', () => {
+      expect(parsePrice('123A456', '2')).toEqual(Number.NaN);
     });
   });
 });
-describe('when parsing prices (generated by formatter)', () => {
-  describe('with a decimal fraction separator (implied)', () => {
-    it('parses "377.000" (with unit code 2) as 377', () => {
-      expect(parsePrice('377.000', '2')).toEqual(377);
+describe('when valid prices are parsed', () => {
+  describe('with a unit code of "A"', () => {
+    describe('with a decimal fraction separator', () => {
+      it('parses "0.00" as 0', () => {
+        expect(parsePrice('0.00', 'A', '.')).toEqual(0);
+      });
+      it('parses "123.00" as 123', () => {
+        expect(parsePrice('123.00', 'A', '.')).toEqual(123);
+      });
+      it('parses "123.50" as 123.5', () => {
+        expect(parsePrice('123.50', 'A', '.')).toEqual(123.50);
+      });
+      it('parses "123.567" as 123.57', () => {
+        expect(parsePrice('123.567', 'A', '.')).toEqual(123.57);
+      });
+      it('parses "123.561" as 123.56', () => {
+        expect(parsePrice('123.561', 'A', '.')).toEqual(123.56);
+      });
     });
-    it('parses "377.500" (with unit code 2) as 377.5', () => {
-      expect(parsePrice('377.500', '2')).toEqual(377.5);
+    describe('with a dash fraction separator', () => {
+      it('parses "0.00" as 0', () => {
+        expect(parsePrice('0.00', 'A', '-')).toEqual(0);
+      });
+      it('parses "123.00" as 123', () => {
+        expect(parsePrice('123.00', 'A', '-')).toEqual(123);
+      });
+      it('parses "123.50" as 123.5', () => {
+        expect(parsePrice('123.50', 'A', '-')).toEqual(123.50);
+      });
+      it('parses "123.567" as 123.57', () => {
+        expect(parsePrice('123.567', 'A', '-')).toEqual(123.57);
+      });
+      it('parses "123.561" as 123.56', () => {
+        expect(parsePrice('123.561', 'A', '-')).toEqual(123.56);
+      });
     });
-    it('parses "377.750" (with unit code 2) as 377.75', () => {
-      expect(parsePrice('377.750', '2')).toEqual(377.75);
-    });
-    it('parses "3770.750" (with unit code 2) as 3770.75', () => {
-      expect(parsePrice('3770.750', '2')).toEqual(3770.75);
-    });
-    it('parses "37700.750" (with unit code 2) as 37700.75', () => {
-      expect(parsePrice('37700.750', '2')).toEqual(37700.75);
-    });
-    it('parses "377000.750" (with unit code 2) as 377000.75', () => {
-      expect(parsePrice('377000.750', '2')).toEqual(377000.75);
-    });
-    it('parses "3770000.750" (with unit code 2) as 3770000.75', () => {
-      expect(parsePrice('3770000.750', '2')).toEqual(3770000.75);
-    });
-    it('parses "3770000.000" (with unit code 2) as 3770000', () => {
-      expect(parsePrice('3770000.000', '2')).toEqual(3770000);
-    });
-    it('parses "0.000" (with unit code 2) as 0', () => {
-      expect(parsePrice('0.000', '2')).toEqual(0);
-    });
-    /*
-    it('parses undefined (with unit code 2) as zero-length string', () => {
-    	expect(formatPrice(undefined, '2', '.')).toEqual('');
-    });
-    	it('parses null (with unit code 2) as zero-length string', () => {
-    	expect(formatPrice(null, '2', '.')).toEqual('');
-    });
-    	it('parses Number.NaN (with unit code 2) as zero-length string', () => {
-    	expect(formatPrice(Number.NaN, '2', '.')).toEqual('');
-    });
-    	it('parses 0 (with unit code 8) as "0"', () => {
-    	expect(formatPrice(0, '8', '.')).toEqual('0');
-    });
-    	it('parses 1000 (with unit code 8) as "1000"', () => {
-    	expect(formatPrice(1000, '8', '.')).toEqual('1000');
-    });
-    */
   });
 });
 

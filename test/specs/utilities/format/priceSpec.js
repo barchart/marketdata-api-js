@@ -33,6 +33,10 @@ describe('when invalid prices are formatted (regardless of other settings)', () 
 describe('when valid prices are formatted', () => {
 	describe('with a unit code of "A"', () => {
 		describe('with a decimal fraction separator', () => {
+			it('formats 0 as "0.00"', () => {
+				expect(formatPrice(0, 'A', '.', false)).toEqual('0.00');
+			});
+
 			it('formats 123 as "123.00"', () => {
 				expect(formatPrice(123, 'A', '.', false)).toEqual('123.00');
 			});
@@ -47,6 +51,10 @@ describe('when valid prices are formatted', () => {
 		});
 
 		describe('with a dash fraction separator', () => {
+			it('formats 0 as "0.00"', () => {
+				expect(formatPrice(0, 'A', '-', false)).toEqual('0.00');
+			});
+
 			it('formats 123 as "123.00"', () => {
 				expect(formatPrice(123, 'A', '-', false)).toEqual('123.00');
 			});

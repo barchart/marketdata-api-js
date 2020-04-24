@@ -51,6 +51,10 @@ describe('when parsing invalid values', () => {
 describe('when valid prices are parsed', () => {
 	describe('with a unit code of "A"', () => {
 		describe('with a decimal fraction separator', () => {
+			it('parses "0.00" as 0', () => {
+				expect(parsePrice('0.00', 'A', '.')).toEqual(0);
+			});
+
 			it('parses "123.00" as 123', () => {
 				expect(parsePrice('123.00', 'A', '.')).toEqual(123);
 			});
@@ -69,6 +73,10 @@ describe('when valid prices are parsed', () => {
 		});
 
 		describe('with a dash fraction separator', () => {
+			it('parses "0.00" as 0', () => {
+				expect(parsePrice('0.00', 'A', '-')).toEqual(0);
+			});
+
 			it('parses "123.00" as 123', () => {
 				expect(parsePrice('123.00', 'A', '-')).toEqual(123);
 			});
