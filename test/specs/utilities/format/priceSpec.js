@@ -353,7 +353,7 @@ describe('when valid prices are formatted', () => {
 				expect(formatPrice(-123.640625, '5', '-', true)).toEqual('-123-205');
 			});
 
-			it('formats 122.7031 (with unit code 5) as "122-225"', () => {
+			it('formats 122.7031 as "122-225"', () => {
 				expect(formatPrice(122.7031, '5', '-', true)).toEqual('122-225');
 			});
 
@@ -363,19 +363,19 @@ describe('when valid prices are formatted', () => {
 		});
 
 		describe('with a dash fraction separator and special fractions and parenthetical negatives', () => {
-			it('formats 123.625 (with unit code 5) as "123-200"', () => {
+			it('formats 123.625 as "123-200"', () => {
 				expect(formatPrice(123.625, '5', '-', true, '', true)).toEqual('123-200');
 			});
 
-			it('formats -123.625 (with unit code 5) as "(123-200)"', () => {
+			it('formats -123.625 as "(123-200)"', () => {
 				expect(formatPrice(-123.625, '5', '-', true, '', true)).toEqual('(123-200)');
 			});
 
-			it('formats 123.640625 (with unit code 5) as "123-205"', () => {
+			it('formats 123.640625 as "123-205"', () => {
 				expect(formatPrice(123.640625, '5', '-', true, '', true)).toEqual('123-205');
 			});
 
-			it('formats -123.640625 (with unit code 5) as "(123-205)"', () => {
+			it('formats -123.640625 as "(123-205)"', () => {
 				expect(formatPrice(-123.640625, '5', '-', true, '', true)).toEqual('(123-205)');
 			});
 		});
@@ -383,19 +383,19 @@ describe('when valid prices are formatted', () => {
 
 	describe('with a unit code of "6"', () => {
 		describe('with a dash fraction separator and special fractions', () => {
-			it('formats 114.5156 (with unit code 6) as "114-165"', () => {
+			it('formats 114.5156 as "114-165"', () => {
 				expect(formatPrice(114.5156, '6', '-', true)).toEqual('114-165');
 			});
 
-			it('formats 114.7891 (with unit code 6) as "114-252"', () => {
+			it('formats 114.7891 as "114-252"', () => {
 				expect(formatPrice(114.7891, '6', '-', true)).toEqual('114-252');
 			});
 
-			it('formats 114.8438 (with unit code 6) as "114-270"', () => {
+			it('formats 114.8438 as "114-270"', () => {
 				expect(formatPrice(114.8438, '6', '-', true)).toEqual('114-270');
 			});
 
-			it('formats 114.75 (with unit code 6) as "114-240"', () => {
+			it('formats 114.75 as "114-240"', () => {
 				expect(formatPrice(114.75, '6', '-', true)).toEqual('114-240');
 			});
 
