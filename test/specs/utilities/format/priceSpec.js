@@ -123,48 +123,48 @@ describe('when valid prices are formatted', () => {
 		});
 
 		describe('with a decimal fraction separator and a thousands separator', () => {
-			it('formats 377  as "377.000"', () => {
+			it('formats 0 as "0.000"', () => {
+				expect(formatPrice(0, '2', '.', false, ',')).toEqual('0.000');
+			});
+			
+			it('formats 377 as "377.000"', () => {
 				expect(formatPrice(377, '2', '.', false, ',')).toEqual('377.000');
 			});
 
-			it('formats -377  as "-377.000"', () => {
+			it('formats -377 as "-377.000"', () => {
 				expect(formatPrice(-377, '2', '.', false, ',')).toEqual('-377.000');
 			});
 
-			it('formats 377.5  as "377.500"', () => {
+			it('formats 377.5 as "377.500"', () => {
 				expect(formatPrice(377.5, '2', '.', false, ',')).toEqual('377.500');
 			});
 
-			it('formats 377.75  as "377.750"', () => {
+			it('formats 377.75 as "377.750"', () => {
 				expect(formatPrice(377.75, '2', '.', false, ',')).toEqual('377.750');
 			});
 
-			it('formats 3770.75  as "3,770.750"', () => {
+			it('formats 3770.75 as "3,770.750"', () => {
 				expect(formatPrice(3770.75, '2', '.', false, ',')).toEqual('3,770.750');
 			});
 
-			it('formats 37700.75  as "37,700.750"', () => {
+			it('formats 37700.75 as "37,700.750"', () => {
 				expect(formatPrice(37700.75, '2', '.', false, ',')).toEqual('37,700.750');
 			});
 
-			it('formats 377000.75  as "377,000.750"', () => {
+			it('formats 377000.75 as "377,000.750"', () => {
 				expect(formatPrice(377000.75, '2', '.', false, ',')).toEqual('377,000.750');
 			});
 
-			it('formats -377000.75  as "-377,000.750"', () => {
+			it('formats -377000.75 as "-377,000.750"', () => {
 				expect(formatPrice(-377000.75, '2', '.', false, ',')).toEqual('-377,000.750');
 			});
 
-			it('formats 3770000.75  as "3,770,000.750"', () => {
+			it('formats 3770000.75 as "3,770,000.750"', () => {
 				expect(formatPrice(3770000.75, '2', '.', false, ',')).toEqual('3,770,000.750');
 			});
 
-			it('formats 3770000  as "3,770,000.000"', () => {
+			it('formats 3770000 as "3,770,000.000"', () => {
 				expect(formatPrice(3770000, '2', '.', false, ',')).toEqual('3,770,000.000');
-			});
-
-			it('formats 0  as "0.000"', () => {
-				expect(formatPrice(0, '2', '.', false, ',')).toEqual('0.000');
 			});
 		});
 
