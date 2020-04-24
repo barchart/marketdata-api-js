@@ -32,7 +32,21 @@ describe('when invalid prices are formatted (regardless of other settings)', () 
 
 describe('when valid prices are formatted', () => {
 	describe('with a unit code of "A"', () => {
-		describe('with a dash separator', () => {
+		describe('with a decimal fraction separator', () => {
+			it('formats 123 as "123.00"', () => {
+				expect(formatPrice(123, 'A', '.', false)).toEqual('123.00');
+			});
+
+			it('formats 123.5 as "123.50"', () => {
+				expect(formatPrice(123.5, 'A', '.', false)).toEqual('123.50');
+			});
+
+			it('formats 123.555 as "123.56"', () => {
+				expect(formatPrice(123.555, 'A', '.', false)).toEqual('123.56');
+			});
+		});
+
+		describe('with a dash fraction separator', () => {
 			it('formats 123 as "123.00"', () => {
 				expect(formatPrice(123, 'A', '-', false)).toEqual('123.00');
 			});
@@ -174,7 +188,7 @@ describe('when valid prices are formatted', () => {
 			});
 		});
 
-		describe('with a dash separator', () => {
+		describe('with a dash fraction separator', () => {
 			it('formats 123 as "123-0"', () => {
 				expect(formatPrice(123, '2', '-')).toEqual('123-0');
 			});
@@ -200,7 +214,7 @@ describe('when valid prices are formatted', () => {
 			});
 		});
 
-		describe('with a dash separator and parenthetical negatives', () => {
+		describe('with a dash fraction separator and parenthetical negatives', () => {
 			it('formats 123 as "123-0"', () => {
 				expect(formatPrice(123, '2', '-', false, '', true)).toEqual('123-0');
 			});
@@ -314,7 +328,7 @@ describe('when valid prices are formatted', () => {
 	});
 
 	describe('with a unit code of "5"', () => {
-		describe('with a dash separator and special fractions', () => {
+		describe('with a dash fraction separator and special fractions', () => {
 			it('formats 123.625 as "123-200"', () => {
 				expect(formatPrice(123.625, '5', '-', true)).toEqual('123-200');
 			});
@@ -340,7 +354,7 @@ describe('when valid prices are formatted', () => {
 			});
 		});
 
-		describe('with a dash separator and special fractions and parenthetical negatives', () => {
+		describe('with a dash fraction separator and special fractions and parenthetical negatives', () => {
 			it('formats 123.625 (with unit code 5) as "123-200"', () => {
 				expect(formatPrice(123.625, '5', '-', true, '', true)).toEqual('123-200');
 			});
@@ -360,7 +374,7 @@ describe('when valid prices are formatted', () => {
 	});
 
 	describe('with a unit code of "6"', () => {
-		describe('with a dash separator and special fractions', () => {
+		describe('with a dash fraction separator and special fractions', () => {
 			it('formats 114.5156 (with unit code 6) as "114-165"', () => {
 				expect(formatPrice(114.5156, '6', '-', true)).toEqual('114-165');
 			});
