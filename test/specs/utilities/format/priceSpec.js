@@ -33,15 +33,15 @@ describe('when invalid prices are formatted (regardless of other settings)', () 
 describe('when valid prices are formatted', () => {
 	describe('with a unit code of "A"', () => {
 		describe('with a dash separator', () => {
-			it('formats 123 (with unit code A) as "123.00"', () => {
+			it('formats 123 as "123.00"', () => {
 				expect(formatPrice(123, 'A', '-', false)).toEqual('123.00');
 			});
 
-			it('formats 123.5 (with unit code A) as "123.50"', () => {
+			it('formats 123.5 as "123.50"', () => {
 				expect(formatPrice(123.5, 'A', '-', false)).toEqual('123.50');
 			});
 
-			it('formats 123.555 (with unit code A) as "123.56"', () => {
+			it('formats 123.555 as "123.56"', () => {
 				expect(formatPrice(123.555, 'A', '-', false)).toEqual('123.56');
 			});
 		});
