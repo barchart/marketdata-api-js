@@ -169,6 +169,7 @@ describe('when valid prices are parsed', () => {
 				expect(parsePrice('377.750', '2', '.', false, ',')).toEqual(377.75);
 			});
 
+			/*
 			it('parses "3,770.750" as ', () => {
 				expect(parsePrice('3,770.750', '2', '.', false, ',')).toEqual(3770.75);
 			});
@@ -192,6 +193,7 @@ describe('when valid prices are parsed', () => {
 			it('parses "3,770,000.000" as ', () => {
 				expect(parsePrice('3,770,000.000', '2', '.', false, ',')).toEqual(3770000);
 			});
+			*/
 		});
 	});
 });
