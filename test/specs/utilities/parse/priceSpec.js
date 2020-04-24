@@ -47,3 +47,43 @@ describe('when parsing invalid values', () => {
 		});
 	});
 });
+
+describe('when valid prices are parsed', () => {
+	describe('with a unit code of "A"', () => {
+		describe('with a decimal fraction separator', () => {
+			it('parses "123.00" as 123', () => {
+				expect(parsePrice('123.00', 'A', '.')).toEqual(123);
+			});
+
+			it('parses "123.50" as 123.5', () => {
+				expect(parsePrice('123.50', 'A', '.')).toEqual(123.50);
+			});
+
+			it('parses "123.567" as 123.57', () => {
+				expect(parsePrice('123.567', 'A', '.')).toEqual(123.57);
+			});
+
+			it('parses "123.561" as 123.56', () => {
+				expect(parsePrice('123.561', 'A', '.')).toEqual(123.56);
+			});
+		});
+
+		describe('with a dash fraction separator', () => {
+			it('parses "123.00" as 123', () => {
+				expect(parsePrice('123.00', 'A', '-')).toEqual(123);
+			});
+
+			it('parses "123.50" as 123.5', () => {
+				expect(parsePrice('123.50', 'A', '-')).toEqual(123.50);
+			});
+
+			it('parses "123.567" as 123.57', () => {
+				expect(parsePrice('123.567', 'A', '-')).toEqual(123.57);
+			});
+
+			it('parses "123.561" as 123.56', () => {
+				expect(parsePrice('123.561', 'A', '-')).toEqual(123.56);
+			});
+		});
+	});
+});
