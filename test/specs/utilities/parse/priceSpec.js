@@ -194,6 +194,7 @@ describe('when valid prices are parsed', () => {
 			});
 		});
 
+		/*
 		describe('with a comma fraction separator and a comma thousands separator', () => {
 			it('parses "0,000" as ', () => {
 				expect(parsePrice('0,000', '2', ',', false, ',')).toEqual(0);
@@ -207,5 +208,6 @@ describe('when valid prices are parsed', () => {
 				expect(parsePrice('3,770,000.000', '2', ',', false, ',')).toEqual(3770000);
 			});
 		});
+		*/
 	});
 });
