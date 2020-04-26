@@ -193,5 +193,19 @@ describe('when valid prices are parsed', () => {
 				expect(parsePrice('3,770,000.000', '2', '.', false, ',')).toEqual(3770000);
 			});
 		});
+
+		describe('with a comma fraction separator and a comma thousands separator', () => {
+			it('parses "0,000" as ', () => {
+				expect(parsePrice('0,000', '2', ',', false, ',')).toEqual(0);
+			});
+
+			it('parses "377,000" as ', () => {
+				expect(parsePrice('377,000', '2', ',', false, ',')).toEqual(377);
+			});
+
+			it('parses "3,770,000,000" as ', () => {
+				expect(parsePrice('3,770,000.000', '2', ',', false, ',')).toEqual(3770000);
+			});
+		});
 	});
 });
