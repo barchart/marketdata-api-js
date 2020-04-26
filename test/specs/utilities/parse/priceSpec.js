@@ -20,7 +20,7 @@ describe('when parsing invalid values', () => {
 			expect(parsePrice(null, 'A')).toEqual(Number.NaN);
 		});
 
-		it('parses "123A456" as Number.NaM', () => {
+		it('parses "123A456" as Number.NaN', () => {
 			expect(parsePrice('123A456', 'A')).toEqual(Number.NaN);
 		});
 	});
@@ -42,7 +42,7 @@ describe('when parsing invalid values', () => {
 			expect(parsePrice(null, '2')).toEqual(Number.NaN);
 		});
 
-		it('parses "123A456" as Number.NaM', () => {
+		it('parses "123A456" as Number.NaN', () => {
 			expect(parsePrice('123A456', '2')).toEqual(Number.NaN);
 		});
 	});
