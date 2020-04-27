@@ -61,6 +61,22 @@ describe('When parsing a valid character as a unit code', () => {
 		it('getting the "special" fraction factor should return 8', () => {
 			expect(unitCode.getFractionFactor(true)).toEqual(8);
 		});
+
+		it('the fraction digits should be 1', () => {
+			expect(unitCode.fractionDigits).toEqual(1);
+		});
+
+		it('the "special" fraction digits should be 1', () => {
+			expect(unitCode.fractionDigitsSpecial).toEqual(1);
+		});
+
+		it('getting the fraction digits should return 1', () => {
+			expect(unitCode.getFractionDigits()).toEqual(1);
+		});
+
+		it('getting the "special" fraction digits should return 1', () => {
+			expect(unitCode.getFractionDigits(true)).toEqual(1);
+		});
 	});
 
 	describe('When parsing "3"', () => {
@@ -96,6 +112,22 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('getting the "special" fraction factor should return 16', () => {
 			expect(unitCode.getFractionFactor(true)).toEqual(16);
+		});
+
+		it('the fraction digits should be 2', () => {
+			expect(unitCode.fractionDigits).toEqual(2);
+		});
+
+		it('the "special" fraction digits should be 2', () => {
+			expect(unitCode.fractionDigitsSpecial).toEqual(2);
+		});
+
+		it('getting the fraction digits should return 2', () => {
+			expect(unitCode.getFractionDigits()).toEqual(2);
+		});
+
+		it('getting the "special" fraction digits should return 2', () => {
+			expect(unitCode.getFractionDigits(true)).toEqual(2);
 		});
 	});
 
@@ -133,6 +165,22 @@ describe('When parsing a valid character as a unit code', () => {
 		it('getting the "special" fraction factor should return 32', () => {
 			expect(unitCode.getFractionFactor(true)).toEqual(32);
 		});
+
+		it('the fraction digits should be 2', () => {
+			expect(unitCode.fractionDigits).toEqual(2);
+		});
+
+		it('the "special" fraction digits should be 2', () => {
+			expect(unitCode.fractionDigitsSpecial).toEqual(2);
+		});
+
+		it('getting the fraction digits should return 2', () => {
+			expect(unitCode.getFractionDigits()).toEqual(2);
+		});
+
+		it('getting the "special" fraction digits should return 2', () => {
+			expect(unitCode.getFractionDigits(true)).toEqual(2);
+		});
 	});
 
 	describe('When parsing "5"', () => {
@@ -168,6 +216,22 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('getting the "special" fraction factor should return 320', () => {
 			expect(unitCode.getFractionFactor(true)).toEqual(320);
+		});
+
+		it('the fraction digits should be 2', () => {
+			expect(unitCode.fractionDigits).toEqual(2);
+		});
+
+		it('the "special" fraction digits should be 3', () => {
+			expect(unitCode.fractionDigitsSpecial).toEqual(3);
+		});
+
+		it('getting the fraction digits should return 2', () => {
+			expect(unitCode.getFractionDigits()).toEqual(2);
+		});
+
+		it('getting the "special" fraction digits should return 3', () => {
+			expect(unitCode.getFractionDigits(true)).toEqual(3);
 		});
 	});
 
@@ -205,6 +269,22 @@ describe('When parsing a valid character as a unit code', () => {
 		it('getting the "special" fraction factor should return 320', () => {
 			expect(unitCode.getFractionFactor(true)).toEqual(320);
 		});
+
+		it('the fraction digits should be 3', () => {
+			expect(unitCode.fractionDigits).toEqual(3);
+		});
+
+		it('the "special" fraction digits should be 3', () => {
+			expect(unitCode.fractionDigitsSpecial).toEqual(3);
+		});
+
+		it('getting the fraction digits should return 3', () => {
+			expect(unitCode.getFractionDigits()).toEqual(3);
+		});
+
+		it('getting the "special" fraction digits should return 3', () => {
+			expect(unitCode.getFractionDigits(true)).toEqual(3);
+		});
 	});
 
 	describe('When parsing "7"', () => {
@@ -240,6 +320,22 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('getting the "special" fraction factor should return 320', () => {
 			expect(unitCode.getFractionFactor(true)).toEqual(320);
+		});
+
+		it('the fraction digits should be 3', () => {
+			expect(unitCode.fractionDigits).toEqual(3);
+		});
+
+		it('the "special" fraction digits should be 3', () => {
+			expect(unitCode.fractionDigitsSpecial).toEqual(3);
+		});
+
+		it('getting the fraction digits should return 3', () => {
+			expect(unitCode.getFractionDigits()).toEqual(3);
+		});
+
+		it('getting the "special" fraction digits should return 3', () => {
+			expect(unitCode.getFractionDigits(true)).toEqual(3);
 		});
 	});
 
@@ -277,6 +373,22 @@ describe('When parsing a valid character as a unit code', () => {
 		it('getting the "special" fraction factor should return undefined', () => {
 			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
 		});
+
+		it('the fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigits).toEqual(undefined);
+		});
+
+		it('the "special" fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits(true)).toEqual(undefined);
+		});
 	});
 
 	describe('When parsing "9"', () => {
@@ -312,6 +424,22 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('getting the "special" fraction factor should return undefined', () => {
 			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+		});
+
+		it('the fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigits).toEqual(undefined);
+		});
+
+		it('the "special" fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits(true)).toEqual(undefined);
 		});
 	});
 
@@ -349,6 +477,22 @@ describe('When parsing a valid character as a unit code', () => {
 		it('getting the "special" fraction factor should return undefined', () => {
 			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
 		});
+
+		it('the fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigits).toEqual(undefined);
+		});
+
+		it('the "special" fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits(true)).toEqual(undefined);
+		});
 	});
 
 	describe('When parsing "B"', () => {
@@ -384,6 +528,22 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('getting the "special" fraction factor should return undefined', () => {
 			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+		});
+
+		it('the fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigits).toEqual(undefined);
+		});
+
+		it('the "special" fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits(true)).toEqual(undefined);
 		});
 	});
 
@@ -421,6 +581,22 @@ describe('When parsing a valid character as a unit code', () => {
 		it('getting the "special" fraction factor should return undefined', () => {
 			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
 		});
+
+		it('the fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigits).toEqual(undefined);
+		});
+
+		it('the "special" fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits(true)).toEqual(undefined);
+		});
 	});
 
 	describe('When parsing "D"', () => {
@@ -456,6 +632,22 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('getting the "special" fraction factor should return undefined', () => {
 			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+		});
+
+		it('the fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigits).toEqual(undefined);
+		});
+
+		it('the "special" fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits(true)).toEqual(undefined);
 		});
 	});
 
@@ -493,6 +685,22 @@ describe('When parsing a valid character as a unit code', () => {
 		it('getting the "special" fraction factor should return undefined', () => {
 			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
 		});
+
+		it('the fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigits).toEqual(undefined);
+		});
+
+		it('the "special" fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits(true)).toEqual(undefined);
+		});
 	});
 
 	describe('When parsing "F"', () => {
@@ -528,6 +736,22 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('getting the "special" fraction factor should return undefined', () => {
 			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+		});
+
+		it('the fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigits).toEqual(undefined);
+		});
+
+		it('the "special" fraction digits should be undefined', () => {
+			expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction digits should return undefined', () => {
+			expect(unitCode.getFractionDigits(true)).toEqual(undefined);
 		});
 	});
 });
