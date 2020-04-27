@@ -3,11 +3,11 @@ const formatPrice = require('./../../../../lib/utilities/format/price');
 /*
 describe('benchmark', () => {
 	it('run a million times', () => {
-		// 299, 279, 285, 279
 		console.time('benchmark');
 
 		for (let i = 0; i < 1000000; i++) {
-			const x = formatPrice(0, '2', '.');
+			// const x = formatPrice(0, '2', '.');
+			// const x = formatPrice(123.5, '2', '-');
 		}
 
 		console.timeEnd('benchmark');
