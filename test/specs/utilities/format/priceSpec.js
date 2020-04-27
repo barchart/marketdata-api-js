@@ -100,6 +100,10 @@ describe('when valid prices are formatted', () => {
 				expect(formatPrice(0, '2', '.')).toEqual('0.000');
 			});
 
+			it('formats 9.5432 as "9.543"', () => {
+				expect(formatPrice(9.5432, '2', '.')).toEqual('9.543');
+			});
+
 			it('formats 377 as "377.000"', () => {
 				expect(formatPrice(377, '2', '.')).toEqual('377.000');
 			});
@@ -212,6 +216,10 @@ describe('when valid prices are formatted', () => {
 		});
 
 		describe('with a dash fraction separator', () => {
+			it('formats 9.5432 as "9.543"', () => {
+				expect(formatPrice(9.5432, '2', '-')).toEqual('9-4');
+			});
+
 			it('formats 123 as "123-0"', () => {
 				expect(formatPrice(123, '2', '-')).toEqual('123-0');
 			});
