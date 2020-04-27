@@ -45,6 +45,22 @@ describe('When parsing a valid character as a unit code', () => {
 		it('does support fraction notation', () => {
 			expect(unitCode.supportsFractions).toEqual(true);
 		});
+
+		it('the fraction factor should be 8', () => {
+			expect(unitCode.fractionFactor).toEqual(8);
+		});
+
+		it('the "special" fraction factor should be 8', () => {
+			expect(unitCode.fractionFactorSpecial).toEqual(8);
+		});
+
+		it('getting the fraction factor should return 8', () => {
+			expect(unitCode.getFractionFactor()).toEqual(8);
+		});
+
+		it('getting the "special" fraction factor should return 8', () => {
+			expect(unitCode.getFractionFactor(true)).toEqual(8);
+		});
 	});
 
 	describe('When parsing "3"', () => {
@@ -64,6 +80,22 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('does support fraction notation', () => {
 			expect(unitCode.supportsFractions).toEqual(true);
+		});
+
+		it('the fraction factor should be 16', () => {
+			expect(unitCode.fractionFactor).toEqual(16);
+		});
+
+		it('the "special" fraction factor should be 16', () => {
+			expect(unitCode.fractionFactorSpecial).toEqual(16);
+		});
+
+		it('getting the fraction factor should return 16', () => {
+			expect(unitCode.getFractionFactor()).toEqual(16);
+		});
+
+		it('getting the "special" fraction factor should return 16', () => {
+			expect(unitCode.getFractionFactor(true)).toEqual(16);
 		});
 	});
 
@@ -85,6 +117,22 @@ describe('When parsing a valid character as a unit code', () => {
 		it('does support fraction notation', () => {
 			expect(unitCode.supportsFractions).toEqual(true);
 		});
+
+		it('the fraction factor should be 32', () => {
+			expect(unitCode.fractionFactor).toEqual(32);
+		});
+
+		it('the "special" fraction factor should be 32', () => {
+			expect(unitCode.fractionFactorSpecial).toEqual(32);
+		});
+
+		it('getting the fraction factor should return 32', () => {
+			expect(unitCode.getFractionFactor()).toEqual(32);
+		});
+
+		it('getting the "special" fraction factor should return 32', () => {
+			expect(unitCode.getFractionFactor(true)).toEqual(32);
+		});
 	});
 
 	describe('When parsing "5"', () => {
@@ -104,6 +152,22 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('does support fraction notation', () => {
 			expect(unitCode.supportsFractions).toEqual(true);
+		});
+
+		it('the fraction factor should be 64', () => {
+			expect(unitCode.fractionFactor).toEqual(64);
+		});
+
+		it('the "special" fraction factor should be 320', () => {
+			expect(unitCode.fractionFactorSpecial).toEqual(320);
+		});
+
+		it('getting the fraction factor should return 64', () => {
+			expect(unitCode.getFractionFactor()).toEqual(64);
+		});
+
+		it('getting the "special" fraction factor should return 320', () => {
+			expect(unitCode.getFractionFactor(true)).toEqual(320);
 		});
 	});
 
@@ -125,6 +189,22 @@ describe('When parsing a valid character as a unit code', () => {
 		it('does support fraction notation', () => {
 			expect(unitCode.supportsFractions).toEqual(true);
 		});
+
+		it('the fraction factor should be 128', () => {
+			expect(unitCode.fractionFactor).toEqual(128);
+		});
+
+		it('the "special" fraction factor should be 320', () => {
+			expect(unitCode.fractionFactorSpecial).toEqual(320);
+		});
+
+		it('getting the fraction factor should return 128', () => {
+			expect(unitCode.getFractionFactor()).toEqual(128);
+		});
+
+		it('getting the "special" fraction factor should return 320', () => {
+			expect(unitCode.getFractionFactor(true)).toEqual(320);
+		});
 	});
 
 	describe('When parsing "7"', () => {
@@ -144,6 +224,22 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('does support fraction notation', () => {
 			expect(unitCode.supportsFractions).toEqual(true);
+		});
+
+		it('the fraction factor should be 256', () => {
+			expect(unitCode.fractionFactor).toEqual(256);
+		});
+
+		it('the "special" fraction factor should be 320', () => {
+			expect(unitCode.fractionFactorSpecial).toEqual(320);
+		});
+
+		it('getting the fraction factor should return 256', () => {
+			expect(unitCode.getFractionFactor()).toEqual(256);
+		});
+
+		it('getting the "special" fraction factor should return 320', () => {
+			expect(unitCode.getFractionFactor(true)).toEqual(320);
 		});
 	});
 
