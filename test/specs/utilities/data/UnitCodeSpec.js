@@ -12,9 +12,7 @@ describe('When parsing an invalid argument', () => {
 	it('should parse "a" as null', () => {
 		expect(UnitCode.parse('a')).toEqual(null);
 	});
-});
 
-describe('When parsing an invalid character as a unit code', () => {
 	it('should parse the number two as null', () => {
 		expect(UnitCode.parse(2)).toEqual(null);
 	});
