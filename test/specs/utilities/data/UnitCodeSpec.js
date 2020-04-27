@@ -261,6 +261,22 @@ describe('When parsing a valid character as a unit code', () => {
 		it('does not support fraction notation', () => {
 			expect(unitCode.supportsFractions).toEqual(false);
 		});
+
+		it('the fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactor).toEqual(undefined);
+		});
+
+		it('the "special" fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+		});
 	});
 
 	describe('When parsing "9"', () => {
@@ -280,6 +296,22 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('does not support fraction notation', () => {
 			expect(unitCode.supportsFractions).toEqual(false);
+		});
+
+		it('the fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactor).toEqual(undefined);
+		});
+
+		it('the "special" fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
 		});
 	});
 
@@ -301,6 +333,22 @@ describe('When parsing a valid character as a unit code', () => {
 		it('does not support fraction notation', () => {
 			expect(unitCode.supportsFractions).toEqual(false);
 		});
+
+		it('the fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactor).toEqual(undefined);
+		});
+
+		it('the "special" fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+		});
 	});
 
 	describe('When parsing "B"', () => {
@@ -320,6 +368,22 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('does not support fraction notation', () => {
 			expect(unitCode.supportsFractions).toEqual(false);
+		});
+
+		it('the fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactor).toEqual(undefined);
+		});
+
+		it('the "special" fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
 		});
 	});
 
@@ -341,6 +405,22 @@ describe('When parsing a valid character as a unit code', () => {
 		it('does not support fraction notation', () => {
 			expect(unitCode.supportsFractions).toEqual(false);
 		});
+
+		it('the fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactor).toEqual(undefined);
+		});
+
+		it('the "special" fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+		});
 	});
 
 	describe('When parsing "D"', () => {
@@ -360,6 +440,22 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('does not support fraction notation', () => {
 			expect(unitCode.supportsFractions).toEqual(false);
+		});
+
+		it('the fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactor).toEqual(undefined);
+		});
+
+		it('the "special" fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
 		});
 	});
 
@@ -381,6 +477,22 @@ describe('When parsing a valid character as a unit code', () => {
 		it('does not support fraction notation', () => {
 			expect(unitCode.supportsFractions).toEqual(false);
 		});
+
+		it('the fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactor).toEqual(undefined);
+		});
+
+		it('the "special" fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+		});
 	});
 
 	describe('When parsing "F"', () => {
@@ -400,6 +512,22 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('does not support fraction notation', () => {
 			expect(unitCode.supportsFractions).toEqual(false);
+		});
+
+		it('the fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactor).toEqual(undefined);
+		});
+
+		it('the "special" fraction factor should be undefined', () => {
+			expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+		});
+
+		it('getting the fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor()).toEqual(undefined);
+		});
+
+		it('getting the "special" fraction factor should return undefined', () => {
+			expect(unitCode.getFractionFactor(true)).toEqual(undefined);
 		});
 	});
 });
