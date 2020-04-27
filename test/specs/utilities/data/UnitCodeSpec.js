@@ -39,7 +39,7 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 
 		it('should use three decimal places', () => {
-			expect(unitCode.decimals).toEqual(3);
+			expect(unitCode.decimalDigits).toEqual(3);
 		});
 
 		it('does support fraction notation', () => {
@@ -75,7 +75,7 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 
 		it('should use four decimal places', () => {
-			expect(unitCode.decimals).toEqual(4);
+			expect(unitCode.decimalDigits).toEqual(4);
 		});
 
 		it('does support fraction notation', () => {
@@ -111,7 +111,7 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 
 		it('should use five decimal places', () => {
-			expect(unitCode.decimals).toEqual(5);
+			expect(unitCode.decimalDigits).toEqual(5);
 		});
 
 		it('does support fraction notation', () => {
@@ -147,7 +147,7 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 
 		it('should use six decimal places', () => {
-			expect(unitCode.decimals).toEqual(6);
+			expect(unitCode.decimalDigits).toEqual(6);
 		});
 
 		it('does support fraction notation', () => {
@@ -183,7 +183,7 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 
 		it('should use seven decimal places', () => {
-			expect(unitCode.decimals).toEqual(7);
+			expect(unitCode.decimalDigits).toEqual(7);
 		});
 
 		it('does support fraction notation', () => {
@@ -219,7 +219,7 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 
 		it('should use eight decimal places', () => {
-			expect(unitCode.decimals).toEqual(8);
+			expect(unitCode.decimalDigits).toEqual(8);
 		});
 
 		it('does support fraction notation', () => {
@@ -255,7 +255,7 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 
 		it('should use zero decimal places', () => {
-			expect(unitCode.decimals).toEqual(0);
+			expect(unitCode.decimalDigits).toEqual(0);
 		});
 
 		it('does not support fraction notation', () => {
@@ -291,7 +291,7 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 
 		it('should use one decimal places', () => {
-			expect(unitCode.decimals).toEqual(1);
+			expect(unitCode.decimalDigits).toEqual(1);
 		});
 
 		it('does not support fraction notation', () => {
@@ -327,7 +327,7 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 
 		it('should use two decimal places', () => {
-			expect(unitCode.decimals).toEqual(2);
+			expect(unitCode.decimalDigits).toEqual(2);
 		});
 
 		it('does not support fraction notation', () => {
@@ -363,7 +363,7 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 
 		it('should use three decimal places', () => {
-			expect(unitCode.decimals).toEqual(3);
+			expect(unitCode.decimalDigits).toEqual(3);
 		});
 
 		it('does not support fraction notation', () => {
@@ -399,7 +399,7 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 
 		it('should use four decimal places', () => {
-			expect(unitCode.decimals).toEqual(4);
+			expect(unitCode.decimalDigits).toEqual(4);
 		});
 
 		it('does not support fraction notation', () => {
@@ -435,7 +435,7 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 
 		it('should use five decimal places', () => {
-			expect(unitCode.decimals).toEqual(5);
+			expect(unitCode.decimalDigits).toEqual(5);
 		});
 
 		it('does not support fraction notation', () => {
@@ -471,7 +471,7 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 
 		it('should use six decimal places', () => {
-			expect(unitCode.decimals).toEqual(6);
+			expect(unitCode.decimalDigits).toEqual(6);
 		});
 
 		it('does not support fraction notation', () => {
@@ -507,7 +507,7 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 
 		it('should use seven decimal places', () => {
-			expect(unitCode.decimals).toEqual(7);
+			expect(unitCode.decimalDigits).toEqual(7);
 		});
 
 		it('does not support fraction notation', () => {
