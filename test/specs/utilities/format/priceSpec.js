@@ -459,7 +459,6 @@ describe('when valid prices are formatted', () => {
 			expect(formatPrice(377, '999')).toEqual('');
 		});
 
-		/*
 		it('formats 377 as "" (when unit code is a a single character -- but an invalid unit code -- "1")', () => {
 			expect(formatPrice(377, '1')).toEqual('');
 		});
@@ -471,6 +470,5 @@ describe('when valid prices are formatted', () => {
 		it('formats 377 as "" (when unit code is a single character -- but an invalid unit code -- "a")', () => {
 			expect(formatPrice(377, 'a')).toEqual('');
 		});
-		*/
 	});
 });
