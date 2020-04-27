@@ -1,5 +1,20 @@
 const formatPrice = require('./../../../../lib/utilities/format/price');
 
+/*
+describe('benchmark', () => {
+	it('run a million times', () => {
+		// 299, 279, 285, 279
+		console.time('benchmark');
+
+		for (let i = 0; i < 1000000; i++) {
+			const x = formatPrice(0, '2', '.');
+		}
+
+		console.timeEnd('benchmark');
+	});
+});
+*/
+
 describe('when invalid prices are formatted (regardless of other settings)', () => {
 	it('formats an undefined value as a zero-length string', () => {
 		expect(formatPrice()).toEqual('');
@@ -428,32 +443,34 @@ describe('when valid prices are formatted', () => {
 	});
 
 	describe('with an invalid unit code', () => {
-		it('formats 377 as "" (when omitted)', () => {
+		it('formats 377 as "" (when unit code is omitted)', () => {
 			expect(formatPrice(377)).toEqual('');
 		});
 
-		it('formats 377 as "" (when null)', () => {
+		it('formats 377 as "" (when unit code is null)', () => {
 			expect(formatPrice(377, null)).toEqual('');
 		});
 
-		it('formats 377 as "" (when numeric)', () => {
+		it('formats 377 as "" (when unit code is numeric)', () => {
 			expect(formatPrice(377, 2)).toEqual('');
 		});
 
-		it('formats 377 as "999" (when multiple characters are used)', () => {
+		it('formats 377 as "" (when unit code has multiple characters are used)', () => {
 			expect(formatPrice(377, '999')).toEqual('');
 		});
 
-		it('formats 377 as "999" (when a single character -- but an invalid unit code -- "1")', () => {
+		/*
+		it('formats 377 as "" (when unit code is a a single character -- but an invalid unit code -- "1")', () => {
 			expect(formatPrice(377, '1')).toEqual('');
 		});
 
-		it('formats 377 as "999" (when a single character -- but an invalid unit code -- "F")', () => {
-			expect(formatPrice(377, 'F')).toEqual('');
+		it('formats 377 as "" (when unit code is a single character -- but an invalid unit code -- "G")', () => {
+			expect(formatPrice(377, 'G')).toEqual('');
 		});
 
-		it('formats 377 as "999" (when a single character -- but an invalid unit code -- "a")', () => {
+		it('formats 377 as "" (when unit code is a single character -- but an invalid unit code -- "a")', () => {
 			expect(formatPrice(377, 'a')).toEqual('');
 		});
+		*/
 	});
 });
