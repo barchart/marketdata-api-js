@@ -46,6 +46,10 @@ describe('When parsing a valid character as a unit code', () => {
 			expect(unitCode.baseCode).toEqual(-1);
 		});
 
+		it('should be the same instance as resolving "base" code -1', () => {
+			expect(UnitCode.fromBaseCode(-1)).toBe(unitCode);
+		});
+
 		it('should use three decimal places', () => {
 			expect(unitCode.decimalDigits).toEqual(3);
 		});
@@ -104,6 +108,10 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('should have a "base" code of -2', () => {
 			expect(unitCode.baseCode).toEqual(-2);
+		});
+
+		it('should be the same instance as resolving "base" code -2', () => {
+			expect(UnitCode.fromBaseCode(-2)).toBe(unitCode);
 		});
 
 		it('should use four decimal places', () => {
@@ -166,6 +174,10 @@ describe('When parsing a valid character as a unit code', () => {
 			expect(unitCode.baseCode).toEqual(-3);
 		});
 
+		it('should be the same instance as resolving "base" code -3', () => {
+			expect(UnitCode.fromBaseCode(-3)).toBe(unitCode);
+		});
+
 		it('should use five decimal places', () => {
 			expect(unitCode.decimalDigits).toEqual(5);
 		});
@@ -224,6 +236,10 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('should have a "base" code of -4', () => {
 			expect(unitCode.baseCode).toEqual(-4);
+		});
+
+		it('should be the same instance as resolving "base" code -4', () => {
+			expect(UnitCode.fromBaseCode(-4)).toBe(unitCode);
 		});
 
 		it('should use six decimal places', () => {
@@ -286,6 +302,10 @@ describe('When parsing a valid character as a unit code', () => {
 			expect(unitCode.baseCode).toEqual(-5);
 		});
 
+		it('should be the same instance as resolving "base" code -5', () => {
+			expect(UnitCode.fromBaseCode(-5)).toBe(unitCode);
+		});
+
 		it('should use seven decimal places', () => {
 			expect(unitCode.decimalDigits).toEqual(7);
 		});
@@ -344,6 +364,10 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('should have a "base" code of -6', () => {
 			expect(unitCode.baseCode).toEqual(-6);
+		});
+
+		it('should be the same instance as resolving "base" code -6', () => {
+			expect(UnitCode.fromBaseCode(-6)).toBe(unitCode);
 		});
 
 		it('should use eight decimal places', () => {
@@ -406,6 +430,10 @@ describe('When parsing a valid character as a unit code', () => {
 			expect(unitCode.baseCode).toEqual(0);
 		});
 
+		it('should be the same instance as resolving "base" code 0', () => {
+			expect(UnitCode.fromBaseCode(0)).toBe(unitCode);
+		});
+
 		it('should use zero decimal places', () => {
 			expect(unitCode.decimalDigits).toEqual(0);
 		});
@@ -464,6 +492,10 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('should have a "base" code of 1', () => {
 			expect(unitCode.baseCode).toEqual(1);
+		});
+
+		it('should be the same instance as resolving "base" code 1', () => {
+			expect(UnitCode.fromBaseCode(1)).toBe(unitCode);
 		});
 
 		it('should use one decimal places', () => {
@@ -526,6 +558,10 @@ describe('When parsing a valid character as a unit code', () => {
 			expect(unitCode.baseCode).toEqual(2);
 		});
 
+		it('should be the same instance as resolving "base" code 2', () => {
+			expect(UnitCode.fromBaseCode(2)).toBe(unitCode);
+		});
+
 		it('should use two decimal places', () => {
 			expect(unitCode.decimalDigits).toEqual(2);
 		});
@@ -584,6 +620,10 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('should have a "base" code of 3', () => {
 			expect(unitCode.baseCode).toEqual(3);
+		});
+
+		it('should be the same instance as resolving "base" code 3', () => {
+			expect(UnitCode.fromBaseCode(3)).toBe(unitCode);
 		});
 
 		it('should use three decimal places', () => {
@@ -646,6 +686,10 @@ describe('When parsing a valid character as a unit code', () => {
 			expect(unitCode.baseCode).toEqual(4);
 		});
 
+		it('should be the same instance as resolving "base" code 4', () => {
+			expect(UnitCode.fromBaseCode(4)).toBe(unitCode);
+		});
+
 		it('should use four decimal places', () => {
 			expect(unitCode.decimalDigits).toEqual(4);
 		});
@@ -706,6 +750,10 @@ describe('When parsing a valid character as a unit code', () => {
 			expect(unitCode.baseCode).toEqual(5);
 		});
 
+		it('should be the same instance as resolving "base" code 5', () => {
+			expect(UnitCode.fromBaseCode(5)).toBe(unitCode);
+		});
+
 		it('should use five decimal places', () => {
 			expect(unitCode.decimalDigits).toEqual(5);
 		});
@@ -764,6 +812,10 @@ describe('When parsing a valid character as a unit code', () => {
 
 		it('should have a "base" code of 6', () => {
 			expect(unitCode.baseCode).toEqual(6);
+		});
+
+		it('should be the same instance as resolving "base" code 6', () => {
+			expect(UnitCode.fromBaseCode(6)).toBe(unitCode);
 		});
 
 		it('should use six decimal places', () => {
@@ -867,3 +919,4 @@ describe('When parsing a valid character as a unit code', () => {
 		});
 	});
 });
+
