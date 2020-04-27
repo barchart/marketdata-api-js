@@ -1,6 +1,34 @@
 const UnitCode = require('../../../../lib/utilities/data/UnitCode');
 
-describe('When parsing a character as a unit code', () => {
+describe('When parsing an invalid argument', () => {
+	it('should parse "1" as null', () => {
+		expect(UnitCode.parse('1')).toEqual(null);
+	});
+
+	it('should parse "G" as null', () => {
+		expect(UnitCode.parse('G')).toEqual(null);
+	});
+
+	it('should parse "a" as null', () => {
+		expect(UnitCode.parse('a')).toEqual(null);
+	});
+});
+
+describe('When parsing an invalid character as a unit code', () => {
+	it('should parse the number two as null', () => {
+		expect(UnitCode.parse(2)).toEqual(null);
+	});
+
+	it('should parse the string "AA" as null', () => {
+		expect(UnitCode.parse('AA')).toEqual(null);
+	});
+
+	it('should parse null as null', () => {
+		expect(UnitCode.parse(null)).toEqual(null);
+	});
+});
+
+describe('When parsing a valid character as a unit code', () => {
 	describe('When parsing "2"', () => {
 		let unitCode;
 
