@@ -348,6 +348,22 @@ describe('when valid prices are parsed', () => {
 				expect(parsePrice('0', '2', '')).toEqual(0);
 			});
 		});
+
+		describe('with a zero-length separator and parenthetical negatives', () => {
+			describe('with no separator and no special fractions', () => {
+				it('parses "4" as 0.5', () => {
+					expect(parsePrice('4', '2', '', false, '')).toEqual(0.5);
+				});
+
+				it('parses "(4)" as -0.5', () => {
+					expect(parsePrice('(4)', '2', '', false, '')).toEqual(-0.5);
+				});
+
+				it('parses "0" as 0', () => {
+					expect(parsePrice('0', '2', '', false, '')).toEqual(0);
+				});
+			});
+		});
 		*/
 	});
 });
