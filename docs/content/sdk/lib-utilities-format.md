@@ -6,7 +6,7 @@
 * [Functions](#Functions) : <code>object</code>
     * [.formatDate([date], [utc])](#FunctionsformatDate) ⇒ <code>String</code>
     * [.formatDecimal(value, digits, [thousandsSeparator], [useParenthesis])](#FunctionsformatDecimal) ⇒ <code>String</code>
-    * [.formatPrice(value, unitcode, [fractionSeparator], [specialFractions], [thousandsSeparator], [useParenthesis])](#FunctionsformatPrice) ⇒ <code>String</code>
+    * [.formatPrice(value, unitCode, [fractionSeparator], [specialFractions], [thousandsSeparator], [useParenthesis])](#FunctionsformatPrice) ⇒ <code>String</code>
     * [.formatQuoteDateTime(quote, [useTwelveHourClock], [short], [timezone])](#FunctionsformatQuoteDateTime) ⇒ <code>String</code>
     * [.formatSymbol(symbol)](#FunctionsformatSymbol) ⇒ <code>String</code> \| <code>\*</code>
     * [.formatTime(date, [timezone], [useTwelveHourClock], [short], [utc])](#FunctionsformatTime) ⇒ <code>String</code>
@@ -48,22 +48,25 @@
 
 * * *
 
-### Functions.formatPrice(value, unitcode, [fractionSeparator], [specialFractions], [thousandsSeparator], [useParenthesis]) :id=functionsformatprice
+### Functions.formatPrice(value, unitCode, [fractionSeparator], [specialFractions], [thousandsSeparator], [useParenthesis]) :id=functionsformatprice
 **Kind**: static method of <code>Functions</code>  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/price  
 **File**: /lib/utilities/format/price.js  
 
-| Param | Type |
-| --- | --- |
-| value | <code>Number</code> | 
-| unitcode | <code>String</code> | 
-| [fractionSeparator] | <code>String</code> | 
-| [specialFractions] | <code>Boolean</code> | 
-| [thousandsSeparator] | <code>String</code> | 
-| [useParenthesis] | <code>Boolean</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| value | <code>Number</code> |  |
+| unitCode | <code>String</code> |  |
+| [fractionSeparator] | <code>String</code> | Can be zero or one character in length. If invalid or omitted, a decimal notation is used. If non-decimal, then fractional notation is used (assuming supported by unit code). |
+| [specialFractions] | <code>Boolean</code> | If fractional notation is used, indicates is "special" factor (i.e. denominator) is used to calculate numerator. |
+| [thousandsSeparator] | <code>String</code> | Can be zero or one character in length. If invalid or omitted, a zero-length string is used. |
+| [useParenthesis] | <code>Boolean</code> | If true, negative values will be represented with parenthesis (instead of a leading minus sign). |
 
->Formats a number as a string.
+>Converts a numeric price into a human-readable string. One of two modes
+may be used, depending on the unit code and fraction separator. For example,
+using unit code "2" the value 9.5432 is formatted as "9.543" in decimal
+mode and "9-4" in fractional mode.
 
 
 * * *
