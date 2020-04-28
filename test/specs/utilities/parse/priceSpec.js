@@ -149,47 +149,47 @@ describe('when valid prices are parsed', () => {
 		});
 
 		describe('with a decimal fraction separator and a thousands separator', () => {
-			it('parses "0.000" as ', () => {
+			it('parses "0.000" as 0', () => {
 				expect(parsePrice('0.000', '2', '.', false, ',')).toEqual(0);
 			});
 
-			it('parses "377.000" as ', () => {
+			it('parses "377.000" as 377', () => {
 				expect(parsePrice('377.000', '2', '.', false, ',')).toEqual(377);
 			});
 
-			it('parses "-377.000" as ', () => {
+			it('parses "-377.000" as -377', () => {
 				expect(parsePrice('-377.000', '2', '.', false, ',')).toEqual(-377);
 			});
 
-			it('parses "377.500" as ', () => {
+			it('parses "377.500" as 377.5', () => {
 				expect(parsePrice('377.500', '2', '.', false, ',')).toEqual(377.5);
 			});
 
-			it('parses "377.750" as ', () => {
+			it('parses "377.750" as 377.75', () => {
 				expect(parsePrice('377.750', '2', '.', false, ',')).toEqual(377.75);
 			});
 
-			it('parses "3,770.750" as ', () => {
+			it('parses "3,770.750" as 3770.75', () => {
 				expect(parsePrice('3,770.750', '2', '.', false, ',')).toEqual(3770.75);
 			});
 
-			it('parses "37,700.750" as ', () => {
+			it('parses "37,700.750" as 37700.75', () => {
 				expect(parsePrice('37,700.750', '2', '.', false, ',')).toEqual(37700.75);
 			});
 
-			it('parses "377,000.750" as ', () => {
+			it('parses "377,000.750" as 377000.75', () => {
 				expect(parsePrice('377,000.750', '2', '.', false, ',')).toEqual(377000.75);
 			});
 
-			it('parses "-377,000.750" as ', () => {
+			it('parses "-377,000.750" as -377000.75', () => {
 				expect(parsePrice('-377,000.750', '2', '.', false, ',')).toEqual(-377000.75);
 			});
 
-			it('parses "3,770,000.750" as ', () => {
+			it('parses "3,770,000.750" as 3770000.75', () => {
 				expect(parsePrice('3,770,000.750', '2', '.', false, ',')).toEqual(3770000.75);
 			});
 
-			it('parses "3,770,000.000" as ', () => {
+			it('parses "3,770,000.000" as 3770000', () => {
 				expect(parsePrice('3,770,000.000', '2', '.', false, ',')).toEqual(3770000);
 			});
 		});
