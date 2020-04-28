@@ -330,7 +330,6 @@ describe('when valid prices are parsed', () => {
 			});
 		});
 
-		/*
 		describe('with a zero-length separator', () => {
 			it('parses "1230" as 123', () => {
 				expect(parsePrice('1230', '2', '')).toEqual(123);
@@ -364,7 +363,6 @@ describe('when valid prices are parsed', () => {
 				});
 			});
 		});
-		*/
 
 		describe('with a unit code of "5"', () => {
 			describe('with a dash fraction separator and special fractions', () => {
