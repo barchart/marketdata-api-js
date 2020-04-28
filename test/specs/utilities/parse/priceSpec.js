@@ -194,20 +194,18 @@ describe('when valid prices are parsed', () => {
 			});
 		});
 
-		/*
-		describe('with a comma fraction separator and a comma thousands separator', () => {
-			it('parses "0,000" as ', () => {
-				expect(parsePrice('0,000', '2', ',', false, ',')).toEqual(0);
+		describe('with a decimal fraction separator and a thousands separator and parenthetical negatives', () => {
+			it('parses "3,770.750" as 3770.75', () => {
+				expect(parsePrice('3,770.750', '2', '.', false, ',')).toEqual(3770.75);
 			});
 
-			it('parses "377,000" as ', () => {
-				expect(parsePrice('377,000', '2', ',', false, ',')).toEqual(377);
+			it('parses "(3,770.750)" as -3770.75', () => {
+				expect(parsePrice('(3,770.750)', '2', '.', false, ',')).toEqual(-3770.75);
 			});
 
-			it('parses "3,770,000,000" as ', () => {
-				expect(parsePrice('3,770,000.000', '2', ',', false, ',')).toEqual(3770000);
+			it('parses "0.000" as 0', () => {
+				expect(parsePrice('0.000', '2', '.', false, ',')).toEqual(0);
 			});
 		});
-		*/
 	});
 });
