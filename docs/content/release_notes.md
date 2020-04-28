@@ -1,5 +1,11 @@
 <!-- releases_open -->
 
+## 5.0.1
+**Functionally identical to 4.1.1. Major version bumped in strict compliance with [semver](https://semver.org/) standards**
+
+* Any breaking change should be a new major version (read more [here](https://semver.org/#if-even-the-tiniest-backwards-incompatible-changes-to-the-public-api-require-a-major-version-bump-wont-i-end-up-at-version-4200-very-rapidly)).
+* A minor version with breaking changes should be re-released as a major version (read more [here](https://semver.org/#what-do-i-do-if-i-accidentally-release-a-backwards-incompatible-change-as-a-minor-version)).
+
 ## 4.1.1
 **Refactor price formatting and parsing. As a result, breaking changes may have been introduced.**
 
