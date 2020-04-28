@@ -599,7 +599,7 @@ module.exports = (() => {
   return CumulativeVolume;
 })();
 
-},{"./../logging/LoggerFactory":2,"@barchart/common-js/lang//object":30}],5:[function(require,module,exports){
+},{"./../logging/LoggerFactory":2,"@barchart/common-js/lang//object":31}],5:[function(require,module,exports){
 const SymbolParser = require('./../utilities/parsers/SymbolParser'),
       buildPriceFormatter = require('../utilities/format/factories/price');
 
@@ -764,13 +764,17 @@ module.exports = (() => {
   return Profile;
 })();
 
-},{"../utilities/format/factories/price":14,"./../utilities/parsers/SymbolParser":24}],6:[function(require,module,exports){
+},{"../utilities/format/factories/price":15,"./../utilities/parsers/SymbolParser":25}],6:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
+
+const UnitCode = require('./../data/UnitCode');
 
 module.exports = (() => {
   'use strict';
   /**
-   * Converts a Barchart "base" code into a Barchart "unit" code.
+   * Converts a Barchart "base" code into a Barchart "unit" code. If the "base"
+   * code provided is invalid, the character '0' will be returned -- which is
+   * not a valid unit code.
    *
    * @function
    * @memberOf Functions
@@ -785,58 +789,14 @@ module.exports = (() => {
       return '0';
     }
 
-    switch (baseCode) {
-      case -1:
-        return '2';
-
-      case -2:
-        return '3';
-
-      case -3:
-        return '4';
-
-      case -4:
-        return '5';
-
-      case -5:
-        return '6';
-
-      case -6:
-        return '7';
-
-      case 0:
-        return '8';
-
-      case 1:
-        return '9';
-
-      case 2:
-        return 'A';
-
-      case 3:
-        return 'B';
-
-      case 4:
-        return 'C';
-
-      case 5:
-        return 'D';
-
-      case 6:
-        return 'E';
-
-      case 7:
-        return 'F';
-
-      default:
-        return '0';
-    }
+    const unitCodeItem = UnitCode.fromBaseCode(baseCode);
+    return unitCodeItem === null ? '0' : unitCodeItem.unitCode;
   }
 
   return convertBaseCodeToUnitCode;
 })();
 
-},{"@barchart/common-js/lang/is":29}],7:[function(require,module,exports){
+},{"./../data/UnitCode":11,"@barchart/common-js/lang/is":30}],7:[function(require,module,exports){
 const convertNumberToDayCode = require('./numberToDayCode');
 
 module.exports = (() => {
@@ -899,7 +859,7 @@ module.exports = (() => {
   return convertDayCodeToNumber;
 })();
 
-},{"@barchart/common-js/lang/is":29}],9:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":30}],9:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -937,13 +897,16 @@ module.exports = (() => {
   return convertNumberToDayCode;
 })();
 
-},{"@barchart/common-js/lang/is":29}],10:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":30}],10:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
+
+const UnitCode = require('./../data/UnitCode');
 
 module.exports = (() => {
   'use strict';
   /**
-   * Converts a Barchart "unit" code into a Barchart "base" code.
+   * Converts a Barchart "unit" code into a Barchart "base" code. If the "unit"
+   * code provided is invalid, a base code of zero will be returned.
    *
    * @function
    * @memberOf Functions
@@ -954,62 +917,233 @@ module.exports = (() => {
    */
 
   function convertUnitCodeToBaseCode(unitCode) {
-    if (!is.string(unitCode)) {
+    if (!is.string(unitCode) || unitCode.length !== 1) {
       return 0;
     }
 
-    switch (unitCode) {
-      case '2':
-        return -1;
-
-      case '3':
-        return -2;
-
-      case '4':
-        return -3;
-
-      case '5':
-        return -4;
-
-      case '6':
-        return -5;
-
-      case '7':
-        return -6;
-
-      case '8':
-        return 0;
-
-      case '9':
-        return 1;
-
-      case 'A':
-        return 2;
-
-      case 'B':
-        return 3;
-
-      case 'C':
-        return 4;
-
-      case 'D':
-        return 5;
-
-      case 'E':
-        return 6;
-
-      case 'F':
-        return 7;
-
-      default:
-        return 0;
-    }
+    const unitCodeItem = UnitCode.parse(unitCode);
+    return unitCodeItem === null ? 0 : unitCodeItem.baseCode;
   }
 
   return convertUnitCodeToBaseCode;
 })();
 
-},{"@barchart/common-js/lang/is":29}],11:[function(require,module,exports){
+},{"./../data/UnitCode":11,"@barchart/common-js/lang/is":30}],11:[function(require,module,exports){
+const Enum = require('@barchart/common-js/lang/Enum');
+
+module.exports = (() => {
+  'use strict';
+  /**
+   * Describes how an instrument's price is formatted. In most cases, unit codes are stored as a
+   * single character; however, this enumeration adds additional information. There are fourteen
+   * distinct unit codes.
+   *
+   * @public
+   * @exported
+   * @extends {Enum}
+   * @param {String} code
+   * @param {Number} baseCode
+   * @param {Number} decimalDigits
+   * @param {Boolean} supportsFractions
+   * @param {Number=} fractionFactor
+   * @param {Number=} fractionDigits
+   * @param {Number=} fractionFactorSpecial
+   * @param {Number=} fractionDigitsSpecial
+   */
+
+  class UnitCode extends Enum {
+    constructor(code, baseCode, decimalDigits, supportsFractions, fractionFactor, fractionDigits, fractionFactorSpecial, fractionDigitsSpecial) {
+      super(code, code);
+      this._baseCode = baseCode;
+      this._decimalDigits = decimalDigits;
+      this._supportsFractions = supportsFractions;
+
+      if (supportsFractions) {
+        this._fractionFactor = fractionFactor;
+        this._fractionDigits = fractionDigits;
+        this._fractionFactorSpecial = fractionFactorSpecial || fractionFactor;
+        this._fractionDigitsSpecial = fractionDigitsSpecial || fractionDigits;
+      } else {
+        this._fractionFactor = undefined;
+        this._fractionDigits = undefined;
+        this._fractionFactorSpecial = undefined;
+        this._fractionDigitsSpecial = undefined;
+      }
+    }
+    /**
+     * The numeric counterpart of a "unit" code.
+     *
+     * @public
+     * @returns {Number}
+     */
+
+
+    get baseCode() {
+      return this._baseCode;
+    }
+    /**
+     * The single character "unit" code.
+     *
+     * @public
+     * @returns {String}
+     */
+
+
+    get unitCode() {
+      return this._code;
+    }
+    /**
+     * When formatting in decimal mode, the number of digits to show after the
+     * decimal point.
+     *
+     * @public
+     * @returns {Number}
+     */
+
+
+    get decimalDigits() {
+      return this._decimalDigits;
+    }
+    /**
+     * Indicates if formatting can use the alternative to decimal notation -- that
+     * is, fractional notation.
+     *
+     * @public
+     * @returns {Boolean}
+     */
+
+
+    get supportsFractions() {
+      return this._supportsFractions;
+    }
+    /**
+     * When formatting with fractional notation (instead of decimal notation), multiply the
+     * decimal part of the value by this factor to get the fractional (i.e. numerator) value.
+     * In other words, this factor is the denominator.
+     *
+     * For example, the value 9.5 will be formatted as "9-4" with a fractional factor of eight.
+     * This is because 8 * 0.5 = 4. In other words, the price is quoted in eighths and 0.5 is
+     * four eighths. Using the same logic, the value of 9.75 will be formatted as "9-6" with
+     * a fractional factor of eight.
+     *
+     * @public
+     * @returns {Number|undefined}
+     */
+
+
+    get fractionFactor() {
+      return this._fractionFactor;
+    }
+    /**
+     * In fractional notation, the number of digits to which appear after the fraction separator.
+     * For example, two digits are used in "9-01" and "9-11" (where a dash is the fraction
+     * separator).
+     *
+     * @public
+     * @returns {Number|undefined}
+     */
+
+
+    get fractionDigits() {
+      return this._fractionDigits;
+    }
+    /**
+     * Same as {@link UnitCode#fractionFactor} for "special" fractions.
+     *
+     * @public
+     * @returns {Number|undefined}
+     */
+
+
+    get fractionFactorSpecial() {
+      return this._fractionFactorSpecial;
+    }
+    /**
+     * Same as {@link UnitCode#fractionDigits} for "special" fractions.
+     *
+     * @public
+     * @returns {Number|undefined}
+     */
+
+
+    get fractionDigitsSpecial() {
+      return this._fractionDigitsSpecial;
+    }
+    /**
+     * Returns the {@link UnitCode#fractionFactor} or {@link UnitCode#fractionFactorSpecial} value.
+     *
+     * @public
+     * @param {Boolean=} special
+     * @returns {Number|undefined}
+     */
+
+
+    getFractionFactor(special) {
+      return special === true ? this._fractionFactorSpecial : this._fractionFactor;
+    }
+    /**
+     * Returns the {@link UnitCode#fractionDigits} or {@link UnitCode#fractionDigitsSpecial} value.
+     *
+     * @public
+     * @param {Boolean=} special
+     * @returns {Number|undefined}
+     */
+
+
+    getFractionDigits(special) {
+      return special === true ? this._fractionDigitsSpecial : this._fractionDigits;
+    }
+    /**
+     * Converts a unit code character into a {@link UnitCode} enumeration item.
+     *
+     * @public
+     * @static
+     * @param {String} code
+     * @returns {UnitCode|null}
+     */
+
+
+    static parse(code) {
+      return Enum.fromCode(UnitCode, code);
+    }
+    /**
+     * Converts a numeric "base" code into a {@link UnitCode} item.
+     *
+     * @public
+     * @static
+     * @param {Number} code
+     * @returns {UnitCode|null}
+     */
+
+
+    static fromBaseCode(code) {
+      return Enum.getItems(UnitCode).find(x => x.baseCode === code) || null;
+    }
+
+    static toString() {
+      return `[UnitCode (code=${this.code})]`;
+    }
+
+  }
+
+  const TWO = new UnitCode('2', -1, 3, true, 8, 1);
+  const THREE = new UnitCode('3', -2, 4, true, 16, 2);
+  const FOUR = new UnitCode('4', -3, 5, true, 32, 2);
+  const FIVE = new UnitCode('5', -4, 6, true, 64, 2, 320, 3);
+  const SIX = new UnitCode('6', -5, 7, true, 128, 3, 320, 3);
+  const SEVEN = new UnitCode('7', -6, 8, true, 256, 3, 320, 3);
+  const EIGHT = new UnitCode('8', 0, 0, false);
+  const NINE = new UnitCode('9', 1, 1, false);
+  const A = new UnitCode('A', 2, 2, false);
+  const B = new UnitCode('B', 3, 3, false);
+  const C = new UnitCode('C', 4, 4, false);
+  const D = new UnitCode('D', 5, 5, false);
+  const E = new UnitCode('E', 6, 6, false);
+  const F = new UnitCode('F', 7, 7, false);
+  return UnitCode;
+})();
+
+},{"@barchart/common-js/lang/Enum":26}],12:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1044,7 +1178,7 @@ module.exports = (() => {
   };
 })();
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1078,7 +1212,7 @@ module.exports = (() => {
   return formatDate;
 })();
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -1148,7 +1282,7 @@ module.exports = (() => {
   return formatDecimal;
 })();
 
-},{"@barchart/common-js/lang/is":29}],14:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":30}],15:[function(require,module,exports){
 const formatPrice = require('./../price');
 
 module.exports = (() => {
@@ -1184,7 +1318,7 @@ module.exports = (() => {
   return buildPriceFormatter;
 })();
 
-},{"./../price":16}],15:[function(require,module,exports){
+},{"./../price":17}],16:[function(require,module,exports){
 const formatQuote = require('./../quote');
 
 module.exports = (() => {
@@ -1218,19 +1352,17 @@ module.exports = (() => {
   return buildQuoteFormatter;
 })();
 
-},{"./../quote":17}],16:[function(require,module,exports){
+},{"./../quote":18}],17:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDecimal = require('./decimal');
 
+const UnitCode = require('./../data/UnitCode');
+
 module.exports = (() => {
   'use strict';
 
-  function frontPad(value, digits) {
-    return ['000', Math.floor(value)].join('').substr(-1 * digits);
-  }
-
-  function getWholeNumberAsString(value, fractionSeparator) {
+  function getIntegerPart(value, fractionSeparator) {
     const floor = Math.floor(value);
 
     if (floor === 0 && fractionSeparator === '') {
@@ -1239,16 +1371,27 @@ module.exports = (() => {
       return floor;
     }
   }
+
+  function getDecimalPart(absoluteValue) {
+    return absoluteValue - Math.floor(absoluteValue);
+  }
+
+  function frontPad(value, digits) {
+    return ['000', Math.floor(value)].join('').substr(-1 * digits);
+  }
   /**
-   * Formats a number as a string.
+   * Converts a numeric price into a human-readable string. One of two modes
+   * may be used, depending on the unit code and fraction separator. For example,
+   * using unit code "2" the value 9.5432 is formatted as "9.543" in decimal
+   * mode and "9-4" in fractional mode.
    *
    * @exported
    * @function
    * @memberOf Functions
    * @param {Number} value
    * @param {String} unitCode
-   * @param {String=} fractionSeparator - Can be zero or one character in length. If invalid or omitted, a decimal point (i.e. dot) is assumed.
-   * @param {Boolean=} specialFractions
+   * @param {String=} fractionSeparator - Can be zero or one character in length. If invalid or omitted, a decimal notation is used. If non-decimal, then fractional notation is used (assuming supported by unit code).
+   * @param {Boolean=} specialFractions - If fractional notation is used, indicates is "special" factor (i.e. denominator) is used to calculate numerator.
    * @param {String=} thousandsSeparator - Can be zero or one character in length. If invalid or omitted, a zero-length string is used.
    * @param {Boolean=} useParenthesis - If true, negative values will be represented with parenthesis (instead of a leading minus sign).
    * @returns {String}
@@ -1260,7 +1403,9 @@ module.exports = (() => {
       return '';
     }
 
-    if (!is.string(unitCode) || unitCode.length !== 1) {
+    const unitCodeItem = UnitCode.parse(unitCode);
+
+    if (unitCodeItem === null) {
       return '';
     }
 
@@ -1275,58 +1420,13 @@ module.exports = (() => {
     specialFractions = is.boolean(specialFractions) && specialFractions;
     useParenthesis = is.boolean(useParenthesis) && useParenthesis;
 
-    if (fractionSeparator === '.') {
-      switch (unitCode) {
-        case '2':
-          return formatDecimal(value, 3, thousandsSeparator, useParenthesis);
-
-        case '3':
-          return formatDecimal(value, 4, thousandsSeparator, useParenthesis);
-
-        case '4':
-          return formatDecimal(value, 5, thousandsSeparator, useParenthesis);
-
-        case '5':
-          return formatDecimal(value, 6, thousandsSeparator, useParenthesis);
-
-        case '6':
-          return formatDecimal(value, 7, thousandsSeparator, useParenthesis);
-
-        case '7':
-          return formatDecimal(value, 8, thousandsSeparator, useParenthesis);
-
-        case '8':
-          return formatDecimal(value, 0, thousandsSeparator, useParenthesis);
-
-        case '9':
-          return formatDecimal(value, 1, thousandsSeparator, useParenthesis);
-
-        case 'A':
-          return formatDecimal(value, 2, thousandsSeparator, useParenthesis);
-
-        case 'B':
-          return formatDecimal(value, 3, thousandsSeparator, useParenthesis);
-
-        case 'C':
-          return formatDecimal(value, 4, thousandsSeparator, useParenthesis);
-
-        case 'D':
-          return formatDecimal(value, 5, thousandsSeparator, useParenthesis);
-
-        case 'E':
-          return formatDecimal(value, 6, thousandsSeparator, useParenthesis);
-
-        default:
-          return '';
-      }
+    if (!unitCodeItem.supportsFractions || fractionSeparator === '.') {
+      return formatDecimal(value, unitCodeItem.decimalDigits, thousandsSeparator, useParenthesis);
     } else {
-      const originalValue = value;
-      const absoluteValue = Math.abs(value);
-      const negative = value < 0;
       let prefix;
       let suffix;
 
-      if (negative) {
+      if (value < 0) {
         if (useParenthesis) {
           prefix = '(';
           suffix = ')';
@@ -1339,56 +1439,21 @@ module.exports = (() => {
         suffix = '';
       }
 
-      switch (unitCode) {
-        case '2':
-          return [prefix, getWholeNumberAsString(absoluteValue, fractionSeparator), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 8, 1), suffix].join('');
-
-        case '3':
-          return [prefix, getWholeNumberAsString(absoluteValue, fractionSeparator), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 16, 2), suffix].join('');
-
-        case '4':
-          return [prefix, getWholeNumberAsString(absoluteValue, fractionSeparator), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * 32, 2), suffix].join('');
-
-        case '5':
-          return [prefix, getWholeNumberAsString(absoluteValue, fractionSeparator), fractionSeparator, frontPad(Math.floor(((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 64)).toFixed(1)), specialFractions ? 3 : 2), suffix].join('');
-
-        case '6':
-          return [prefix, getWholeNumberAsString(absoluteValue, fractionSeparator), fractionSeparator, frontPad(Math.floor(((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 128)).toFixed(1)), 3), suffix].join('');
-
-        case '7':
-          return [prefix, getWholeNumberAsString(absoluteValue, fractionSeparator), fractionSeparator, frontPad((absoluteValue - Math.floor(absoluteValue)) * (specialFractions ? 320 : 256), 3), suffix].join('');
-
-        case '8':
-          return formatDecimal(originalValue, 0, thousandsSeparator, useParenthesis);
-
-        case '9':
-          return formatDecimal(originalValue, 1, thousandsSeparator, useParenthesis);
-
-        case 'A':
-          return formatDecimal(originalValue, 2, thousandsSeparator, useParenthesis);
-
-        case 'B':
-          return formatDecimal(originalValue, 3, thousandsSeparator, useParenthesis);
-
-        case 'C':
-          return formatDecimal(originalValue, 4, thousandsSeparator, useParenthesis);
-
-        case 'D':
-          return formatDecimal(originalValue, 5, thousandsSeparator, useParenthesis);
-
-        case 'E':
-          return formatDecimal(originalValue, 6, thousandsSeparator, useParenthesis);
-
-        default:
-          return '';
-      }
+      const absoluteValue = Math.abs(value);
+      const integerPart = getIntegerPart(absoluteValue, fractionSeparator);
+      const decimalPart = getDecimalPart(absoluteValue);
+      const denominator = unitCodeItem.getFractionFactor(specialFractions);
+      const numerator = decimalPart * denominator;
+      const roundedNumerator = Math.floor(parseFloat(numerator.toFixed(1)));
+      const formattedNumerator = frontPad(roundedNumerator, unitCodeItem.getFractionDigits(specialFractions));
+      return [prefix, integerPart, fractionSeparator, formattedNumerator, suffix].join('');
     }
   }
 
   return formatPrice;
 })();
 
-},{"./decimal":13,"@barchart/common-js/lang/is":29}],17:[function(require,module,exports){
+},{"./../data/UnitCode":11,"./decimal":14,"@barchart/common-js/lang/is":30}],18:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDate = require('./date'),
@@ -1473,7 +1538,7 @@ module.exports = (() => {
   return formatQuoteDateTime;
 })();
 
-},{"./date":12,"./time":19,"@barchart/common-js/lang/Timezones":26,"@barchart/common-js/lang/is":29}],18:[function(require,module,exports){
+},{"./date":13,"./time":20,"@barchart/common-js/lang/Timezones":27,"@barchart/common-js/lang/is":30}],19:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -1498,7 +1563,7 @@ module.exports = (() => {
   return formatSymbol;
 })();
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1651,7 +1716,7 @@ module.exports = (() => {
   return formatTime;
 })();
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 const xmlDom = require('xmldom');
 
 const parseValue = require('./value'),
@@ -2204,7 +2269,7 @@ module.exports = (() => {
   return parseMessage;
 })();
 
-},{"./timestamp":21,"./value":22,"xmldom":34}],21:[function(require,module,exports){
+},{"./timestamp":22,"./value":23,"xmldom":35}],22:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -2258,7 +2323,7 @@ module.exports = (() => {
   return parseTimestamp;
 })();
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -2358,30 +2423,38 @@ module.exports = (() => {
   return parseValue;
 })();
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
-const convertUnitCodeToBaseCode = require('./../convert/unitCodeToBaseCode');
+const UnitCode = require('./../data/UnitCode');
 
 module.exports = (() => {
-  'use strict'; // Adapted from legacy code at https://github.com/barchart/php-jscharts/blob/372deb9b4d9ee678f32b6f8c4268434249c1b4ac/chart_package/webroot/js/deps/ddfplus/com.ddfplus.js
+  'use strict';
 
+  const regex = {};
+  regex.fractions = {};
+  regex.fractions.separators = /([0-9]+)([\-'])([0-9]{1,3}$)/;
+
+  function coerce(text) {
+    return text * 1;
+  }
   /**
-   * Converts a string-formatted price into a number.
+   * Converts a string-formatted price into a number. If the value cannot be parsed,
+   * the {@link Number.NaN} value is returned.
    *
    * @function
    * @memberOf Functions
    * @exported
    * @param {String|Number} value
-   * @param {String=} unitCode - If not specified, a unit code of "8" is assumed.
-   * @param {String=} fractionSeparator
-   * @param {Boolean=} specialFractions
-   * @param {String=} thousandsSeparator
-   * @param {Boolean=} useParenthesis
+   * @param {String} unitCode
+   * @param {String=} fractionSeparator - Can be zero or one character in length. If invalid or omitted, the separator will be inferred based on the value being parsed.
+   * @param {Boolean=} specialFractions -  If fractional notation is used, indicates is "special" factor (i.e. denominator) was used to calculate the numerator of the value being parsed.
+   * @param {String=} thousandsSeparator - Can be zero or one character in length. If invalid or omitted, the parameter will be ignored.
    * @returns {Number}
    */
 
-  function parsePrice(value, unitCode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
+
+  function parsePrice(value, unitCode, fractionSeparator, specialFractions, thousandsSeparator) {
     if (is.number(value)) {
       return value;
     }
@@ -2390,7 +2463,12 @@ module.exports = (() => {
       return Number.NaN;
     }
 
-    let baseCode = convertUnitCodeToBaseCode(unitCode);
+    const unitCodeItem = UnitCode.parse(unitCode);
+
+    if (unitCodeItem === null) {
+      return Number.NaN;
+    }
+
     let negative;
 
     if (value.startsWith('(') && value.endsWith(')')) {
@@ -2401,44 +2479,83 @@ module.exports = (() => {
       value = value.slice(1);
     } else {
       negative = false;
-    } // Fix for 10-Yr T-Notes
-
-
-    if (baseCode === -4 && (value.length === 7 || value.length === 6 && value.charAt(0) !== '1')) {
-      baseCode -= 1;
     }
 
-    if (baseCode >= 0) {
-      const ival = value * 1; //console.log(`${value} == ${Math.round(ival * Math.pow(10, baseCode)) / Math.pow(10, baseCode)}`)
-
-      return Math.round(ival * Math.pow(10, baseCode)) / Math.pow(10, baseCode);
+    if (is.string(fractionSeparator) && fractionSeparator.length < 2) {
+      fractionSeparator = fractionSeparator;
+    } else if (unitCodeItem.supportsFractions && regex.fractions.separators.test(value)) {
+      fractionSeparator = value.match(regex.fractions.separators)[2];
     } else {
-      const has_dash = value.match(/-/);
-      let divisor = Math.pow(2, Math.abs(baseCode) + 2);
-      const fracsize = String(divisor).length;
-      const denomstart = value.length - fracsize;
-      let numerend = denomstart;
+      fractionSeparator = '.';
+    }
 
-      if (value.substring(numerend - 1, numerend) === '-') {
-        numerend--;
+    if (!is.string(thousandsSeparator) || thousandsSeparator.length > 1) {
+      thousandsSeparator = '';
+    }
+
+    if (thousandsSeparator.length !== 0) {
+      const digitGroups = value.split(thousandsSeparator);
+      const assumeFractionSeparator = thousandsSeparator === fractionSeparator && digitGroups.length > 1;
+
+      if (assumeFractionSeparator) {
+        const fractionGroup = digitGroups.pop();
+        digitGroups.push(fractionSeparator);
+        digitGroups.push(fractionGroup);
       }
 
-      const numerator = value.substring(0, numerend) * 1;
-      const denominator = value.substring(denomstart, value.length) * 1;
+      value = digitGroups.join('');
+    }
 
-      if (baseCode === -5) {
-        divisor = has_dash ? 320 : 128;
-      } //console.log(`${value} == ${(numerator + (denominator / divisor)) * (negative ? -1 : 1)}`)
+    let absoluteValue;
 
+    if (unitCodeItem.supportsFractions && fractionSeparator !== '.') {
+      specialFractions = is.boolean(specialFractions) && specialFractions;
+      const fractionDigits = unitCodeItem.getFractionDigits(specialFractions);
+      let integerCharacters;
+      let fractionCharacters;
 
-      return (numerator + denominator / divisor) * (negative ? -1 : 1);
+      if (fractionSeparator.length === 1) {
+        const characterGroups = value.split(fractionSeparator);
+        integerCharacters = characterGroups[0];
+        fractionCharacters = characterGroups[1];
+      } else {
+        integerCharacters = value.substring(0, value.length - fractionDigits - fractionSeparator.length);
+        fractionCharacters = value.slice(-fractionDigits);
+      }
+
+      if (fractionCharacters.length !== fractionDigits) {
+        return Number.NaN;
+      }
+
+      if (integerCharacters === '') {
+        integerCharacters = '0';
+      }
+
+      const integerPart = parseInt(integerCharacters);
+      const fractionPart = parseInt(fractionCharacters);
+
+      if (is.nan(integerPart) || is.nan(fractionPart)) {
+        return Number.NaN;
+      }
+
+      const denominator = unitCodeItem.getFractionFactor(specialFractions);
+      absoluteValue = integerPart + fractionPart / denominator;
+    } else {
+      const roundingFactor = Math.pow(10, unitCodeItem.decimalDigits);
+      absoluteValue = Math.round(coerce(value) * roundingFactor) / roundingFactor;
+    }
+
+    if (negative) {
+      return -absoluteValue;
+    } else {
+      return absoluteValue;
     }
   }
 
   return parsePrice;
 })();
 
-},{"./../convert/unitCodeToBaseCode":10,"@barchart/common-js/lang/is":29}],24:[function(require,module,exports){
+},{"./../data/UnitCode":11,"@barchart/common-js/lang/is":30}],25:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -3004,7 +3121,7 @@ module.exports = (() => {
   return SymbolParser;
 })();
 
-},{"@barchart/common-js/lang/is":29}],25:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":30}],26:[function(require,module,exports){
 const assert = require('./assert');
 
 module.exports = (() => {
@@ -3124,7 +3241,7 @@ module.exports = (() => {
   return Enum;
 })();
 
-},{"./assert":28}],26:[function(require,module,exports){
+},{"./assert":29}],27:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022');
 
 const Enum = require('./Enum'),
@@ -3246,7 +3363,7 @@ module.exports = (() => {
   return Timezones;
 })();
 
-},{"./Enum":25,"./is":29,"./timezone":31,"moment-timezone/builds/moment-timezone-with-data-2012-2022":32}],27:[function(require,module,exports){
+},{"./Enum":26,"./is":30,"./timezone":32,"moment-timezone/builds/moment-timezone-with-data-2012-2022":33}],28:[function(require,module,exports){
 const assert = require('./assert'),
       is = require('./is');
 
@@ -3701,7 +3818,7 @@ module.exports = (() => {
   }
 })();
 
-},{"./assert":28,"./is":29}],28:[function(require,module,exports){
+},{"./assert":29,"./is":30}],29:[function(require,module,exports){
 const is = require('./is');
 
 module.exports = (() => {
@@ -3846,7 +3963,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./is":29}],29:[function(require,module,exports){
+},{"./is":30}],30:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -4053,7 +4170,7 @@ module.exports = (() => {
   };
 })();
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 const array = require('./array'),
       is = require('./is');
 
@@ -4213,7 +4330,7 @@ module.exports = (() => {
   return object;
 })();
 
-},{"./array":27,"./is":29}],31:[function(require,module,exports){
+},{"./array":28,"./is":30}],32:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022'),
       assert = require('./assert');
 
@@ -4268,7 +4385,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./assert":28,"moment-timezone/builds/moment-timezone-with-data-2012-2022":32}],32:[function(require,module,exports){
+},{"./assert":29,"moment-timezone/builds/moment-timezone-with-data-2012-2022":33}],33:[function(require,module,exports){
 //! moment-timezone.js
 //! version : 0.5.26
 //! Copyright (c) JS Foundation and other contributors
@@ -5494,7 +5611,7 @@ module.exports = (() => {
 	return moment;
 }));
 
-},{"moment":33}],33:[function(require,module,exports){
+},{"moment":34}],34:[function(require,module,exports){
 //! moment.js
 
 ;(function (global, factory) {
@@ -10098,7 +10215,7 @@ module.exports = (() => {
 
 })));
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -10351,7 +10468,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":35,"./sax":36}],35:[function(require,module,exports){
+},{"./dom":36,"./sax":37}],36:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -11597,7 +11714,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -12232,7 +12349,7 @@ function split(source,start){
 exports.XMLReader = XMLReader;
 
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 const CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
 
 describe('When a cumulative volume container is created with a tick increment of 0.25', () => {
@@ -12571,7 +12688,7 @@ describe('When a cumulative volume container is created with a tick increment of
   });
 });
 
-},{"../../../lib/marketState/CumulativeVolume":4}],38:[function(require,module,exports){
+},{"../../../lib/marketState/CumulativeVolume":4}],39:[function(require,module,exports){
 const Profile = require('../../../lib/marketState/Profile');
 
 describe('When a Profile is created (for a symbol with unitCode "2")', () => {
@@ -12586,7 +12703,7 @@ describe('When a Profile is created (for a symbol with unitCode "2")', () => {
   });
 });
 
-},{"../../../lib/marketState/Profile":5}],39:[function(require,module,exports){
+},{"../../../lib/marketState/Profile":5}],40:[function(require,module,exports){
 const convertBaseCodeToUnitCode = require('./../../../../lib/utilities/convert/baseCodeToUnitCode');
 
 describe('When converting a baseCode to a unitCode', () => {
@@ -12643,7 +12760,7 @@ describe('When converting a baseCode to a unitCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":6}],40:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":6}],41:[function(require,module,exports){
 const convertDateToDayCode = require('./../../../../lib/utilities/convert/dateToDayCode');
 
 describe('When converting a date instance to a day code', () => {
@@ -12748,7 +12865,7 @@ describe('When converting a date instance to a day code', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dateToDayCode":7}],41:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dateToDayCode":7}],42:[function(require,module,exports){
 const convertDayCodeToNumber = require('./../../../../lib/utilities/convert/dayCodeToNumber');
 
 describe('When converting a dayCode to number', () => {
@@ -12919,7 +13036,7 @@ describe('When converting a dayCode to number', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dayCodeToNumber":8}],42:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dayCodeToNumber":8}],43:[function(require,module,exports){
 const convertNumberToDayCode = require('./../../../../lib/utilities/convert/numberToDayCode');
 
 describe('When converting a number to a dayCode', () => {
@@ -13024,7 +13141,7 @@ describe('When converting a number to a dayCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/numberToDayCode":9}],43:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/numberToDayCode":9}],44:[function(require,module,exports){
 const convertUnitCodeToBaseCode = require('./../../../../lib/utilities/convert/unitCodeToBaseCode');
 
 describe('When converting a unitCode to a baseCode', () => {
@@ -13081,7 +13198,702 @@ describe('When converting a unitCode to a baseCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":10}],44:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":10}],45:[function(require,module,exports){
+const UnitCode = require('../../../../lib/utilities/data/UnitCode');
+
+describe('When parsing an invalid argument', () => {
+  it('should parse "1" as null', () => {
+    expect(UnitCode.parse('1')).toEqual(null);
+  });
+  it('should parse "G" as null', () => {
+    expect(UnitCode.parse('G')).toEqual(null);
+  });
+  it('should parse "a" as null', () => {
+    expect(UnitCode.parse('a')).toEqual(null);
+  });
+  it('should parse the number two as null', () => {
+    expect(UnitCode.parse(2)).toEqual(null);
+  });
+  it('should parse the string "AA" as null', () => {
+    expect(UnitCode.parse('AA')).toEqual(null);
+  });
+  it('should parse null as null', () => {
+    expect(UnitCode.parse(null)).toEqual(null);
+  });
+});
+describe('When parsing a valid character as a unit code', () => {
+  describe('When parsing "2"', () => {
+    let unitCode;
+    beforeEach(() => {
+      unitCode = UnitCode.parse('2');
+    });
+    it('should have a code of "2"', () => {
+      expect(unitCode.code).toEqual('2');
+    });
+    it('should have a "unit" code of "2"', () => {
+      expect(unitCode.unitCode).toEqual('2');
+    });
+    it('should have a "base" code of -1', () => {
+      expect(unitCode.baseCode).toEqual(-1);
+    });
+    it('should be the same instance as resolving "base" code -1', () => {
+      expect(UnitCode.fromBaseCode(-1)).toBe(unitCode);
+    });
+    it('should use three decimal places', () => {
+      expect(unitCode.decimalDigits).toEqual(3);
+    });
+    it('does support fraction notation', () => {
+      expect(unitCode.supportsFractions).toEqual(true);
+    });
+    it('the fraction factor should be 8', () => {
+      expect(unitCode.fractionFactor).toEqual(8);
+    });
+    it('the "special" fraction factor should be 8', () => {
+      expect(unitCode.fractionFactorSpecial).toEqual(8);
+    });
+    it('getting the fraction factor should return 8', () => {
+      expect(unitCode.getFractionFactor()).toEqual(8);
+    });
+    it('getting the "special" fraction factor should return 8', () => {
+      expect(unitCode.getFractionFactor(true)).toEqual(8);
+    });
+    it('the fraction digits should be 1', () => {
+      expect(unitCode.fractionDigits).toEqual(1);
+    });
+    it('the "special" fraction digits should be 1', () => {
+      expect(unitCode.fractionDigitsSpecial).toEqual(1);
+    });
+    it('getting the fraction digits should return 1', () => {
+      expect(unitCode.getFractionDigits()).toEqual(1);
+    });
+    it('getting the "special" fraction digits should return 1', () => {
+      expect(unitCode.getFractionDigits(true)).toEqual(1);
+    });
+  });
+  describe('When parsing "3"', () => {
+    let unitCode;
+    beforeEach(() => {
+      unitCode = UnitCode.parse('3');
+    });
+    it('should have a code of "3"', () => {
+      expect(unitCode.code).toEqual('3');
+    });
+    it('should have a "unit" code of "3"', () => {
+      expect(unitCode.unitCode).toEqual('3');
+    });
+    it('should have a "base" code of -2', () => {
+      expect(unitCode.baseCode).toEqual(-2);
+    });
+    it('should be the same instance as resolving "base" code -2', () => {
+      expect(UnitCode.fromBaseCode(-2)).toBe(unitCode);
+    });
+    it('should use four decimal places', () => {
+      expect(unitCode.decimalDigits).toEqual(4);
+    });
+    it('does support fraction notation', () => {
+      expect(unitCode.supportsFractions).toEqual(true);
+    });
+    it('the fraction factor should be 16', () => {
+      expect(unitCode.fractionFactor).toEqual(16);
+    });
+    it('the "special" fraction factor should be 16', () => {
+      expect(unitCode.fractionFactorSpecial).toEqual(16);
+    });
+    it('getting the fraction factor should return 16', () => {
+      expect(unitCode.getFractionFactor()).toEqual(16);
+    });
+    it('getting the "special" fraction factor should return 16', () => {
+      expect(unitCode.getFractionFactor(true)).toEqual(16);
+    });
+    it('the fraction digits should be 2', () => {
+      expect(unitCode.fractionDigits).toEqual(2);
+    });
+    it('the "special" fraction digits should be 2', () => {
+      expect(unitCode.fractionDigitsSpecial).toEqual(2);
+    });
+    it('getting the fraction digits should return 2', () => {
+      expect(unitCode.getFractionDigits()).toEqual(2);
+    });
+    it('getting the "special" fraction digits should return 2', () => {
+      expect(unitCode.getFractionDigits(true)).toEqual(2);
+    });
+  });
+  describe('When parsing "4"', () => {
+    let unitCode;
+    beforeEach(() => {
+      unitCode = UnitCode.parse('4');
+    });
+    it('should have a code of "4"', () => {
+      expect(unitCode.code).toEqual('4');
+    });
+    it('should have a "unit" code of "4"', () => {
+      expect(unitCode.unitCode).toEqual('4');
+    });
+    it('should have a "base" code of -3', () => {
+      expect(unitCode.baseCode).toEqual(-3);
+    });
+    it('should be the same instance as resolving "base" code -3', () => {
+      expect(UnitCode.fromBaseCode(-3)).toBe(unitCode);
+    });
+    it('should use five decimal places', () => {
+      expect(unitCode.decimalDigits).toEqual(5);
+    });
+    it('does support fraction notation', () => {
+      expect(unitCode.supportsFractions).toEqual(true);
+    });
+    it('the fraction factor should be 32', () => {
+      expect(unitCode.fractionFactor).toEqual(32);
+    });
+    it('the "special" fraction factor should be 32', () => {
+      expect(unitCode.fractionFactorSpecial).toEqual(32);
+    });
+    it('getting the fraction factor should return 32', () => {
+      expect(unitCode.getFractionFactor()).toEqual(32);
+    });
+    it('getting the "special" fraction factor should return 32', () => {
+      expect(unitCode.getFractionFactor(true)).toEqual(32);
+    });
+    it('the fraction digits should be 2', () => {
+      expect(unitCode.fractionDigits).toEqual(2);
+    });
+    it('the "special" fraction digits should be 2', () => {
+      expect(unitCode.fractionDigitsSpecial).toEqual(2);
+    });
+    it('getting the fraction digits should return 2', () => {
+      expect(unitCode.getFractionDigits()).toEqual(2);
+    });
+    it('getting the "special" fraction digits should return 2', () => {
+      expect(unitCode.getFractionDigits(true)).toEqual(2);
+    });
+  });
+  describe('When parsing "5"', () => {
+    let unitCode;
+    beforeEach(() => {
+      unitCode = UnitCode.parse('5');
+    });
+    it('should have a code of "5"', () => {
+      expect(unitCode.code).toEqual('5');
+    });
+    it('should have a "unit" code of "5"', () => {
+      expect(unitCode.unitCode).toEqual('5');
+    });
+    it('should have a "base" code of -4', () => {
+      expect(unitCode.baseCode).toEqual(-4);
+    });
+    it('should be the same instance as resolving "base" code -4', () => {
+      expect(UnitCode.fromBaseCode(-4)).toBe(unitCode);
+    });
+    it('should use six decimal places', () => {
+      expect(unitCode.decimalDigits).toEqual(6);
+    });
+    it('does support fraction notation', () => {
+      expect(unitCode.supportsFractions).toEqual(true);
+    });
+    it('the fraction factor should be 64', () => {
+      expect(unitCode.fractionFactor).toEqual(64);
+    });
+    it('the "special" fraction factor should be 320', () => {
+      expect(unitCode.fractionFactorSpecial).toEqual(320);
+    });
+    it('getting the fraction factor should return 64', () => {
+      expect(unitCode.getFractionFactor()).toEqual(64);
+    });
+    it('getting the "special" fraction factor should return 320', () => {
+      expect(unitCode.getFractionFactor(true)).toEqual(320);
+    });
+    it('the fraction digits should be 2', () => {
+      expect(unitCode.fractionDigits).toEqual(2);
+    });
+    it('the "special" fraction digits should be 3', () => {
+      expect(unitCode.fractionDigitsSpecial).toEqual(3);
+    });
+    it('getting the fraction digits should return 2', () => {
+      expect(unitCode.getFractionDigits()).toEqual(2);
+    });
+    it('getting the "special" fraction digits should return 3', () => {
+      expect(unitCode.getFractionDigits(true)).toEqual(3);
+    });
+  });
+  describe('When parsing "6"', () => {
+    let unitCode;
+    beforeEach(() => {
+      unitCode = UnitCode.parse('6');
+    });
+    it('should have a code of "6"', () => {
+      expect(unitCode.code).toEqual('6');
+    });
+    it('should have a "unit" code of "6"', () => {
+      expect(unitCode.unitCode).toEqual('6');
+    });
+    it('should have a "base" code of -5', () => {
+      expect(unitCode.baseCode).toEqual(-5);
+    });
+    it('should be the same instance as resolving "base" code -5', () => {
+      expect(UnitCode.fromBaseCode(-5)).toBe(unitCode);
+    });
+    it('should use seven decimal places', () => {
+      expect(unitCode.decimalDigits).toEqual(7);
+    });
+    it('does support fraction notation', () => {
+      expect(unitCode.supportsFractions).toEqual(true);
+    });
+    it('the fraction factor should be 128', () => {
+      expect(unitCode.fractionFactor).toEqual(128);
+    });
+    it('the "special" fraction factor should be 320', () => {
+      expect(unitCode.fractionFactorSpecial).toEqual(320);
+    });
+    it('getting the fraction factor should return 128', () => {
+      expect(unitCode.getFractionFactor()).toEqual(128);
+    });
+    it('getting the "special" fraction factor should return 320', () => {
+      expect(unitCode.getFractionFactor(true)).toEqual(320);
+    });
+    it('the fraction digits should be 3', () => {
+      expect(unitCode.fractionDigits).toEqual(3);
+    });
+    it('the "special" fraction digits should be 3', () => {
+      expect(unitCode.fractionDigitsSpecial).toEqual(3);
+    });
+    it('getting the fraction digits should return 3', () => {
+      expect(unitCode.getFractionDigits()).toEqual(3);
+    });
+    it('getting the "special" fraction digits should return 3', () => {
+      expect(unitCode.getFractionDigits(true)).toEqual(3);
+    });
+  });
+  describe('When parsing "7"', () => {
+    let unitCode;
+    beforeEach(() => {
+      unitCode = UnitCode.parse('7');
+    });
+    it('should have a code of "7"', () => {
+      expect(unitCode.code).toEqual('7');
+    });
+    it('should have a "unit" code of "7"', () => {
+      expect(unitCode.unitCode).toEqual('7');
+    });
+    it('should have a "base" code of -6', () => {
+      expect(unitCode.baseCode).toEqual(-6);
+    });
+    it('should be the same instance as resolving "base" code -6', () => {
+      expect(UnitCode.fromBaseCode(-6)).toBe(unitCode);
+    });
+    it('should use eight decimal places', () => {
+      expect(unitCode.decimalDigits).toEqual(8);
+    });
+    it('does support fraction notation', () => {
+      expect(unitCode.supportsFractions).toEqual(true);
+    });
+    it('the fraction factor should be 256', () => {
+      expect(unitCode.fractionFactor).toEqual(256);
+    });
+    it('the "special" fraction factor should be 320', () => {
+      expect(unitCode.fractionFactorSpecial).toEqual(320);
+    });
+    it('getting the fraction factor should return 256', () => {
+      expect(unitCode.getFractionFactor()).toEqual(256);
+    });
+    it('getting the "special" fraction factor should return 320', () => {
+      expect(unitCode.getFractionFactor(true)).toEqual(320);
+    });
+    it('the fraction digits should be 3', () => {
+      expect(unitCode.fractionDigits).toEqual(3);
+    });
+    it('the "special" fraction digits should be 3', () => {
+      expect(unitCode.fractionDigitsSpecial).toEqual(3);
+    });
+    it('getting the fraction digits should return 3', () => {
+      expect(unitCode.getFractionDigits()).toEqual(3);
+    });
+    it('getting the "special" fraction digits should return 3', () => {
+      expect(unitCode.getFractionDigits(true)).toEqual(3);
+    });
+  });
+  describe('When parsing "8"', () => {
+    let unitCode;
+    beforeEach(() => {
+      unitCode = UnitCode.parse('8');
+    });
+    it('should have a code of "8"', () => {
+      expect(unitCode.code).toEqual('8');
+    });
+    it('should have a "unit" code of "8"', () => {
+      expect(unitCode.unitCode).toEqual('8');
+    });
+    it('should have a "base" code of 0', () => {
+      expect(unitCode.baseCode).toEqual(0);
+    });
+    it('should be the same instance as resolving "base" code 0', () => {
+      expect(UnitCode.fromBaseCode(0)).toBe(unitCode);
+    });
+    it('should use zero decimal places', () => {
+      expect(unitCode.decimalDigits).toEqual(0);
+    });
+    it('does not support fraction notation', () => {
+      expect(unitCode.supportsFractions).toEqual(false);
+    });
+    it('the fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactor).toEqual(undefined);
+    });
+    it('the "special" fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+    });
+    it('getting the fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor()).toEqual(undefined);
+    });
+    it('getting the "special" fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+    });
+    it('the fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigits).toEqual(undefined);
+    });
+    it('the "special" fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+    });
+    it('getting the fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits()).toEqual(undefined);
+    });
+    it('getting the "special" fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits(true)).toEqual(undefined);
+    });
+  });
+  describe('When parsing "9"', () => {
+    let unitCode;
+    beforeEach(() => {
+      unitCode = UnitCode.parse('9');
+    });
+    it('should have a code of "9"', () => {
+      expect(unitCode.code).toEqual('9');
+    });
+    it('should have a "unit" code of "9"', () => {
+      expect(unitCode.unitCode).toEqual('9');
+    });
+    it('should have a "base" code of 1', () => {
+      expect(unitCode.baseCode).toEqual(1);
+    });
+    it('should be the same instance as resolving "base" code 1', () => {
+      expect(UnitCode.fromBaseCode(1)).toBe(unitCode);
+    });
+    it('should use one decimal places', () => {
+      expect(unitCode.decimalDigits).toEqual(1);
+    });
+    it('does not support fraction notation', () => {
+      expect(unitCode.supportsFractions).toEqual(false);
+    });
+    it('the fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactor).toEqual(undefined);
+    });
+    it('the "special" fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+    });
+    it('getting the fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor()).toEqual(undefined);
+    });
+    it('getting the "special" fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+    });
+    it('the fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigits).toEqual(undefined);
+    });
+    it('the "special" fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+    });
+    it('getting the fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits()).toEqual(undefined);
+    });
+    it('getting the "special" fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits(true)).toEqual(undefined);
+    });
+  });
+  describe('When parsing "A"', () => {
+    let unitCode;
+    beforeEach(() => {
+      unitCode = UnitCode.parse('A');
+    });
+    it('should have a code of "A"', () => {
+      expect(unitCode.code).toEqual('A');
+    });
+    it('should have a "unit" code of "A"', () => {
+      expect(unitCode.unitCode).toEqual('A');
+    });
+    it('should have a "base" code of 2', () => {
+      expect(unitCode.baseCode).toEqual(2);
+    });
+    it('should be the same instance as resolving "base" code 2', () => {
+      expect(UnitCode.fromBaseCode(2)).toBe(unitCode);
+    });
+    it('should use two decimal places', () => {
+      expect(unitCode.decimalDigits).toEqual(2);
+    });
+    it('does not support fraction notation', () => {
+      expect(unitCode.supportsFractions).toEqual(false);
+    });
+    it('the fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactor).toEqual(undefined);
+    });
+    it('the "special" fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+    });
+    it('getting the fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor()).toEqual(undefined);
+    });
+    it('getting the "special" fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+    });
+    it('the fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigits).toEqual(undefined);
+    });
+    it('the "special" fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+    });
+    it('getting the fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits()).toEqual(undefined);
+    });
+    it('getting the "special" fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits(true)).toEqual(undefined);
+    });
+  });
+  describe('When parsing "B"', () => {
+    let unitCode;
+    beforeEach(() => {
+      unitCode = UnitCode.parse('B');
+    });
+    it('should have a code of "B"', () => {
+      expect(unitCode.code).toEqual('B');
+    });
+    it('should have a "unit" code of "B"', () => {
+      expect(unitCode.unitCode).toEqual('B');
+    });
+    it('should have a "base" code of 3', () => {
+      expect(unitCode.baseCode).toEqual(3);
+    });
+    it('should be the same instance as resolving "base" code 3', () => {
+      expect(UnitCode.fromBaseCode(3)).toBe(unitCode);
+    });
+    it('should use three decimal places', () => {
+      expect(unitCode.decimalDigits).toEqual(3);
+    });
+    it('does not support fraction notation', () => {
+      expect(unitCode.supportsFractions).toEqual(false);
+    });
+    it('the fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactor).toEqual(undefined);
+    });
+    it('the "special" fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+    });
+    it('getting the fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor()).toEqual(undefined);
+    });
+    it('getting the "special" fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+    });
+    it('the fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigits).toEqual(undefined);
+    });
+    it('the "special" fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+    });
+    it('getting the fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits()).toEqual(undefined);
+    });
+    it('getting the "special" fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits(true)).toEqual(undefined);
+    });
+  });
+  describe('When parsing "C"', () => {
+    let unitCode;
+    beforeEach(() => {
+      unitCode = UnitCode.parse('C');
+    });
+    it('should have a code of "C"', () => {
+      expect(unitCode.code).toEqual('C');
+    });
+    it('should have a "unit" code of "C"', () => {
+      expect(unitCode.unitCode).toEqual('C');
+    });
+    it('should have a "base" code of 4', () => {
+      expect(unitCode.baseCode).toEqual(4);
+    });
+    it('should be the same instance as resolving "base" code 4', () => {
+      expect(UnitCode.fromBaseCode(4)).toBe(unitCode);
+    });
+    it('should use four decimal places', () => {
+      expect(unitCode.decimalDigits).toEqual(4);
+    });
+    it('does not support fraction notation', () => {
+      expect(unitCode.supportsFractions).toEqual(false);
+    });
+    it('the fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactor).toEqual(undefined);
+    });
+    it('the "special" fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+    });
+    it('getting the fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor()).toEqual(undefined);
+    });
+    it('getting the "special" fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+    });
+    it('the fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigits).toEqual(undefined);
+    });
+    it('the "special" fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+    });
+    it('getting the fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits()).toEqual(undefined);
+    });
+    it('getting the "special" fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits(true)).toEqual(undefined);
+    });
+  });
+  describe('When parsing "D"', () => {
+    let unitCode;
+    beforeEach(() => {
+      unitCode = UnitCode.parse('D');
+    });
+    it('should have a code of "D"', () => {
+      expect(unitCode.code).toEqual('D');
+    });
+    it('should have a "unit" code of "D"', () => {
+      expect(unitCode.unitCode).toEqual('D');
+    });
+    it('should have a "base" code of 5', () => {
+      expect(unitCode.baseCode).toEqual(5);
+    });
+    it('should be the same instance as resolving "base" code 5', () => {
+      expect(UnitCode.fromBaseCode(5)).toBe(unitCode);
+    });
+    it('should use five decimal places', () => {
+      expect(unitCode.decimalDigits).toEqual(5);
+    });
+    it('does not support fraction notation', () => {
+      expect(unitCode.supportsFractions).toEqual(false);
+    });
+    it('the fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactor).toEqual(undefined);
+    });
+    it('the "special" fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+    });
+    it('getting the fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor()).toEqual(undefined);
+    });
+    it('getting the "special" fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+    });
+    it('the fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigits).toEqual(undefined);
+    });
+    it('the "special" fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+    });
+    it('getting the fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits()).toEqual(undefined);
+    });
+    it('getting the "special" fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits(true)).toEqual(undefined);
+    });
+  });
+  describe('When parsing "E"', () => {
+    let unitCode;
+    beforeEach(() => {
+      unitCode = UnitCode.parse('E');
+    });
+    it('should have a code of "E"', () => {
+      expect(unitCode.code).toEqual('E');
+    });
+    it('should have a "unit" code of "E"', () => {
+      expect(unitCode.unitCode).toEqual('E');
+    });
+    it('should have a "base" code of 6', () => {
+      expect(unitCode.baseCode).toEqual(6);
+    });
+    it('should be the same instance as resolving "base" code 6', () => {
+      expect(UnitCode.fromBaseCode(6)).toBe(unitCode);
+    });
+    it('should use six decimal places', () => {
+      expect(unitCode.decimalDigits).toEqual(6);
+    });
+    it('does not support fraction notation', () => {
+      expect(unitCode.supportsFractions).toEqual(false);
+    });
+    it('the fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactor).toEqual(undefined);
+    });
+    it('the "special" fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+    });
+    it('getting the fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor()).toEqual(undefined);
+    });
+    it('getting the "special" fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+    });
+    it('the fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigits).toEqual(undefined);
+    });
+    it('the "special" fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+    });
+    it('getting the fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits()).toEqual(undefined);
+    });
+    it('getting the "special" fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits(true)).toEqual(undefined);
+    });
+  });
+  describe('When parsing "F"', () => {
+    let unitCode;
+    beforeEach(() => {
+      unitCode = UnitCode.parse('F');
+    });
+    it('should have a code of "F"', () => {
+      expect(unitCode.code).toEqual('F');
+    });
+    it('should have a "unit" code of "F"', () => {
+      expect(unitCode.unitCode).toEqual('F');
+    });
+    it('should have a "base" code of 7', () => {
+      expect(unitCode.baseCode).toEqual(7);
+    });
+    it('should use seven decimal places', () => {
+      expect(unitCode.decimalDigits).toEqual(7);
+    });
+    it('does not support fraction notation', () => {
+      expect(unitCode.supportsFractions).toEqual(false);
+    });
+    it('the fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactor).toEqual(undefined);
+    });
+    it('the "special" fraction factor should be undefined', () => {
+      expect(unitCode.fractionFactorSpecial).toEqual(undefined);
+    });
+    it('getting the fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor()).toEqual(undefined);
+    });
+    it('getting the "special" fraction factor should return undefined', () => {
+      expect(unitCode.getFractionFactor(true)).toEqual(undefined);
+    });
+    it('the fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigits).toEqual(undefined);
+    });
+    it('the "special" fraction digits should be undefined', () => {
+      expect(unitCode.fractionDigitsSpecial).toEqual(undefined);
+    });
+    it('getting the fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits()).toEqual(undefined);
+    });
+    it('getting the "special" fraction digits should return undefined', () => {
+      expect(unitCode.getFractionDigits(true)).toEqual(undefined);
+    });
+  });
+});
+
+},{"../../../../lib/utilities/data/UnitCode":11}],46:[function(require,module,exports){
 const monthCodes = require('../../../../lib/utilities/data/monthCodes');
 
 describe('When looking up a month name by code', () => {
@@ -13169,7 +13981,7 @@ describe('When looking up a month number by code', () => {
   });
 });
 
-},{"../../../../lib/utilities/data/monthCodes":11}],45:[function(require,module,exports){
+},{"../../../../lib/utilities/data/monthCodes":12}],47:[function(require,module,exports){
 const formatDate = require('./../../../../lib/utilities/format/date');
 
 describe('when using the date formatter', () => {
@@ -13181,7 +13993,7 @@ describe('when using the date formatter', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/date":12}],46:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/date":13}],48:[function(require,module,exports){
 const formatDecimal = require('./../../../../lib/utilities/format/decimal');
 
 describe('when formatting invalid values', () => {
@@ -13319,7 +14131,7 @@ describe('when formatting decimal values to format with parenthesis and no thous
   });
 });
 
-},{"./../../../../lib/utilities/format/decimal":13}],47:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/decimal":14}],49:[function(require,module,exports){
 const buildPriceFormatter = require('./../../../../../lib/utilities/format/factories/price');
 
 describe('When a price formatter is created', () => {
@@ -13679,7 +14491,7 @@ describe('When a price formatter is created', () => {
   });
 });
 
-},{"./../../../../../lib/utilities/format/factories/price":14}],48:[function(require,module,exports){
+},{"./../../../../../lib/utilities/format/factories/price":15}],50:[function(require,module,exports){
 const buildQuoteFormatter = require('./../../../../../lib/utilities/format/factories/quote');
 
 describe('When a time formatter is created (without specifying the clock)', () => {
@@ -14122,8 +14934,23 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../../lib/utilities/format/factories/quote":15}],49:[function(require,module,exports){
+},{"./../../../../../lib/utilities/format/factories/quote":16}],51:[function(require,module,exports){
 const formatPrice = require('./../../../../lib/utilities/format/price');
+/*
+describe('benchmark', () => {
+	it('run a million times', () => {
+		console.time('benchmark');
+
+		for (let i = 0; i < 1000000; i++) {
+			// const x = formatPrice(0, '2', '.');
+			// const x = formatPrice(123.5, '2', '-');
+		}
+
+		console.timeEnd('benchmark');
+	});
+});
+*/
+
 
 describe('when invalid prices are formatted (regardless of other settings)', () => {
   it('formats an undefined value as a zero-length string', () => {
@@ -14192,6 +15019,9 @@ describe('when valid prices are formatted', () => {
       it('formats 0 as "0.000"', () => {
         expect(formatPrice(0, '2', '.')).toEqual('0.000');
       });
+      it('formats 9.5432 as "9.543"', () => {
+        expect(formatPrice(9.5432, '2', '.')).toEqual('9.543');
+      });
       it('formats 377 as "377.000"', () => {
         expect(formatPrice(377, '2', '.')).toEqual('377.000');
       });
@@ -14221,38 +15051,38 @@ describe('when valid prices are formatted', () => {
       });
     });
     describe('with a decimal fraction separator and a thousands separator', () => {
-      it('formats 377  as "377.000"', () => {
+      it('formats 0 as "0.000"', () => {
+        expect(formatPrice(0, '2', '.', false, ',')).toEqual('0.000');
+      });
+      it('formats 377 as "377.000"', () => {
         expect(formatPrice(377, '2', '.', false, ',')).toEqual('377.000');
       });
-      it('formats -377  as "-377.000"', () => {
+      it('formats -377 as "-377.000"', () => {
         expect(formatPrice(-377, '2', '.', false, ',')).toEqual('-377.000');
       });
-      it('formats 377.5  as "377.500"', () => {
+      it('formats 377.5 as "377.500"', () => {
         expect(formatPrice(377.5, '2', '.', false, ',')).toEqual('377.500');
       });
-      it('formats 377.75  as "377.750"', () => {
+      it('formats 377.75 as "377.750"', () => {
         expect(formatPrice(377.75, '2', '.', false, ',')).toEqual('377.750');
       });
-      it('formats 3770.75  as "3,770.750"', () => {
+      it('formats 3770.75 as "3,770.750"', () => {
         expect(formatPrice(3770.75, '2', '.', false, ',')).toEqual('3,770.750');
       });
-      it('formats 37700.75  as "37,700.750"', () => {
+      it('formats 37700.75 as "37,700.750"', () => {
         expect(formatPrice(37700.75, '2', '.', false, ',')).toEqual('37,700.750');
       });
-      it('formats 377000.75  as "377,000.750"', () => {
+      it('formats 377000.75 as "377,000.750"', () => {
         expect(formatPrice(377000.75, '2', '.', false, ',')).toEqual('377,000.750');
       });
-      it('formats -377000.75  as "-377,000.750"', () => {
+      it('formats -377000.75 as "-377,000.750"', () => {
         expect(formatPrice(-377000.75, '2', '.', false, ',')).toEqual('-377,000.750');
       });
-      it('formats 3770000.75  as "3,770,000.750"', () => {
+      it('formats 3770000.75 as "3,770,000.750"', () => {
         expect(formatPrice(3770000.75, '2', '.', false, ',')).toEqual('3,770,000.750');
       });
-      it('formats 3770000  as "3,770,000.000"', () => {
+      it('formats 3770000 as "3,770,000.000"', () => {
         expect(formatPrice(3770000, '2', '.', false, ',')).toEqual('3,770,000.000');
-      });
-      it('formats 0  as "0.000"', () => {
-        expect(formatPrice(0, '2', '.', false, ',')).toEqual('0.000');
       });
     });
     describe('with a decimal fraction separator and a thousands separator and parenthetical negatives', () => {
@@ -14266,7 +15096,7 @@ describe('when valid prices are formatted', () => {
         expect(formatPrice(0, '2', '.', false, ',', true)).toEqual('0.000');
       });
     });
-    describe('with a decimal separator and parenthetical negatives', () => {
+    describe('with a decimal fraction separator and parenthetical negatives', () => {
       it('formats 3770.75 as "3770.750"', () => {
         expect(formatPrice(3770.75, '2', '.', false, '', true)).toEqual('3770.750');
       });
@@ -14278,6 +15108,9 @@ describe('when valid prices are formatted', () => {
       });
     });
     describe('with a dash fraction separator', () => {
+      it('formats 9.5432 as "9.543"', () => {
+        expect(formatPrice(9.5432, '2', '-')).toEqual('9-4');
+      });
       it('formats 123 as "123-0"', () => {
         expect(formatPrice(123, '2', '-')).toEqual('123-0');
       });
@@ -14399,7 +15232,7 @@ describe('when valid prices are formatted', () => {
       it('formats -123.640625 as "-123-205"', () => {
         expect(formatPrice(-123.640625, '5', '-', true)).toEqual('-123-205');
       });
-      it('formats 122.7031 (with unit code 5) as "122-225"', () => {
+      it('formats 122.7031 as "122-225"', () => {
         expect(formatPrice(122.7031, '5', '-', true)).toEqual('122-225');
       });
       it('formats 0 as "0-000"', () => {
@@ -14407,32 +15240,32 @@ describe('when valid prices are formatted', () => {
       });
     });
     describe('with a dash fraction separator and special fractions and parenthetical negatives', () => {
-      it('formats 123.625 (with unit code 5) as "123-200"', () => {
+      it('formats 123.625 as "123-200"', () => {
         expect(formatPrice(123.625, '5', '-', true, '', true)).toEqual('123-200');
       });
-      it('formats -123.625 (with unit code 5) as "(123-200)"', () => {
+      it('formats -123.625 as "(123-200)"', () => {
         expect(formatPrice(-123.625, '5', '-', true, '', true)).toEqual('(123-200)');
       });
-      it('formats 123.640625 (with unit code 5) as "123-205"', () => {
+      it('formats 123.640625 as "123-205"', () => {
         expect(formatPrice(123.640625, '5', '-', true, '', true)).toEqual('123-205');
       });
-      it('formats -123.640625 (with unit code 5) as "(123-205)"', () => {
+      it('formats -123.640625 as "(123-205)"', () => {
         expect(formatPrice(-123.640625, '5', '-', true, '', true)).toEqual('(123-205)');
       });
     });
   });
   describe('with a unit code of "6"', () => {
     describe('with a dash fraction separator and special fractions', () => {
-      it('formats 114.5156 (with unit code 6) as "114-165"', () => {
+      it('formats 114.5156 as "114-165"', () => {
         expect(formatPrice(114.5156, '6', '-', true)).toEqual('114-165');
       });
-      it('formats 114.7891 (with unit code 6) as "114-252"', () => {
+      it('formats 114.7891 as "114-252"', () => {
         expect(formatPrice(114.7891, '6', '-', true)).toEqual('114-252');
       });
-      it('formats 114.8438 (with unit code 6) as "114-270"', () => {
+      it('formats 114.8438 as "114-270"', () => {
         expect(formatPrice(114.8438, '6', '-', true)).toEqual('114-270');
       });
-      it('formats 114.75 (with unit code 6) as "114-240"', () => {
+      it('formats 114.75 as "114-240"', () => {
         expect(formatPrice(114.75, '6', '-', true)).toEqual('114-240');
       });
       it('formats 0 as "0-000"', () => {
@@ -14459,31 +15292,31 @@ describe('when valid prices are formatted', () => {
     });
   });
   describe('with an invalid unit code', () => {
-    it('formats 377 as "" (when omitted)', () => {
+    it('formats 377 as "" (when unit code is omitted)', () => {
       expect(formatPrice(377)).toEqual('');
     });
-    it('formats 377 as "" (when null)', () => {
+    it('formats 377 as "" (when unit code is null)', () => {
       expect(formatPrice(377, null)).toEqual('');
     });
-    it('formats 377 as "" (when numeric)', () => {
+    it('formats 377 as "" (when unit code is numeric)', () => {
       expect(formatPrice(377, 2)).toEqual('');
     });
-    it('formats 377 as "999" (when multiple characters are used)', () => {
+    it('formats 377 as "" (when unit code has multiple characters are used)', () => {
       expect(formatPrice(377, '999')).toEqual('');
     });
-    it('formats 377 as "999" (when a single character -- but an invalid unit code -- "1")', () => {
+    it('formats 377 as "" (when unit code is a a single character -- but an invalid unit code -- "1")', () => {
       expect(formatPrice(377, '1')).toEqual('');
     });
-    it('formats 377 as "999" (when a single character -- but an invalid unit code -- "F")', () => {
-      expect(formatPrice(377, 'F')).toEqual('');
+    it('formats 377 as "" (when unit code is a single character -- but an invalid unit code -- "G")', () => {
+      expect(formatPrice(377, 'G')).toEqual('');
     });
-    it('formats 377 as "999" (when a single character -- but an invalid unit code -- "a")', () => {
+    it('formats 377 as "" (when unit code is a single character -- but an invalid unit code -- "a")', () => {
       expect(formatPrice(377, 'a')).toEqual('');
     });
   });
 });
 
-},{"./../../../../lib/utilities/format/price":16}],50:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/price":17}],52:[function(require,module,exports){
 const formatQuote = require('./../../../../lib/utilities/format/quote');
 
 describe('When a quote formatter is used (without specifying the clock)', () => {
@@ -14906,7 +15739,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../lib/utilities/format/quote":17}],51:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/quote":18}],53:[function(require,module,exports){
 const formatSymbol = require('./../../../../lib/utilities/format/symbol');
 
 describe('When a lowercase string is formatted as a symbol', () => {
@@ -14993,9 +15826,9 @@ describe('When an null value is formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/symbol":18}],52:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/symbol":19}],54:[function(require,module,exports){
 
-},{}],53:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 const parseMessage = require('../../../../../lib/utilities/parse/ddf/message');
 
 describe('when parsing an XML refresh message', () => {
@@ -15202,7 +16035,7 @@ describe('when parsing a DDF message', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/message":20}],54:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/message":21}],56:[function(require,module,exports){
 const parseValue = require('../../../../../lib/utilities/parse/ddf/value');
 
 describe('when parsing prices', () => {
@@ -15305,7 +16138,7 @@ describe('when parsing prices', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/value":22}],55:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/value":23}],57:[function(require,module,exports){
 const parsePrice = require('../../../../lib/utilities/parse/price');
 
 describe('when parsing invalid values', () => {
@@ -15324,7 +16157,7 @@ describe('when parsing invalid values', () => {
     it('parses a null value as Number.NaN', () => {
       expect(parsePrice(null, 'A')).toEqual(Number.NaN);
     });
-    it('parses "123A456" as Number.NaM', () => {
+    it('parses "123A456" as Number.NaN', () => {
       expect(parsePrice('123A456', 'A')).toEqual(Number.NaN);
     });
   });
@@ -15341,7 +16174,7 @@ describe('when parsing invalid values', () => {
     it('parses a null value as Number.NaN', () => {
       expect(parsePrice(null, '2')).toEqual(Number.NaN);
     });
-    it('parses "123A456" as Number.NaM', () => {
+    it('parses "123A456" as Number.NaN', () => {
       expect(parsePrice('123A456', '2')).toEqual(Number.NaN);
     });
   });
@@ -15383,9 +16216,310 @@ describe('when valid prices are parsed', () => {
       });
     });
   });
+  describe('with a unit code of "2"', () => {
+    describe('with default arguments', () => {
+      it('parses "0.000" as 0', () => {
+        expect(parsePrice('0.000', '2')).toEqual(0);
+      });
+      it('parses "377.000" as 377', () => {
+        expect(parsePrice('377.000', '2')).toEqual(377);
+      });
+    });
+    describe('with a decimal fraction separator', () => {
+      it('parse "0.000" as 0', () => {
+        expect(parsePrice('0.000', '2', '.')).toEqual(0);
+      });
+      it('parses "377.000" as 377', () => {
+        expect(parsePrice('377.000', '2', '.')).toEqual(377);
+      });
+      it('parses "-377.000" as -377', () => {
+        expect(parsePrice('-377.000', '2', '.')).toEqual(-377);
+      });
+      it('parses "377.500" as 377.5', () => {
+        expect(parsePrice('377.500', '2', '.')).toEqual(377.5);
+      });
+      it('parses "377.750" as 377.75', () => {
+        expect(parsePrice('377.750', '2', '.')).toEqual(377.75);
+      });
+      it('parses "3770.750" as 3770.75', () => {
+        expect(parsePrice('3770.750', '2', '.')).toEqual(3770.75);
+      });
+      it('parses "37700.750" as 37700.75', () => {
+        expect(parsePrice('37700.750', '2', '.')).toEqual(37700.75);
+      });
+      it('parses "377000.750" as 377000.75', () => {
+        expect(parsePrice('377000.750', '2', '.')).toEqual(377000.75);
+      });
+      it('parses "3770000.750" as 3770000.75', () => {
+        expect(parsePrice('3770000.750', '2', '.')).toEqual(3770000.75);
+      });
+      it('parses "3770000.000" as 3770000', () => {
+        expect(parsePrice('3770000.000', '2', '.')).toEqual(3770000);
+      });
+    });
+    describe('with a decimal fraction separator and a thousands separator', () => {
+      it('parses "0.000" as 0', () => {
+        expect(parsePrice('0.000', '2', '.', false, ',')).toEqual(0);
+      });
+      it('parses "377.000" as 377', () => {
+        expect(parsePrice('377.000', '2', '.', false, ',')).toEqual(377);
+      });
+      it('parses "-377.000" as -377', () => {
+        expect(parsePrice('-377.000', '2', '.', false, ',')).toEqual(-377);
+      });
+      it('parses "377.500" as 377.5', () => {
+        expect(parsePrice('377.500', '2', '.', false, ',')).toEqual(377.5);
+      });
+      it('parses "377.750" as 377.75', () => {
+        expect(parsePrice('377.750', '2', '.', false, ',')).toEqual(377.75);
+      });
+      it('parses "3,770.750" as 3770.75', () => {
+        expect(parsePrice('3,770.750', '2', '.', false, ',')).toEqual(3770.75);
+      });
+      it('parses "37,700.750" as 37700.75', () => {
+        expect(parsePrice('37,700.750', '2', '.', false, ',')).toEqual(37700.75);
+      });
+      it('parses "377,000.750" as 377000.75', () => {
+        expect(parsePrice('377,000.750', '2', '.', false, ',')).toEqual(377000.75);
+      });
+      it('parses "-377,000.750" as -377000.75', () => {
+        expect(parsePrice('-377,000.750', '2', '.', false, ',')).toEqual(-377000.75);
+      });
+      it('parses "3,770,000.750" as 3770000.75', () => {
+        expect(parsePrice('3,770,000.750', '2', '.', false, ',')).toEqual(3770000.75);
+      });
+      it('parses "3,770,000.000" as 3770000', () => {
+        expect(parsePrice('3,770,000.000', '2', '.', false, ',')).toEqual(3770000);
+      });
+    });
+    describe('with a decimal fraction separator and a thousands separator and parenthetical negatives', () => {
+      it('parses "3,770.750" as 3770.75', () => {
+        expect(parsePrice('3,770.750', '2', '.', false, ',')).toEqual(3770.75);
+      });
+      it('parses "(3,770.750)" as -3770.75', () => {
+        expect(parsePrice('(3,770.750)', '2', '.', false, ',')).toEqual(-3770.75);
+      });
+      it('parses "0.000" as 0', () => {
+        expect(parsePrice('0.000', '2', '.', false, ',')).toEqual(0);
+      });
+    });
+    describe('with a decimal fraction separator and parenthetical negatives', () => {
+      it('parses "3770.750" as 3770.75', () => {
+        expect(parsePrice('3770.750', '2', '.', false, '')).toEqual(3770.75);
+      });
+      it('parses "(3770.750)" -3770.75', () => {
+        expect(parsePrice('(3770.750)', '2', '.', false, '')).toEqual(-3770.75);
+      });
+      it('parses "0.000" as 0', () => {
+        expect(parsePrice('0.000', '2', '.', false, '')).toEqual(0);
+      });
+    });
+    describe('with a dash fraction separator', () => {
+      it('parses "9.543" as 9.5', () => {
+        expect(parsePrice('9-4', '2', '-')).toEqual(9.5);
+      });
+      it('parses "123-0" as 123', () => {
+        expect(parsePrice('123-0', '2', '-')).toEqual(123);
+      });
+      it('parses "-123-0" as -123', () => {
+        expect(parsePrice('-123-0', '2', '-')).toEqual(-123);
+      });
+      it('parses "123-4" as 123.5', () => {
+        expect(parsePrice('123-4', '2', '-')).toEqual(123.5);
+      });
+      it('parses "-123-4" as -123.5', () => {
+        expect(parsePrice('-123-4', '2', '-')).toEqual(-123.5);
+      });
+      it('parses "0-4" as 0.5', () => {
+        expect(parsePrice('0-4', '2', '-')).toEqual(0.5);
+      });
+      it('parses "0-0" as 0', () => {
+        expect(parsePrice('0-0', '2', '-')).toEqual(0);
+      });
+    });
+    describe('with a dash fraction separator and parenthetical negatives', () => {
+      it('parses "123-0" as 123', () => {
+        expect(parsePrice('123-0', '2', '-', false, '')).toEqual(123);
+      });
+      it('parses "(123-0)" as -123', () => {
+        expect(parsePrice('(123-0)', '2', '-', false, '')).toEqual(-123);
+      });
+      it('parses "123-4" as 123.5', () => {
+        expect(parsePrice('123-4', '2', '-', false, '')).toEqual(123.5);
+      });
+      it('parses "(123-4)" as -123.5', () => {
+        expect(parsePrice('(123-4)', '2', '-', false, '')).toEqual(-123.5);
+      });
+      it('parses "0-4" as 0.5', () => {
+        expect(parsePrice('0-4', '2', '-', false, '')).toEqual(0.5);
+      });
+      it('parses "(0-4)" -0.5', () => {
+        expect(parsePrice('(0-4)', '2', '-', false, '')).toEqual(-0.5);
+      });
+      it('parses "0" as 0', () => {
+        expect(parsePrice('0-0', '2', '-', false, '')).toEqual(0);
+      });
+    });
+    describe('with a tick separator', () => {
+      it('parses "123\'0" as 123', () => {
+        expect(parsePrice('123\'0', '2', '\'')).toEqual(123);
+      });
+      it('parses "123\'4" as 123.5', () => {
+        expect(parsePrice('123\'4', '2', '\'')).toEqual(123.5);
+      });
+      it('parses "-123\'4" as -123.5', () => {
+        expect(parsePrice('-123\'4', '2', '\'')).toEqual(-123.5);
+      });
+      it('parses "0\'4" as 0.5', () => {
+        expect(parsePrice('0\'4', '2', '\'')).toEqual(0.5);
+      });
+      it('formats "-0\'4" as -0.5', () => {
+        expect(parsePrice('-0\'4', '2', '\'')).toEqual(-0.5);
+      });
+      it('formats "0\'0" as 0', () => {
+        expect(parsePrice('0\'0', '2', '\'')).toEqual(0);
+      });
+    });
+    describe('with a tick separator and parenthetical negatives', () => {
+      it('parses "123\'4" as 123.5', () => {
+        expect(parsePrice('123\'4', '2', '\'', false, '', true)).toEqual(123.5);
+      });
+      it('parses "(123\'4)" as -123.5', () => {
+        expect(parsePrice('(123\'4)', '2', '\'', false, '', true)).toEqual(-123.5);
+      });
+      it('parses "0\'4" as 0.5', () => {
+        expect(parsePrice('0\'4', '2', '\'', false, '', true)).toEqual(0.5);
+      });
+      it('parses "(0\'4)" as -0.5', () => {
+        expect(parsePrice('(0\'4)', '2', '\'', false, '', true)).toEqual(-0.5);
+      });
+      it('parses "0\'0" as 0', () => {
+        expect(parsePrice('0\'0', '2', '\'', false, '', true)).toEqual(0);
+      });
+    });
+    describe('with a zero-length separator', () => {
+      it('parses "1230" as 123', () => {
+        expect(parsePrice('1230', '2', '')).toEqual(123);
+      });
+      it('parses "1234" as 123.5', () => {
+        expect(parsePrice('1234', '2', '')).toEqual(123.5);
+      });
+      it('parses "4" as 0.5', () => {
+        expect(parsePrice('4', '2', '')).toEqual(0.5);
+      });
+      it('parses "0" as 0', () => {
+        expect(parsePrice('0', '2', '')).toEqual(0);
+      });
+    });
+    describe('with a zero-length separator and parenthetical negatives', () => {
+      describe('with no separator and no special fractions', () => {
+        it('parses "4" as 0.5', () => {
+          expect(parsePrice('4', '2', '', false, '')).toEqual(0.5);
+        });
+        it('parses "(4)" as -0.5', () => {
+          expect(parsePrice('(4)', '2', '', false, '')).toEqual(-0.5);
+        });
+        it('parses "0" as 0', () => {
+          expect(parsePrice('0', '2', '', false, '')).toEqual(0);
+        });
+      });
+    });
+  });
+  describe('with a unit code of "5"', () => {
+    describe('with a dash fraction separator and special fractions', () => {
+      it('parses "123-200" as 123.625', () => {
+        expect(parsePrice('123-200', '5', '-', true)).toEqual(123.625);
+      });
+      it('parses "-123-200" as -123.625', () => {
+        expect(parsePrice('-123-200', '5', '-', true)).toEqual(-123.625);
+      });
+      it('parses "123-205" as 123.640625', () => {
+        expect(parsePrice('123-205', '5', '-', true)).toEqual(123.640625);
+      });
+      it('parses "-123-205" as -123.640625', () => {
+        expect(parsePrice('-123-205', '5', '-', true)).toEqual(-123.640625);
+      });
+      it('parses "122-225" as 122.703125', () => {
+        expect(parsePrice('122-225', '5', '-', true)).toEqual(122.703125);
+      });
+      it('parses "0-000" as 0', () => {
+        expect(parsePrice('0-000', '5', '-', true)).toEqual(0);
+      });
+    });
+    describe('with a dash fraction separator and special fractions and parenthetical negatives', () => {
+      it('parses "123-200" as 123.625', () => {
+        expect(parsePrice('123-200', '5', '-', true, '', true)).toEqual(123.625);
+      });
+      it('parses "(123-200)" as -123.625', () => {
+        expect(parsePrice('(123-200)', '5', '-', true, '', true)).toEqual(-123.625);
+      });
+      it('parses "123-205" as 123.640625', () => {
+        expect(parsePrice('123-205', '5', '-', true, '', true)).toEqual(123.640625);
+      });
+      it('parses "(123-205)" as -123.640625', () => {
+        expect(parsePrice('(123-205)', '5', '-', true, '', true)).toEqual(-123.640625);
+      });
+    });
+  });
+  describe('with a unit code of "6"', () => {
+    describe('with a dash fraction separator and special fractions', () => {
+      it('parses "114-165" as 114.515625 ', () => {
+        expect(parsePrice('114-165', '6', '-', true)).toEqual(114.515625);
+      });
+      it('parses "114-252" as 114.7875', () => {
+        expect(parsePrice('114-252', '6', '-', true)).toEqual(114.7875);
+      });
+      it('parses "114-270" as 114.84375', () => {
+        expect(parsePrice('114-270', '6', '-', true)).toEqual(114.84375);
+      });
+      it('parses "114-240" as 114.75', () => {
+        expect(parsePrice('114-240', '6', '-', true)).toEqual(114.75);
+      });
+      it('parses "0-000" as 0', () => {
+        expect(parsePrice('0-000', '6', '-', true)).toEqual(0);
+      });
+    });
+  });
+  describe('with a unit code of "8"', () => {
+    describe('with a decimal fraction separator', () => {
+      it('parses "0" as 0', () => {
+        expect(parsePrice('0', '8', '.')).toEqual(0);
+      });
+      it('parses "1000" as 1000', () => {
+        expect(parsePrice('1000', '8', '.')).toEqual(1000);
+      });
+    });
+    describe('with a decimal separator and a thousands separator', () => {
+      it('parses "0" as 0', () => {
+        expect(parsePrice('0', '8', '.', false, ',')).toEqual(0);
+      });
+      it('parses "1,000" as 1000', () => {
+        expect(parsePrice('1,000', '8', '.', false, ',')).toEqual(1000);
+      });
+    });
+  });
+  describe('with ad hoc settings from previous unit tests', () => {
+    it('parses "125-5" as 125.625 (with unit code 2)', () => {
+      expect(parsePrice('125-5', '2')).toEqual(125.625);
+    });
+    it('parses "-125-5" as -125.625 (with unit code 2)', () => {
+      expect(parsePrice('-125-5', '2')).toEqual(-125.625);
+    });
+    it('parses "125-240" as 125.75 (with unit code 5, using special fractions)', () => {
+      expect(parsePrice('125-240', '5', '-', true)).toEqual(125.75);
+    });
+    it('parses "-125-240" as -125.75 (with unit code 5, using special fractions)', () => {
+      expect(parsePrice('-125-240', '5', '-', true)).toEqual(-125.75);
+    });
+  });
+  describe('with insufficient data to infer correct settings', () => {
+    it('parses "125-240" as Number.NaN (with unit code 5 where "special fractions" cannot be inferred)', () => {
+      expect(parsePrice('125-240', '5')).toEqual(Number.NaN);
+    });
+  });
 });
 
-},{"../../../../lib/utilities/parse/price":23}],56:[function(require,module,exports){
+},{"../../../../lib/utilities/parse/price":24}],58:[function(require,module,exports){
 const SymbolParser = require('../../../../lib/utilities/parsers/SymbolParser');
 
 describe('When parsing a symbol for instrument type', () => {
@@ -16416,4 +17550,4 @@ describe('When getting a producer symbol', () => {
   });
 });
 
-},{"../../../../lib/utilities/parsers/SymbolParser":24}]},{},[37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56]);
+},{"../../../../lib/utilities/parsers/SymbolParser":25}]},{},[38,39,40,41,42,43,44,46,45,47,48,49,50,51,52,53,54,55,56,57,58]);
