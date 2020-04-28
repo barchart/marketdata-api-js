@@ -329,5 +329,25 @@ describe('when valid prices are parsed', () => {
 				expect(parsePrice('0\'0', '2', '\'', false, '', true)).toEqual(0);
 			});
 		});
+
+		/*
+		describe('with a zero-length separator', () => {
+			it('parses "1230" as 123', () => {
+				expect(parsePrice('1230', '2', '')).toEqual(123);
+			});
+
+			it('parses "1234" as 123.5', () => {
+				expect(parsePrice('1234', '2', '')).toEqual(123.5);
+			});
+
+			it('parses "4" as 0.5', () => {
+				expect(parsePrice('4', '2', '')).toEqual(0.5);
+			});
+
+			it('parses "0" as 0', () => {
+				expect(parsePrice('0', '2', '')).toEqual(0);
+			});
+		});
+		*/
 	});
 });
