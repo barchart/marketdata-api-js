@@ -201,7 +201,7 @@ describe('when valid prices are formatted', () => {
 			});
 		});
 
-		describe('with a decimal separator and parenthetical negatives', () => {
+		describe('with a decimal fraction separator and parenthetical negatives', () => {
 			it('formats 3770.75 as "3770.750"', () => {
 				expect(formatPrice(3770.75, '2', '.', false, '', true)).toEqual('3770.750');
 			});
