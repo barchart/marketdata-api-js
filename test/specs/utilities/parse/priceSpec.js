@@ -456,4 +456,28 @@ describe('when valid prices are parsed', () => {
 			});
 		});
 	});
+
+	describe('with ad hoc settings from previous unit tests', () => {
+		it('parses "125-5" as 125.625 (with unit code 2)', () => {
+			expect(parsePrice('125-5', '2')).toEqual(125.625);
+		});
+
+		it('parses "-125-5" as -125.625 (with unit code 2)', () => {
+			expect(parsePrice('-125-5', '2')).toEqual(-125.625);
+		});
+
+		it('parses "125-240" as 125.75 (with unit code 5, using special fractions)', () => {
+			expect(parsePrice('125-240', '5', '-', true)).toEqual(125.75);
+		});
+
+		it('parses "-125-240" as -125.75 (with unit code 5, using special fractions)', () => {
+			expect(parsePrice('-125-240', '5', '-', true)).toEqual(-125.75);
+		});
+	});
+
+	describe('with insufficient data to infer correct settings', () => {
+		it('parses "125-240" as Number.NaN (with unit code 5 where "special fractions" cannot be inferred)', () => {
+			expect(parsePrice('125-240', '5')).toEqual(Number.NaN);
+		});
+	});
 });
