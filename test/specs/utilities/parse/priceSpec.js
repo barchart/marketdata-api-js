@@ -281,5 +281,31 @@ describe('when valid prices are parsed', () => {
 				expect(parsePrice('0-0', '2', '-', false, '')).toEqual(0);
 			});
 		});
+
+		describe('with a tick separator', () => {
+			it('parses "123\'0" as 123', () => {
+				expect(parsePrice('123\'0', '2', '\'')).toEqual(123);
+			});
+
+			it('parses "123\'4" as 123.5', () => {
+				expect(parsePrice('123\'4', '2', '\'')).toEqual(123.5);
+			});
+
+			it('parses "-123\'4" as -123.5', () => {
+				expect(parsePrice('-123\'4', '2', '\'')).toEqual(-123.5);
+			});
+
+			it('parses "0\'4" as 0.5', () => {
+				expect(parsePrice('0\'4', '2', '\'')).toEqual(0.5);
+			});
+
+			it('formats "-0\'4" as -0.5', () => {
+				expect(parsePrice('-0\'4', '2', '\'')).toEqual(-0.5);
+			});
+
+			it('formats "0\'0" as 0', () => {
+				expect(parsePrice('0\'0', '2', '\'')).toEqual(0);
+			});
+		});
 	});
 });
