@@ -59,7 +59,7 @@
 | value | <code>Number</code> |  |
 | unitCode | <code>String</code> |  |
 | [fractionSeparator] | <code>String</code> | Can be zero or one character in length. If invalid or omitted, a decimal notation is used. If non-decimal, then fractional notation is used (assuming supported by unit code). |
-| [specialFractions] | <code>Boolean</code> | If fractional notation is used, indicates is "special" factor (i.e. denominator) is used to calculate numerator. |
+| [specialFractions] | <code>Boolean</code> | If fractional notation is used, indicates if the "special" factor (i.e. denominator) is used to calculate numerator. |
 | [thousandsSeparator] | <code>String</code> | Can be zero or one character in length. If invalid or omitted, a zero-length string is used. |
 | [useParenthesis] | <code>Boolean</code> | If true, negative values will be represented with parenthesis (instead of a leading minus sign). |
 
