@@ -363,96 +363,96 @@ describe('when valid prices are parsed', () => {
 				});
 			});
 		});
+	});
 
-		describe('with a unit code of "5"', () => {
-			describe('with a dash fraction separator and special fractions', () => {
-				it('parses "123-200" as 123.625', () => {
-					expect(parsePrice('123-200', '5', '-', true)).toEqual(123.625);
-				});
-
-				it('parses "-123-200" as -123.625', () => {
-					expect(parsePrice('-123-200', '5', '-', true)).toEqual(-123.625);
-				});
-
-				it('parses "123-205" as 123.640625', () => {
-					expect(parsePrice('123-205', '5', '-', true)).toEqual(123.640625);
-				});
-
-				it('parses "-123-205" as -123.640625', () => {
-					expect(parsePrice('-123-205', '5', '-', true)).toEqual(-123.640625);
-				});
-
-				it('parses "122-225" as 122.703125', () => {
-					expect(parsePrice('122-225', '5', '-', true)).toEqual(122.703125);
-				});
-
-				it('parses "0-000" as 0', () => {
-					expect(parsePrice('0-000', '5', '-', true)).toEqual(0);
-				});
+	describe('with a unit code of "5"', () => {
+		describe('with a dash fraction separator and special fractions', () => {
+			it('parses "123-200" as 123.625', () => {
+				expect(parsePrice('123-200', '5', '-', true)).toEqual(123.625);
 			});
 
-			describe('with a dash fraction separator and special fractions and parenthetical negatives', () => {
-				it('parses "123-200" as 123.625', () => {
-					expect(parsePrice('123-200', '5', '-', true, '', true)).toEqual(123.625);
-				});
+			it('parses "-123-200" as -123.625', () => {
+				expect(parsePrice('-123-200', '5', '-', true)).toEqual(-123.625);
+			});
 
-				it('parses "(123-200)" as -123.625', () => {
-					expect(parsePrice('(123-200)', '5', '-', true, '', true)).toEqual(-123.625);
-				});
+			it('parses "123-205" as 123.640625', () => {
+				expect(parsePrice('123-205', '5', '-', true)).toEqual(123.640625);
+			});
 
-				it('parses "123-205" as 123.640625', () => {
-					expect(parsePrice('123-205', '5', '-', true, '', true)).toEqual(123.640625);
-				});
+			it('parses "-123-205" as -123.640625', () => {
+				expect(parsePrice('-123-205', '5', '-', true)).toEqual(-123.640625);
+			});
 
-				it('parses "(123-205)" as -123.640625', () => {
-					expect(parsePrice('(123-205)', '5', '-', true, '', true)).toEqual(-123.640625);
-				});
+			it('parses "122-225" as 122.703125', () => {
+				expect(parsePrice('122-225', '5', '-', true)).toEqual(122.703125);
+			});
+
+			it('parses "0-000" as 0', () => {
+				expect(parsePrice('0-000', '5', '-', true)).toEqual(0);
 			});
 		});
 
-		describe('with a unit code of "6"', () => {
-			describe('with a dash fraction separator and special fractions', () => {
-				it('parses "114-165" as 114.515625 ', () => {
-					expect(parsePrice('114-165', '6', '-', true)).toEqual(114.515625);
-				});
+		describe('with a dash fraction separator and special fractions and parenthetical negatives', () => {
+			it('parses "123-200" as 123.625', () => {
+				expect(parsePrice('123-200', '5', '-', true, '', true)).toEqual(123.625);
+			});
 
-				it('parses "114-252" as 114.7875', () => {
-					expect(parsePrice('114-252', '6', '-', true)).toEqual(114.7875);
-				});
+			it('parses "(123-200)" as -123.625', () => {
+				expect(parsePrice('(123-200)', '5', '-', true, '', true)).toEqual(-123.625);
+			});
 
-				it('parses "114-270" as 114.84375', () => {
-					expect(parsePrice('114-270', '6', '-', true)).toEqual(114.84375);
-				});
+			it('parses "123-205" as 123.640625', () => {
+				expect(parsePrice('123-205', '5', '-', true, '', true)).toEqual(123.640625);
+			});
 
-				it('parses "114-240" as 114.75', () => {
-					expect(parsePrice('114-240', '6', '-', true)).toEqual(114.75);
-				});
+			it('parses "(123-205)" as -123.640625', () => {
+				expect(parsePrice('(123-205)', '5', '-', true, '', true)).toEqual(-123.640625);
+			});
+		});
+	});
 
-				it('parses "0-000" as 0', () => {
-					expect(parsePrice('0-000', '6', '-', true)).toEqual(0);
-				});
+	describe('with a unit code of "6"', () => {
+		describe('with a dash fraction separator and special fractions', () => {
+			it('parses "114-165" as 114.515625 ', () => {
+				expect(parsePrice('114-165', '6', '-', true)).toEqual(114.515625);
+			});
+
+			it('parses "114-252" as 114.7875', () => {
+				expect(parsePrice('114-252', '6', '-', true)).toEqual(114.7875);
+			});
+
+			it('parses "114-270" as 114.84375', () => {
+				expect(parsePrice('114-270', '6', '-', true)).toEqual(114.84375);
+			});
+
+			it('parses "114-240" as 114.75', () => {
+				expect(parsePrice('114-240', '6', '-', true)).toEqual(114.75);
+			});
+
+			it('parses "0-000" as 0', () => {
+				expect(parsePrice('0-000', '6', '-', true)).toEqual(0);
+			});
+		});
+	});
+
+	describe('with a unit code of "8"', () => {
+		describe('with a decimal fraction separator', () => {
+			it('parses "0" as 0', () => {
+				expect(parsePrice('0', '8', '.')).toEqual(0);
+			});
+
+			it('parses "1000" as 1000', () => {
+				expect(parsePrice('1000', '8', '.')).toEqual(1000);
 			});
 		});
 
-		describe('with a unit code of "8"', () => {
-			describe('with a decimal fraction separator', () => {
-				it('parses "0" as 0', () => {
-					expect(parsePrice('0', '8', '.')).toEqual(0);
-				});
-
-				it('parses "1000" as 1000', () => {
-					expect(parsePrice('1000', '8', '.')).toEqual(1000);
-				});
+		describe('with a decimal separator and a thousands separator', () => {
+			it('parses "0" as 0', () => {
+				expect(parsePrice('0', '8', '.', false, ',')).toEqual(0);
 			});
 
-			describe('with a decimal separator and a thousands separator', () => {
-				it('parses "0" as 0', () => {
-					expect(parsePrice('0', '8', '.', false, ',')).toEqual(0);
-				});
-
-				it('parses "1,000" as 1000', () => {
-					expect(parsePrice('1,000', '8', '.', false, ',')).toEqual(1000);
-				});
+			it('parses "1,000" as 1000', () => {
+				expect(parsePrice('1,000', '8', '.', false, ',')).toEqual(1000);
 			});
 		});
 	});
