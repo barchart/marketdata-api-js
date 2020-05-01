@@ -14,7 +14,6 @@ Before you can subscribe to market data, you'll need to establish a WebSocket co
 
 Barchart does not permit anonymous connections. **Contact Barchart at solutions@barchart.com or (866) 333-7587 to obtain the correct hostname and a free username/password.**
 
-
 ### From a Web Browser
 
 By default, the SDK will assume it's running in a web browser and it will attempt to use the browser's native WebSocket support.
