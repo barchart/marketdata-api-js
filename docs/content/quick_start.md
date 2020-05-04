@@ -1,6 +1,6 @@
 ## Setup
 
-This SDK has been published to Node Package Manager (NPM). The package is named *@barchart/marketdata-api-js* and can be installed as follows:
+This SDK has been published to the Node Package Manager (NPM). The package is named *@barchart/marketdata-api-js*; install as follows:
 
 ```shell
 npm install @barchart/marketdata-api-js -S
