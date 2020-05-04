@@ -85,7 +85,7 @@ connection.on('marketUpdate', handleMarketUpdate, 'AAPL');
 
 ## Demos
 
-Two prebuilt applications were built with this SDK. They could provide some insight into SDK features and usage.
+Two sample applications were built with this SDK. They could provide some insight into SDK features and usage.
 
 ### Web Browsers
 
