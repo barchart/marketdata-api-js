@@ -3976,7 +3976,7 @@ module.exports = (() => {
 
   return {
     /**
-     * Returns true, if the argument is a number. NaN will return false.
+     * Returns true if the argument is a number. NaN will return false.
      *
      * @static
      * @public
@@ -3988,7 +3988,7 @@ module.exports = (() => {
     },
 
     /**
-     * Returns true, if the argument is NaN.
+     * Returns true if the argument is NaN.
      *
      * @static
      * @public
@@ -4000,7 +4000,7 @@ module.exports = (() => {
     },
 
     /**
-     * Returns true, if the argument is a valid 32-bit integer.
+     * Returns true if the argument is a valid 32-bit integer.
      *
      * @static
      * @public
@@ -4012,7 +4012,7 @@ module.exports = (() => {
     },
 
     /**
-     * Returns true, if the argument is a valid integer (which can exceed 32 bits); however,
+     * Returns true if the argument is a valid integer (which can exceed 32 bits); however,
      * the check can fail above the value of Number.MAX_SAFE_INTEGER.
      *
      * @static
@@ -4025,7 +4025,7 @@ module.exports = (() => {
     },
 
     /**
-     * Returns true, if the argument is a number that is positive.
+     * Returns true if the argument is a number that is positive.
      *
      * @static
      * @public
@@ -4037,7 +4037,7 @@ module.exports = (() => {
     },
 
     /**
-     * Returns true, if the argument is a number that is negative.
+     * Returns true if the argument is a number that is negative.
      *
      * @static
      * @public
@@ -4049,7 +4049,7 @@ module.exports = (() => {
     },
 
     /**
-     * Returns true, if the argument is a string.
+     * Returns true if the argument is a string.
      *
      * @static
      * @public
@@ -4061,7 +4061,7 @@ module.exports = (() => {
     },
 
     /**
-     * Returns true, if the argument is a JavaScript Date instance.
+     * Returns true if the argument is a JavaScript Date instance.
      *
      * @static
      * @public
@@ -4073,7 +4073,7 @@ module.exports = (() => {
     },
 
     /**
-     * Returns true, if the argument is a function.
+     * Returns true if the argument is a function.
      *
      * @static
      * @public
@@ -4085,7 +4085,7 @@ module.exports = (() => {
     },
 
     /**
-     * Returns true, if the argument is an array.
+     * Returns true if the argument is an array.
      *
      * @static
      * @public
@@ -4097,7 +4097,7 @@ module.exports = (() => {
     },
 
     /**
-     * Returns true, if the argument is a Boolean value.
+     * Returns true if the argument is a Boolean value.
      *
      * @static
      * @public
@@ -4109,7 +4109,7 @@ module.exports = (() => {
     },
 
     /**
-     * Returns true, if the argument is an object.
+     * Returns true if the argument is an object.
      *
      * @static
      * @public
@@ -4121,7 +4121,7 @@ module.exports = (() => {
     },
 
     /**
-     * Returns true, if the argument is a null value.
+     * Returns true if the argument is a null value.
      *
      * @static
      * @public
@@ -4133,7 +4133,7 @@ module.exports = (() => {
     },
 
     /**
-     * Returns true, if the argument is an undefined value.
+     * Returns true if the argument is an undefined value.
      *
      * @static
      * @public
@@ -4142,6 +4142,18 @@ module.exports = (() => {
      */
     undefined(candidate) {
       return candidate === undefined;
+    },
+
+    /**
+     * Returns true if the argument is a zero-length string.
+     *
+     * @static
+     * @public
+     * @param {*} candidate
+     * @returns {boolean}
+     */
+    zeroLengthString(candidate) {
+      return this.string(candidate) && candidate.length === 0;
     },
 
     /**
