@@ -3,79 +3,78 @@
   "version": "5.0.1",
   "description": "SDK for streaming market data from Barchart.com",
   "author": {
-    "name": "Eero Pikat",
-    "email": "eero.pikat@barchart.com",
-    "url": "http://www.barchart.com"
+	"name": "Eero Pikat",
+	"email": "eero.pikat@barchart.com",
+	"url": "http://www.barchart.com"
   },
   "contributors": [
-    {
-      "name": "Mike Ehrenberg",
-      "email": "mike.ehrenberg@barchart.com",
-      "url": "http://www.barchart.com"
-    },
-    {
-      "name": "Bryan Ingle",
-      "email": "bryan.ingle@barchart.com",
-      "url": "http://www.barchart.com"
-    }
+	{
+	  "name": "Mike Ehrenberg",
+	  "email": "mike.ehrenberg@barchart.com",
+	  "url": "http://www.barchart.com"
+	},
+	{
+	  "name": "Bryan Ingle",
+	  "email": "bryan.ingle@barchart.com",
+	  "url": "http://www.barchart.com"
+	}
   ],
   "scripts": {
-    "test": "gulp test",
-    "watch": "gulp watch",
-    "docs": "docsify serve ./docs"
+	"test": "gulp test",
+	"watch": "gulp watch",
+	"docs": "docsify serve ./docs"
   },
   "repository": {
-    "type": "git",
-    "url": "git+ssh://github.com/barchart/marketdata-api-js.git"
+	"type": "git",
+	"url": "git+ssh://github.com/barchart/marketdata-api-js.git"
   },
   "keywords": [
-    "Barchart",
-    "Market",
-    "Data",
-    "Realtime",
-    "Stocks",
-    "Futures",
-    "Forex"
+	"Barchart",
+	"Market",
+	"Data",
+	"Realtime",
+	"Stocks",
+	"Futures",
+	"Forex"
   ],
   "dependencies": {
-    "@barchart/common-js": "~3.3.112",
-    "axios": "^0.19.0",
-    "ws": "7.0.1",
-    "xmldom": "0.1.27"
+	"@barchart/common-js": "~3.3.112",
+	"axios": "^0.19.0",
+	"ws": "7.0.1",
+	"xmldom": "0.1.27"
   },
   "devDependencies": {
-    "@babel/core": "^7.6.2",
-    "@barchart/dmd-plugin": "https://github.com:barchart/dmd-plugin",
-    "aws-sdk": "^2.546.0",
-    "babelify": "^10.0.0",
-    "browserify": "^16.5.0",
-    "compare-versions": "^3.6.0",
-    "docsify-cli": "^4.4.0",
-    "git-get-status": "^1.0.5",
-    "glob": "^6.0.1",
-    "gulp": "^4.0.2",
-    "gulp-awspublish": "^4.0.0",
-    "gulp-bump": "~1.0.0",
-    "gulp-file": "^0.4.0",
-    "gulp-git": "^2.5.1",
-    "gulp-jasmine": "^2.2.1",
-    "gulp-jshint": "~2.1.0",
-    "gulp-prompt": "^1.2.0",
-    "gulp-rename": "^1.4.0",
-    "gulp-replace": "^0.5.4",
-    "jsdoc-to-markdown": "^5.0.3",
-    "jshint": "2.9.5",
-    "log4js": "^4.4.0",
-    "merge-stream": "^2.0.0",
-    "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0"
+	"@babel/core": "^7.6.2",
+	"aws-sdk": "^2.546.0",
+	"babelify": "^10.0.0",
+	"browserify": "^16.5.0",
+	"compare-versions": "^3.6.0",
+	"docsify-cli": "^4.4.0",
+	"git-get-status": "^1.0.5",
+	"glob": "^6.0.1",
+	"gulp": "^4.0.2",
+	"gulp-awspublish": "^4.0.0",
+	"gulp-bump": "~1.0.0",
+	"gulp-file": "^0.4.0",
+	"gulp-git": "^2.5.1",
+	"gulp-jasmine": "^2.2.1",
+	"gulp-jshint": "~2.1.0",
+	"gulp-prompt": "^1.2.0",
+	"gulp-rename": "^1.4.0",
+	"gulp-replace": "^0.5.4",
+	"jsdoc-to-markdown": "^5.0.3",
+	"jshint": "2.9.5",
+	"log4js": "^4.4.0",
+	"merge-stream": "^2.0.0",
+	"vinyl-buffer": "^1.0.1",
+	"vinyl-source-stream": "^2.0.0"
   },
   "browserify": {
-    "transform": [
-      [
-        "babelify"
-      ]
-    ]
+	"transform": [
+	  [
+		"babelify"
+	  ]
+	]
   },
   "license": "MIT",
   "private": false
