@@ -91,7 +91,12 @@ Two prebuilt applications should provide some insight into the features and usag
 
 A single-page HTML application allows users to enter symbols, subscribe to Level I data, unsubscribe from to Level I data, and observe data changes on screen.
 
-You can find the source code in the */example/browser* folder. The application is also hosted here:
+You can find the source code here:
+
+* /example/browser/example.html
+* /example/browser/js/startup.js
+
+The application is also hosted at:
 
 https://examples.aws.barchart.com/marketdata-api-js/example.html
 
