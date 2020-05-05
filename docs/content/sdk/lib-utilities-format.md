@@ -1,20 +1,23 @@
 ## Functions :id=functions
-**Kind**: global namespace  
 >A meta namespace of pure functions.
 
+**Kind**: global namespace  
 
 * [Functions](#Functions) : <code>object</code>
-    * [.formatDate([date], [utc])](#FunctionsformatDate) ⇒ <code>String</code>
-    * [.formatDecimal(value, digits, [thousandsSeparator], [useParenthesis])](#FunctionsformatDecimal) ⇒ <code>String</code>
-    * [.formatPrice(value, unitCode, [fractionSeparator], [specialFractions], [thousandsSeparator], [useParenthesis])](#FunctionsformatPrice) ⇒ <code>String</code>
-    * [.formatQuoteDateTime(quote, [useTwelveHourClock], [short], [timezone])](#FunctionsformatQuoteDateTime) ⇒ <code>String</code>
-    * [.formatSymbol(symbol)](#FunctionsformatSymbol) ⇒ <code>String</code> \| <code>\*</code>
-    * [.formatTime(date, [timezone], [useTwelveHourClock], [short], [utc])](#FunctionsformatTime) ⇒ <code>String</code>
+    * _static_
+        * [.formatDate([date], [utc])](#FunctionsformatDate) ⇒ <code>String</code>
+        * [.formatDecimal(value, digits, [thousandsSeparator], [useParenthesis])](#FunctionsformatDecimal) ⇒ <code>String</code>
+        * [.formatPrice(value, unitCode, [fractionSeparator], [specialFractions], [thousandsSeparator], [useParenthesis])](#FunctionsformatPrice) ⇒ <code>String</code>
+        * [.formatQuoteDateTime(quote, [useTwelveHourClock], [short], [timezone])](#FunctionsformatQuoteDateTime) ⇒ <code>String</code>
+        * [.formatSymbol(symbol)](#FunctionsformatSymbol) ⇒ <code>String</code> \| <code>\*</code>
+        * [.formatTime(date, [timezone], [useTwelveHourClock], [short], [utc])](#FunctionsformatTime) ⇒ <code>String</code>
 
 
 * * *
 
 ### Functions.formatDate([date], [utc]) :id=functionsformatdate
+>Formats a [Date](Date) instance as a string (using a MM/DD/YY pattern).
+
 **Kind**: static method of <code>Functions</code>  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/date  
@@ -25,12 +28,12 @@
 | [date] | <code>Date</code> | 
 | [utc] | <code>Boolean</code> | 
 
->Formats a [Date](Date) instance as a string (using a MM/DD/YY pattern).
-
 
 * * *
 
 ### Functions.formatDecimal(value, digits, [thousandsSeparator], [useParenthesis]) :id=functionsformatdecimal
+>Formats a number as a string.
+
 **Kind**: static method of <code>Functions</code>  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/decimal  
@@ -43,12 +46,15 @@
 | [thousandsSeparator] | <code>String</code> | 
 | [useParenthesis] | <code>Boolean</code> | 
 
->Formats a number as a string.
-
 
 * * *
 
 ### Functions.formatPrice(value, unitCode, [fractionSeparator], [specialFractions], [thousandsSeparator], [useParenthesis]) :id=functionsformatprice
+>Converts a numeric price into a human-readable string. One of two modes
+may be used, depending on the unit code and fraction separator. For example,
+using unit code "2" the value 9.5432 is formatted as "9.543" in decimal
+mode and "9-4" in fractional mode.
+
 **Kind**: static method of <code>Functions</code>  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/price  
@@ -63,15 +69,14 @@
 | [thousandsSeparator] | <code>String</code> | Can be zero or one character in length. If invalid or omitted, a zero-length string is used. |
 | [useParenthesis] | <code>Boolean</code> | If true, negative values will be represented with parenthesis (instead of a leading minus sign). |
 
->Converts a numeric price into a human-readable string. One of two modes
-may be used, depending on the unit code and fraction separator. For example,
-using unit code "2" the value 9.5432 is formatted as "9.543" in decimal
-mode and "9-4" in fractional mode.
-
 
 * * *
 
 ### Functions.formatQuoteDateTime(quote, [useTwelveHourClock], [short], [timezone]) :id=functionsformatquotedatetime
+>Returns a string-formatted date (or time), based on a [Quote](/content/sdk/lib-marketstate?id=quote) instance's
+state. If the market is open, and a trade has occurred, then the formatted time
+is returned. Otherwise, the formatted date is returned.
+
 **Kind**: static method of <code>Functions</code>  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/quote  
@@ -84,14 +89,13 @@ mode and "9-4" in fractional mode.
 | [short] | <code>Boolean</code> |  |
 | [timezone] | <code>String</code> | A name from the tz database (see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) or "EXCHANGE" |
 
->Returns a string-formatted date (or time), based on a [Quote](/content/sdk/lib-marketstate?id=quote) instance's
-state. If the market is open, and a trade has occurred, then the formatted time
-is returned. Otherwise, the formatted date is returned.
-
 
 * * *
 
 ### Functions.formatSymbol(symbol) :id=functionsformatsymbol
+>Formats a string (by capitalizing it). If anything other than a string
+is passed, the argument is returned without modification.
+
 **Kind**: static method of <code>Functions</code>  
 **Returns**: <code>String</code> \| <code>\*</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/symbol  
@@ -101,13 +105,12 @@ is returned. Otherwise, the formatted date is returned.
 | --- | --- |
 | symbol | <code>String</code> \| <code>\*</code> | 
 
->Formats a string (by capitalizing it). If anything other than a string
-is passed, the argument is returned without modification.
-
 
 * * *
 
 ### Functions.formatTime(date, [timezone], [useTwelveHourClock], [short], [utc]) :id=functionsformattime
+>Formats a [Date](Date) instance's time component as a string.
+
 **Kind**: static method of <code>Functions</code>  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/time  
@@ -120,8 +123,6 @@ is passed, the argument is returned without modification.
 | [useTwelveHourClock] | <code>Boolean</code> | 
 | [short] | <code>Boolean</code> | 
 | [utc] | <code>Boolean</code> | 
-
->Formats a [Date](Date) instance's time component as a string.
 
 
 * * *

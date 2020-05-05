@@ -1,7 +1,7 @@
-<!-- releases_open -->
+# Release Notes
 
 ## 5.0.1
-**Functionally identical to 4.1.1. Major version bumped in strict compliance with [semver](https://semver.org/) standards**
+**Functionally identical to 4.1.1. Major version bumped in strict compliance with [semver](https://semver.org/) standards.**
 
 * Any breaking change should be a new major version (read more [here](https://semver.org/#if-even-the-tiniest-backwards-incompatible-changes-to-the-public-api-require-a-major-version-bump-wont-i-end-up-at-version-4200-very-rapidly)).
 * A minor version with breaking changes should be re-released as a major version (read more [here](https://semver.org/#what-do-i-do-if-i-accidentally-release-a-backwards-incompatible-change-as-a-minor-version)).
@@ -63,9 +63,3 @@
   * Utilities are now exported as pure functions -- with no object wrappers
 * All ```index.js``` files were removed -- explicit imports are now required
 * Bower is no longer supported -- the ```bower.json```file was removed
-
-<!-- releases_close -->
-
-## Prior
-
-Any release prior to major version four is unsupported. Please upgrade as soon as possible.

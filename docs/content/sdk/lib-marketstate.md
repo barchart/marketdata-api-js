@@ -12,20 +12,24 @@
 
 * [Schema](#Schema) 
 
+
+* * *
+
 ## CumulativeVolume :id=cumulativevolume
-**Kind**: global class  
-**Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
-**File**: /lib/marketState/CumulativeVolume.js  
 >An aggregation of the total volume traded at each price level for a
 single instrument, mutates as **CumulativeVolume** subscription updates
 are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
 
+**Kind**: global class  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
+**File**: /lib/marketState/CumulativeVolume.js  
 
 * [CumulativeVolume](#CumulativeVolume)
-    * [.symbol](#CumulativeVolumesymbol)
-    * [.getVolume(price)](#CumulativeVolumegetVolume) ⇒ <code>number</code>
-    * [.toArray()](#CumulativeVolumetoArray) ⇒ [<code>Array.&lt;VolumeLevel&gt;</code>](#SchemaVolumeLevel)
+    * _instance_
+        * [.symbol](#CumulativeVolumesymbol)
+        * [.getVolume(price)](#CumulativeVolumegetVolume) ⇒ <code>number</code>
+        * [.toArray()](#CumulativeVolumetoArray) ⇒ [<code>Array.&lt;VolumeLevel&gt;</code>](#SchemaVolumeLevel)
 
 
 * * *
@@ -44,6 +48,8 @@ are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enums
 * * *
 
 ### cumulativeVolume.getVolume(price) :id=cumulativevolumegetvolume
+>Given a numeric price, returns the volume traded at that price level.
+
 **Kind**: instance method of <code>CumulativeVolume</code>  
 **Returns**: <code>number</code>  
 **Access**: public  
@@ -52,35 +58,34 @@ are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enums
 | --- | --- |
 | price | <code>number</code> | 
 
->Given a numeric price, returns the volume traded at that price level.
-
 
 * * *
 
 ### cumulativeVolume.toArray() :id=cumulativevolumetoarray
-**Kind**: instance method of <code>CumulativeVolume</code>  
-**Returns**: [<code>Array.&lt;VolumeLevel&gt;</code>](#SchemaVolumeLevel)  
 >Returns an array of all price levels. This is an expensive operation. Observing
 an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-connection?id=connectionon)).
 
+**Kind**: instance method of <code>CumulativeVolume</code>  
+**Returns**: [<code>Array.&lt;VolumeLevel&gt;</code>](#SchemaVolumeLevel)  
 
 * * *
 
 ## Exchange :id=exchange
+>Describes an exchange.
+
 **Kind**: global class  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
 **File**: /lib/marketState/Exchange.js  
->Describes an exchange.
-
 
 * [Exchange](#Exchange)
-    * [.id](#Exchangeid)
-    * [.name](#Exchangename)
-    * [.timezoneDdf](#ExchangetimezoneDdf)
-    * [.offsetDdf](#ExchangeoffsetDdf)
-    * [.timezoneExchange](#ExchangetimezoneExchange)
-    * [.offsetExchange](#ExchangeoffsetExchange)
+    * _instance_
+        * [.id](#Exchangeid)
+        * [.name](#Exchangename)
+        * [.timezoneDdf](#ExchangetimezoneDdf)
+        * [.offsetDdf](#ExchangeoffsetDdf)
+        * [.timezoneExchange](#ExchangetimezoneExchange)
+        * [.offsetExchange](#ExchangeoffsetExchange)
 
 
 * * *
@@ -164,10 +169,6 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-conne
 * * *
 
 ## MarketState :id=marketstate
-**Kind**: global class  
-**Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
-**File**: /lib/marketState/MarketState.js  
 >Repository for current market state. This repository will only contain
 data for an symbol after a subscription has been established using
 the [Connection#on](/content/sdk/lib-connection?id=connectionon) function.
@@ -175,18 +176,25 @@ the [Connection#on](/content/sdk/lib-connection?id=connectionon) function.
 Access the singleton instance using the [Connection#getMarketState](/content/sdk/lib-connection?id=connectiongetmarketstate)
 function.
 
+**Kind**: global class  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
+**File**: /lib/marketState/MarketState.js  
 
 * [MarketState](#MarketState)
-    * [.getProfile(symbol, [callback])](#MarketStategetProfile) ⇒ <code>Promise.&lt;(Profile\|null)&gt;</code>
-    * [.getQuote(symbol)](#MarketStategetQuote) ⇒ <code>Quote</code> \| <code>undefined</code>
-    * [.getBook(symbol)](#MarketStategetBook) ⇒ [<code>Book</code>](#SchemaBook) \| <code>undefined</code>
-    * [.getCumulativeVolume(symbol, [callback])](#MarketStategetCumulativeVolume) ⇒ <code>Promise.&lt;CumulativeVolume&gt;</code>
-    * [.getTimestamp()](#MarketStategetTimestamp) ⇒ <code>Date</code>
+    * _instance_
+        * [.getProfile(symbol, [callback])](#MarketStategetProfile) ⇒ <code>Promise.&lt;(Profile\|null)&gt;</code>
+        * [.getQuote(symbol)](#MarketStategetQuote) ⇒ <code>Quote</code> \| <code>undefined</code>
+        * [.getBook(symbol)](#MarketStategetBook) ⇒ [<code>Book</code>](#SchemaBook) \| <code>undefined</code>
+        * [.getCumulativeVolume(symbol, [callback])](#MarketStategetCumulativeVolume) ⇒ <code>Promise.&lt;CumulativeVolume&gt;</code>
+        * [.getTimestamp()](#MarketStategetTimestamp) ⇒ <code>Date</code>
 
 
 * * *
 
 ### marketState.getProfile(symbol, [callback]) :id=marketstategetprofile
+>Returns a promise for the [Profile](/content/sdk/lib-marketstate?id=profile) instance matching the symbol provided.
+
 **Kind**: instance method of <code>MarketState</code>  
 **Returns**: <code>Promise.&lt;(Profile\|null)&gt;</code>  
 **Access**: public  
@@ -196,12 +204,14 @@ function.
 | symbol | <code>string</code> |  |
 | [callback] | <code>function</code> | Invoked when the [Profile](/content/sdk/lib-marketstate?id=profile) instance becomes available |
 
->Returns a promise for the [Profile](/content/sdk/lib-marketstate?id=profile) instance matching the symbol provided.
-
 
 * * *
 
 ### marketState.getQuote(symbol) :id=marketstategetquote
+>Synchronously returns the [Quote](/content/sdk/lib-marketstate?id=quote) instance for a symbol. If no **MarketUpdate**
+subscription has been established for the symbol, an undefined value will be returned
+(see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
+
 **Kind**: instance method of <code>MarketState</code>  
 **Returns**: <code>Quote</code> \| <code>undefined</code>  
 **Access**: public  
@@ -210,14 +220,14 @@ function.
 | --- | --- |
 | symbol | <code>string</code> | 
 
->Synchronously returns the [Quote](/content/sdk/lib-marketstate?id=quote) instance for a symbol. If no **MarketUpdate**
-subscription has been established for the symbol, an undefined value will be returned
-(see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
-
 
 * * *
 
 ### marketState.getBook(symbol) :id=marketstategetbook
+>Synchronously returns a [Book](Book) object for a symbol. If no **MarketDepth**
+subscription has been established for the symbol, an undefined value will be returned
+(see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
+
 **Kind**: instance method of <code>MarketState</code>  
 **Returns**: [<code>Book</code>](#SchemaBook) \| <code>undefined</code>  
 **Access**: public  
@@ -226,14 +236,14 @@ subscription has been established for the symbol, an undefined value will be ret
 | --- | --- |
 | symbol | <code>string</code> | 
 
->Synchronously returns a [Book](Book) object for a symbol. If no **MarketDepth**
-subscription has been established for the symbol, an undefined value will be returned
-(see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
-
 
 * * *
 
 ### marketState.getCumulativeVolume(symbol, [callback]) :id=marketstategetcumulativevolume
+>Returns a promise for the [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) volume instance matching the symbol
+provided. The promise will not be fulfilled until a **CumulativeVolume** subscription
+has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
+
 **Kind**: instance method of <code>MarketState</code>  
 **Returns**: <code>Promise.&lt;CumulativeVolume&gt;</code> - The [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) instance, as a promise  
 **Access**: public  
@@ -243,29 +253,25 @@ subscription has been established for the symbol, an undefined value will be ret
 | symbol | <code>string</code> |  |
 | [callback] | <code>function</code> | Invoked when the [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) instance becomes available |
 
->Returns a promise for the [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) volume instance matching the symbol
-provided. The promise will not be fulfilled until a **CumulativeVolume** subscription
-has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
-
 
 * * *
 
 ### marketState.getTimestamp() :id=marketstategettimestamp
+>Returns the time of the most recent server heartbeat.
+
 **Kind**: instance method of <code>MarketState</code>  
 **Returns**: <code>Date</code>  
 **Access**: public  
->Returns the time of the most recent server heartbeat.
-
 
 * * *
 
 ## Profile :id=profile
+>Describes an instrument (associated with a unique symbol).
+
 **Kind**: global class  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
 **File**: /lib/marketState/Profile.js  
->Describes an instrument (associated with a unique symbol).
-
 
 * [Profile](#Profile)
     * _instance_
@@ -437,6 +443,8 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### profile.formatPrice(price) :id=profileformatprice
+>Given a price, returns a the human-readable string representation.
+
 **Kind**: instance method of <code>Profile</code>  
 **Returns**: <code>string</code>  
 **Access**: public  
@@ -445,12 +453,12 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 | --- | --- |
 | price | <code>number</code> | 
 
->Given a price, returns a the human-readable string representation.
-
 
 * * *
 
 ### Profile.setPriceFormatter(fractionSeparator, specialFractions, [thousandsSeparator]) :id=profilesetpriceformatter
+>Configures the logic used to format all prices using the [formatPrice](#ProfileformatPrice) instance function.
+
 **Kind**: static method of <code>Profile</code>  
 **Access**: public  
 
@@ -460,42 +468,41 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 | specialFractions | <code>boolean</code> | usually true |
 | [thousandsSeparator] | <code>string</code> | usually a comma |
 
->Configures the logic used to format all prices using the [formatPrice](#ProfileformatPrice) instance function.
-
 
 * * *
 
 ## Quote :id=quote
+>Current market conditions for an instrument, mutates as **MarketUpdate**
+subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
+
 **Kind**: global class  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
 **File**: /lib/marketState/Quote.js  
->Current market conditions for an instrument, mutates as **MarketUpdate**
-subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
-
 
 * [Quote](#Quote)
-    * [.symbol](#Quotesymbol)
-    * [.message](#Quotemessage)
-    * [.flag](#Quoteflag)
-    * [.mode](#Quotemode) : <code>null</code>
-    * [.day](#Quoteday)
-    * [.dayNum](#QuotedayNum)
-    * [.session](#Quotesession)
-    * [.lastUpdate](#QuotelastUpdate)
-    * [.lastUpdateUtc](#QuotelastUpdateUtc)
-    * [.bidPrice](#QuotebidPrice)
-    * [.bidSize](#QuotebidSize)
-    * [.askPrice](#QuoteaskPrice)
-    * [.askSize](#QuoteaskSize)
-    * [.lastPrice](#QuotelastPrice)
-    * [.tradePrice](#QuotetradePrice)
-    * [.tradeSize](#QuotetradeSize)
-    * [.blockTrade](#QuoteblockTrade)
-    * [.settlementPrice](#QuotesettlementPrice)
-    * [.previousPrice](#QuotepreviousPrice)
-    * [.time](#Quotetime)
-    * [.profile](#Quoteprofile)
+    * _instance_
+        * [.symbol](#Quotesymbol)
+        * [.message](#Quotemessage)
+        * [.flag](#Quoteflag)
+        * [.mode](#Quotemode) : <code>null</code>
+        * [.day](#Quoteday)
+        * [.dayNum](#QuotedayNum)
+        * [.session](#Quotesession)
+        * [.lastUpdate](#QuotelastUpdate)
+        * [.lastUpdateUtc](#QuotelastUpdateUtc)
+        * [.bidPrice](#QuotebidPrice)
+        * [.bidSize](#QuotebidSize)
+        * [.askPrice](#QuoteaskPrice)
+        * [.askSize](#QuoteaskSize)
+        * [.lastPrice](#QuotelastPrice)
+        * [.tradePrice](#QuotetradePrice)
+        * [.tradeSize](#QuotetradeSize)
+        * [.blockTrade](#QuoteblockTrade)
+        * [.settlementPrice](#QuotesettlementPrice)
+        * [.previousPrice](#QuotepreviousPrice)
+        * [.time](#Quotetime)
+        * [.profile](#Quoteprofile)
 
 
 * * *
@@ -739,19 +746,24 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ## Schema :id=schema
-**Kind**: global namespace  
 >A meta namespace containing structural contracts of anonymous objects.
 
+**Kind**: global namespace  
 
 * [Schema](#Schema) : <code>object</code>
-    * [.Book](#SchemaBook) : <code>Object</code>
-    * [.BookLevel](#SchemaBookLevel) : <code>Object</code>
-    * [.VolumeLevel](#SchemaVolumeLevel) : <code>Object</code>
+    * _static_
+        * [.Book](#SchemaBook) : <code>Object</code>
+        * [.BookLevel](#SchemaBookLevel) : <code>Object</code>
+        * [.VolumeLevel](#SchemaVolumeLevel) : <code>Object</code>
 
 
 * * *
 
 ### Schema.Book :id=schemabook
+>This object represents an aggregated order book. In other words, the total size
+of all orders (bid and ask) at every price. Constructed from **MarketDepth**
+subscription (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
+
 **Kind**: static typedef of <code>Schema</code>  
 **Properties**
 
@@ -761,14 +773,13 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 | bids | [<code>Array.&lt;BookLevel&gt;</code>](#SchemaBookLevel) | The price levels for buy orders. |
 | asks | [<code>Array.&lt;BookLevel&gt;</code>](#SchemaBookLevel) | The price levels for sell orders. |
 
->This object represents an aggregated order book. In other words, the total size
-of all orders (bid and ask) at every price. Constructed from **MarketDepth**
-subscription (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
-
 
 * * *
 
 ### Schema.BookLevel :id=schemabooklevel
+>The definition of one price level within the *bids* or *asks* array of a
+[Book](#SchemaBook).
+
 **Kind**: static typedef of <code>Schema</code>  
 **Properties**
 
@@ -777,13 +788,13 @@ subscription (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumss
 | price | <code>number</code> | The price level. |
 | size | <code>number</code> | The quantity available at the price level. |
 
->The definition of one price level within the *bids* or *asks* array of a
-[Book](#SchemaBook).
-
 
 * * *
 
 ### Schema.VolumeLevel :id=schemavolumelevel
+>The definition of one price level within a [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume)
+object.
+
 **Kind**: static typedef of <code>Schema</code>  
 **Properties**
 
@@ -791,9 +802,6 @@ subscription (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumss
 | --- | --- | --- |
 | price | <code>number</code> | The price level. |
 | size | <code>number</code> | The aggregate quantity traded. |
-
->The definition of one price level within a [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume)
-object.
 
 
 * * *
