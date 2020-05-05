@@ -2059,9 +2059,9 @@ module.exports = (() => {
     };
   }
   /**
-   * This class is the **central component of the SDK**. It is responsible for connecting to
-   * Barchart's servers, maintaining market data subscriptions, and maintaining market
-   * state. The SDK consumer should use one instance at a time.
+   * The **central component of the SDK**. It is responsible for connecting to Barchart's
+   * servers, managing market data subscriptions, and maintaining market state. The
+   * SDK consumer should use one instance at a time.
    *
    * @public
    * @exported
@@ -4942,7 +4942,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.0.1'
+    version: '5.0.2'
   };
 })();
 
@@ -6563,7 +6563,7 @@ module.exports = (() => {
   types.futures.options.long = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i;
   types.futures.options.historical = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{2})([0-9]{1,5})(C|P)$/i;
   types.equities = {};
-  types.equities.options = /^([A-Z\$][A-Z\.\-]{0,})([0-9]?)\|([[0-9]{4})([[0-9]{2})([[0-9]{2})\|([0-9]+\.[0-9]+)[P|W]?(C|P)/i;
+  types.equities.options = /^([A-Z\$][A-Z\-]{0,})([0-9]?)(\.[A-Z]{2})?\|([[0-9]{4})([[0-9]{2})([[0-9]{2})\|([0-9]+\.[0-9]+)[P|W]?(C|P)/i;
   types.indicies = {};
   types.indicies.external = /^\$(.*)$/i;
   types.indicies.sector = /^\-(.*)$/i;
@@ -6627,15 +6627,16 @@ module.exports = (() => {
     const match = symbol.match(types.equities.options);
 
     if (match !== null) {
+      const suffix = typeof match[3] !== 'undefined' ? match[3] : '';
       definition = {};
       definition.symbol = symbol;
       definition.type = 'equity_option';
-      definition.option_type = match[7] === 'C' ? 'call' : 'put';
-      definition.strike = parseFloat(match[6]);
-      definition.root = match[1];
-      definition.month = parseInt(match[4]);
-      definition.day = parseInt(match[5]);
-      definition.year = parseInt(match[3]);
+      definition.option_type = match[8] === 'C' ? 'call' : 'put';
+      definition.strike = parseFloat(match[7]);
+      definition.root = `${match[1]}${suffix}`;
+      definition.month = parseInt(match[5]);
+      definition.day = parseInt(match[6]);
+      definition.year = parseInt(match[4]);
       definition.adjusted = match[2] !== '';
     }
 
