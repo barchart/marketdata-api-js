@@ -25,10 +25,6 @@ function getVersionForComponent() {
 	return getVersionFromPackage().split('.').slice(0, 2).join('.');
 }
 
-function preparePathForDocs(path) {
-	return `/content/sdk/${path}`.toLocaleLowerCase();
-}
-
 gulp.task('ensure-clean-working-directory', (cb) => {
 	gitStatus((err, status) => {
 		if (err, !status.clean) {
