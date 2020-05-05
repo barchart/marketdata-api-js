@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.0.2
+* Corrected parsing logic for equity option symbols where underlying listed on Toronto Stock Exchange.
+* Updated documentation format (particularly, the [SDK Reference](https://barchart.github.io/marketdata-api-js/#/content/sdk_reference) section).
+
 ## 5.0.1
 **Functionally identical to 4.1.1. Major version bumped in strict compliance with [semver](https://semver.org/) standards.**
 
