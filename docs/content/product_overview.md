@@ -1,3 +1,5 @@
+## Purpose
+
 **This SDK enables your JavaScript applications to consume real-time market data**, as follows:
 
 * A **WebSocket connection** is established between your application and Barchart's quote servers.
