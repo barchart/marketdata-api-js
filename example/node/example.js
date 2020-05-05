@@ -20,7 +20,7 @@ const startup = (() => {
 
 	const __logger = LoggerFactory.getLogger('@barchart/example');
 
-	__logger.log(`Example: Node.js example script started [ version ${version} ]`);
+	__logger.log(`Example: Node.js example script started, SDK version [ ${version} ]`);
 
 	let connection = null;
 	let adapterFactory = null;
