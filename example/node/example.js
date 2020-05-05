@@ -26,7 +26,7 @@ const startup = (() => {
 	let adapterFactory = null;
 
 	process.on('SIGINT', () => {
-		__logger.log('\nExample: Processing SIGINT');
+		__logger.log('Example: Processing SIGINT');
 
 		if (connection !== null) {
 			connection.disconnect();
