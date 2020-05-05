@@ -1,12 +1,16 @@
-.sidebar .app-name
-{
+.sidebar .app-name {
 	text-align: left;
-
 	margin-left: 15px;
 }
 
 .sidebar ul li {
 	font-size: 14px;
+	color: #505d6b;
+	font-weight: 400;
+	overflow: hidden;
+	text-decoration: none;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 h2#contents + ul p {
