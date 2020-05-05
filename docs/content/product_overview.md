@@ -8,7 +8,7 @@
 
 ## Market Data Catalog
 
-Barchart offers an exhaustive array of market data for multiple asset classes from exchanges around the world. Consult our website for more information.
+Barchart offers an exhaustive array of market data for multiple asset classes from exchanges around the world. Consult our website for more information:
 
 * [Barchart Market Data](https://www.barchart.com/solutions/data/market)
 * [Barchart Streaming Services](https://www.barchart.com/solutions/services/stream)
