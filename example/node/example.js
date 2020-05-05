@@ -38,7 +38,7 @@ const startup = (() => {
 	});
 
 	process.on('unhandledRejection', (error) => {
-		__logger.error('Unhandled Promise Rejection');
+		__logger.error('Unhandled Promise Rejection', error);
 		__logger.trace();
 	});
 
