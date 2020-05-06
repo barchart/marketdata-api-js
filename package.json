@@ -1,77 +1,77 @@
 {
-  "name": "@barchart/marketdata-api-js",
-  "version": "5.0.2",
-  "description": "SDK for streaming market data from Barchart.com",
-  "author": {
-	"name": "Eero Pikat",
-	"email": "eero.pikat@barchart.com",
-	"url": "http://www.barchart.com"
-  },
-  "contributors": [
-	{
-	  "name": "Mike Ehrenberg",
-	  "email": "mike.ehrenberg@barchart.com",
-	  "url": "http://www.barchart.com"
+	"name": "@barchart/marketdata-api-js",
+	"version": "5.0.2",
+	"description": "SDK for streaming market data from Barchart.com",
+	"author": {
+		"name": "Eero Pikat",
+		"email": "eero.pikat@barchart.com",
+		"url": "http://www.barchart.com"
 	},
-	{
-	  "name": "Bryan Ingle",
-	  "email": "bryan.ingle@barchart.com",
-	  "url": "http://www.barchart.com"
-	}
-  ],
-  "scripts": {
-	"test": "gulp test",
-	"watch": "gulp watch",
-	"docs": "barchart-documentation serve"
-  },
-  "repository": {
-	"type": "git",
-	"url": "git+ssh://github.com/barchart/marketdata-api-js.git"
-  },
-  "keywords": [
-	"Barchart",
-	"Market",
-	"Data",
-	"Realtime",
-	"Stocks",
-	"Futures",
-	"Forex"
-  ],
-  "dependencies": {
-	"@barchart/common-js": "^3.4.2",
-	"axios": "^0.19.2",
-	"ws": "7.0.1",
-	"xmldom": "0.1.27"
-  },
-  "devDependencies": {
-	"@babel/core": "^7.6.2",
-	"aws-sdk": "^2.546.0",
-	"babelify": "^10.0.0",
-	"browserify": "^16.5.0",
-	"git-get-status": "^1.0.5",
-	"glob": "^6.0.1",
-	"gulp": "^4.0.2",
-	"gulp-awspublish": "^4.0.0",
-	"gulp-bump": "~1.0.0",
-	"gulp-git": "^2.5.1",
-	"gulp-jasmine": "^2.2.1",
-	"gulp-jshint": "~2.1.0",
-	"gulp-prompt": "^1.2.0",
-	"gulp-rename": "^1.4.0",
-	"gulp-replace": "^0.5.4",
-	"jshint": "2.9.5",
-	"log4js": "^4.4.0",
-	"merge-stream": "^2.0.0",
-	"vinyl-buffer": "^1.0.1",
-	"vinyl-source-stream": "^2.0.0"
-  },
-  "browserify": {
-	"transform": [
-	  [
-		"babelify"
-	  ]
-	]
-  },
-  "license": "MIT",
-  "private": false
+	"contributors": [
+		{
+			"name": "Mike Ehrenberg",
+			"email": "mike.ehrenberg@barchart.com",
+			"url": "http://www.barchart.com"
+		},
+		{
+			"name": "Bryan Ingle",
+			"email": "bryan.ingle@barchart.com",
+			"url": "http://www.barchart.com"
+		}
+	],
+	"scripts": {
+		"test": "gulp test",
+		"watch": "gulp watch",
+		"docs": "barchart-documentation serve"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+ssh://github.com/barchart/marketdata-api-js.git"
+	},
+	"keywords": [
+		"Barchart",
+		"Market",
+		"Data",
+		"Realtime",
+		"Stocks",
+		"Futures",
+		"Forex"
+	],
+	"dependencies": {
+		"@barchart/common-js": "^3.4.2",
+		"axios": "^0.19.2",
+		"ws": "7.0.1",
+		"xmldom": "0.1.27"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.6.2",
+		"aws-sdk": "^2.546.0",
+		"babelify": "^10.0.0",
+		"browserify": "^16.5.0",
+		"git-get-status": "^1.0.5",
+		"glob": "^6.0.1",
+		"gulp": "^4.0.2",
+		"gulp-awspublish": "^4.0.0",
+		"gulp-bump": "~1.0.0",
+		"gulp-git": "^2.5.1",
+		"gulp-jasmine": "^2.2.1",
+		"gulp-jshint": "~2.1.0",
+		"gulp-prompt": "^1.2.0",
+		"gulp-rename": "^1.4.0",
+		"gulp-replace": "^0.5.4",
+		"jshint": "2.9.5",
+		"log4js": "^4.4.0",
+		"merge-stream": "^2.0.0",
+		"vinyl-buffer": "^1.0.1",
+		"vinyl-source-stream": "^2.0.0"
+	},
+	"browserify": {
+		"transform": [
+			[
+				"babelify"
+			]
+		]
+	},
+	"license": "MIT",
+	"private": false
 }
