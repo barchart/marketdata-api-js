@@ -483,6 +483,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * [Quote](#Quote)
     * _instance_
         * [.symbol](#Quotesymbol)
+        * [.profile](#Quoteprofile)
         * [.message](#Quotemessage)
         * [.flag](#Quoteflag)
         * [.mode](#Quotemode)
@@ -504,7 +505,6 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
         * [.previousPrice](#QuotepreviousPrice)
         * [.time](#Quotetime)
         * [.timeUtc](#QuotetimeUtc)
-        * [.profile](#Quoteprofile)
 
 
 * * *
@@ -518,6 +518,19 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 | Name | Type | Description |
 | --- | --- | --- |
 | symbol | <code>string</code> | Symbol of the quoted instrument. |
+
+
+* * *
+
+### quote.profile :id=quoteprofile
+**Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| profile | <code>Profile</code> \| <code>null</code> | Metadata regarding the quoted instrument. |
 
 
 * * *
@@ -791,19 +804,6 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 | Name | Type | Description |
 | --- | --- | --- |
 | time | <code>Date</code> \| <code>null</code> | A timezone-aware version of [time](#Quotetime). This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known. |
-
-
-* * *
-
-### quote.profile :id=quoteprofile
-**Kind**: instance property of <code>Quote</code>  
-**Access**: public  
-**Read only**: true  
-**Properties**
-
-| Name | Type | Description |
-| --- | --- | --- |
-| profile | <code>Profile</code> \| <code>null</code> | Metadata regarding the quoted instrument. |
 
 
 * * *
