@@ -634,7 +634,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 | Name | Type | Description |
 | --- | --- | --- |
-| bidPrice | <code>number</code> | top-of-book price on the buy side. |
+| bidPrice | <code>number</code> | The top-of-book price on the buy side. |
 
 
 * * *
@@ -647,7 +647,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 | Name | Type | Description |
 | --- | --- | --- |
-| bidSize | <code>number</code> | top-of-book quantity on the buy side. |
+| bidSize | <code>number</code> | The top-of-book quantity on the buy side. |
 
 
 * * *
@@ -660,7 +660,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 | Name | Type | Description |
 | --- | --- | --- |
-| askPrice | <code>number</code> | top-of-book price on the sell side. |
+| askPrice | <code>number</code> | The top-of-book price on the sell side. |
 
 
 * * *
@@ -673,7 +673,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 | Name | Type | Description |
 | --- | --- | --- |
-| askSize | <code>number</code> | top-of-book quantity on the sell side. |
+| askSize | <code>number</code> | The top-of-book quantity on the sell side. |
 
 
 * * *
@@ -686,7 +686,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 | Name | Type | Description |
 | --- | --- | --- |
-| lastPrice | <code>number</code> | most recent price (not necessarily a trade). |
+| lastPrice | <code>number</code> | Most recent price (not necessarily a trade). |
 
 
 * * *
@@ -699,7 +699,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 | Name | Type | Description |
 | --- | --- | --- |
-| tradePrice | <code>number</code> | most recent trade price. |
+| tradePrice | <code>number</code> | Most recent trade price. |
 
 
 * * *
@@ -712,7 +712,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 | Name | Type | Description |
 | --- | --- | --- |
-| tradeSize | <code>number</code> | most recent trade quantity. |
+| tradeSize | <code>number</code> | Most recent trade quantity. |
 
 
 * * *
@@ -738,7 +738,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 | Name | Type | Description |
 | --- | --- | --- |
-| settlementPrice | <code>number</code> | settlement price for current trading session. |
+| settlementPrice | <code>number</code> | Settlement price for current trading session. |
 
 
 * * *
@@ -751,7 +751,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 | Name | Type | Description |
 | --- | --- | --- |
-| previousSettlementPrice | <code>number</code> | settlement price from previous trading session. |
+| previousSettlementPrice | <code>number</code> | Settlement price from previous trading session. |
 
 
 * * *
@@ -764,7 +764,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 | Name | Type | Description |
 | --- | --- | --- |
-| previousPrice | <code>number</code> | last price from the previous trading session. |
+| previousPrice | <code>number</code> | The last price from the previous trading session. |
 
 
 * * *
@@ -803,7 +803,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 | Name | Type | Description |
 | --- | --- | --- |
-| profile | <code>Profile</code> \| <code>null</code> | metadata regarding the quoted instrument. |
+| profile | <code>Profile</code> \| <code>null</code> | Metadata regarding the quoted instrument. |
 
 
 * * *
