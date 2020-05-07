@@ -34,7 +34,7 @@ Notice ```MarketState.getProfile``` returns asynchronously -- this allows the SD
 
 ## Quotes
 
-After the server acknowledges a ```SubscriptionType.MarketUpdate``` subscription, a [```lib/marketState/Quote```](/content/sdk/lib-marketstate?id=marketstate) instance is created. With each new message received, the ```Quote``` instance is updated.
+After the server acknowledges a ```SubscriptionType.MarketUpdate``` subscription, a [```lib/marketState/Quote```](/content/sdk/lib-marketstate?id=quote) instance is created. With each new message received, the ```Quote``` instance is updated.
 
 The ```Quote``` contains the following types of information:
 
