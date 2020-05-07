@@ -18,7 +18,7 @@
 ## CumulativeVolume :id=cumulativevolume
 >An aggregation of the total volume traded at each price level for a
 single instrument, mutates as **CumulativeVolume** subscription updates
-are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
+are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=enumssubscriptiontype)).
 
 **Kind**: global class  
 **Access**: public  
@@ -63,7 +63,7 @@ are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enums
 
 ### cumulativeVolume.toArray() :id=cumulativevolumetoarray
 >Returns an array of all price levels. This is an expensive operation. Observing
-an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-connection?id=connectionon)).
+an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=connectionon)).
 
 **Kind**: instance method of <code>CumulativeVolume</code>  
 **Returns**: [<code>Array.&lt;VolumeLevel&gt;</code>](#SchemaVolumeLevel)  
@@ -171,9 +171,9 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-conne
 ## MarketState :id=marketstate
 >Repository for current market state. This repository will only contain
 data for an symbol after a subscription has been established using
-the [Connection#on](/content/sdk/lib-connection?id=connectionon) function.
+the [Connection#on](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=connectionon) function.
 
-Access the singleton instance using the [Connection#getMarketState](/content/sdk/lib-connection?id=connectiongetmarketstate)
+Access the singleton instance using the [Connection#getMarketState](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=connectiongetmarketstate)
 function.
 
 **Kind**: global class  
@@ -210,7 +210,7 @@ function.
 ### marketState.getQuote(symbol) :id=marketstategetquote
 >Synchronously returns the [Quote](/content/sdk/lib-marketstate?id=quote) instance for a symbol. If no **MarketUpdate**
 subscription has been established for the symbol, an undefined value will be returned
-(see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
+(see [Enums.SubscriptionType](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=enumssubscriptiontype)).
 
 **Kind**: instance method of <code>MarketState</code>  
 **Returns**: <code>Quote</code> \| <code>undefined</code>  
@@ -226,7 +226,7 @@ subscription has been established for the symbol, an undefined value will be ret
 ### marketState.getBook(symbol) :id=marketstategetbook
 >Synchronously returns a [Book](Book) object for a symbol. If no **MarketDepth**
 subscription has been established for the symbol, an undefined value will be returned
-(see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
+(see [Enums.SubscriptionType](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=enumssubscriptiontype)).
 
 **Kind**: instance method of <code>MarketState</code>  
 **Returns**: [<code>Book</code>](#SchemaBook) \| <code>undefined</code>  
@@ -242,7 +242,7 @@ subscription has been established for the symbol, an undefined value will be ret
 ### marketState.getCumulativeVolume(symbol, [callback]) :id=marketstategetcumulativevolume
 >Returns a promise for the [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) volume instance matching the symbol
 provided. The promise will not be fulfilled until a **CumulativeVolume** subscription
-has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
+has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=enumssubscriptiontype)).
 
 **Kind**: instance method of <code>MarketState</code>  
 **Returns**: <code>Promise.&lt;CumulativeVolume&gt;</code> - The [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) instance, as a promise  
@@ -473,7 +473,7 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 
 ## Quote :id=quote
 >Current market conditions for an instrument, mutates as **MarketUpdate**
-subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
+subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=enumssubscriptiontype)).
 
 **Kind**: global class  
 **Access**: public  
@@ -500,6 +500,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
         * [.tradeSize](#QuotetradeSize)
         * [.blockTrade](#QuoteblockTrade)
         * [.settlementPrice](#QuotesettlementPrice)
+        * [.previousSettlementPrice](#QuotepreviousSettlementPrice)
         * [.previousPrice](#QuotepreviousPrice)
         * [.time](#Quotetime)
         * [.profile](#Quoteprofile)
@@ -705,9 +706,20 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 **Kind**: instance property of <code>Quote</code>  
 **Properties**
 
-| Name | Type |
-| --- | --- |
-| settlementPrice | <code>number</code> | 
+| Name | Type | Description |
+| --- | --- | --- |
+| settlementPrice | <code>number</code> | settlement price for current trading session. |
+
+
+* * *
+
+### quote.previousSettlementPrice :id=quoteprevioussettlementprice
+**Kind**: instance property of <code>Quote</code>  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| previousSettlementPrice | <code>number</code> | settlement price from previous trading session. |
 
 
 * * *
@@ -718,7 +730,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 | Name | Type | Description |
 | --- | --- | --- |
-| previousPrice | <code>number</code> | price from the previous session. |
+| previousPrice | <code>number</code> | last price from the previous trading session. |
 
 
 * * *
@@ -762,7 +774,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 ### Schema.Book :id=schemabook
 >This object represents an aggregated order book. In other words, the total size
 of all orders (bid and ask) at every price. Constructed from **MarketDepth**
-subscription (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
+subscription (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=enumssubscriptiontype)).
 
 **Kind**: static typedef of <code>Schema</code>  
 **Properties**

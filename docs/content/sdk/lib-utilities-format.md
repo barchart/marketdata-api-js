@@ -73,7 +73,7 @@ mode and "9-4" in fractional mode.
 * * *
 
 ### Functions.formatQuoteDateTime(quote, [useTwelveHourClock], [short], [timezone]) :id=functionsformatquotedatetime
->Returns a string-formatted date (or time), based on a [Quote](/content/sdk/lib-marketstate?id=quote) instance's
+>Returns a string-formatted date (or time), based on a [Quote](/content/sdk/lib-marketstate?id=/content/sdk/lib-marketstate?id=quote) instance's
 state. If the market is open, and a trade has occurred, then the formatted time
 is returned. Otherwise, the formatted date is returned.
 
@@ -84,7 +84,7 @@ is returned. Otherwise, the formatted date is returned.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| quote | <code>Quote</code> |  |
+| quote | [<code>Quote</code>](/content/sdk/lib-marketstate?id=quote) |  |
 | [useTwelveHourClock] | <code>Boolean</code> |  |
 | [short] | <code>Boolean</code> |  |
 | [timezone] | <code>String</code> | A name from the tz database (see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) or "EXCHANGE" |

@@ -34,7 +34,7 @@ SDK consumer should use one instance at a time.
         * [.getPollingFrequency()](#ConnectiongetPollingFrequency) ⇒ <code>number</code> \| <code>null</code>
         * [.setExtendedProfileMode(mode)](#ConnectionsetExtendedProfileMode)
         * [.getExtendedProfileMode()](#ConnectiongetExtendedProfileMode) ⇒ <code>boolean</code>
-        * [.getMarketState()](#ConnectiongetMarketState) ⇒ <code>MarketState</code>
+        * [.getMarketState()](#ConnectiongetMarketState) ⇒ [<code>MarketState</code>](/content/sdk/lib-marketstate?id=marketstate)
         * [.getServer()](#ConnectiongetServer) ⇒ <code>null</code> \| <code>string</code>
         * [.getPassword()](#ConnectiongetPassword) ⇒ <code>null</code> \| <code>string</code>
         * [.getUsername()](#ConnectiongetUsername) ⇒ <code>null</code> \| <code>string</code>
@@ -56,7 +56,7 @@ or failure is reported asynchronously by the **Events** subscription (see
 | server | <code>string</code> | Barchart hostname (contact solutions@barchart.com) |
 | username | <code>string</code> | Your username (contact solutions@barchart.com) |
 | password | <code>string</code> | Your password (contact solutions@barchart.com) |
-| [webSocketAdapterFactory] | <code>WebSocketAdapterFactory</code> | Strategy for creating a WebSocket (required for Node.js) |
+| [webSocketAdapterFactory] | [<code>WebSocketAdapterFactory</code>](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) | Strategy for creating a WebSocket (required for Node.js) |
 
 
 * * *
@@ -156,7 +156,7 @@ a null value will be returned.
 
 ### connection.setExtendedProfileMode(mode) :id=connectionsetextendedprofilemode
 >When set to true, additional properties properties become
-available on [Profile](/content/sdk/lib-marketstate?id=profile) instances (e.g. future contract
+available on [Profile](/content/sdk/lib-marketstate?id=/content/sdk/lib-marketstate?id=profile) instances (e.g. future contract
 expiration date). This is accomplished by making additional
 out-of-band queries to Barchart services.
 
@@ -172,7 +172,7 @@ out-of-band queries to Barchart services.
 * * *
 
 ### connection.getExtendedProfileMode() :id=connectiongetextendedprofilemode
->Indicates if additional [Profile](/content/sdk/lib-marketstate?id=profile) data (e.g. future contract
+>Indicates if additional [Profile](/content/sdk/lib-marketstate?id=/content/sdk/lib-marketstate?id=profile) data (e.g. future contract
 expiration dates) should be loaded (via out-of-band queries).
 
 **Kind**: instance method of <code>Connection</code>  
@@ -183,13 +183,13 @@ expiration dates) should be loaded (via out-of-band queries).
 * * *
 
 ### connection.getMarketState() :id=connectiongetmarketstate
->Returns the [MarketState](/content/sdk/lib-marketstate?id=marketstate) singleton -- which can be used to access
-[Quote](/content/sdk/lib-marketstate?id=quote), [Profile](/content/sdk/lib-marketstate?id=profile), and [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) instances
+>Returns the [MarketState](/content/sdk/lib-marketstate?id=/content/sdk/lib-marketstate?id=marketstate) singleton -- which can be used to access
+[Quote](/content/sdk/lib-marketstate?id=/content/sdk/lib-marketstate?id=quote), [Profile](/content/sdk/lib-marketstate?id=/content/sdk/lib-marketstate?id=profile), and [CumulativeVolume](/content/sdk/lib-marketstate?id=/content/sdk/lib-marketstate?id=cumulativevolume) instances
 for any symbol subscribed symbol.
 
 **Kind**: instance method of <code>Connection</code>  
 **Overrides**: <code>ConnectionBase#getMarketState</code>  
-**Returns**: <code>MarketState</code>  
+**Returns**: [<code>MarketState</code>](/content/sdk/lib-marketstate?id=marketstate)  
 **Access**: public  
 
 * * *
@@ -397,7 +397,7 @@ for any symbol subscribed symbol.
 
 ### Schema.MarketUpdateEvent :id=schemamarketupdateevent
 >The object passed to a [MarketUpdateCallback](#CallbacksMarketUpdateCallback). This object
-represents a change to the [Quote](/content/sdk/lib-marketstate?id=quote) state. It could be a trade, a
+represents a change to the [Quote](/content/sdk/lib-marketstate?id=/content/sdk/lib-marketstate?id=quote) state. It could be a trade, a
 change to the top of book, etc.
 
 **Kind**: static typedef of <code>Schema</code>  
@@ -452,7 +452,7 @@ every price.
 | Name | Type | Description |
 | --- | --- | --- |
 | event | <code>String</code> | Either "update" or "reset". |
-| container | <code>CumulativeVolume</code> | Complete cumulative volume state. |
+| container | [<code>CumulativeVolume</code>](/content/sdk/lib-marketstate?id=cumulativevolume) | Complete cumulative volume state. |
 | [price] | <code>number</code> | The price level (for "update" events only). |
 | [volume] | <code>number</code> | The  new aggregate volume (for "update" events only). |
 

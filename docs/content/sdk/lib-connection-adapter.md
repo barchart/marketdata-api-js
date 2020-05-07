@@ -50,7 +50,7 @@ instances. It is unlikely that SDK consumers will need to implement this class.
 
 ## WebSocketAdapterFactoryForBrowsers :id=websocketadapterfactoryforbrowsers
 >An implementation of [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) for use with web browsers. By default,
-this strategy is used by the [Connection](/content/sdk/lib-connection?id=connection) class.
+this strategy is used by the [Connection](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=connection) class.
 
 **Kind**: global class  
 **Extends**: <code>WebSocketAdapterFactory</code>  
