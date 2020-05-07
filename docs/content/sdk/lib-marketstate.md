@@ -485,7 +485,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
         * [.symbol](#Quotesymbol)
         * [.message](#Quotemessage)
         * [.flag](#Quoteflag)
-        * [.mode](#Quotemode) : <code>null</code>
+        * [.mode](#Quotemode)
         * [.day](#Quoteday)
         * [.dayNum](#QuotedayNum)
         * [.session](#Quotesession)
@@ -546,6 +546,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 ### quote.mode :id=quotemode
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
 **Properties**
 
 | Type | Description |
