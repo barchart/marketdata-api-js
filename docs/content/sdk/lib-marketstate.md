@@ -503,6 +503,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
         * [.previousSettlementPrice](#QuotepreviousSettlementPrice)
         * [.previousPrice](#QuotepreviousPrice)
         * [.time](#Quotetime)
+        * [.timeUtc](#QuotetimeUtc)
         * [.profile](#Quoteprofile)
 
 
@@ -511,6 +512,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 ### quote.symbol :id=quotesymbol
 **Kind**: instance property of <code>Quote</code>  
 **Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -523,6 +525,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 ### quote.message :id=quotemessage
 **Kind**: instance property of <code>Quote</code>  
 **Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -535,6 +538,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 ### quote.flag :id=quoteflag
 **Kind**: instance property of <code>Quote</code>  
 **Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -547,6 +551,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 ### quote.mode :id=quotemode
 **Kind**: instance property of <code>Quote</code>  
 **Access**: public  
+**Read only**: true  
 **Properties**
 
 | Type | Description |
@@ -559,6 +564,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 ### quote.day :id=quoteday
 **Kind**: instance property of <code>Quote</code>  
 **Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -571,6 +577,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 ### quote.dayNum :id=quotedaynum
 **Kind**: instance property of <code>Quote</code>  
 **Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -583,6 +590,7 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 ### quote.session :id=quotesession
 **Kind**: instance property of <code>Quote</code>  
 **Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type |
@@ -595,28 +603,33 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 ### quote.lastUpdate :id=quotelastupdate
 **Kind**: instance property of <code>Quote</code>  
 **Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| lastUpdate | <code>Date</code> \| <code>null</code> | The most recent refresh date. Caution should be used. This date was created from hours, minutes, and seconds without regard for the current machine's timezone. As such, it is only safe to read time-related values (e.g. ```Date.getHours```, ```Date.getMinutes```, etc). Do not attempt to compare. Do not attempt to convert. |
+| lastUpdate | <code>Date</code> \| <code>null</code> | The most recent refresh date. Caution should be used. This date was created from hours, minutes, and seconds without regard for the client computer's timezone. As such, it is only safe to read time-related values (e.g. ```Date.getHours```, ```Date.getMinutes```, etc). Do not attempt to compare. Do not attempt to convert. |
 
 
 * * *
 
 ### quote.lastUpdateUtc :id=quotelastupdateutc
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| lastUpdate | <code>Date</code> \| <code>null</code> | The most recent refresh date. |
+| time | <code>Date</code> \| <code>null</code> | A timezone-aware version of [lastUpdate](#QuotelastUpdate). This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known. |
 
 
 * * *
 
 ### quote.bidPrice :id=quotebidprice
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -628,6 +641,8 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 ### quote.bidSize :id=quotebidsize
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -639,6 +654,8 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 ### quote.askPrice :id=quoteaskprice
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -650,6 +667,8 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 ### quote.askSize :id=quoteasksize
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -661,6 +680,8 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 ### quote.lastPrice :id=quotelastprice
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -672,6 +693,8 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 ### quote.tradePrice :id=quotetradeprice
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -683,6 +706,8 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 ### quote.tradeSize :id=quotetradesize
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -694,6 +719,8 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 ### quote.blockTrade :id=quoteblocktrade
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -705,6 +732,8 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 ### quote.settlementPrice :id=quotesettlementprice
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -716,6 +745,8 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 ### quote.previousSettlementPrice :id=quoteprevioussettlementprice
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -727,6 +758,8 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 ### quote.previousPrice :id=quotepreviousprice
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -738,17 +771,34 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 
 ### quote.time :id=quotetime
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| time | <code>Date</code> \| <code>null</code> | the most recent trade, quote, or refresh. this date instance stores the hours and minutes for the exchange time (without proper timezone adjustment). use caution. |
+| time | <code>Date</code> \| <code>null</code> | The most recent trade, quote, or refresh time. Caution should be used. This date was created from hours, minutes, and seconds without regard for the client computer's timezone. As such, it is only safe to read time-related values (e.g. ```Date.getHours```, ```Date.getMinutes```, etc). Do not attempt to compare. Do not attempt to convert. |
+
+
+* * *
+
+### quote.timeUtc :id=quotetimeutc
+**Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| time | <code>Date</code> \| <code>null</code> | A timezone-aware version of [time](#Quotetime). This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known. |
 
 
 * * *
 
 ### quote.profile :id=quoteprofile
 **Kind**: instance property of <code>Quote</code>  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
