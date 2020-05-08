@@ -89,7 +89,7 @@ Two sample applications were built with this SDK. They could provide some insigh
 
 ### Web Browsers
 
-A single-page HTML application allows users to enter symbols, subscribe to Level I data, unsubscribe from to Level I data, and observe data changes on screen.
+A single-page HTML application allows you to enter symbols, subscribe to Level I data, unsubscribe from to Level I data, and observe data changes on screen.
 
 You can find the source code here:
 
