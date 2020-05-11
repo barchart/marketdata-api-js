@@ -4995,7 +4995,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.0.3'
+    version: '5.1.1'
   };
 })();
 
