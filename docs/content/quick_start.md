@@ -1,12 +1,12 @@
 ## Setup
 
-This SDK has been published to the Node Package Manager (NPM). The package is named *@barchart/marketdata-api-js*; install as follows:
+This SDK is a public package on NPM (Node Package Manager). It can be installed as follows:
 
 ```shell
 npm install @barchart/marketdata-api-js -S
 ```
 
-If you aren't using NPM, you can download the SDK directly from GitHub at https://github.com/barchart/marketdata-api-js.
+Alternately, you can download the SDK directly from GitHub at https://github.com/barchart/marketdata-api-js.
 
 ## Connecting
 
