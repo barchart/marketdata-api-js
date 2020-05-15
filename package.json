@@ -59,7 +59,7 @@
 		"gulp-prompt": "^1.2.0",
 		"gulp-rename": "^1.4.0",
 		"gulp-replace": "^0.5.4",
-	  	"jshint": "^2.10.3",
+		"jshint": "^2.10.3",
 		"log4js": "^4.4.0",
 		"merge-stream": "^2.0.0",
 		"vinyl-buffer": "^1.0.1",
