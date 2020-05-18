@@ -5,18 +5,18 @@
 	"author": {
 		"name": "Eero Pikat",
 		"email": "eero.pikat@barchart.com",
-		"url": "http://www.barchart.com"
+		"url": "https://www.barchart.com"
 	},
 	"contributors": [
 		{
 			"name": "Mike Ehrenberg",
 			"email": "mike.ehrenberg@barchart.com",
-			"url": "http://www.barchart.com"
+			"url": "https://www.barchart.com"
 		},
 		{
 			"name": "Bryan Ingle",
 			"email": "bryan.ingle@barchart.com",
-			"url": "http://www.barchart.com"
+			"url": "https://www.barchart.com"
 		}
 	],
 	"scripts": {
