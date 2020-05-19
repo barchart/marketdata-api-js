@@ -1113,7 +1113,7 @@ module.exports = (() => {
     }
     /**
      * Enqueues a request to retrieve a profile.
-     * 
+     *
      * @private
      * @param {String} symbol
      */
@@ -1225,8 +1225,8 @@ module.exports = (() => {
 
     /**
      * Processes a single inbound message from the network. Any message pertaining
-     * to the authentication handshake is intercepted and handled synchronously. 
-     * Any message pertaining to market state is placed onto another queue for 
+     * to the authentication handshake is intercepted and handled synchronously.
+     * Any message pertaining to market state is placed onto another queue for
      * asynchronous processing.
      *
      * @private
@@ -1313,7 +1313,7 @@ module.exports = (() => {
     /**
      * The first stage of inbound message processing. A raw DDF message is converted to
      * its object representation and passed to the "processMarketMessage" function.
-     * 
+     *
      * @private
      * @param {String} message
      */
@@ -1546,7 +1546,7 @@ module.exports = (() => {
     /**
      * Used in "polling" mode. The task queue is ignored. However, JERQ formatted command
      * strings, requesting snapshot updates from JERQ, are generated for all existing
-     * symbol subscriptions and placed onto a queue for asynchronous processing. Also, 
+     * symbol subscriptions and placed onto a queue for asynchronous processing. Also,
      * for any symbol not supported by JERQ, out-of-band snapshot requests are made.
      *
      * @private
@@ -1579,7 +1579,7 @@ module.exports = (() => {
     /**
      * Used in "streaming" mode. The task queue is drained and JERQ formatted command
      * strings are generated for each task. These commands placed onto a queue for
-     * asynchronous transmission to JERQ. Also, for any symbol not supported by JERQ, 
+     * asynchronous transmission to JERQ. Also, for any symbol not supported by JERQ,
      * out-of-band snapshot requests are made.
      *
      * @private
@@ -2650,7 +2650,7 @@ module.exports = (() => {
   }
   /**
    * A {@link WebSocketAdapter} for use with web browsers.
-   * 
+   *
    * @private
    * @extends {WebSocketAdapter}
    */
@@ -4995,7 +4995,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.1.1'
+    version: '5.1.2'
   };
 })();
 
@@ -5900,7 +5900,7 @@ module.exports = (() => {
    * Parses a DDF message, returning a JavaScript object representing the
    * content of the message.
    *
-    * @exported
+   * @exported
    * @function
    * @param {String} msg
    * @returns {Object}

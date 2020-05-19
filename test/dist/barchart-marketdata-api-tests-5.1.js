@@ -1544,7 +1544,7 @@ module.exports = (() => {
   /**
    * Formats a string (by capitalizing it). If anything other than a string
    * is passed, the argument is returned without modification.
-   * 
+   *
    * @exported
    * @function
    * @memberOf Functions
@@ -1755,7 +1755,7 @@ module.exports = (() => {
    * Parses a DDF message, returning a JavaScript object representing the
    * content of the message.
    *
-    * @exported
+   * @exported
    * @function
    * @param {String} msg
    * @returns {Object}
