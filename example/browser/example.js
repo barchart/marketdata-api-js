@@ -2882,6 +2882,8 @@ const convertDateToDayCode = require('../../../utilities/convert/dateToDayCode')
       convertDayCodeToNumber = require('../../../utilities/convert/dayCodeToNumber'),
       convertBaseCodeToUnitCode = require('../../../utilities/convert/baseCodeToUnitCode');
 
+const LoggerFactory = require('./../../../logging/LoggerFactory');
+
 module.exports = (() => {
   'use strict';
 
@@ -2899,6 +2901,7 @@ module.exports = (() => {
   regex.c3.currencies.rub = /^(RUB)\/(.*)$/i;
   regex.c3.currencies.uah = /^(UAH)\/(.*)$/i;
   regex.c3.currencies.usd = /^(USD|Usc|\$|)\/(.*)$/i;
+  let logger = null;
   /**
    * Executes an HTTP request for a quote snapshot(s) and returns a
    * promise of quote refresh message(s) (suitable for processing by
@@ -2915,6 +2918,10 @@ module.exports = (() => {
 
   function retrieveSnapshots(symbols, username, password) {
     return Promise.resolve().then(() => {
+      if (logger === null) {
+        logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
+      }
+
       let symbolsToUse;
 
       if (is.string(symbols)) {
@@ -2991,67 +2998,73 @@ module.exports = (() => {
       };
       return Promise.resolve(axios(options)).then(response => {
         const results = response.data.results || [];
-        const messages = results.map(result => {
-          const message = {};
-          message.type = 'REFRESH_QUOTE';
-          message.symbol = result.symbol.toUpperCase();
-          message.name = result.name;
-          message.exchange = result.exchange;
+        const messages = results.reduce((accumulator, result) => {
+          try {
+            const message = {};
+            message.type = 'REFRESH_QUOTE';
+            message.symbol = result.symbol.toUpperCase();
+            message.name = result.name;
+            message.exchange = result.exchange;
 
-          if (result.unitCode !== null) {
-            message.unitcode = convertBaseCodeToUnitCode(parseInt(result.unitCode));
-          } else {
-            message.unitcode = '2';
-          }
-
-          message.tradeTime = new Date(result.tradeTimestamp);
-          let dayCode;
-
-          if (is.string(result.dayCode) && result.dayCode.length === 1) {
-            dayCode = result.dayCode;
-          } else {
-            dayCode = convertDateToDayCode(message.tradeTime);
-          }
-
-          message.day = dayCode;
-          message.dayNum = convertDayCodeToNumber(dayCode);
-          message.flag = result.flag;
-          message.mode = result.mode;
-          message.lastPrice = result.lastPrice;
-          message.tradeSize = result.tradeSize;
-          message.numberOfTrades = result.numTrades;
-          message.bidPrice = result.bid;
-          message.bidSize = result.bidSize;
-          message.askPrice = result.ask;
-          message.askSize = result.askSize;
-          message.settlementPrice = result.settlement;
-          message.previousPrice = result.previousLastPrice;
-          message.openPrice = result.open;
-          message.highPrice = result.high;
-          message.lowPrice = result.low;
-          message.volume = result.volume;
-          message.lastUpdate = message.tradeTime;
-
-          if (regex.c3.symbol.test(message.symbol)) {
-            const c3 = {};
-            c3.currency = null;
-            c3.delivery = null;
-
-            if (result.commodityDataCurrency) {
-              c3.currency = getC3Currency(result.commodityDataCurrency);
+            if (result.unitCode !== null) {
+              message.unitcode = convertBaseCodeToUnitCode(parseInt(result.unitCode));
+            } else {
+              message.unitcode = '2';
             }
 
-            if (result.commodityDataDelivery) {
-              c3.delivery = result.commodityDataDelivery;
+            message.tradeTime = new Date(result.tradeTimestamp);
+            let dayCode;
+
+            if (is.string(result.dayCode) && result.dayCode.length === 1) {
+              dayCode = result.dayCode;
+            } else {
+              dayCode = convertDateToDayCode(message.tradeTime);
             }
 
-            message.additional = {
-              c3: c3
-            };
+            message.day = dayCode;
+            message.dayNum = convertDayCodeToNumber(dayCode);
+            message.flag = result.flag;
+            message.mode = result.mode;
+            message.lastPrice = result.lastPrice;
+            message.tradeSize = result.tradeSize;
+            message.numberOfTrades = result.numTrades;
+            message.bidPrice = result.bid;
+            message.bidSize = result.bidSize;
+            message.askPrice = result.ask;
+            message.askSize = result.askSize;
+            message.settlementPrice = result.settlement;
+            message.previousPrice = result.previousLastPrice;
+            message.openPrice = result.open;
+            message.highPrice = result.high;
+            message.lowPrice = result.low;
+            message.volume = result.volume;
+            message.lastUpdate = message.tradeTime;
+
+            if (regex.c3.symbol.test(message.symbol)) {
+              const c3 = {};
+              c3.currency = null;
+              c3.delivery = null;
+
+              if (result.commodityDataCurrency) {
+                c3.currency = getC3Currency(result.commodityDataCurrency);
+              }
+
+              if (result.commodityDataDelivery) {
+                c3.delivery = result.commodityDataDelivery;
+              }
+
+              message.additional = {
+                c3: c3
+              };
+            }
+
+            accumulator.push(message);
+          } catch (e) {
+            logger.warn(`Snapshot: Failed to process for symbol`);
           }
 
-          return message;
-        });
+          return accumulator;
+        }, []);
         return messages;
       });
     });
@@ -3066,37 +3079,42 @@ module.exports = (() => {
       return Promise.resolve(axios(options)).then(response => {
         const results = response.data.results || [];
         const messages = symbols.reduce((accumulator, symbol) => {
-          const result = results.find(result => result.symbol === symbol || result.shortSymbol === symbol);
+          try {
+            const result = results.find(result => result.symbol === symbol || result.shortSymbol === symbol);
 
-          if (!result) {
-            return accumulator;
+            if (!result) {
+              return accumulator;
+            }
+
+            const match = result.tradeTimestamp.match(regex.day);
+            const date = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
+            const dayCode = convertDateToDayCode(date);
+            const message = {};
+            message.type = 'REFRESH_QUOTE';
+
+            if (regex.cmdty.long.test(symbol)) {
+              message.symbol = result.symbol.toUpperCase();
+            } else {
+              message.symbol = result.shortSymbol.toUpperCase();
+            }
+
+            message.name = result.shortName;
+            message.exchange = 'CSTATS';
+            message.unitcode = '2';
+            message.day = dayCode;
+            message.dayNum = convertDayCodeToNumber(dayCode);
+            message.lastPrice = result.lastPrice;
+
+            if (result.previousClose) {
+              message.previousPrice = result.previousClose;
+            }
+
+            message.lastUpdate = date;
+            accumulator.push(message);
+          } catch (e) {
+            logger.warn(`Snapshot: Failed to process response for cmdtyStats symbol [ ${symbol} ]`);
           }
 
-          const match = result.tradeTimestamp.match(regex.day);
-          const date = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
-          const dayCode = convertDateToDayCode(date);
-          const message = {};
-          message.type = 'REFRESH_QUOTE';
-
-          if (regex.cmdty.long.test(symbol)) {
-            message.symbol = result.symbol.toUpperCase();
-          } else {
-            message.symbol = result.shortSymbol.toUpperCase();
-          }
-
-          message.name = result.shortName;
-          message.exchange = 'CSTATS';
-          message.unitcode = '2';
-          message.day = dayCode;
-          message.dayNum = convertDayCodeToNumber(dayCode);
-          message.lastPrice = result.lastPrice;
-
-          if (result.previousClose) {
-            message.previousPrice = result.previousClose;
-          }
-
-          message.lastUpdate = date;
-          accumulator.push(message);
           return accumulator;
         }, []);
         return messages;
@@ -3131,7 +3149,7 @@ module.exports = (() => {
   return retrieveSnapshots;
 })();
 
-},{"../../../utilities/convert/baseCodeToUnitCode":20,"../../../utilities/convert/dateToDayCode":21,"../../../utilities/convert/dayCodeToNumber":22,"@barchart/common-js/lang/array":41,"@barchart/common-js/lang/is":43,"axios":46}],10:[function(require,module,exports){
+},{"../../../utilities/convert/baseCodeToUnitCode":20,"../../../utilities/convert/dateToDayCode":21,"../../../utilities/convert/dayCodeToNumber":22,"./../../../logging/LoggerFactory":12,"@barchart/common-js/lang/array":41,"@barchart/common-js/lang/is":43,"axios":46}],10:[function(require,module,exports){
 const axios = require('axios');
 
 const is = require('@barchart/common-js/lang/is');
@@ -8787,6 +8805,18 @@ module.exports = (() => {
      */
     negative(candidate) {
       return this.number(candidate) && candidate < 0;
+    },
+
+    /**
+     * Returns true if the argument is iterable.
+     *
+     * @static
+     * @public
+     * @param {*} candidate
+     * @returns {boolean}
+     */
+    iterable(candidate) {
+      return !this.null(candidate) && !this.undefined(candidate) && this.fn(candidate[Symbol.iterator]);
     },
 
     /**
