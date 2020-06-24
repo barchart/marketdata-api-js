@@ -1,5 +1,11 @@
 # Release Notes
 
+## 5.1.1
+* Use ```try/catch``` when parsing snapshot results. Problem with one snapshot won't affect other snapshots.
+
+## 5.1.0
+* Add ```Quote.previousSettlementPrice``` property.
+
 ## 5.0.2
 * Corrected parsing logic for equity option symbols where underlying stock is listed on the Toronto Stock Exchange.
 * Updated documentation format (particularly, the [SDK Reference](https://barchart.github.io/marketdata-api-js/#/content/sdk_reference) section).
@@ -43,11 +49,11 @@
 ## 4.0.23
 **No functional changes.**
 
-* Added formal documentation
-  * Documentation published to [GitHub Pages](https://barchart.github.io/marketdata-api-js/#/)
-  * Removed wiki documents from GitHub (replaced by documentation)
-* Updated, corrected and modernized JDSoc comments
-* Added ```lib/connection/ConnectionEventType``` as an alternative to literal ```String``` values
+* Added formal documentation.
+  * Documentation published to [GitHub Pages](https://barchart.github.io/marketdata-api-js/#/).
+  * Removed wiki documents from GitHub (replaced by documentation).
+* Updated, corrected and modernized JDSoc comments.
+* Added ```lib/connection/ConnectionEventType``` as an alternative to literal ```String``` values.
 
 ## 4.0.18
 **Added better support for timezones.**
@@ -60,10 +66,10 @@
 ## 4.0.3
 **Features from the deprecated [@barchart/marketdata-utilities-js](https://github.com/barchart/marketdata-utilities-js) library have been incorporated here. As a result, several breaking changes have been introduced.**
 
-* Many objects and functions have been renamed or moved
-  * The ```Connection``` class was moved
-* The library now includes features from @barchart/marketdata-utilities-js
-  * Utilities have been placed in the ```/lib/utilities```folder
-  * Utilities are now exported as pure functions -- with no object wrappers
-* All ```index.js``` files were removed -- explicit imports are now required
-* Bower is no longer supported -- the ```bower.json```file was removed
+* Many objects and functions have been renamed or moved.
+  * The ```Connection``` class was moved.
+* The library now includes features from @barchart/marketdata-utilities-js.
+  * Utilities have been placed in the ```/lib/utilities```folder.
+  * Utilities are now exported as pure functions -- with no object wrappers.
+* All ```index.js``` files were removed -- explicit imports are now required.
+* Bower is no longer supported -- the ```bower.json```file was removed.
