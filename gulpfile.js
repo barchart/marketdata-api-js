@@ -1,8 +1,9 @@
+const exec = require('child_process').exec;
+
 const AWS = require('aws-sdk'),
 	awspublish = require('gulp-awspublish'),
 	browserify = require('browserify'),
 	buffer = require('vinyl-buffer'),
-	bump = require('gulp-bump'),
 	fs = require('fs'),
 	git = require('gulp-git'),
 	gitStatus = require('git-get-status'),
@@ -50,10 +51,16 @@ gulp.task('bump-choice', (cb) => {
 	return gulp.src(['./package.json']).pipe(processor);
 });
 
-gulp.task('bump-version', () => {
-	return gulp.src(['./package.json'])
-		.pipe(bump({type: global.bump}))
-		.pipe(gulp.dest('./'));
+gulp.task('bump-version', (cb) => {
+	exec(`npm version ${global.bump || 'patch'} --no-git-tag-version`, {
+		cwd: './'
+	}, (error) => {
+		if (error) {
+			cb(error);
+		}
+
+		cb();
+	});
 });
 
 gulp.task('embed-version', () => {
