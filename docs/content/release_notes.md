@@ -1,6 +1,6 @@
 # Release Notes
 
-## 5.1.1
+## 5.1.3
 * Use ```try/catch``` when parsing snapshot results. Problem with one snapshot won't affect other snapshots.
 
 ## 5.1.0
