@@ -1,10 +1,11 @@
-const exec = require('child_process').exec;
+const exec = require('child_process').exec,
+	fs = require('fs'),
+	path = require('path');
 
 const AWS = require('aws-sdk'),
 	awspublish = require('gulp-awspublish'),
 	browserify = require('browserify'),
 	buffer = require('vinyl-buffer'),
-	fs = require('fs'),
 	git = require('gulp-git'),
 	gitStatus = require('git-get-status'),
 	glob = require('glob'),
