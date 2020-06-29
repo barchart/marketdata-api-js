@@ -109,7 +109,7 @@ gulp.task('build-example-bundle', () => {
 
 gulp.task('build', gulp.series('build-example-bundle'));
 
-gulp.task('upload-example-to-S3', () => {
+gulp.task('upload-example-page-to-S3', () => {
 	let publisher = awspublish.create({
 		region: 'us-east-1',
 		params: {
@@ -130,7 +130,30 @@ gulp.task('upload-example-to-S3', () => {
 		.pipe(awspublish.reporter());
 });
 
-gulp.task('deploy-example', gulp.series('upload-example-to-S3'));
+gulp.task('deploy-example-page', gulp.series('upload-example-page-to-S3'));
+
+gulp.task('upload-documentation-site-to-S3', () => {
+	let publisher = awspublish.create({
+		region: 'us-east-1',
+		params: {
+			Bucket: 'docs.barchart.com'
+		},
+		credentials: new AWS.SharedIniFileCredentials({profile: 'default'})
+	});
+
+	let headers = {'Cache-Control': 'no-cache'};
+	let options = {};
+
+	return gulp.src(['./docs/**'])
+		.pipe(rename((filePath) => {
+			filePath.dirname = path.join('marketdata-api-js', filePath.dirname);
+		}))
+		.pipe(publisher.publish(headers, options))
+		.pipe(publisher.cache())
+		.pipe(awspublish.reporter());
+});
+
+gulp.task('deploy-documentation', gulp.series('upload-documentation-site-to-S3'));
 
 gulp.task('build-browser-tests', () => {
 	return browserify({entries: glob.sync('test/specs/**/*.js')}).bundle()
@@ -155,7 +178,7 @@ gulp.task('test', gulp.series(
 	'execute-node-tests'
 ));
 
-gulp.task('create-release', (cb) => {
+gulp.task('create-github-release', (cb) => {
 	const version = getVersionFromPackage();
 
 	const processor = prompt.prompt({
@@ -188,7 +211,7 @@ gulp.task('create-release', (cb) => {
 	return gulp.src('./package.json').pipe(processor);
 });
 
-gulp.task('bump-and-tag', gulp.series(
+gulp.task('release', gulp.series(
 	'ensure-clean-working-directory',
 	'bump-choice',
 	'bump-version',
@@ -197,12 +220,9 @@ gulp.task('bump-and-tag', gulp.series(
 	'build-browser-tests',
 	'commit-changes',
 	'push-changes',
-	'create-tag'
-));
-
-gulp.task('release', gulp.series(
-	'ensure-clean-working-directory',
-	'create-release'
+	'create-tag',
+	'deploy-example-page',
+	'deploy-documentation'
 ));
 
 gulp.task('watch', () => {
