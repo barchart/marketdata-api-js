@@ -1999,8 +1999,7 @@ module.exports = (() => {
 
 
     function getIsSnapshotSymbol(symbol) {
-      // return regex.cmdty.long.test(symbol) || regex.cmdty.short.test(symbol) || regex.cmdty.alias.test(symbol) || regex.c3.symbol.test(symbol) || regex.c3.alias.test(symbol) || regex.other.test(symbol);
-      return false;
+      return regex.cmdty.long.test(symbol) || regex.cmdty.short.test(symbol) || regex.cmdty.alias.test(symbol) || regex.c3.symbol.test(symbol) || regex.c3.alias.test(symbol) || regex.other.test(symbol);
     }
     /**
      * Indicates if some profile information cannot be extracted from JERQ via
@@ -5014,7 +5013,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.2.0-beta.1'
+    version: '5.2.1'
   };
 })();
 
