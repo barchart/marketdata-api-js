@@ -214,12 +214,16 @@ gulp.task('create-github-release', (cb) => {
 
 gulp.task('release', gulp.series(
 	'ensure-clean-working-directory',
-
+	'bump-choice',
+	'bump-version',
+	'embed-version',
 	'build',
 	'build-browser-tests',
 	'commit-changes',
 	'push-changes',
-	'create-tag'
+	'create-tag',
+	'deploy-example-page',
+	'deploy-documentation'
 ));
 
 gulp.task('watch', () => {
