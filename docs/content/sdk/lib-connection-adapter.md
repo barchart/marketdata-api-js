@@ -12,9 +12,9 @@
 * * *
 
 ## WebSocketAdapter :id=websocketadapter
->The abstract definition for an object which can establish and
-communicate over a WebSocket. It is unlikely that SDK consumers
-will need to implement this class.
+> The abstract definition for an object which can establish and
+> communicate over a WebSocket. It is unlikely that SDK consumers
+> will need to implement this class.
 
 **Kind**: global abstract class  
 **Access**: public  
@@ -24,8 +24,8 @@ will need to implement this class.
 * * *
 
 ## WebSocketAdapterFactory :id=websocketadapterfactory
->An abstract definition for an factory that builds [WebSocketAdapter](/content/sdk/lib-connection-adapter?id=websocketadapter)
-instances. It is unlikely that SDK consumers will need to implement this class.
+> An abstract definition for an factory that builds [WebSocketAdapter](/content/sdk/lib-connection-adapter?id=websocketadapter)
+> instances. It is unlikely that SDK consumers will need to implement this class.
 
 **Kind**: global abstract class  
 **Access**: public  
@@ -35,10 +35,10 @@ instances. It is unlikely that SDK consumers will need to implement this class.
 * * *
 
 ### webSocketAdapterFactory.build(host) :id=websocketadapterfactorybuild
->Returns a new [WebSocketAdapter](/content/sdk/lib-connection-adapter?id=websocketadapter) instance.
+> Returns a new [WebSocketAdapter](/content/sdk/lib-connection-adapter?id=websocketadapter) instance.
 
-**Kind**: instance abstract method of <code>WebSocketAdapterFactory</code>  
-**Returns**: <code>WebSocketAdapter</code>  
+**Kind**: instance abstract method of [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  
+**Returns**: [<code>WebSocketAdapter</code>](#WebSocketAdapter)  
 **Access**: public  
 
 | Param | Type |
@@ -49,11 +49,11 @@ instances. It is unlikely that SDK consumers will need to implement this class.
 * * *
 
 ## WebSocketAdapterFactoryForBrowsers :id=websocketadapterfactoryforbrowsers
->An implementation of [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) for use with web browsers. By default,
-this strategy is used by the [Connection](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=connection) class.
+> An implementation of [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) for use with web browsers. By default,
+> this strategy is used by the [Connection](/content/sdk/lib-connection?id=connection) class.
 
 **Kind**: global class  
-**Extends**: <code>WebSocketAdapterFactory</code>  
+**Extends**: [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForBrowsers  
 **File**: /lib/connection/adapter/WebSocketAdapterFactoryForBrowsers.js  
@@ -61,12 +61,12 @@ this strategy is used by the [Connection](/content/sdk/lib-connection?id=/conten
 * * *
 
 ### webSocketAdapterFactoryForBrowsers.build(host) :id=websocketadapterfactoryforbrowsersbuild
->Returns a new [WebSocketAdapter](/content/sdk/lib-connection-adapter?id=websocketadapter) instance suitable for use
-with a web browser.
+> Returns a new [WebSocketAdapter](/content/sdk/lib-connection-adapter?id=websocketadapter) instance suitable for use
+> with a web browser.
 
-**Kind**: instance method of <code>WebSocketAdapterFactoryForBrowsers</code>  
+**Kind**: instance method of [<code>WebSocketAdapterFactoryForBrowsers</code>](#WebSocketAdapterFactoryForBrowsers)  
 **Overrides**: [<code>build</code>](#WebSocketAdapterFactorybuild)  
-**Returns**: <code>WebSocketAdapter</code>  
+**Returns**: [<code>WebSocketAdapter</code>](#WebSocketAdapter)  
 **Access**: public  
 
 | Param | Type |
@@ -77,12 +77,12 @@ with a web browser.
 * * *
 
 ## WebSocketAdapterFactoryForNode :id=websocketadapterfactoryfornode
->An implementation of [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) for use by Node.js servers. Pass
-an instance of this class to [Connection.connect](Connection.connect) when operating in a Node.js
-environment.
+> An implementation of [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) for use by Node.js servers. Pass
+> an instance of this class to [Connection.connect](#connectionconnect) when operating in a Node.js
+> environment.
 
 **Kind**: global class  
-**Extends**: <code>WebSocketAdapterFactory</code>  
+**Extends**: [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  
 **Access**: public  
 **Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForNode  
 **File**: /lib/connection/adapter/WebSocketAdapterFactoryForNode.js  
@@ -90,12 +90,12 @@ environment.
 * * *
 
 ### webSocketAdapterFactoryForNode.build(host) :id=websocketadapterfactoryfornodebuild
->Returns a new [WebSocketAdapter](/content/sdk/lib-connection-adapter?id=websocketadapter) instance suitable for use
-within a Node.js environment.
+> Returns a new [WebSocketAdapter](/content/sdk/lib-connection-adapter?id=websocketadapter) instance suitable for use
+> within a Node.js environment.
 
-**Kind**: instance method of <code>WebSocketAdapterFactoryForNode</code>  
+**Kind**: instance method of [<code>WebSocketAdapterFactoryForNode</code>](#WebSocketAdapterFactoryForNode)  
 **Overrides**: [<code>build</code>](#WebSocketAdapterFactorybuild)  
-**Returns**: <code>WebSocketAdapter</code>  
+**Returns**: [<code>WebSocketAdapter</code>](#WebSocketAdapter)  
 **Access**: public  
 
 | Param | Type |

@@ -1,5 +1,5 @@
 ## Functions :id=functions
->A meta namespace of pure functions.
+> A meta namespace of pure functions.
 
 **Kind**: global namespace  
 
@@ -16,9 +16,9 @@
 * * *
 
 ### Functions.formatDate([date], [utc]) :id=functionsformatdate
->Formats a [Date](Date) instance as a string (using a MM/DD/YY pattern).
+> Formats a [Date](#date) instance as a string (using a MM/DD/YY pattern).
 
-**Kind**: static method of <code>Functions</code>  
+**Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/date  
 **File**: /lib/utilities/format/date.js  
@@ -32,9 +32,9 @@
 * * *
 
 ### Functions.formatDecimal(value, digits, [thousandsSeparator], [useParenthesis]) :id=functionsformatdecimal
->Formats a number as a string.
+> Formats a number as a string.
 
-**Kind**: static method of <code>Functions</code>  
+**Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/decimal  
 **File**: /lib/utilities/format/decimal.js  
@@ -50,12 +50,12 @@
 * * *
 
 ### Functions.formatPrice(value, unitCode, [fractionSeparator], [specialFractions], [thousandsSeparator], [useParenthesis]) :id=functionsformatprice
->Converts a numeric price into a human-readable string. One of two modes
-may be used, depending on the unit code and fraction separator. For example,
-using unit code "2" the value 9.5432 is formatted as "9.543" in decimal
-mode and "9-4" in fractional mode.
+> Converts a numeric price into a human-readable string. One of two modes
+> may be used, depending on the unit code and fraction separator. For example,
+> using unit code &quot;2&quot; the value 9.5432 is formatted as &quot;9.543&quot; in decimal
+> mode and &quot;9-4&quot; in fractional mode.
 
-**Kind**: static method of <code>Functions</code>  
+**Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/price  
 **File**: /lib/utilities/format/price.js  
@@ -64,20 +64,20 @@ mode and "9-4" in fractional mode.
 | --- | --- | --- |
 | value | <code>Number</code> |  |
 | unitCode | <code>String</code> |  |
-| [fractionSeparator] | <code>String</code> | Can be zero or one character in length. If invalid or omitted, a decimal notation is used. If non-decimal, then fractional notation is used (assuming supported by unit code). |
-| [specialFractions] | <code>Boolean</code> | If fractional notation is used, indicates if the "special" factor (i.e. denominator) is used to calculate numerator. |
-| [thousandsSeparator] | <code>String</code> | Can be zero or one character in length. If invalid or omitted, a zero-length string is used. |
-| [useParenthesis] | <code>Boolean</code> | If true, negative values will be represented with parenthesis (instead of a leading minus sign). |
+| [fractionSeparator] | <code>String</code> | <p>Can be zero or one character in length. If invalid or omitted, a decimal notation is used. If non-decimal, then fractional notation is used (assuming supported by unit code).</p> |
+| [specialFractions] | <code>Boolean</code> | <p>If fractional notation is used, indicates if the &quot;special&quot; factor (i.e. denominator) is used to calculate numerator.</p> |
+| [thousandsSeparator] | <code>String</code> | <p>Can be zero or one character in length. If invalid or omitted, a zero-length string is used.</p> |
+| [useParenthesis] | <code>Boolean</code> | <p>If true, negative values will be represented with parenthesis (instead of a leading minus sign).</p> |
 
 
 * * *
 
 ### Functions.formatQuoteDateTime(quote, [useTwelveHourClock], [short], [timezone]) :id=functionsformatquotedatetime
->Returns a string-formatted date (or time), based on a [Quote](/content/sdk/lib-marketstate?id=/content/sdk/lib-marketstate?id=quote) instance's
-state. If the market is open, and a trade has occurred, then the formatted time
-is returned. Otherwise, the formatted date is returned.
+> Returns a string-formatted date (or time), based on a [Quote](/content/sdk/lib-marketstate?id=quote) instance's
+> state. If the market is open, and a trade has occurred, then the formatted time
+> is returned. Otherwise, the formatted date is returned.
 
-**Kind**: static method of <code>Functions</code>  
+**Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/quote  
 **File**: /lib/utilities/format/quote.js  
@@ -87,16 +87,16 @@ is returned. Otherwise, the formatted date is returned.
 | quote | [<code>Quote</code>](/content/sdk/lib-marketstate?id=quote) |  |
 | [useTwelveHourClock] | <code>Boolean</code> |  |
 | [short] | <code>Boolean</code> |  |
-| [timezone] | <code>String</code> | A name from the tz database (see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) or "EXCHANGE" |
+| [timezone] | <code>String</code> | <p>A name from the tz database (see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) or &quot;EXCHANGE&quot;</p> |
 
 
 * * *
 
 ### Functions.formatSymbol(symbol) :id=functionsformatsymbol
->Formats a string (by capitalizing it). If anything other than a string
-is passed, the argument is returned without modification.
+> Formats a string (by capitalizing it). If anything other than a string
+> is passed, the argument is returned without modification.
 
-**Kind**: static method of <code>Functions</code>  
+**Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code> \| <code>\*</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/symbol  
 **File**: /lib/utilities/format/symbol.js  
@@ -109,9 +109,9 @@ is passed, the argument is returned without modification.
 * * *
 
 ### Functions.formatTime(date, [timezone], [useTwelveHourClock], [short], [utc]) :id=functionsformattime
->Formats a [Date](Date) instance's time component as a string.
+> Formats a [Date](#date) instance's time component as a string.
 
-**Kind**: static method of <code>Functions</code>  
+**Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code>  
 **Import**: @barchart/marketdata-api-js/lib/utilities/format/time  
 **File**: /lib/utilities/format/time.js  

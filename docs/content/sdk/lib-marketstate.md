@@ -16,9 +16,9 @@
 * * *
 
 ## CumulativeVolume :id=cumulativevolume
->An aggregation of the total volume traded at each price level for a
-single instrument, mutates as **CumulativeVolume** subscription updates
-are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=enumssubscriptiontype)).
+> An aggregation of the total volume traded at each price level for a
+> single instrument, mutates as <strong>CumulativeVolume</strong> subscription updates
+> are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
 
 **Kind**: global class  
 **Access**: public  
@@ -35,22 +35,22 @@ are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=/cont
 * * *
 
 ### cumulativeVolume.symbol :id=cumulativevolumesymbol
-**Kind**: instance property of <code>CumulativeVolume</code>  
+**Kind**: instance property of [<code>CumulativeVolume</code>](#CumulativeVolume)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| symbol | <code>string</code> | Symbol of the cumulative volume. |
+| symbol | <code>string</code> | <p>Symbol of the cumulative volume.</p> |
 
 
 * * *
 
 ### cumulativeVolume.getVolume(price) :id=cumulativevolumegetvolume
->Given a numeric price, returns the volume traded at that price level.
+> Given a numeric price, returns the volume traded at that price level.
 
-**Kind**: instance method of <code>CumulativeVolume</code>  
+**Kind**: instance method of [<code>CumulativeVolume</code>](#CumulativeVolume)  
 **Returns**: <code>number</code>  
 **Access**: public  
 
@@ -62,16 +62,16 @@ are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=/cont
 * * *
 
 ### cumulativeVolume.toArray() :id=cumulativevolumetoarray
->Returns an array of all price levels. This is an expensive operation. Observing
-an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=connectionon)).
+> Returns an array of all price levels. This is an expensive operation. Observing
+> an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-connection?id=connectionon)).
 
-**Kind**: instance method of <code>CumulativeVolume</code>  
+**Kind**: instance method of [<code>CumulativeVolume</code>](#CumulativeVolume)  
 **Returns**: [<code>Array.&lt;VolumeLevel&gt;</code>](#SchemaVolumeLevel)  
 
 * * *
 
 ## Exchange :id=exchange
->Describes an exchange.
+> Describes an exchange.
 
 **Kind**: global class  
 **Access**: public  
@@ -91,90 +91,89 @@ an ongoing subscription is preferred (see [Connection#on](/content/sdk/lib-conne
 * * *
 
 ### exchange.id :id=exchangeid
-**Kind**: instance property of <code>Exchange</code>  
+**Kind**: instance property of [<code>Exchange</code>](#Exchange)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | <code>string</code> | Barchart code for the exchange |
+| id | <code>string</code> | <p>Barchart code for the exchange</p> |
 
 
 * * *
 
 ### exchange.name :id=exchangename
-**Kind**: instance property of <code>Exchange</code>  
+**Kind**: instance property of [<code>Exchange</code>](#Exchange)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| name | <code>string</code> | Name of the exchange |
+| name | <code>string</code> | <p>Name of the exchange</p> |
 
 
 * * *
 
 ### exchange.timezoneDdf :id=exchangetimezoneddf
-**Kind**: instance property of <code>Exchange</code>  
+**Kind**: instance property of [<code>Exchange</code>](#Exchange)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| timezoneDdf | <code>string</code> \| <code>null</code> | Implied timezone of DDF messages for this exchange (conforms to a TZ database name) |
+| timezoneDdf | <code>string</code> \| <code>null</code> | <p>Implied timezone of DDF messages for this exchange (conforms to a TZ database name)</p> |
 
 
 * * *
 
 ### exchange.offsetDdf :id=exchangeoffsetddf
-**Kind**: instance property of <code>Exchange</code>  
+**Kind**: instance property of [<code>Exchange</code>](#Exchange)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| offsetDdf | <code>number</code> \| <code>null</code> | The offset, in milliseconds, between a DDF time and UTC. |
+| offsetDdf | <code>number</code> \| <code>null</code> | <p>The offset, in milliseconds, between a DDF time and UTC.</p> |
 
 
 * * *
 
 ### exchange.timezoneExchange :id=exchangetimezoneexchange
-**Kind**: instance property of <code>Exchange</code>  
+**Kind**: instance property of [<code>Exchange</code>](#Exchange)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| timezoneLocal | <code>string</code> | Timezone exchange is physically located in (conforms to a TZ database name). |
+| timezoneLocal | <code>string</code> | <p>Timezone exchange is physically located in (conforms to a TZ database name).</p> |
 
 
 * * *
 
 ### exchange.offsetExchange :id=exchangeoffsetexchange
-**Kind**: instance property of <code>Exchange</code>  
+**Kind**: instance property of [<code>Exchange</code>](#Exchange)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| offsetExchange | <code>number</code> | - The offset, in milliseconds, between exchange time and UTC. |
+| offsetExchange | <code>number</code> | <ul> <li>The offset, in milliseconds, between exchange time and UTC.</li> </ul> |
 
 
 * * *
 
 ## MarketState :id=marketstate
->Repository for current market state. This repository will only contain
-data for an symbol after a subscription has been established using
-the [Connection#on](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=connectionon) function.
-
-Access the singleton instance using the [Connection#getMarketState](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=connectiongetmarketstate)
-function.
+> Repository for current market state. This repository will only contain
+> data for an symbol after a subscription has been established using
+> the [Connection#on](/content/sdk/lib-connection?id=connectionon) function.</p>
+> <p>Access the singleton instance using the [Connection#getMarketState](/content/sdk/lib-connection?id=connectiongetmarketstate)
+> function.
 
 **Kind**: global class  
 **Access**: public  
@@ -184,36 +183,36 @@ function.
 * [MarketState](#MarketState)
     * _instance_
         * [.getProfile(symbol, [callback])](#MarketStategetProfile) ⇒ <code>Promise.&lt;(Profile\|null)&gt;</code>
-        * [.getQuote(symbol)](#MarketStategetQuote) ⇒ <code>Quote</code> \| <code>undefined</code>
+        * [.getQuote(symbol)](#MarketStategetQuote) ⇒ [<code>Quote</code>](#Quote) \| <code>undefined</code>
         * [.getBook(symbol)](#MarketStategetBook) ⇒ [<code>Book</code>](#SchemaBook) \| <code>undefined</code>
-        * [.getCumulativeVolume(symbol, [callback])](#MarketStategetCumulativeVolume) ⇒ <code>Promise.&lt;CumulativeVolume&gt;</code>
+        * [.getCumulativeVolume(symbol, [callback])](#MarketStategetCumulativeVolume) ⇒ [<code>Promise.&lt;CumulativeVolume&gt;</code>](#CumulativeVolume)
         * [.getTimestamp()](#MarketStategetTimestamp) ⇒ <code>Date</code>
 
 
 * * *
 
 ### marketState.getProfile(symbol, [callback]) :id=marketstategetprofile
->Returns a promise for the [Profile](/content/sdk/lib-marketstate?id=profile) instance matching the symbol provided.
+> Returns a promise for the [Profile](/content/sdk/lib-marketstate?id=profile) instance matching the symbol provided.
 
-**Kind**: instance method of <code>MarketState</code>  
+**Kind**: instance method of [<code>MarketState</code>](#MarketState)  
 **Returns**: <code>Promise.&lt;(Profile\|null)&gt;</code>  
 **Access**: public  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | symbol | <code>string</code> |  |
-| [callback] | <code>function</code> | Invoked when the [Profile](/content/sdk/lib-marketstate?id=profile) instance becomes available |
+| [callback] | <code>function</code> | <p>Invoked when the [Profile](/content/sdk/lib-marketstate?id=profile) instance becomes available</p> |
 
 
 * * *
 
 ### marketState.getQuote(symbol) :id=marketstategetquote
->Synchronously returns the [Quote](/content/sdk/lib-marketstate?id=quote) instance for a symbol. If no **MarketUpdate**
-subscription has been established for the symbol, an undefined value will be returned
-(see [Enums.SubscriptionType](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=enumssubscriptiontype)).
+> Synchronously returns the [Quote](/content/sdk/lib-marketstate?id=quote) instance for a symbol. If no <strong>MarketUpdate</strong>
+> subscription has been established for the symbol, an undefined value will be returned
+> (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
 
-**Kind**: instance method of <code>MarketState</code>  
-**Returns**: <code>Quote</code> \| <code>undefined</code>  
+**Kind**: instance method of [<code>MarketState</code>](#MarketState)  
+**Returns**: [<code>Quote</code>](#Quote) \| <code>undefined</code>  
 **Access**: public  
 
 | Param | Type |
@@ -224,11 +223,11 @@ subscription has been established for the symbol, an undefined value will be ret
 * * *
 
 ### marketState.getBook(symbol) :id=marketstategetbook
->Synchronously returns a [Book](Book) object for a symbol. If no **MarketDepth**
-subscription has been established for the symbol, an undefined value will be returned
-(see [Enums.SubscriptionType](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=enumssubscriptiontype)).
+> Synchronously returns a [Book](#book) object for a symbol. If no <strong>MarketDepth</strong>
+> subscription has been established for the symbol, an undefined value will be returned
+> (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
 
-**Kind**: instance method of <code>MarketState</code>  
+**Kind**: instance method of [<code>MarketState</code>](#MarketState)  
 **Returns**: [<code>Book</code>](#SchemaBook) \| <code>undefined</code>  
 **Access**: public  
 
@@ -240,33 +239,33 @@ subscription has been established for the symbol, an undefined value will be ret
 * * *
 
 ### marketState.getCumulativeVolume(symbol, [callback]) :id=marketstategetcumulativevolume
->Returns a promise for the [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) volume instance matching the symbol
-provided. The promise will not be fulfilled until a **CumulativeVolume** subscription
-has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=enumssubscriptiontype)).
+> Returns a promise for the [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) volume instance matching the symbol
+> provided. The promise will not be fulfilled until a <strong>CumulativeVolume</strong> subscription
+> has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
 
-**Kind**: instance method of <code>MarketState</code>  
-**Returns**: <code>Promise.&lt;CumulativeVolume&gt;</code> - The [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) instance, as a promise  
+**Kind**: instance method of [<code>MarketState</code>](#MarketState)  
+**Returns**: [<code>Promise.&lt;CumulativeVolume&gt;</code>](#CumulativeVolume) - <p>The [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) instance, as a promise</p>  
 **Access**: public  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | symbol | <code>string</code> |  |
-| [callback] | <code>function</code> | Invoked when the [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) instance becomes available |
+| [callback] | <code>function</code> | <p>Invoked when the [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) instance becomes available</p> |
 
 
 * * *
 
 ### marketState.getTimestamp() :id=marketstategettimestamp
->Returns the time of the most recent server heartbeat.
+> Returns the time of the most recent server heartbeat.
 
-**Kind**: instance method of <code>MarketState</code>  
+**Kind**: instance method of [<code>MarketState</code>](#MarketState)  
 **Returns**: <code>Date</code>  
 **Access**: public  
 
 * * *
 
 ## Profile :id=profile
->Describes an instrument (associated with a unique symbol).
+> Describes an instrument (associated with a unique symbol).
 
 **Kind**: global class  
 **Access**: public  
@@ -295,157 +294,157 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### profile.symbol :id=profilesymbol
-**Kind**: instance property of <code>Profile</code>  
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| symbol | <code>string</code> | Symbol of the instrument. |
+| symbol | <code>string</code> | <p>Symbol of the instrument.</p> |
 
 
 * * *
 
 ### profile.name :id=profilename
-**Kind**: instance property of <code>Profile</code>  
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| name | <code>string</code> | Name of the instrument. |
+| name | <code>string</code> | <p>Name of the instrument.</p> |
 
 
 * * *
 
 ### profile.exchange :id=profileexchange
-**Kind**: instance property of <code>Profile</code>  
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| exchange | <code>string</code> | Code for the listing exchange. |
+| exchange | <code>string</code> | <p>Code for the listing exchange.</p> |
 
 
 * * *
 
 ### profile.exchangeRef :id=profileexchangeref
-**Kind**: instance property of <code>Profile</code>  
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| exchangeRef | <code>Exchange</code> \| <code>null</code> | The [Exchange](/content/sdk/lib-marketstate?id=exchange). |
+| exchangeRef | [<code>Exchange</code>](#Exchange) \| <code>null</code> | <p>The [Exchange](/content/sdk/lib-marketstate?id=exchange).</p> |
 
 
 * * *
 
 ### profile.unitCode :id=profileunitcode
-**Kind**: instance property of <code>Profile</code>  
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| unitCode | <code>string</code> | Code indicating how a prices should be formatted. |
+| unitCode | <code>string</code> | <p>Code indicating how a prices should be formatted.</p> |
 
 
 * * *
 
 ### profile.pointValue :id=profilepointvalue
-**Kind**: instance property of <code>Profile</code>  
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| pointValue | <code>string</code> | The change in value for a one point change in price. |
+| pointValue | <code>string</code> | <p>The change in value for a one point change in price.</p> |
 
 
 * * *
 
 ### profile.tickIncrement :id=profiletickincrement
-**Kind**: instance property of <code>Profile</code>  
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| tickIncrement | <code>number</code> | The minimum price movement. |
+| tickIncrement | <code>number</code> | <p>The minimum price movement.</p> |
 
 
 * * *
 
 ### profile.root :id=profileroot
-**Kind**: instance property of <code>Profile</code>  
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| root | <code>string</code> \| <code>undefined</code> | Root symbol (futures only). |
+| root | <code>string</code> \| <code>undefined</code> | <p>Root symbol (futures only).</p> |
 
 
 * * *
 
 ### profile.month :id=profilemonth
-**Kind**: instance property of <code>Profile</code>  
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| month | <code>string</code> \| <code>undefined</code> | Month code (futures only). |
+| month | <code>string</code> \| <code>undefined</code> | <p>Month code (futures only).</p> |
 
 
 * * *
 
 ### profile.year :id=profileyear
-**Kind**: instance property of <code>Profile</code>  
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| year | <code>number</code> \| <code>undefined</code> | Expiration year (futures only). |
+| year | <code>number</code> \| <code>undefined</code> | <p>Expiration year (futures only).</p> |
 
 
 * * *
 
 ### profile.expiration :id=profileexpiration
-**Kind**: instance property of <code>Profile</code>  
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| expiration | <code>string</code> \| <code>undefined</code> | Expiration date, formatted as YYYY-MM-DD (futures only). |
+| expiration | <code>string</code> \| <code>undefined</code> | <p>Expiration date, formatted as YYYY-MM-DD (futures only).</p> |
 
 
 * * *
 
 ### profile.firstNotice :id=profilefirstnotice
-**Kind**: instance property of <code>Profile</code>  
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| expiration | <code>string</code> \| <code>undefined</code> | First notice date, formatted as YYYY-MM-DD (futures only). |
+| expiration | <code>string</code> \| <code>undefined</code> | <p>First notice date, formatted as YYYY-MM-DD (futures only).</p> |
 
 
 * * *
 
 ### profile.formatPrice(price) :id=profileformatprice
->Given a price, returns a the human-readable string representation.
+> Given a price, returns a the human-readable string representation.
 
-**Kind**: instance method of <code>Profile</code>  
+**Kind**: instance method of [<code>Profile</code>](#Profile)  
 **Returns**: <code>string</code>  
 **Access**: public  
 
@@ -457,23 +456,23 @@ has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?i
 * * *
 
 ### Profile.setPriceFormatter(fractionSeparator, specialFractions, [thousandsSeparator]) :id=profilesetpriceformatter
->Configures the logic used to format all prices using the [formatPrice](#ProfileformatPrice) instance function.
+> Configures the logic used to format all prices using the [formatPrice](#profileformatprice) instance function.
 
-**Kind**: static method of <code>Profile</code>  
+**Kind**: static method of [<code>Profile</code>](#Profile)  
 **Access**: public  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| fractionSeparator | <code>string</code> | usually a dash or a period |
-| specialFractions | <code>boolean</code> | usually true |
-| [thousandsSeparator] | <code>string</code> | usually a comma |
+| fractionSeparator | <code>string</code> | <p>usually a dash or a period</p> |
+| specialFractions | <code>boolean</code> | <p>usually true</p> |
+| [thousandsSeparator] | <code>string</code> | <p>usually a comma</p> |
 
 
 * * *
 
 ## Quote :id=quote
->Current market conditions for an instrument, mutates as **MarketUpdate**
-subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=enumssubscriptiontype)).
+> Current market conditions for an instrument, mutates as <strong>MarketUpdate</strong>
+> subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
 
 **Kind**: global class  
 **Access**: public  
@@ -502,6 +501,11 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
         * [.blockTrade](#QuoteblockTrade)
         * [.settlementPrice](#QuotesettlementPrice)
         * [.previousSettlementPrice](#QuotepreviousSettlementPrice)
+        * [.openPrice](#QuoteopenPrice)
+        * [.highPrice](#QuotehighPrice)
+        * [.lowPrice](#QuotelowPrice)
+        * [.volume](#Quotevolume)
+        * [.openInterest](#QuoteopenInterest)
         * [.previousPrice](#QuotepreviousPrice)
         * [.time](#Quotetime)
         * [.timeUtc](#QuotetimeUtc)
@@ -510,98 +514,98 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.symbol :id=quotesymbol
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| symbol | <code>string</code> | Symbol of the quoted instrument. |
+| symbol | <code>string</code> | <p>Symbol of the quoted instrument.</p> |
 
 
 * * *
 
 ### quote.profile :id=quoteprofile
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| profile | <code>Profile</code> \| <code>null</code> | Metadata regarding the quoted instrument. |
+| profile | [<code>Profile</code>](#Profile) \| <code>null</code> | <p>Metadata regarding the quoted instrument.</p> |
 
 
 * * *
 
 ### quote.message :id=quotemessage
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| message | <code>string</code> | Most recent DDF message to cause a this instance to mutate. |
+| message | <code>string</code> | <p>Most recent DDF message to cause a this instance to mutate.</p> |
 
 
 * * *
 
 ### quote.flag :id=quoteflag
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| flag | <code>string</code> \| <code>undefined</code> | Market status, will have one of three values: "p", "s", or undefined. |
+| flag | <code>string</code> \| <code>undefined</code> | <p>Market status, will have one of three values: &quot;p&quot;, &quot;s&quot;, or undefined.</p> |
 
 
 * * *
 
 ### quote.mode :id=quotemode
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Type | Description |
 | --- | --- |
-| <code>string</code> | One of two values, "I" or "R" -- indicating delayed or realtime data, respectively. |
+| <code>string</code> | <p>One of two values, &quot;I&quot; or &quot;R&quot; -- indicating delayed or realtime data, respectively.</p> |
 
 
 * * *
 
 ### quote.day :id=quoteday
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| day | <code>string</code> | One character code indicating the day of the month of the current trading session. |
+| day | <code>string</code> | <p>One character code indicating the day of the month of the current trading session.</p> |
 
 
 * * *
 
 ### quote.dayNum :id=quotedaynum
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| dayNum | <code>number</code> | Day of the month of the current trading session. |
+| dayNum | <code>number</code> | <p>Day of the month of the current trading session.</p> |
 
 
 * * *
 
 ### quote.session :id=quotesession
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
@@ -614,202 +618,267 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### quote.lastUpdate :id=quotelastupdate
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| lastUpdate | <code>Date</code> \| <code>null</code> | The most recent refresh date. Caution should be used. This date was created from hours, minutes, and seconds without regard for the client computer's timezone. As such, it is only safe to read time-related values (e.g. ```Date.getHours```, ```Date.getMinutes```, etc). Do not attempt to compare. Do not attempt to convert. |
+| lastUpdate | <code>Date</code> \| <code>null</code> | <p>The most recent refresh date. Caution should be used. This date was created from hours, minutes, and seconds without regard for the client computer's timezone. As such, it is only safe to read time-related values (e.g. <code>Date.getHours</code>, <code>Date.getMinutes</code>, etc). Do not attempt to compare. Do not attempt to convert.</p> |
 
 
 * * *
 
 ### quote.lastUpdateUtc :id=quotelastupdateutc
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| time | <code>Date</code> \| <code>null</code> | A timezone-aware version of [lastUpdate](#QuotelastUpdate). This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known. |
+| time | <code>Date</code> \| <code>null</code> | <p>A timezone-aware version of [lastUpdate](#quotelastupdate). This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known.</p> |
 
 
 * * *
 
 ### quote.bidPrice :id=quotebidprice
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| bidPrice | <code>number</code> | The top-of-book price on the buy side. |
+| bidPrice | <code>number</code> | <p>The top-of-book price on the buy side.</p> |
 
 
 * * *
 
 ### quote.bidSize :id=quotebidsize
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| bidSize | <code>number</code> | The top-of-book quantity on the buy side. |
+| bidSize | <code>number</code> | <p>The top-of-book quantity on the buy side.</p> |
 
 
 * * *
 
 ### quote.askPrice :id=quoteaskprice
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| askPrice | <code>number</code> | The top-of-book price on the sell side. |
+| askPrice | <code>number</code> | <p>The top-of-book price on the sell side.</p> |
 
 
 * * *
 
 ### quote.askSize :id=quoteasksize
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| askSize | <code>number</code> | The top-of-book quantity on the sell side. |
+| askSize | <code>number</code> | <p>The top-of-book quantity on the sell side.</p> |
 
 
 * * *
 
 ### quote.lastPrice :id=quotelastprice
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| lastPrice | <code>number</code> | Most recent price (not necessarily a trade). |
+| lastPrice | <code>number</code> | <p>Most recent price (not necessarily a trade).</p> |
 
 
 * * *
 
 ### quote.tradePrice :id=quotetradeprice
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| tradePrice | <code>number</code> | Most recent trade price. |
+| tradePrice | <code>number</code> | <p>Most recent trade price.</p> |
 
 
 * * *
 
 ### quote.tradeSize :id=quotetradesize
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| tradeSize | <code>number</code> | Most recent trade quantity. |
+| tradeSize | <code>number</code> | <p>Most recent trade quantity.</p> |
 
 
 * * *
 
 ### quote.blockTrade :id=quoteblocktrade
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| blockTrade | <code>number</code> | Most recent block trade price. |
+| blockTrade | <code>number</code> | <p>Most recent block trade price.</p> |
 
 
 * * *
 
 ### quote.settlementPrice :id=quotesettlementprice
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| settlementPrice | <code>number</code> | Settlement price for current trading session. |
+| settlementPrice | <code>number</code> | <p>Settlement price for current trading session.</p> |
 
 
 * * *
 
 ### quote.previousSettlementPrice :id=quoteprevioussettlementprice
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| previousSettlementPrice | <code>number</code> | Settlement price from previous trading session. |
+| previousSettlementPrice | <code>number</code> | <p>Settlement price from previous trading session.</p> |
+
+
+* * *
+
+### quote.openPrice :id=quoteopenprice
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| openPrice | <code>number</code> \| <code>null</code> | <p>The opening price for the current trading session.</p> |
+
+
+* * *
+
+### quote.highPrice :id=quotehighprice
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| highPrice | <code>number</code> \| <code>null</code> | <p>The highest trade price from the current trading session.</p> |
+
+
+* * *
+
+### quote.lowPrice :id=quotelowprice
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| lowPrice | <code>number</code> \| <code>null</code> | <p>The lowest trade price from the current trading session.</p> |
+
+
+* * *
+
+### quote.volume :id=quotevolume
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| volume | <code>number</code> \| <code>null</code> | <p>The quantity traded during the current trading session.</p> |
+
+
+* * *
+
+### quote.openInterest :id=quoteopeninterest
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| openInterest | <code>number</code> \| <code>null</code> | <p>The outstanding number of active contracts. For some asset classes, this property is not relevant.</p> |
 
 
 * * *
 
 ### quote.previousPrice :id=quotepreviousprice
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| previousPrice | <code>number</code> | The last price from the previous trading session. |
+| previousPrice | <code>number</code> | <p>The last price from the previous trading session.</p> |
 
 
 * * *
 
 ### quote.time :id=quotetime
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| time | <code>Date</code> \| <code>null</code> | The most recent trade, quote, or refresh time. Caution should be used. This date was created from hours, minutes, and seconds without regard for the client computer's timezone. As such, it is only safe to read time-related values (e.g. ```Date.getHours```, ```Date.getMinutes```, etc). Do not attempt to compare. Do not attempt to convert. |
+| time | <code>Date</code> \| <code>null</code> | <p>The most recent trade, quote, or refresh time. Caution should be used. This date was created from hours, minutes, and seconds without regard for the client computer's timezone. As such, it is only safe to read time-related values (e.g. <code>Date.getHours</code>, <code>Date.getMinutes</code>, etc). Do not attempt to compare. Do not attempt to convert.</p> |
 
 
 * * *
 
 ### quote.timeUtc :id=quotetimeutc
-**Kind**: instance property of <code>Quote</code>  
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
 **Read only**: true  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| time | <code>Date</code> \| <code>null</code> | A timezone-aware version of [time](#Quotetime). This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known. |
+| time | <code>Date</code> \| <code>null</code> | <p>A timezone-aware version of [time](#quotetime). This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known.</p> |
 
 
 * * *
 
 ## Schema :id=schema
->A meta namespace containing structural contracts of anonymous objects.
+> A meta namespace containing structural contracts of anonymous objects.
 
 **Kind**: global namespace  
 
@@ -823,48 +892,48 @@ subscription updates are processed (see [Enums.SubscriptionType](/content/sdk/li
 * * *
 
 ### Schema.Book :id=schemabook
->This object represents an aggregated order book. In other words, the total size
-of all orders (bid and ask) at every price. Constructed from **MarketDepth**
-subscription (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=/content/sdk/lib-connection?id=enumssubscriptiontype)).
+> This object represents an aggregated order book. In other words, the total size
+> of all orders (bid and ask) at every price. Constructed from <strong>MarketDepth</strong>
+> subscription (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
 
-**Kind**: static typedef of <code>Schema</code>  
+**Kind**: static typedef of [<code>Schema</code>](#Schema)  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| symbol | <code>string</code> | The symbol. |
-| bids | [<code>Array.&lt;BookLevel&gt;</code>](#SchemaBookLevel) | The price levels for buy orders. |
-| asks | [<code>Array.&lt;BookLevel&gt;</code>](#SchemaBookLevel) | The price levels for sell orders. |
+| symbol | <code>string</code> | <p>The symbol.</p> |
+| bids | [<code>Array.&lt;BookLevel&gt;</code>](#SchemaBookLevel) | <p>The price levels for buy orders.</p> |
+| asks | [<code>Array.&lt;BookLevel&gt;</code>](#SchemaBookLevel) | <p>The price levels for sell orders.</p> |
 
 
 * * *
 
 ### Schema.BookLevel :id=schemabooklevel
->The definition of one price level within the *bids* or *asks* array of a
-[Book](#SchemaBook).
+> The definition of one price level within the <em>bids</em> or <em>asks</em> array of a
+> [Book](#schemabook).
 
-**Kind**: static typedef of <code>Schema</code>  
+**Kind**: static typedef of [<code>Schema</code>](#Schema)  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| price | <code>number</code> | The price level. |
-| size | <code>number</code> | The quantity available at the price level. |
+| price | <code>number</code> | <p>The price level.</p> |
+| size | <code>number</code> | <p>The quantity available at the price level.</p> |
 
 
 * * *
 
 ### Schema.VolumeLevel :id=schemavolumelevel
->The definition of one price level within a [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume)
-object.
+> The definition of one price level within a [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume)
+> object.
 
-**Kind**: static typedef of <code>Schema</code>  
+**Kind**: static typedef of [<code>Schema</code>](#Schema)  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| price | <code>number</code> | The price level. |
-| size | <code>number</code> | The aggregate quantity traded. |
+| price | <code>number</code> | <p>The price level.</p> |
+| size | <code>number</code> | <p>The aggregate quantity traded.</p> |
 
 
 * * *

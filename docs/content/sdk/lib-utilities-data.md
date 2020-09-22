@@ -10,9 +10,9 @@
 * * *
 
 ## UnitCode :id=unitcode
->Describes how an instrument's price is formatted. In most cases, unit codes are stored as a
-single character; however, this enumeration adds additional information. There are fourteen
-distinct unit codes.
+> Describes how an instrument's price is formatted. In most cases, unit codes are stored as a
+> single character; however, this enumeration adds additional information. There are fourteen
+> distinct unit codes.
 
 **Kind**: global class  
 **Extends**: <code>Enum</code>  
@@ -33,8 +33,8 @@ distinct unit codes.
         * [.getFractionFactor([special])](#UnitCodegetFractionFactor) ⇒ <code>Number</code> \| <code>undefined</code>
         * [.getFractionDigits([special])](#UnitCodegetFractionDigits) ⇒ <code>Number</code> \| <code>undefined</code>
     * _static_
-        * [.parse(code)](#UnitCodeparse) ⇒ <code>UnitCode</code> \| <code>null</code>
-        * [.fromBaseCode(code)](#UnitCodefromBaseCode) ⇒ <code>UnitCode</code> \| <code>null</code>
+        * [.parse(code)](#UnitCodeparse) ⇒ [<code>UnitCode</code>](#UnitCode) \| <code>null</code>
+        * [.fromBaseCode(code)](#UnitCodefromBaseCode) ⇒ [<code>UnitCode</code>](#UnitCode) \| <code>null</code>
     * _constructor_
         * [new UnitCode(code, baseCode, decimalDigits, supportsFractions, [fractionFactor], [fractionDigits], [fractionFactorSpecial], [fractionDigitsSpecial])](#new_UnitCode_new)
 
@@ -42,92 +42,91 @@ distinct unit codes.
 * * *
 
 ### unitCode.baseCode :id=unitcodebasecode
->The numeric counterpart of a "unit" code.
+> The numeric counterpart of a &quot;unit&quot; code.
 
-**Kind**: instance property of <code>UnitCode</code>  
+**Kind**: instance property of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Number</code>  
 **Access**: public  
 
 * * *
 
 ### unitCode.unitCode :id=unitcodeunitcode
->The single character "unit" code.
+> The single character &quot;unit&quot; code.
 
-**Kind**: instance property of <code>UnitCode</code>  
+**Kind**: instance property of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>String</code>  
 **Access**: public  
 
 * * *
 
 ### unitCode.decimalDigits :id=unitcodedecimaldigits
->When formatting in decimal mode, the number of digits to show after the
-decimal point.
+> When formatting in decimal mode, the number of digits to show after the
+> decimal point.
 
-**Kind**: instance property of <code>UnitCode</code>  
+**Kind**: instance property of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Number</code>  
 **Access**: public  
 
 * * *
 
 ### unitCode.supportsFractions :id=unitcodesupportsfractions
->Indicates if formatting can use the alternative to decimal notation -- that
-is, fractional notation.
+> Indicates if formatting can use the alternative to decimal notation -- that
+> is, fractional notation.
 
-**Kind**: instance property of <code>UnitCode</code>  
+**Kind**: instance property of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Boolean</code>  
 **Access**: public  
 
 * * *
 
 ### unitCode.fractionFactor :id=unitcodefractionfactor
->When formatting with fractional notation (instead of decimal notation), multiply the
-decimal part of the value by this factor to get the fractional (i.e. numerator) value.
-In other words, this factor is the denominator.
+> When formatting with fractional notation (instead of decimal notation), multiply the
+> decimal part of the value by this factor to get the fractional (i.e. numerator) value.
+> In other words, this factor is the denominator.</p>
+> <p>For example, the value 9.5 will be formatted as &quot;9-4&quot; with a fractional factor of eight.
+> This is because 8 * 0.5 = 4. In other words, the price is quoted in eighths and 0.5 is
+> four eighths. Using the same logic, the value of 9.75 will be formatted as &quot;9-6&quot; with
+> a fractional factor of eight.
 
-For example, the value 9.5 will be formatted as "9-4" with a fractional factor of eight.
-This is because 8 * 0.5 = 4. In other words, the price is quoted in eighths and 0.5 is
-four eighths. Using the same logic, the value of 9.75 will be formatted as "9-6" with
-a fractional factor of eight.
-
-**Kind**: instance property of <code>UnitCode</code>  
+**Kind**: instance property of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Number</code> \| <code>undefined</code>  
 **Access**: public  
 
 * * *
 
 ### unitCode.fractionDigits :id=unitcodefractiondigits
->In fractional notation, the number of digits to which appear after the fraction separator.
-For example, two digits are used in "9-01" and "9-11" (where a dash is the fraction
-separator).
+> In fractional notation, the number of digits to which appear after the fraction separator.
+> For example, two digits are used in &quot;9-01&quot; and &quot;9-11&quot; (where a dash is the fraction
+> separator).
 
-**Kind**: instance property of <code>UnitCode</code>  
+**Kind**: instance property of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Number</code> \| <code>undefined</code>  
 **Access**: public  
 
 * * *
 
 ### unitCode.fractionFactorSpecial :id=unitcodefractionfactorspecial
->Same as [fractionFactor](#UnitCodefractionFactor) for "special" fractions.
+> Same as [fractionFactor](#unitcodefractionfactor) for &quot;special&quot; fractions.
 
-**Kind**: instance property of <code>UnitCode</code>  
+**Kind**: instance property of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Number</code> \| <code>undefined</code>  
 **Access**: public  
 
 * * *
 
 ### unitCode.fractionDigitsSpecial :id=unitcodefractiondigitsspecial
->Same as [fractionDigits](#UnitCodefractionDigits) for "special" fractions.
+> Same as [fractionDigits](#unitcodefractiondigits) for &quot;special&quot; fractions.
 
-**Kind**: instance property of <code>UnitCode</code>  
+**Kind**: instance property of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Number</code> \| <code>undefined</code>  
 **Access**: public  
 
 * * *
 
 ### unitCode.getFractionFactor([special]) :id=unitcodegetfractionfactor
->Returns the [fractionFactor](#UnitCodefractionFactor) or [fractionFactorSpecial](#UnitCodefractionFactorSpecial) value.
+> Returns the [fractionFactor](#unitcodefractionfactor) or [fractionFactorSpecial](#unitcodefractionfactorspecial) value.
 
-**Kind**: instance method of <code>UnitCode</code>  
+**Kind**: instance method of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Number</code> \| <code>undefined</code>  
 **Access**: public  
 
@@ -139,9 +138,9 @@ separator).
 * * *
 
 ### unitCode.getFractionDigits([special]) :id=unitcodegetfractiondigits
->Returns the [fractionDigits](#UnitCodefractionDigits) or [fractionDigitsSpecial](#UnitCodefractionDigitsSpecial) value.
+> Returns the [fractionDigits](#unitcodefractiondigits) or [fractionDigitsSpecial](#unitcodefractiondigitsspecial) value.
 
-**Kind**: instance method of <code>UnitCode</code>  
+**Kind**: instance method of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Number</code> \| <code>undefined</code>  
 **Access**: public  
 
@@ -153,10 +152,10 @@ separator).
 * * *
 
 ### UnitCode.parse(code) :id=unitcodeparse
->Converts a unit code character into a [UnitCode](/content/sdk/lib-utilities-data?id=unitcode) enumeration item.
+> Converts a unit code character into a [UnitCode](/content/sdk/lib-utilities-data?id=unitcode) enumeration item.
 
-**Kind**: static method of <code>UnitCode</code>  
-**Returns**: <code>UnitCode</code> \| <code>null</code>  
+**Kind**: static method of [<code>UnitCode</code>](#UnitCode)  
+**Returns**: [<code>UnitCode</code>](#UnitCode) \| <code>null</code>  
 **Access**: public  
 
 | Param | Type |
@@ -167,10 +166,10 @@ separator).
 * * *
 
 ### UnitCode.fromBaseCode(code) :id=unitcodefrombasecode
->Converts a numeric "base" code into a [UnitCode](/content/sdk/lib-utilities-data?id=unitcode) item.
+> Converts a numeric &quot;base&quot; code into a [UnitCode](/content/sdk/lib-utilities-data?id=unitcode) item.
 
-**Kind**: static method of <code>UnitCode</code>  
-**Returns**: <code>UnitCode</code> \| <code>null</code>  
+**Kind**: static method of [<code>UnitCode</code>](#UnitCode)  
+**Returns**: [<code>UnitCode</code>](#UnitCode) \| <code>null</code>  
 **Access**: public  
 
 | Param | Type |
@@ -181,7 +180,7 @@ separator).
 * * *
 
 ### new UnitCode(code, baseCode, decimalDigits, supportsFractions, [fractionFactor], [fractionDigits], [fractionFactorSpecial], [fractionDigitsSpecial]) :id=new_unitcode_new
-**Kind**: constructor of <code>UnitCode</code>  
+**Kind**: constructor of [<code>UnitCode</code>](#UnitCode)  
 
 | Param | Type |
 | --- | --- |
@@ -198,8 +197,8 @@ separator).
 * * *
 
 ## getTimezones() :id=gettimezones
->Gets a list of names in the tz database (see https://en.wikipedia.org/wiki/Tz_database
-and https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+> Gets a list of names in the tz database (see https://en.wikipedia.org/wiki/Tz_database
+> and https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
 **Kind**: global function  
 **Returns**: <code>Array.&lt;String&gt;</code>  
@@ -210,7 +209,7 @@ and https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 * * *
 
 ## guessTimezone() :id=guesstimezone
->Attempts to guess the local timezone.
+> Attempts to guess the local timezone.
 
 **Kind**: global function  
 **Returns**: <code>String</code> \| <code>null</code>  
