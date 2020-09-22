@@ -1,6 +1,6 @@
 # Release Notes
 
-## 5.2.1
+## 5.2.3
 **Other**
 
 * Updated SDK documentation. Described additional properties on ```Quote``` object.
