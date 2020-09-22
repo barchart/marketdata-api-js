@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.2.1
+**Other**
+
+* Updated SDK documentation. Described additional properties on ```Quote``` object.
+
 ## 5.1.3
 * Use ```try/catch``` when parsing snapshot results. Problem with one snapshot won't affect other snapshots.
 
