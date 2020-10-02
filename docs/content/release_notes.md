@@ -1,5 +1,20 @@
 # Release Notes
 
+## 5.3.0
+**New Features**
+
+* Added ```SymbolParser.getIsPlatts``` function.
+* Added ```SymbolParser.getIsC3``` function.
+
+**Bug Fixes**
+
+* Price formatting for [cmdty](https://www.barchart.com/cmdty) instruments has been corrected.
+
+**Configuration Changes**
+
+* Quotes for [Commodity3](https://www.commodity3.com/) instruments are sourced from JERQ instead of OnDemand.
+* Quotes for [cmdty](https://www.barchart.com/cmdty) instruments are now sourced from a different OnDemand endpoint.
+
 ## 5.2.3
 **Other**
 
