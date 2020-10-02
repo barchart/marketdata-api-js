@@ -180,8 +180,6 @@ module.exports = (() => {
         symbols = C3_OLD;
       } else if (symbol === '#CMDTY') {
         symbols = CMDTY;
-      } else if (symbol === '#CMDTY_OLD') {
-        symbols = CMDTY_OLD;
       } else if (symbol === '#PLATTS') {
         symbols = PLATTS;
       } else if (symbol === '#BOTH') {
@@ -417,9 +415,8 @@ module.exports = (() => {
 
   const SP_500 = ['ABT', 'ABBV', 'ACN', 'ATVI', 'AYI', 'ADBE', 'AMD', 'AAP', 'AES', 'AET', 'AMG', 'AFL', 'A', 'APD', 'AKAM', 'ALK', 'ALB', 'ARE', 'ALXN', 'ALGN', 'ALLE', 'AGN', 'ADS', 'LNT', 'ALL', 'GOOGL', 'GOOG', 'MO', 'AMZN', 'AEE', 'AAL', 'AEP', 'AXP', 'AIG', 'AMT', 'AWK', 'AMP', 'ABC', 'AME', 'AMGN', 'APH', 'APC', 'ADI', 'ANDV', 'ANSS', 'ANTM', 'AON', 'AOS', 'APA', 'AIV', 'AAPL', 'AMAT', 'ADM', 'ARNC', 'AJG', 'AIZ', 'T', 'ADSK', 'ADP', 'AZO', 'AVB', 'AVY', 'BHGE', 'BLL', 'BAC', 'BK', 'BCR', 'BAX', 'BBT', 'BDX', 'BRK.B', 'BBY', 'BIIB', 'BLK', 'HRB', 'BA', 'BWA', 'BXP', 'BSX', 'BHF', 'BMY', 'AVGO', 'BF.B', 'CHRW', 'CA', 'COG', 'CDNS', 'CPB', 'COF', 'CAH', 'CBOE', 'KMX', 'CCL', 'CAT', 'CBG', 'CBS', 'CELG', 'CNC', 'CNP', 'CTL', 'CERN', 'CF', 'SCHW', 'CHTR', 'CHK', 'CVX', 'CMG', 'CB', 'CHD', 'CI', 'XEC', 'CINF', 'CTAS', 'CSCO', 'C', 'CFG', 'CTXS', 'CLX', 'CME', 'CMS', 'COH', 'KO', 'CTSH', 'CL', 'CMCSA', 'CMA', 'CAG', 'CXO', 'COP', 'ED', 'STZ', 'COO', 'GLW', 'COST', 'COTY', 'CCI', 'CSRA', 'CSX', 'CMI', 'CVS', 'DHI', 'DHR', 'DRI', 'DVA', 'DE', 'DLPH', 'DAL', 'XRAY', 'DVN', 'DLR', 'DFS', 'DISCA', 'DISCK', 'DISH', 'DG', 'DLTR', 'D', 'DOV', 'DWDP', 'DPS', 'DTE', 'DRE', 'DUK', 'DXC', 'ETFC', 'EMN', 'ETN', 'EBAY', 'ECL', 'EIX', 'EW', 'EA', 'EMR', 'ETR', 'EVHC', 'EOG', 'EQT', 'EFX', 'EQIX', 'EQR', 'ESS', 'EL', 'ES', 'RE', 'EXC', 'EXPE', 'EXPD', 'ESRX', 'EXR', 'XOM', 'FFIV', 'FB', 'FAST', 'FRT', 'FDX', 'FIS', 'FITB', 'FE', 'FISV', 'FLIR', 'FLS', 'FLR', 'FMC', 'FL', 'F', 'FTV', 'FBHS', 'BEN', 'FCX', 'GPS', 'GRMN', 'IT', 'GD', 'GE', 'GGP', 'GIS', 'GM', 'GPC', 'GILD', 'GPN', 'GS', 'GT', 'GWW', 'HAL', 'HBI', 'HOG', 'HRS', 'HIG', 'HAS', 'HCA', 'HCP', 'HP', 'HSIC', 'HSY', 'HES', 'HPE', 'HLT', 'HOLX', 'HD', 'HON', 'HRL', 'HST', 'HPQ', 'HUM', 'HBAN', 'IDXX', 'INFO', 'ITW', 'ILMN', 'IR', 'INTC', 'ICE', 'IBM', 'INCY', 'IP', 'IPG', 'IFF', 'INTU', 'ISRG', 'IVZ', 'IRM', 'JEC', 'JBHT', 'SJM', 'JNJ', 'JCI', 'JPM', 'JNPR', 'KSU', 'K', 'KEY', 'KMB', 'KIM', 'KMI', 'KLAC', 'KSS', 'KHC', 'KR', 'LB', 'LLL', 'LH', 'LRCX', 'LEG', 'LEN', 'LUK', 'LLY', 'LNC', 'LKQ', 'LMT', 'L', 'LOW', 'LYB', 'MTB', 'MAC', 'M', 'MRO', 'MPC', 'MAR', 'MMC', 'MLM', 'MAS', 'MA', 'MAT', 'MKC', 'MCD', 'MCK', 'MDT', 'MRK', 'MET', 'MTD', 'MGM', 'KORS', 'MCHP', 'MU', 'MSFT', 'MAA', 'MHK', 'TAP', 'MDLZ', 'MON', 'MNST', 'MCO', 'MS', 'MOS', 'MSI', 'MYL', 'NDAQ', 'NOV', 'NAVI', 'NTAP', 'NFLX', 'NWL', 'NFX', 'NEM', 'NWSA', 'NWS', 'NEE', 'NLSN', 'NKE', 'NI', 'NBL', 'JWN', 'NSC', 'NTRS', 'NOC', 'NCLH', 'NRG', 'NUE', 'NVDA', 'ORLY', 'OXY', 'OMC', 'OKE', 'ORCL', 'PCAR', 'PKG', 'PH', 'PDCO', 'PAYX', 'PYPL', 'PNR', 'PBCT', 'PEP', 'PKI', 'PRGO', 'PFE', 'PCG', 'PM', 'PSX', 'PNW', 'PXD', 'PNC', 'RL', 'PPG', 'PPL', 'PX', 'PCLN', 'PFG', 'PG', 'PGR', 'PLD', 'PRU', 'PEG', 'PSA', 'PHM', 'PVH', 'QRVO', 'PWR', 'QCOM', 'DGX', 'Q', 'RRC', 'RJF', 'RTN', 'O', 'RHT', 'REG', 'REGN', 'RF', 'RSG', 'RMD', 'RHI', 'ROK', 'COL', 'ROP', 'ROST', 'RCL', 'CRM', 'SBAC', 'SCG', 'SLB', 'SNI', 'STX', 'SEE', 'SRE', 'SHW', 'SIG', 'SPG', 'SWKS', 'SLG', 'SNA', 'SO', 'LUV', 'SPGI', 'SWK', 'SBUX', 'STT', 'SRCL', 'SYK', 'STI', 'SYMC', 'SYF', 'SNPS', 'SYY', 'TROW', 'TGT', 'TEL', 'FTI', 'TXN', 'TXT', 'TMO', 'TIF', 'TWX', 'TJX', 'TMK', 'TSS', 'TSCO', 'TDG', 'TRV', 'TRIP', 'FOXA', 'FOX', 'TSN', 'UDR', 'ULTA', 'USB', 'UA', 'UAA', 'UNP', 'UAL', 'UNH', 'UPS', 'URI', 'UTX', 'UHS', 'UNM', 'VFC', 'VLO', 'VAR', 'VTR', 'VRSN', 'VRSK', 'VZ', 'VRTX', 'VIAB', 'V', 'VNO', 'VMC', 'WMT', 'WBA', 'DIS', 'WM', 'WAT', 'WEC', 'WFC', 'HCN', 'WDC', 'WU', 'WRK', 'WY', 'WHR', 'WMB', 'WLTW', 'WYN', 'WYNN', 'XEL', 'XRX', 'XLNX', 'XL', 'XYL', 'YUM', 'ZBH', 'ZION', 'ZTS'];
   const C3 = ['AL79MRM1.C3', 'BSP9WGQ1.C3', 'RA10BGM1.C3'];
-  const CMDTY = ['BC5L09YB.CS', 'EI3E06EI.CS', 'EI3E06EJ.CS', 'USDA-CORN-COND-EXC-AL-2528.CS', 'EURS-BEET-PRICE-SELL-GBR-33877.CS', 'EUJU0Q51.CS'];
   const C3_OLD = ['C3:AL79MRM1', 'C3:BSP9WGQ1', 'C3:RA10BGM1'];
-  const CMDTY_OLD = ['BC5L09YB.CM', 'EI3E06EI.CM', 'EI3E06EJ.CM', 'USDA-CORN-COND-EXC-AL-2528.CM', 'EURS-BEET-PRICE-SELL-GBR-33877.CM', 'EUJU0Q51.CM'];
+  const CMDTY = ['EUJU0Q51.CS', 'BC5L09YB.CS', 'EI3E06EI.CS', 'EI3E06EJ.CS'];
   const PLATTS = ['PLATTS:RD52017', 'PLATTS:RD5MA17', 'PLATTS:RD52018'];
   const AG = ['ZCPAIA.CM', 'ZCPAIL.CM', 'ZCPAIN.CM', 'ZCPAKS.CM', 'ZCPAMI.CM'];
   const BOTH = ['ESZ19', 'ESZ9'];
@@ -438,7 +435,7 @@ const ConnectionBase = require('./ConnectionBase'),
 
 const retrieveExchanges = require('./snapshots/exchanges/retrieveExchanges'),
       retrieveSnapshots = require('./snapshots/quotes/retrieveSnapshots'),
-      retrieveProfiles = require('./snapshots/profiles/retrieveProfiles'),
+      retrieveProfileExtensions = require('./snapshots/profiles/retrieveProfileExtensions'),
       SymbolParser = require('./../utilities/parsers/SymbolParser');
 
 const WebSocketAdapterFactory = require('./adapter/WebSocketAdapterFactory'),
@@ -483,15 +480,6 @@ module.exports = (() => {
   };
   const _RECONNECT_INTERVAL = 5000;
   const _WATCHDOG_INTERVAL = 10000;
-  const regex = {};
-  regex.cmdty = {};
-  regex.cmdty.short = /^(AE|BC|BE|BH|BL|CA|CB|EI|EU|CF|UD)(.*)(\.CS)$/i;
-  regex.cmdty.long = /^(BCSD-|BEA-|BLS-|CANS-|EIA-|EURS-|CFTC-|USCB-|USDA-)/i;
-  regex.cmdty.alias = /^(AE|BC|BE|BL|CA|CB|EI|EU|CF|UD|BCSD-|BEA-|BH-|BLS-|CANS-|EIA-|EURS-|CFTC-|USCB-|USACE-|USDA-)(.*)(\.CM)$/i;
-  regex.c3 = {};
-  regex.c3.symbol = /(\.C3)$/i;
-  regex.c3.alias = /^(C3:)$/i;
-  regex.other = /:/i;
 
   function ConnectionInternal(marketState, instance) {
     const __logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
@@ -1836,24 +1824,24 @@ module.exports = (() => {
         return;
       }
 
-      retrieveProfiles(symbols).then(profiles => {
+      retrieveProfileExtensions(symbols, __loginInfo.username, __loginInfo.password).then(extensions => {
         if (__connectionState !== state.authenticated) {
           return;
         }
 
-        profiles.forEach(profile => {
-          const producerSymbol = profile.symbol;
+        extensions.forEach(extension => {
+          const producerSymbol = extension.symbol;
           const consumerSymbols = __knownConsumerSymbols[producerSymbol] || [];
           const compositeSymbols = array.unique([producerSymbol].concat(consumerSymbols));
           compositeSymbols.forEach(symbol => {
-            const message = Object.assign({}, profile);
+            const message = Object.assign({}, extension);
             message.symbol = symbol;
             message.type = 'PROFILE_EXTENSION';
             updateMarketState(message);
           });
         });
       }).catch(e => {
-        __logger.log(`Profiles [ ${__instance} ]: Out-of-band profile request failed for [ ${symbols.join()} ].`, e);
+        __logger.log(`Profiles [ ${__instance} ]: Out-of-band profile extension request failed for [ ${symbols.join()} ].`, e);
       });
     } //
     // Internal utility functions for querying symbol subscriptions.
@@ -1999,7 +1987,7 @@ module.exports = (() => {
 
 
     function getIsSnapshotSymbol(symbol) {
-      return regex.cmdty.long.test(symbol) || regex.cmdty.short.test(symbol) || regex.cmdty.alias.test(symbol) || regex.c3.symbol.test(symbol) || regex.c3.alias.test(symbol) || regex.other.test(symbol);
+      return SymbolParser.getIsPlatts(symbol) || SymbolParser.getIsCmdty(symbol);
     }
     /**
      * Indicates if some profile information cannot be extracted from JERQ via
@@ -2013,7 +2001,7 @@ module.exports = (() => {
 
 
     function getIsExtendedSymbol(symbol) {
-      return SymbolParser.getIsFuture(symbol);
+      return SymbolParser.getIsFuture(symbol) || SymbolParser.getIsC3(symbol) || SymbolParser.getIsCmdty(symbol);
     }
     /**
      * Breaks an array of symbols into multiple array, each containing no more
@@ -2124,7 +2112,7 @@ module.exports = (() => {
   return Connection;
 })();
 
-},{"./../logging/LoggerFactory":12,"./../meta":19,"./../utilities/parse/ddf/message":32,"./../utilities/parsers/SymbolParser":35,"./ConnectionBase":3,"./adapter/WebSocketAdapterFactory":5,"./adapter/WebSocketAdapterFactoryForBrowsers":6,"./snapshots/exchanges/retrieveExchanges":7,"./snapshots/profiles/retrieveProfiles":8,"./snapshots/quotes/retrieveSnapshots":9,"@barchart/common-js/lang/array":41,"@barchart/common-js/lang/object":44}],3:[function(require,module,exports){
+},{"./../logging/LoggerFactory":12,"./../meta":19,"./../utilities/parse/ddf/message":32,"./../utilities/parsers/SymbolParser":35,"./ConnectionBase":3,"./adapter/WebSocketAdapterFactory":5,"./adapter/WebSocketAdapterFactoryForBrowsers":6,"./snapshots/exchanges/retrieveExchanges":7,"./snapshots/profiles/retrieveProfileExtensions":8,"./snapshots/quotes/retrieveSnapshots":9,"@barchart/common-js/lang/array":41,"@barchart/common-js/lang/object":44}],3:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const MarketState = require('./../marketState/MarketState');
@@ -2139,7 +2127,6 @@ module.exports = (() => {
    *
    * @protected
    * @abstract
-   * @exported
    * @ignore
    */
 
@@ -2758,7 +2745,6 @@ module.exports = (() => {
    * Executes an HTTP request for exchange metadata.
    *
    * @function
-   * @ignore
    * @exported
    * @returns {Promise<ExchangeMetadata[]>}
    */
@@ -2801,29 +2787,50 @@ module.exports = (() => {
 },{"axios":46}],8:[function(require,module,exports){
 const axios = require('axios');
 
-const assert = require('@barchart/common-js/lang/assert'),
+const array = require('@barchart/common-js/lang/array'),
+      assert = require('@barchart/common-js/lang/assert'),
       Day = require('@barchart/common-js/lang/Day'),
       is = require('@barchart/common-js/lang/is');
+
+const SymbolParser = require('./../../../utilities/parsers/SymbolParser');
+
+const LoggerFactory = require('./../../../logging/LoggerFactory');
 
 module.exports = (() => {
   'use strict';
 
-  const regex = {};
-  regex.dates = {};
-  regex.dates.expire = /^([0-9]{4}-[0-9]{2}-[0-9]{2})T/;
+  let logger = null;
   /**
-   * Executes an HTTP request for profile data.
+   * Executes an HTTP request for "extended" profile data for an array
+   * of symbols.
    *
    * @function
    * @ignore
-   * @exported
    * @param {String[]} symbols
    * @returns {Promise<ProfileExtension[]>}
    */
 
-  function retrieveProfiles(symbols) {
+  function retrieveProfileExtensions(symbols, username, password) {
     return Promise.resolve().then(() => {
+      if (logger === null) {
+        logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
+      }
+
       assert.argumentIsArray(symbols, 'symbols', String);
+      const symbolsForOnDemand = symbols.filter(SymbolParser.getIsC3);
+      const symbolsForExtras = symbols.filter(SymbolParser.getIsFuture);
+      return Promise.all([retrieveProfileExtensionsFromExtras(symbolsForExtras), retrieveProfileExtensionsFromOnDemand(symbolsForOnDemand, username, password)]).then(results => {
+        return array.flatten(results);
+      });
+    });
+  }
+
+  function retrieveProfileExtensionsFromExtras(symbols) {
+    return Promise.resolve().then(() => {
+      if (symbols.length === 0) {
+        return Promise.resolve([]);
+      }
+
       const options = {
         url: `https://extras.ddfplus.com/json/instruments/?lookup=${encodeURIComponent(symbols.join())}`,
         method: 'GET'
@@ -2837,25 +2844,93 @@ module.exports = (() => {
           return result.status === 200;
         });
         return results.map(result => {
-          const profile = {};
-          profile.symbol = result.lookup;
+          const extension = {};
+          extension.symbol = result.lookup;
 
           if (is.string(result.symbol_expire)) {
             const matches = result.symbol_expire.match(regex.dates.expire);
 
             if (matches !== null) {
-              profile.expiration = Day.parse(matches[1]).format();
+              extension.expiration = Day.parse(matches[1]).format();
             }
           }
 
           if (is.string(result.symbol_fnd)) {
-            profile.firstNotice = Day.parse(result.symbol_fnd).format();
+            extension.firstNotice = Day.parse(result.symbol_fnd).format();
           }
 
-          return profile;
+          return extension;
         });
       });
     });
+  }
+
+  function retrieveProfileExtensionsFromOnDemand(symbols, username, password) {
+    return Promise.resolve().then(() => {
+      if (symbols.length === 0) {
+        return Promise.resolve([]);
+      }
+
+      const options = {
+        url: `https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getQuote.json?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&symbols=${encodeURIComponent(symbols.join())}`,
+        method: 'GET'
+      };
+      return Promise.resolve(axios(options)).then(response => {
+        const results = response.data.results || [];
+        return results.reduce((accumulator, result) => {
+          try {
+            const extension = {};
+            extension.symbol = result.symbol.toUpperCase();
+
+            if (SymbolParser.getIsC3(extension.symbol)) {
+              const c3 = {};
+              c3.currency = null;
+              c3.delivery = null;
+
+              if (result.commodityDataCurrency) {
+                c3.currency = getC3Currency(result.commodityDataCurrency);
+              }
+
+              if (result.commodityDataDelivery) {
+                c3.delivery = result.commodityDataDelivery;
+              }
+
+              extension.c3 = c3;
+            }
+
+            accumulator.push(extension);
+          } catch (e) {
+            logger.warn(`Snapshot: Failed to process symbol`);
+          }
+
+          return accumulator;
+        }, []);
+      });
+    });
+  }
+
+  const regex = {};
+  regex.dates = {};
+  regex.dates.expire = /^([0-9]{4}-[0-9]{2}-[0-9]{2})T/;
+  regex.c3 = {};
+  regex.c3.currencies = {};
+  regex.c3.currencies.eur = /^(EUR)\/(.*)$/i;
+  regex.c3.currencies.rub = /^(RUB)\/(.*)$/i;
+  regex.c3.currencies.uah = /^(UAH)\/(.*)$/i;
+  regex.c3.currencies.usd = /^(USD|Usc|\$|)\/(.*)$/i;
+
+  function getC3Currency(lotSizeFix) {
+    if (regex.c3.currencies.eur.test(lotSizeFix)) {
+      return 'EUR';
+    } else if (regex.c3.currencies.rub.test(lotSizeFix)) {
+      return 'RUB';
+    } else if (regex.c3.currencies.uah.test(lotSizeFix)) {
+      return 'UAH';
+    } else if (regex.c3.currencies.usd.test(lotSizeFix)) {
+      return 'USD';
+    } else {
+      return null;
+    }
   }
   /**
    * Extended profile information.
@@ -2866,41 +2941,30 @@ module.exports = (() => {
    * @property {String} symbol
    * @property {String=} expiration
    * @property {String=} firstNotice
+   * @property {Object=} c3
    */
 
 
-  return retrieveProfiles;
+  return retrieveProfileExtensions;
 })();
 
-},{"@barchart/common-js/lang/Day":38,"@barchart/common-js/lang/assert":42,"@barchart/common-js/lang/is":43,"axios":46}],9:[function(require,module,exports){
+},{"./../../../logging/LoggerFactory":12,"./../../../utilities/parsers/SymbolParser":35,"@barchart/common-js/lang/Day":38,"@barchart/common-js/lang/array":41,"@barchart/common-js/lang/assert":42,"@barchart/common-js/lang/is":43,"axios":46}],9:[function(require,module,exports){
 const axios = require('axios');
 
 const array = require('@barchart/common-js/lang/array'),
       is = require('@barchart/common-js/lang/is');
 
-const convertDateToDayCode = require('../../../utilities/convert/dateToDayCode'),
-      convertDayCodeToNumber = require('../../../utilities/convert/dayCodeToNumber'),
-      convertBaseCodeToUnitCode = require('../../../utilities/convert/baseCodeToUnitCode');
+const convertDateToDayCode = require('./../../../utilities/convert/dateToDayCode'),
+      convertDayCodeToNumber = require('./../../../utilities/convert/dayCodeToNumber'),
+      convertBaseCodeToUnitCode = require('./../../../utilities/convert/baseCodeToUnitCode');
+
+const SymbolParser = require('./../../../utilities/parsers/SymbolParser');
 
 const LoggerFactory = require('./../../../logging/LoggerFactory');
 
 module.exports = (() => {
   'use strict';
 
-  const regex = {};
-  regex.day = /^([0-9]{4}).?([0-9]{2}).?([0-9]{2})$/;
-  regex.cmdty = {};
-  regex.cmdty.short = /^(AE|BC|BE|BH|BL|CA|CB|EI|EU|CF|UD)(.*)(\.CS)$/i;
-  regex.cmdty.long = /^(BCSD-|BEA-|BLS-|CANS-|EIA-|EURS-|CFTC-|USCB-|USDA-)/i;
-  regex.cmdty.alias = /^(AE|BC|BE|BL|CA|CB|EI|EU|CF|UD|BCSD-|BEA-|BH-|BLS-|CANS-|EIA-|EURS-|CFTC-|USCB-|USACE-|USDA-)(.*)(\.CM)$/i;
-  regex.c3 = {};
-  regex.c3.symbol = /(\.C3)$/i;
-  regex.c3.alias = /^(C3:)(.*)$/i;
-  regex.c3.currencies = {};
-  regex.c3.currencies.eur = /^(EUR)\/(.*)$/i;
-  regex.c3.currencies.rub = /^(RUB)\/(.*)$/i;
-  regex.c3.currencies.uah = /^(UAH)\/(.*)$/i;
-  regex.c3.currencies.usd = /^(USD|Usc|\$|)\/(.*)$/i;
   let logger = null;
   /**
    * Executes an HTTP request for a quote snapshot(s) and returns a
@@ -2909,7 +2973,6 @@ module.exports = (() => {
    *
    * @function
    * @ignore
-   * @exported
    * @param {String|Array<String>} symbols
    * @param {String} username
    * @param {String} password
@@ -2948,23 +3011,15 @@ module.exports = (() => {
       const getCmdtySymbols = [];
       const getQuoteSymbols = [];
       symbolsToUse.forEach(symbol => {
-        const concrete = getConcreteSymbol(symbol);
+        const concrete = SymbolParser.getProducerSymbol(symbol);
 
         if (concrete !== symbol) {
           aliases[concrete] = symbol;
         }
 
-        if (regex.cmdty.long.test(concrete) || regex.cmdty.short.test(concrete)) {
-          getCmdtySymbols.push(concrete);
-        } else {
-          getQuoteSymbols.push(concrete);
-        }
+        getQuoteSymbols.push(concrete);
       });
       const promises = [];
-
-      if (getCmdtySymbols.length !== 0) {
-        promises.push(retrieveSnapshotsUsingGetCmdtyStats(getCmdtySymbols, username, password));
-      }
 
       if (getQuoteSymbols.length !== 0) {
         promises.push(retrieveSnapshotsUsingGetQuote(getQuoteSymbols, username, password));
@@ -3040,7 +3095,7 @@ module.exports = (() => {
             message.volume = result.volume;
             message.lastUpdate = message.tradeTime;
 
-            if (regex.c3.symbol.test(message.symbol)) {
+            if (SymbolParser.getIsC3(message.symbol)) {
               const c3 = {};
               c3.currency = null;
               c3.delivery = null;
@@ -3060,7 +3115,7 @@ module.exports = (() => {
 
             accumulator.push(message);
           } catch (e) {
-            logger.warn(`Snapshot: Failed to process for symbol`);
+            logger.warn(`Snapshot: Failed to process symbol`);
           }
 
           return accumulator;
@@ -3070,57 +3125,14 @@ module.exports = (() => {
     });
   }
 
-  function retrieveSnapshotsUsingGetCmdtyStats(symbols, username, password) {
-    return Promise.resolve().then(() => {
-      const options = {
-        url: `https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getCmdtyQuotes.json?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&symbols=${encodeURIComponent(symbols.join(','))}`,
-        method: 'GET'
-      };
-      return Promise.resolve(axios(options)).then(response => {
-        const results = response.data.results || [];
-        const messages = symbols.reduce((accumulator, symbol) => {
-          try {
-            const result = results.find(result => result.symbol === symbol || result.shortSymbol === symbol);
-
-            if (!result) {
-              return accumulator;
-            }
-
-            const match = result.tradeTimestamp.match(regex.day);
-            const date = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
-            const dayCode = convertDateToDayCode(date);
-            const message = {};
-            message.type = 'REFRESH_QUOTE';
-
-            if (regex.cmdty.long.test(symbol)) {
-              message.symbol = result.symbol.toUpperCase();
-            } else {
-              message.symbol = result.shortSymbol.toUpperCase();
-            }
-
-            message.name = result.shortName;
-            message.exchange = 'CSTATS';
-            message.unitcode = '2';
-            message.day = dayCode;
-            message.dayNum = convertDayCodeToNumber(dayCode);
-            message.lastPrice = result.lastPrice;
-
-            if (result.previousClose) {
-              message.previousPrice = result.previousClose;
-            }
-
-            message.lastUpdate = date;
-            accumulator.push(message);
-          } catch (e) {
-            logger.warn(`Snapshot: Failed to process response for cmdtyStats symbol [ ${symbol} ]`);
-          }
-
-          return accumulator;
-        }, []);
-        return messages;
-      });
-    });
-  }
+  const regex = {};
+  regex.day = /^([0-9]{4}).?([0-9]{2}).?([0-9]{2})$/;
+  regex.c3 = {};
+  regex.c3.currencies = {};
+  regex.c3.currencies.eur = /^(EUR)\/(.*)$/i;
+  regex.c3.currencies.rub = /^(RUB)\/(.*)$/i;
+  regex.c3.currencies.uah = /^(UAH)\/(.*)$/i;
+  regex.c3.currencies.usd = /^(USD|Usc|\$|)\/(.*)$/i;
 
   function getC3Currency(lotSizeFix) {
     if (regex.c3.currencies.eur.test(lotSizeFix)) {
@@ -3136,20 +3148,10 @@ module.exports = (() => {
     }
   }
 
-  function getConcreteSymbol(symbol) {
-    if (regex.cmdty.alias.test(symbol)) {
-      return symbol.replace(regex.cmdty.alias, '$1$2.CS');
-    } else if (regex.c3.alias.test(symbol)) {
-      return symbol.replace(regex.c3.alias, '$2.C3');
-    } else {
-      return symbol;
-    }
-  }
-
   return retrieveSnapshots;
 })();
 
-},{"../../../utilities/convert/baseCodeToUnitCode":20,"../../../utilities/convert/dateToDayCode":21,"../../../utilities/convert/dayCodeToNumber":22,"./../../../logging/LoggerFactory":12,"@barchart/common-js/lang/array":41,"@barchart/common-js/lang/is":43,"axios":46}],10:[function(require,module,exports){
+},{"./../../../logging/LoggerFactory":12,"./../../../utilities/convert/baseCodeToUnitCode":20,"./../../../utilities/convert/dateToDayCode":21,"./../../../utilities/convert/dayCodeToNumber":22,"./../../../utilities/parsers/SymbolParser":35,"@barchart/common-js/lang/array":41,"@barchart/common-js/lang/is":43,"axios":46}],10:[function(require,module,exports){
 const axios = require('axios');
 
 const is = require('@barchart/common-js/lang/is');
@@ -3162,7 +3164,6 @@ module.exports = (() => {
    *
    * @function
    * @ignore
-   * @exported
    * @param {String} symbol - The symbol to lookup (i.e. the alias).
    * @returns {Promise<String>}
    */
@@ -4010,6 +4011,10 @@ module.exports = (() => {
 
       if (extension.firstNotice) {
         profile.firstNotice = extension.firstNotice;
+      }
+
+      if (extension.c3) {
+        profile.c3 = extension.c3;
       }
     };
 
@@ -5043,7 +5048,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.2.3'
+    version: '5.3.0'
   };
 })();
 
@@ -5062,7 +5067,6 @@ module.exports = (() => {
    * @function
    * @memberOf Functions
    * @ignore
-   * @exported
    * @param {Number} baseCode
    * @returns {String}
    */
@@ -5091,7 +5095,6 @@ module.exports = (() => {
    * @function
    * @memberOf Functions
    * @ignore
-   * @exported
    * @param {Date} date
    * @returns {String|null}
    */
@@ -5118,7 +5121,6 @@ module.exports = (() => {
    * @function
    * @memberOf Functions
    * @ignore
-   * @exported
    * @param {String} dayCode
    * @returns {Number|null}
    */
@@ -5158,7 +5160,6 @@ module.exports = (() => {
    * @function
    * @memberOf Functions
    * @ignore
-   * @exported
    * @param {Number} d
    * @returns {String}
    */
@@ -6621,6 +6622,317 @@ const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
   'use strict';
+  /**
+   * Static utilities for parsing symbols.
+   *
+   * @public
+   * @ignore
+   */
+
+  class SymbolParser {
+    constructor() {}
+    /**
+     * Returns true when a symbol is not an alias.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsConcrete(symbol) {
+      return is.string(symbol) && !this.getIsReference(symbol);
+    }
+    /**
+     * Returns true when a symbol is an alias.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsReference(symbol) {
+      return is.string(symbol) && types.futures.alias.test(symbol);
+    }
+    /**
+     * Returns true when a symbol represents futures contract.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsFuture(symbol) {
+      return is.string(symbol) && (types.futures.concrete.test(symbol) || types.futures.alias.test(symbol));
+    }
+    /**
+     * Returns true when a symbol represents futures spread.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsFutureSpread(symbol) {
+      return is.string(symbol) && types.futures.spread.test(symbol);
+    }
+    /**
+     * Returns true when a symbol represents an option on a futures contract.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsFutureOption(symbol) {
+      return is.string(symbol) && (types.futures.options.short.test(symbol) || types.futures.options.long.test(symbol) || types.futures.options.historical.test(symbol));
+    }
+    /**
+     *  Returns true when a symbol represents a foreign exchange currency pair.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsForex(symbol) {
+      return is.string(symbol) && types.forex.test(symbol);
+    }
+    /**
+     * Returns true if the symbol represents an external index (i.e. an index
+     * which is not generated by Barchart, e.g. the S&P 500).
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsIndex(symbol) {
+      return is.string(symbol) && types.indicies.external.test(symbol);
+    }
+    /**
+     * Returns true if the symbol represents an Barchart sector (i.e. a type
+     * of index calculated by Barchart).
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsSector(symbol) {
+      return is.string(symbol) && types.indicies.sector.test(symbol);
+    }
+    /**
+     * Returns true if the symbol represents an instrument which falls under the
+     * cmdty brand.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsCmdty(symbol) {
+      return is.string(symbol) && (types.cmdty.stats.test(symbol) || types.cmdty.internal.test(symbol) || types.cmdty.external.test(symbol));
+    }
+    /**
+     * Returns true if the symbol is listed on the BATS exchange.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsBats(symbol) {
+      return is.string(symbol) && predicates.bats.test(symbol);
+    }
+    /**
+     * Returns true if the symbol represents an option on an equity or index; false
+     * otherwise.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsEquityOption(symbol) {
+      return is.string(symbol) && types.equities.options.test(symbol);
+    }
+    /**
+     * Returns true if the symbol has an expiration and the symbol appears
+     * to be expired (e.g. a future for a past year).
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsExpired(symbol) {
+      const definition = SymbolParser.parseInstrumentType(symbol);
+      let returnVal = false;
+
+      if (definition !== null && definition.year && definition.month) {
+        const currentYear = getCurrentYear();
+
+        if (definition.year < currentYear) {
+          returnVal = true;
+        } else if (definition.year === currentYear && futuresMonthNumbers.hasOwnProperty(definition.month)) {
+          const currentMonth = getCurrentMonth();
+          const futuresMonth = futuresMonthNumbers[definition.month];
+
+          if (currentMonth > futuresMonth) {
+            returnVal = true;
+          }
+        }
+      }
+
+      return returnVal;
+    }
+    /**
+     * Returns true if the symbol represents a Commodity3 instrument.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsC3(symbol) {
+      return is.string(symbol) && (types.c3.concrete.test(symbol) || types.c3.alias.test(symbol));
+    }
+    /**
+     * Returns true if the symbol represents a Platts instrument.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsPlatts(symbol) {
+      return is.string(symbol) && types.platts.test(symbol);
+    }
+    /**
+     * Returns a simple instrument definition containing information which
+     * can be inferred from the symbol. A null value is returned if nothing
+     * can be inferred based solely on the symbol.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Object|null}
+     */
+
+
+    static parseInstrumentType(symbol) {
+      if (!is.string(symbol)) {
+        return null;
+      }
+
+      let definition = null;
+
+      for (let i = 0; i < parsers.length && definition === null; i++) {
+        const parser = parsers[i];
+        definition = parser(symbol);
+      }
+
+      return definition;
+    }
+    /**
+     * In some cases, multiple symbols can be used to refer to the same instrument
+     * (e.g. ZCZ1 and ZCZ21 may refer to the same futures contract). That said,
+     * internal quote servers may only recognize one of the symbols. So, given
+     * a symbol, this function will return the symbol which the internal quote
+     * servers will recognize. In other words, the symbol used by the quote "producer"
+     * is returned. In most cases, the same symbol is returned.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {String|null}
+     */
+
+
+    static getProducerSymbol(symbol) {
+      if (!is.string(symbol)) {
+        return null;
+      }
+
+      let converted = null;
+
+      for (let i = 0; i < converters.length && converted === null; i++) {
+        const converter = converters[i];
+        converted = converter(symbol);
+      }
+
+      return converted;
+    }
+    /**
+     * Converts a futures option symbol in "database" format to "pipeline" format
+     * (e.g. ZLF320Q -> ZLF9|320C).
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {String|null}
+     */
+
+
+    static getFuturesOptionPipelineFormat(symbol) {
+      const definition = SymbolParser.parseInstrumentType(symbol);
+      let formatted = null;
+
+      if (definition.type === 'future_option') {
+        const putCallCharacter = getPutCallCharacter(definition.option_type);
+        formatted = `${definition.root}${definition.month}${getYearDigits(definition.year, 1)}|${definition.strike}${putCallCharacter}`;
+      }
+
+      return formatted;
+    }
+    /**
+     * Returns true if prices for the symbol should be represented as a percentage; false
+     * otherwise.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static displayUsingPercent(symbol) {
+      return is.string(symbol) && predicates.percent.test(symbol);
+    }
+
+    toString() {
+      return '[SymbolParser]';
+    }
+
+  }
 
   const alternateFuturesMonths = {
     A: 'F',
@@ -6654,21 +6966,28 @@ module.exports = (() => {
   predicates.bats = /^(.*)\.BZ$/i;
   predicates.percent = /(\.RT)$/;
   const types = {};
-  types.forex = /^\^([A-Z]{3})([A-Z]{3})$/i;
-  types.futures = {};
-  types.futures.spread = /^_S_/i;
-  types.futures.concrete = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z]{1})([0-9]{4}|[0-9]{1,2})$/i;
-  types.futures.alias = /^([A-Z][A-Z0-9\$\-!\.]{0,2})(\*{1})([0-9]{1,2})$/i;
-  types.futures.options = {};
-  types.futures.options.short = /^([A-Z][A-Z0-9\$\-!\.]?)([A-Z])([0-9]{1,4})([A-Z])$/i;
-  types.futures.options.long = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i;
-  types.futures.options.historical = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{2})([0-9]{1,5})(C|P)$/i;
+  types.c3 = {};
+  types.c3.alias = /^(C3:)(.*)$/i;
+  types.c3.concrete = /(\.C3)$/i;
+  types.cmdty = {};
+  types.cmdty.stats = /(\.CS)$/i;
+  types.cmdty.internal = /(\.CM)$/i;
+  types.cmdty.external = /(\.CP)$/i;
   types.equities = {};
   types.equities.options = /^([A-Z\$][A-Z\-]{0,})([0-9]?)(\.[A-Z]{2})?\|([[0-9]{4})([[0-9]{2})([[0-9]{2})\|([0-9]+\.[0-9]+)[P|W]?(C|P)/i;
+  types.forex = /^\^([A-Z]{3})([A-Z]{3})$/i;
+  types.futures = {};
+  types.futures.alias = /^([A-Z][A-Z0-9\$\-!\.]{0,2})(\*{1})([0-9]{1,2})$/i;
+  types.futures.concrete = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z]{1})([0-9]{4}|[0-9]{1,2})$/i;
+  types.futures.spread = /^_S_/i;
+  types.futures.options = {};
+  types.futures.options.historical = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{2})([0-9]{1,5})(C|P)$/i;
+  types.futures.options.long = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i;
+  types.futures.options.short = /^([A-Z][A-Z0-9\$\-!\.]?)([A-Z])([0-9]{1,4})([A-Z])$/i;
   types.indicies = {};
   types.indicies.external = /^\$(.*)$/i;
   types.indicies.sector = /^\-(.*)$/i;
-  types.indicies.cmdty = /^(.*)\.CM$/i;
+  types.platts = /^(PLATTS:)(.*)$/i;
   const parsers = [];
   parsers.push(symbol => {
     let definition = null;
@@ -6841,6 +7160,15 @@ module.exports = (() => {
     return converted;
   });
   converters.push(symbol => {
+    let converted = null;
+
+    if (types.c3.alias.test(symbol)) {
+      converted = symbol.replace(types.c3.alias, '$2.C3');
+    }
+
+    return converted;
+  });
+  converters.push(symbol => {
     return symbol;
   });
 
@@ -6893,291 +7221,6 @@ module.exports = (() => {
     } else {
       return null;
     }
-  }
-  /**
-   * Static utilities for parsing symbols.
-   *
-   * @exported
-   * @public
-   * @ignore
-   */
-
-
-  class SymbolParser {
-    constructor() {}
-    /**
-     * Returns a simple instrument definition with the terms that can be
-     * gleaned from a symbol. If no specifics can be determined from the
-     * symbol, a null value is returned.
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {Object|null}
-     */
-
-
-    static parseInstrumentType(symbol) {
-      if (!is.string(symbol)) {
-        return null;
-      }
-
-      let definition = null;
-
-      for (let i = 0; i < parsers.length && definition === null; i++) {
-        const parser = parsers[i];
-        definition = parser(symbol);
-      }
-
-      return definition;
-    }
-    /**
-     * Translates a symbol into a form suitable for use with JERQ (i.e. the quote "producer").
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {String|null}
-     */
-
-
-    static getProducerSymbol(symbol) {
-      if (!is.string(symbol)) {
-        return null;
-      }
-
-      let converted = null;
-
-      for (let i = 0; i < converters.length && converted === null; i++) {
-        const converter = converters[i];
-        converted = converter(symbol);
-      }
-
-      return converted;
-    }
-    /**
-     * Attempts to convert database format of futures options to pipeline format
-     * (e.g. ZLF320Q -> ZLF9|320C)
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {String|null}
-     */
-
-
-    static getFuturesOptionPipelineFormat(symbol) {
-      const definition = SymbolParser.parseInstrumentType(symbol);
-      let formatted = null;
-
-      if (definition.type === 'future_option') {
-        const putCallCharacter = getPutCallCharacter(definition.option_type);
-        formatted = `${definition.root}${definition.month}${getYearDigits(definition.year, 1)}|${definition.strike}${putCallCharacter}`;
-      }
-
-      return formatted;
-    }
-    /**
-     * Returns true if the symbol is not an alias to another symbol; otherwise
-     * false.
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {Boolean}
-     */
-
-
-    static getIsConcrete(symbol) {
-      return is.string(symbol) && !types.futures.alias.test(symbol);
-    }
-    /**
-     * Returns true if the symbol is an alias for another symbol; false otherwise.
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {Boolean}
-     */
-
-
-    static getIsReference(symbol) {
-      return is.string(symbol) && types.futures.alias.test(symbol);
-    }
-    /**
-     * Returns true if the symbol represents futures contract; false otherwise.
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {Boolean}
-     */
-
-
-    static getIsFuture(symbol) {
-      return is.string(symbol) && (types.futures.concrete.test(symbol) || types.futures.alias.test(symbol));
-    }
-    /**
-     * Returns true if the symbol represents futures spread; false otherwise.
-     *
-     * @public
-     * @public
-     * @param {String} symbol
-     * @returns {Boolean}
-     */
-
-
-    static getIsFutureSpread(symbol) {
-      return is.string(symbol) && types.futures.spread.test(symbol);
-    }
-    /**
-     * Returns true if the symbol represents an option on a futures contract; false
-     * otherwise.
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {Boolean}
-     */
-
-
-    static getIsFutureOption(symbol) {
-      return is.string(symbol) && (types.futures.options.short.test(symbol) || types.futures.options.long.test(symbol) || types.futures.options.historical.test(symbol));
-    }
-    /**
-     * Returns true if the symbol represents a foreign exchange currency pair;
-     * false otherwise.
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {Boolean}
-     */
-
-
-    static getIsForex(symbol) {
-      return is.string(symbol) && types.forex.test(symbol);
-    }
-    /**
-     * Returns true if the symbol represents an external index (e.g. Dow Jones
-     * Industrials); false otherwise.
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {Boolean}
-     */
-
-
-    static getIsIndex(symbol) {
-      return is.string(symbol) && types.indicies.external.test(symbol);
-    }
-    /**
-     * Returns true if the symbol represents an internally-calculated sector
-     * index; false otherwise.
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {Boolean}
-     */
-
-
-    static getIsSector(symbol) {
-      return is.string(symbol) && types.indicies.sector.test(symbol);
-    }
-    /**
-     * Returns true if the symbol represents an internally-calculated, cmdty-branded
-     * index; false otherwise.
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {Boolean}
-     */
-
-
-    static getIsCmdty(symbol) {
-      return is.string(symbol) && types.indicies.cmdty.test(symbol);
-    }
-    /**
-     * Returns true if the symbol is listed on the BATS exchange; false otherwise.
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {Boolean}
-     */
-
-
-    static getIsBats(symbol) {
-      return is.string(symbol) && predicates.bats.test(symbol);
-    }
-    /**
-     * Returns true if the symbol represents an option on an equity or index; false
-     * otherwise.
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {Boolean}
-     */
-
-
-    static getIsEquityOption(symbol) {
-      return is.string(symbol) && types.equities.options.test(symbol);
-    }
-    /**
-     * Returns true if the symbol has an expiration and the symbol appears
-     * to be expired (e.g. a future for a past year).
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {Boolean}
-     */
-
-
-    static getIsExpired(symbol) {
-      const definition = SymbolParser.parseInstrumentType(symbol);
-      let returnVal = false;
-
-      if (definition !== null && definition.year && definition.month) {
-        const currentYear = getCurrentYear();
-
-        if (definition.year < currentYear) {
-          returnVal = true;
-        } else if (definition.year === currentYear && futuresMonthNumbers.hasOwnProperty(definition.month)) {
-          const currentMonth = getCurrentMonth();
-          const futuresMonth = futuresMonthNumbers[definition.month];
-
-          if (currentMonth > futuresMonth) {
-            returnVal = true;
-          }
-        }
-      }
-
-      return returnVal;
-    }
-    /**
-     * Returns true if prices for the symbol should be represented as a percentage; false
-     * otherwise.
-     *
-     * @public
-     * @static
-     * @param {String} symbol
-     * @returns {Boolean}
-     */
-
-
-    static displayUsingPercent(symbol) {
-      return is.string(symbol) && predicates.percent.test(symbol);
-    }
-
-    toString() {
-      return '[SymbolParser]';
-    }
-
   }
 
   return SymbolParser;
