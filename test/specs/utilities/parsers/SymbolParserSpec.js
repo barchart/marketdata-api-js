@@ -1510,6 +1510,108 @@ describe('When checking to see if a symbol is a C3 instrument', () => {
 	});
 });
 
+describe('When checking to see if a symbol is a Platts instrument', () => {
+	it('the symbol "ES*1" should return false', () => {
+		expect(SymbolParser.getIsPlatts('ES*1')).toEqual(false);
+	});
+
+	it('the symbol "ESZ6" should return false', () => {
+		expect(SymbolParser.getIsPlatts('ESZ6')).toEqual(false);
+	});
+
+	it('the symbol "ESZ16" should return false', () => {
+		expect(SymbolParser.getIsPlatts('ESZ16')).toEqual(false);
+	});
+
+	it('the symbol "ESZ2016" should return false', () => {
+		expect(SymbolParser.getIsPlatts('ESZ2016')).toEqual(false);
+	});
+
+	it('the symbol "ESZ016" should return false', () => {
+		expect(SymbolParser.getIsPlatts('ESZ016')).toEqual(false);
+	});
+
+	it('the symbol "O!H7" should return false', () => {
+		expect(SymbolParser.getIsPlatts('O!H7')).toEqual(false);
+	});
+
+	it('the symbol "O!H2017" should return false', () => {
+		expect(SymbolParser.getIsPlatts('O!H2017')).toEqual(false);
+	});
+
+	it('the symbol "IBM" should return false', () => {
+		expect(SymbolParser.getIsPlatts('IBM')).toEqual(false);
+	});
+
+	it('the symbol "^EURUSD" should return false', () => {
+		expect(SymbolParser.getIsPlatts('^EURUSD')).toEqual(false);
+	});
+
+	it('the symbol "-001A" should return false', () => {
+		expect(SymbolParser.getIsPlatts('-001A')).toEqual(false);
+	});
+
+	it('the symbol "$DOWI" should return false', () => {
+		expect(SymbolParser.getIsPlatts('$DOWI')).toEqual(false);
+	});
+
+	it('the symbol "$SG1E" should return false', () => {
+		expect(SymbolParser.getIsPlatts('$SG1E')).toEqual(false);
+	});
+
+	it('the symbol "_S_SP_ZCH7_ZCK7" should return false', () => {
+		expect(SymbolParser.getIsPlatts('_S_SP_ZCH7_ZCK7')).toEqual(false);
+	});
+
+	it('the symbol "ESZ2660Q" should return false', () => {
+		expect(SymbolParser.getIsPlatts('ESZ2660Q')).toEqual(false);
+	});
+
+	it('the symbol "ZWH9|470C" should return false', () => {
+		expect(SymbolParser.getIsPlatts('ZWH9|470C')).toEqual(false);
+	});
+
+	it('the symbol "BB1F8|12050C" should return false', () => {
+		expect(SymbolParser.getIsPlatts('BB1F8|12050C')).toEqual(false);
+	});
+
+	it('the symbol "ZWK18465C" should return false', () => {
+		expect(SymbolParser.getIsPlatts('ZWK18465C')).toEqual(false);
+	});
+
+	it('the symbol "PLATTS:AAVSV00C" should return true', () => {
+		expect(SymbolParser.getIsPlatts('PLATTS:AAVSV00C')).toEqual(true);
+	});
+
+	it('the symbol "PLATTS:AAVSV00" should return true', () => {
+		expect(SymbolParser.getIsPlatts('PLATTS:AAVSV00')).toEqual(true);
+	});
+
+	it('the symbol "ZCPAUS.CM" should return false', () => {
+		expect(SymbolParser.getIsPlatts('ZCPAUS.CM')).toEqual(false);
+	});
+
+	it('the symbol "AAPL|20200515|250.00C" should return false', () => {
+		expect(SymbolParser.getIsPlatts('AAPL|20200515|250.00C')).toEqual(false);
+	});
+
+	it('the symbol "$VIX|20200422|20.00WP" should return false', () => {
+		expect(SymbolParser.getIsPlatts('$VIX|20200422|20.00WP')).toEqual(false);
+	});
+
+	it('the symbol "HBM2.TO|20220121|1.00C" should return false', () => {
+		expect(SymbolParser.getIsPlatts('HBM2.TO|20220121|1.00C')).toEqual(false);
+	});
+
+	it('the symbol "AL79MRM1.C3" should return false', () => {
+		expect(SymbolParser.getIsPlatts('AL79MRM1.C3')).toEqual(false);
+	});
+
+	it('the symbol "C3:AL79MRM1" should return false', () => {
+		expect(SymbolParser.getIsPlatts('C3:AL79MRM1')).toEqual(false);
+	});
+});
+
 describe('When checking to see if a symbol is a BATS listing', () => {
 	it('the symbol "IBM" should return false', () => {
 		expect(SymbolParser.getIsBats('IBM')).toEqual(false);
