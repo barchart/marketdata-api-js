@@ -5048,7 +5048,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.3.0'
+    version: '5.4.0'
   };
 })();
 
@@ -6738,6 +6738,19 @@ module.exports = (() => {
       return is.string(symbol) && types.indicies.sector.test(symbol);
     }
     /**
+     * Returns true if the symbol represents a Canadian mutual fund.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsCanadianFund(symbol) {
+      return is.string(symbol) && types.funds.canadian.test(symbol);
+    }
+    /**
      * Returns true if the symbol represents an instrument which falls under the
      * cmdty brand.
      *
@@ -6976,6 +6989,8 @@ module.exports = (() => {
   types.equities = {};
   types.equities.options = /^([A-Z\$][A-Z\-]{0,})([0-9]?)(\.[A-Z]{2})?\|([[0-9]{4})([[0-9]{2})([[0-9]{2})\|([0-9]+\.[0-9]+)[P|W]?(C|P)/i;
   types.forex = /^\^([A-Z]{3})([A-Z]{3})$/i;
+  types.funds = {};
+  types.funds.canadian = /(.*)(\.CF)$/i;
   types.futures = {};
   types.futures.alias = /^([A-Z][A-Z0-9\$\-!\.]{0,2})(\*{1})([0-9]{1,2})$/i;
   types.futures.concrete = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z]{1})([0-9]{4}|[0-9]{1,2})$/i;
