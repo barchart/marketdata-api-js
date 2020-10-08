@@ -23,8 +23,8 @@ function getVersionFromPackage() {
 	return JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
 }
 
-function getVersionForComponent() {
-	return getVersionFromPackage().split('.').slice(0, 2).join('.');
+function getVersionForTestBundle() {
+	return getVersionFromPackage().split('.').slice(0, 1).join('.');
 }
 
 gulp.task('ensure-clean-working-directory', (cb) => {
@@ -158,13 +158,13 @@ gulp.task('deploy-documentation', gulp.series('upload-documentation-site-to-S3')
 
 gulp.task('build-browser-tests', () => {
 	return browserify({entries: glob.sync('test/specs/**/*.js')}).bundle()
-		.pipe(source('barchart-marketdata-api-tests-' + getVersionForComponent() + '.js'))
+		.pipe(source('barchart-marketdata-api-tests-' + getVersionForTestBundle() + '.js'))
 		.pipe(buffer())
 		.pipe(gulp.dest('test/dist'));
 });
 
 gulp.task('execute-browser-tests', () => {
-	return gulp.src('test/dist/barchart-marketdata-api-tests-' + getVersionForComponent() + '.js')
+	return gulp.src('test/dist/barchart-marketdata-api-tests-' + getVersionForTestBundle() + '.js')
 		.pipe(jasmine());
 });
 
