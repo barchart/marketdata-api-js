@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.4.0
+**New Features**
+
+* Added ```SymbolParser.getIsCanadianFund``` function.
+
 ## 5.3.0
 **New Features**
 
