@@ -1,5 +1,11 @@
 # Release Notes
 
+## 5.5.0
+**Configuration Changes**
+
+* Quotes for [Platts](https://www.spglobal.com/platts/en) instruments are sourced from JERQ (instead of OnDemand).
+* Symbols for [Platts](https://www.spglobal.com/platts/en) instruments now support `.PT` suffix, in addition to `PLATTS:` prefix.
+
 ## 5.4.0
 **New Features**
 
