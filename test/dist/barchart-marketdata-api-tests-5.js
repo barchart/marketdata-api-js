@@ -2780,7 +2780,7 @@ module.exports = (() => {
 
 
     static getIsPlatts(symbol) {
-      return is.string(symbol) && types.platts.test(symbol);
+      return is.string(symbol) && (types.platts.concrete.test(symbol) || types.platts.alias.test(symbol));
     }
     /**
      * Returns a simple instrument definition containing information which
@@ -2935,7 +2935,9 @@ module.exports = (() => {
   types.indicies = {};
   types.indicies.external = /^\$(.*)$/i;
   types.indicies.sector = /^\-(.*)$/i;
-  types.platts = /^(PLATTS:)(.*)$/i;
+  types.platts = {};
+  types.platts.alias = /^(PLATTS:)(.*)$/i;
+  types.platts.concrete = /^(.*)(\.PT)$/i;
   const parsers = [];
   parsers.push(symbol => {
     let definition = null;
@@ -3112,6 +3114,15 @@ module.exports = (() => {
 
     if (types.c3.alias.test(symbol)) {
       converted = symbol.replace(types.c3.alias, '$2.C3');
+    }
+
+    return converted;
+  });
+  converters.push(symbol => {
+    let converted = null;
+
+    if (types.platts.alias.test(symbol)) {
+      converted = symbol.replace(types.platts.alias, '$2.PT');
     }
 
     return converted;
@@ -17093,6 +17104,9 @@ describe('When checking to see if a symbol is a future', () => {
   it('the symbol "PLATTS:AAVSV00" should return false', () => {
     expect(SymbolParser.getIsFuture('PLATTS:AAVSV00')).toEqual(false);
   });
+  it('the symbol "AAVSV00.PT" should return false', () => {
+    expect(SymbolParser.getIsFuture('AAVSV00.PT')).toEqual(false);
+  });
   it('the symbol "ZCPAUS.CM" should return false', () => {
     expect(SymbolParser.getIsFuture('ZCPAUS.CM')).toEqual(false);
   });
@@ -17216,6 +17230,9 @@ describe('When checking to see if a symbol is sector', () => {
   it('the symbol "PLATTS:AAVSV00" should return false', () => {
     expect(SymbolParser.getIsSector('PLATTS:AAVSV00')).toEqual(false);
   });
+  it('the symbol "AAVSV00.PT" should return false', () => {
+    expect(SymbolParser.getIsSector('AAVSV00.PT')).toEqual(false);
+  });
   it('the symbol "ZCPAUS.CM" should return false', () => {
     expect(SymbolParser.getIsSector('ZCPAUS.CM')).toEqual(false);
   });
@@ -17301,6 +17318,9 @@ describe('When checking to see if a symbol is forex', () => {
   });
   it('the symbol "PLATTS:AAVSV00" should return false', () => {
     expect(SymbolParser.getIsForex('PLATTS:AAVSV00')).toEqual(false);
+  });
+  it('the symbol "AAVSV00.PT" should return false', () => {
+    expect(SymbolParser.getIsForex('AAVSV00.PT')).toEqual(false);
   });
   it('the symbol "ZCPAUS.CM" should return false', () => {
     expect(SymbolParser.getIsForex('ZCPAUS.CM')).toEqual(false);
@@ -17388,6 +17408,9 @@ describe('When checking to see if a symbol is a future spread', () => {
   it('the symbol "PLATTS:AAVSV00" should return false', () => {
     expect(SymbolParser.getIsFutureSpread('PLATTS:AAVSV00')).toEqual(false);
   });
+  it('the symbol "AAVSV00.PT" should return false', () => {
+    expect(SymbolParser.getIsFutureSpread('AAVSV00.PT')).toEqual(false);
+  });
   it('the symbol "ZCPAUS.CM" should return false', () => {
     expect(SymbolParser.getIsFutureSpread('ZCPAUS.CM')).toEqual(false);
   });
@@ -17473,6 +17496,9 @@ describe('When checking to see if a symbol is a future option', () => {
   });
   it('the symbol "PLATTS:AAVSV00" should return false', () => {
     expect(SymbolParser.getIsFutureOption('PLATTS:AAVSV00')).toEqual(false);
+  });
+  it('the symbol "AAVSV00.PT" should return false', () => {
+    expect(SymbolParser.getIsFutureOption('AAVSV00.PT')).toEqual(false);
   });
   it('the symbol "ZCPAUS.CM" should return false', () => {
     expect(SymbolParser.getIsFutureOption('ZCPAUS.CM')).toEqual(false);
@@ -17560,6 +17586,9 @@ describe('When checking to see if a symbol is a cmdty index option', () => {
   it('the symbol "PLATTS:AAVSV00" should return false', () => {
     expect(SymbolParser.getIsCmdty('PLATTS:AAVSV00')).toEqual(false);
   });
+  it('the symbol "AAVSV00.PT" should return false', () => {
+    expect(SymbolParser.getIsCmdty('AAVSV00.PT')).toEqual(false);
+  });
   it('the symbol "ZCPAUS.CM" should return true', () => {
     expect(SymbolParser.getIsCmdty('ZCPAUS.CM')).toEqual(true);
   });
@@ -17645,6 +17674,9 @@ describe('When checking to see if a symbol is a equity option', () => {
   });
   it('the symbol "PLATTS:AAVSV00" should return false', () => {
     expect(SymbolParser.getIsEquityOption('PLATTS:AAVSV00')).toEqual(false);
+  });
+  it('the symbol "AAVSV00.PT" should return false', () => {
+    expect(SymbolParser.getIsEquityOption('AAVSV00.PT')).toEqual(false);
   });
   it('the symbol "ZCPAUS.CM" should return false', () => {
     expect(SymbolParser.getIsEquityOption('ZCPAUS.CM')).toEqual(false);
@@ -17732,6 +17764,9 @@ describe('When checking to see if a symbol is a C3 instrument', () => {
   it('the symbol "PLATTS:AAVSV00" should return false', () => {
     expect(SymbolParser.getIsC3('PLATTS:AAVSV00')).toEqual(false);
   });
+  it('the symbol "AAVSV00.PT" should return false', () => {
+    expect(SymbolParser.getIsC3('AAVSV00.PT')).toEqual(false);
+  });
   it('the symbol "ZCPAUS.CM" should return false', () => {
     expect(SymbolParser.getIsC3('ZCPAUS.CM')).toEqual(false);
   });
@@ -17812,6 +17847,9 @@ describe('When checking to see if a symbol is a Platts instrument', () => {
   it('the symbol "PLATTS:AAVSV00" should return true', () => {
     expect(SymbolParser.getIsPlatts('PLATTS:AAVSV00')).toEqual(true);
   });
+  it('the symbol "AAVSV00.PT" should return true', () => {
+    expect(SymbolParser.getIsPlatts('AAVSV00.PT')).toEqual(true);
+  });
   it('the symbol "ZCPAUS.CM" should return false', () => {
     expect(SymbolParser.getIsPlatts('ZCPAUS.CM')).toEqual(false);
   });
@@ -17891,6 +17929,9 @@ describe('When checking to see if a symbol is a Canadian mutual fund', () => {
   });
   it('the symbol "PLATTS:AAVSV00" should return false', () => {
     expect(SymbolParser.getIsCanadianFund('PLATTS:AAVSV00')).toEqual(false);
+  });
+  it('the symbol "AAVSV00.PT" should return false', () => {
+    expect(SymbolParser.getIsCanadianFund('AAVSV00.PT')).toEqual(false);
   });
   it('the symbol "ZCPAUS.CM" should return false', () => {
     expect(SymbolParser.getIsCanadianFund('ZCPAUS.CM')).toEqual(false);
@@ -17976,8 +18017,11 @@ describe('When getting a producer symbol', () => {
   it('BZ6N20|25P should map to BZ6N20|25P', () => {
     expect(SymbolParser.getProducerSymbol('BZ6N20|25P')).toEqual('BZ6N0|25P');
   });
-  it('PLATTS:AAVSV00 should map to PLATTS:AAVSV00', () => {
-    expect(SymbolParser.getProducerSymbol('PLATTS:AAVSV00')).toEqual('PLATTS:AAVSV00');
+  it('PLATTS:AAVSV00 should map to AAVSV00.PT', () => {
+    expect(SymbolParser.getProducerSymbol('PLATTS:AAVSV00')).toEqual('AAVSV00.PT');
+  });
+  it('AAVSV00.PT should map to AAVSV00.PT', () => {
+    expect(SymbolParser.getProducerSymbol('AAVSV00.PT')).toEqual('AAVSV00.PT');
   });
   it('VIC400.CF should map to VIC400.CF', () => {
     expect(SymbolParser.getProducerSymbol('VIC400.CF')).toEqual('VIC400.CF');

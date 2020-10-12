@@ -417,7 +417,7 @@ module.exports = (() => {
   const C3 = ['AL79MRM1.C3', 'BSP9WGQ1.C3', 'RA10BGM1.C3'];
   const C3_OLD = ['C3:AL79MRM1', 'C3:BSP9WGQ1', 'C3:RA10BGM1'];
   const CMDTY = ['EUJU0Q51.CS', 'BC5L09YB.CS', 'EI3E06EI.CS', 'EI3E06EJ.CS'];
-  const PLATTS = ['PLATTS:RD52017', 'PLATTS:RD5MA17', 'PLATTS:RD52018'];
+  const PLATTS = ['PLATTS:AAWAB00', 'AAWAB00.PT', 'PLATTS:AAXVA00', 'AAXVA00.PT', 'PLATTS:CBAAF00', 'CBAAF00.PT'];
   const AG = ['ZCPAIA.CM', 'ZCPAIL.CM', 'ZCPAIN.CM', 'ZCPAKS.CM', 'ZCPAMI.CM'];
   const BOTH = ['ESZ19', 'ESZ9'];
   $(document).ready(function () {
@@ -1987,7 +1987,7 @@ module.exports = (() => {
 
 
     function getIsSnapshotSymbol(symbol) {
-      return SymbolParser.getIsPlatts(symbol) || SymbolParser.getIsCmdty(symbol);
+      return SymbolParser.getIsCmdty(symbol);
     }
     /**
      * Indicates if some profile information cannot be extracted from JERQ via
@@ -5048,7 +5048,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.4.0'
+    version: '5.5.0'
   };
 })();
 
@@ -6847,7 +6847,7 @@ module.exports = (() => {
 
 
     static getIsPlatts(symbol) {
-      return is.string(symbol) && types.platts.test(symbol);
+      return is.string(symbol) && (types.platts.concrete.test(symbol) || types.platts.alias.test(symbol));
     }
     /**
      * Returns a simple instrument definition containing information which
@@ -7002,7 +7002,9 @@ module.exports = (() => {
   types.indicies = {};
   types.indicies.external = /^\$(.*)$/i;
   types.indicies.sector = /^\-(.*)$/i;
-  types.platts = /^(PLATTS:)(.*)$/i;
+  types.platts = {};
+  types.platts.alias = /^(PLATTS:)(.*)$/i;
+  types.platts.concrete = /^(.*)(\.PT)$/i;
   const parsers = [];
   parsers.push(symbol => {
     let definition = null;
@@ -7179,6 +7181,15 @@ module.exports = (() => {
 
     if (types.c3.alias.test(symbol)) {
       converted = symbol.replace(types.c3.alias, '$2.C3');
+    }
+
+    return converted;
+  });
+  converters.push(symbol => {
+    let converted = null;
+
+    if (types.platts.alias.test(symbol)) {
+      converted = symbol.replace(types.platts.alias, '$2.PT');
     }
 
     return converted;
