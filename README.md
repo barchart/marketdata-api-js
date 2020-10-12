@@ -12,9 +12,10 @@
 
 ### Documentation
 
-Complete documentation for this SDK can be found here:
+Complete documentation for this SDK can be accessed at:
 
-http://barchart.github.io/marketdata-api-js/
+* [https://docs.barchart.com/marketdata-api-js/](https://docs.barchart.com/marketdata-api-js/) or
+* [https://barchart.github.io/marketdata-api-js/](https://barchart.github.io/marketdata-api-js/) or
 
 ### Demos
 
@@ -22,7 +23,7 @@ Working demos are available for web browser and Node.js environments. Please ref
 
 ### Package Managers
 
-This library has been published as a public package to NPM as [@barchart/marketdata-api-js](https://www.npmjs.com/package/@barchart/marketdata-api-js).
+This library has been published to NPM as [@barchart/marketdata-api-js](https://www.npmjs.com/package/@barchart/marketdata-api-js). Install as follows:
 
  ```sh
  npm install @barchart/marketdata-api-js -S
