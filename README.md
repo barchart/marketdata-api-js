@@ -6,9 +6,9 @@
 
 [Barchart](https://www.barchart.com) offers an exhaustive array of market data for multiple asset classes from exchanges around the world. **This SDK enables your applications to consume real-time market data**, as follows:
 
-* A WebSocket connection is established between your application and Barchart's quote servers.
-  * Your application sends subscription requests for individual symbols.
-  * Your application receives a stream of market data for subscribed symbols.
+* A WebSocket connection is established between your application and Barchart's quote servers, then
+* Your application sends subscription requests for individual symbol(s), then
+* Your application receives a stream of market data for subscribed symbol(s).
 
 ### Documentation
 
