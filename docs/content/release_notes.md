@@ -1,10 +1,21 @@
 # Release Notes
 
+## 5.6.0
+**New Features**
+
+* Added ```SymbolParser.getIsCmdtyStats``` function.
+
+**Configuration Changes**
+
+* Any quote for an internally-generated [cmdty](https://www.barchart.com/cmdty) instrument (e.g. `HOPAW001009.CM`) is now sourced from JERQ (instead of OnDemand).
+* Any quote for an externally-generated [cmdty](https://www.barchart.com/cmdty) instrument (e.g. `MER001.CP`) is now sourced from JERQ (instead of OnDemand).
+* Any quote for a cmdtyStats instrument (e.g. `AE030UBX.CS`) is sourced from OnDemand (this is unchanged from previous versions).
+
 ## 5.5.0
 **Configuration Changes**
 
 * Quotes for [Platts](https://www.spglobal.com/platts/en) instruments are sourced from JERQ (instead of OnDemand).
-* Symbols for [Platts](https://www.spglobal.com/platts/en) instruments now support `.PT` suffix, in addition to `PLATTS:` prefix.
+* Symbols for [Platts](https://www.spglobal.com/platts/en) instruments now support `.PT` suffix (in addition to `PLATTS:` prefix).
 
 ## 5.4.0
 **New Features**
