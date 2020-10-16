@@ -675,6 +675,14 @@ describe('When checking to see if a symbol is a future', () => {
 		expect(SymbolParser.getIsFuture('ZCPAUS.CM')).toEqual(false);
 	});
 
+	it('the symbol "SCB001.CP" should return false', () => {
+		expect(SymbolParser.getIsFuture('SCB001.CP')).toEqual(false);
+	});
+
+	it('the symbol "AE030UBX.CS" should return false', () => {
+		expect(SymbolParser.getIsFuture('AE030UBX.CS')).toEqual(false);
+	});
+
 	it('the symbol "AAPL|20200515|250.00C" should return false', () => {
 		expect(SymbolParser.getIsFuture('AAPL|20200515|250.00C')).toEqual(false);
 	});
@@ -841,6 +849,14 @@ describe('When checking to see if a symbol is sector', () => {
 		expect(SymbolParser.getIsSector('ZCPAUS.CM')).toEqual(false);
 	});
 
+	it('the symbol "SCB001.CP" should return false', () => {
+		expect(SymbolParser.getIsSector('SCB001.CP')).toEqual(false);
+	});
+
+	it('the symbol "AE030UBX.CS" should return false', () => {
+		expect(SymbolParser.getIsSector('AE030UBX.CS')).toEqual(false);
+	});
+
 	it('the symbol "AAPL|20200515|250.00C" should return false', () => {
 		expect(SymbolParser.getIsSector('AAPL|20200515|250.00C')).toEqual(false);
 	});
@@ -957,6 +973,14 @@ describe('When checking to see if a symbol is forex', () => {
 
 	it('the symbol "ZCPAUS.CM" should return false', () => {
 		expect(SymbolParser.getIsForex('ZCPAUS.CM')).toEqual(false);
+	});
+
+	it('the symbol "SCB001.CP" should return false', () => {
+		expect(SymbolParser.getIsForex('SCB001.CP')).toEqual(false);
+	});
+
+	it('the symbol "AE030UBX.CS" should return false', () => {
+		expect(SymbolParser.getIsForex('AE030UBX.CS')).toEqual(false);
 	});
 
 	it('the symbol "AAPL|20200515|250.00C" should return false', () => {
@@ -1077,6 +1101,14 @@ describe('When checking to see if a symbol is a future spread', () => {
 		expect(SymbolParser.getIsFutureSpread('ZCPAUS.CM')).toEqual(false);
 	});
 
+	it('the symbol "SCB001.CP" should return false', () => {
+		expect(SymbolParser.getIsFutureSpread('SCB001.CP')).toEqual(false);
+	});
+
+	it('the symbol "AE030UBX.CS" should return false', () => {
+		expect(SymbolParser.getIsFutureSpread('AE030UBX.CS')).toEqual(false);
+	});
+
 	it('the symbol "AAPL|20200515|250.00C" should return false', () => {
 		expect(SymbolParser.getIsFutureSpread('AAPL|20200515|250.00C')).toEqual(false);
 	});
@@ -1195,6 +1227,14 @@ describe('When checking to see if a symbol is a future option', () => {
 		expect(SymbolParser.getIsFutureOption('ZCPAUS.CM')).toEqual(false);
 	});
 
+	it('the symbol "SCB001.CP" should return false', () => {
+		expect(SymbolParser.getIsFutureOption('SCB001.CP')).toEqual(false);
+	});
+
+	it('the symbol "AE030UBX.CS" should return false', () => {
+		expect(SymbolParser.getIsFutureOption('AE030UBX.CS')).toEqual(false);
+	});
+
 	it('the symbol "AAPL|20200515|250.00C" should return false', () => {
 		expect(SymbolParser.getIsFutureOption('AAPL|20200515|250.00C')).toEqual(false);
 	});
@@ -1220,7 +1260,7 @@ describe('When checking to see if a symbol is a future option', () => {
 	});
 });
 
-describe('When checking to see if a symbol is a cmdty index option', () => {
+describe('When checking to see if a symbol is a cmdty-branded instrument', () => {
 	it('the symbol "ES*1" should return false', () => {
 		expect(SymbolParser.getIsCmdty('ES*1')).toEqual(false);
 	});
@@ -1313,6 +1353,14 @@ describe('When checking to see if a symbol is a cmdty index option', () => {
 		expect(SymbolParser.getIsCmdty('ZCPAUS.CM')).toEqual(true);
 	});
 
+	it('the symbol "SCB001.CP" should return true', () => {
+		expect(SymbolParser.getIsCmdty('SCB001.CP')).toEqual(true);
+	});
+
+	it('the symbol "AE030UBX.CS" should return true', () => {
+		expect(SymbolParser.getIsCmdty('AE030UBX.CS')).toEqual(true);
+	});
+
 	it('the symbol "AAPL|20200515|250.00C" should return false', () => {
 		expect(SymbolParser.getIsCmdty('AAPL|20200515|250.00C')).toEqual(false);
 	});
@@ -1335,6 +1383,132 @@ describe('When checking to see if a symbol is a cmdty index option', () => {
 
 	it('the symbol "VIC400.CF" should return false', () => {
 		expect(SymbolParser.getIsCmdty('VIC400.CF')).toEqual(false);
+	});
+});
+
+describe('When checking to see if a symbol is a cmdtyStats instrument', () => {
+	it('the symbol "ES*1" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('ES*1')).toEqual(false);
+	});
+
+	it('the symbol "NG*13" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('NG*13')).toEqual(false);
+	});
+
+	it('the symbol "ESZ6" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('ESZ6')).toEqual(false);
+	});
+
+	it('the symbol "ESZ16" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('ESZ16')).toEqual(false);
+	});
+
+	it('the symbol "ESZ2016" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('ESZ2016')).toEqual(false);
+	});
+
+	it('the symbol "ESZ016" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('ESZ016')).toEqual(false);
+	});
+
+	it('the symbol "O!H7" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('O!H7')).toEqual(false);
+	});
+
+	it('the symbol "O!H17" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('O!H17')).toEqual(false);
+	});
+
+	it('the symbol "O!H2017" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('O!H2017')).toEqual(false);
+	});
+
+	it('the symbol "IBM" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('IBM')).toEqual(false);
+	});
+
+	it('the symbol "^EURUSD" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('^EURUSD')).toEqual(false);
+	});
+
+	it('the symbol "-001A" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('-001A')).toEqual(false);
+	});
+
+	it('the symbol "$DOWI" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('$DOWI')).toEqual(false);
+	});
+
+	it('the symbol "$S1GE" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('$S1GE')).toEqual(false);
+	});
+
+	it('the symbol "_S_SP_ZCH7_ZCK7" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('_S_SP_ZCH7_ZCK7')).toEqual(false);
+	});
+
+	it('the symbol "ESZ2660Q" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('ESZ2660Q')).toEqual(false);
+	});
+
+	it('the symbol "ZWH9|470C" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('ZWH9|470C')).toEqual(false);
+	});
+
+	it('the symbol "BB1F8|12050C" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('BB1F8|12050C')).toEqual(false);
+	});
+
+	it('the symbol "ZWK18465C" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('ZWK18465C')).toEqual(false);
+	});
+
+	it('the symbol "PLATTS:AAVSV00C" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('PLATTS:AAVSV00C')).toEqual(false);
+	});
+
+	it('the symbol "PLATTS:AAVSV00" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('PLATTS:AAVSV00')).toEqual(false);
+	});
+
+	it('the symbol "AAVSV00.PT" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('AAVSV00.PT')).toEqual(false);
+	});
+
+	it('the symbol "ZCPAUS.CM" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('ZCPAUS.CM')).toEqual(false);
+	});
+
+	it('the symbol "SCB001.CP" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('SCB001.CP')).toEqual(false);
+	});
+
+	it('the symbol "AE030UBX.CS" should return true', () => {
+		expect(SymbolParser.getIsCmdtyStats('AE030UBX.CS')).toEqual(true);
+	});
+
+	it('the symbol "AAPL|20200515|250.00C" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('AAPL|20200515|250.00C')).toEqual(false);
+	});
+
+	it('the symbol "$VIX|20200422|20.00WP" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('$VIX|20200422|20.00WP')).toEqual(false);
+	});
+
+	it('the symbol "HBM2.TO|20220121|1.00C" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('HBM2.TO|20220121|1.00C')).toEqual(false);
+	});
+
+	it('the symbol "AL79MRM1.C3" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('AL79MRM1.C3')).toEqual(false);
+	});
+
+	it('the symbol "C3:AL79MRM1" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('C3:AL79MRM1')).toEqual(false);
+	});
+
+	it('the symbol "VIC400.CF" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('VIC400.CF')).toEqual(false);
 	});
 });
 
@@ -1429,6 +1603,14 @@ describe('When checking to see if a symbol is a equity option', () => {
 
 	it('the symbol "ZCPAUS.CM" should return false', () => {
 		expect(SymbolParser.getIsEquityOption('ZCPAUS.CM')).toEqual(false);
+	});
+
+	it('the symbol "SCB001.CP" should return false', () => {
+		expect(SymbolParser.getIsEquityOption('SCB001.CP')).toEqual(false);
+	});
+
+	it('the symbol "AE030UBX.CS" should return false', () => {
+		expect(SymbolParser.getIsEquityOption('AE030UBX.CS')).toEqual(false);
 	});
 
 	it('the symbol "AAPL|20200515|250.00C" should return true', () => {
@@ -1549,6 +1731,14 @@ describe('When checking to see if a symbol is a C3 instrument', () => {
 		expect(SymbolParser.getIsC3('ZCPAUS.CM')).toEqual(false);
 	});
 
+	it('the symbol "SCB001.CP" should return false', () => {
+		expect(SymbolParser.getIsC3('SCB001.CP')).toEqual(false);
+	});
+
+	it('the symbol "AE030UBX.CS" should return false', () => {
+		expect(SymbolParser.getIsC3('AE030UBX.CS')).toEqual(false);
+	});
+
 	it('the symbol "AAPL|20200515|250.00C" should return false', () => {
 		expect(SymbolParser.getIsC3('AAPL|20200515|250.00C')).toEqual(false);
 	});
@@ -1659,6 +1849,14 @@ describe('When checking to see if a symbol is a Platts instrument', () => {
 		expect(SymbolParser.getIsPlatts('ZCPAUS.CM')).toEqual(false);
 	});
 
+	it('the symbol "SCB001.CP" should return false', () => {
+		expect(SymbolParser.getIsPlatts('SCB001.CP')).toEqual(false);
+	});
+
+	it('the symbol "AE030UBX.CS" should return false', () => {
+		expect(SymbolParser.getIsPlatts('AE030UBX.CS')).toEqual(false);
+	});
+
 	it('the symbol "AAPL|20200515|250.00C" should return false', () => {
 		expect(SymbolParser.getIsPlatts('AAPL|20200515|250.00C')).toEqual(false);
 	});
@@ -1767,6 +1965,14 @@ describe('When checking to see if a symbol is a Canadian mutual fund', () => {
 
 	it('the symbol "ZCPAUS.CM" should return false', () => {
 		expect(SymbolParser.getIsCanadianFund('ZCPAUS.CM')).toEqual(false);
+	});
+
+	it('the symbol "SCB001.CP" should return false', () => {
+		expect(SymbolParser.getIsCanadianFund('SCB001.CP')).toEqual(false);
+	});
+
+	it('the symbol "AE030UBX.CS" should return false', () => {
+		expect(SymbolParser.getIsCanadianFund('AE030UBX.CS')).toEqual(false);
 	});
 
 	it('the symbol "AAPL|20200515|250.00C" should return false', () => {
