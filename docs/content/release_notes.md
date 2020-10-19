@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.7.0
+**Configuration Changes**
+
+* Any quote for a cmdtyStats instrument (e.g. `AE030UBX.CS`) is now sourced from JERQ (instead of OnDemand).
+
 ## 5.6.0
 **New Features**
 
