@@ -1987,7 +1987,7 @@ module.exports = (() => {
 
 
     function getIsSnapshotSymbol(symbol) {
-      return SymbolParser.getIsCmdtyStats(symbol);
+      return false;
     }
     /**
      * Indicates if some profile information cannot be extracted from JERQ via
@@ -5048,7 +5048,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.6.0'
+    version: '5.7.0'
   };
 })();
 
