@@ -5048,7 +5048,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.7.0'
+    version: '5.7.1'
   };
 })();
 
@@ -8478,7 +8478,8 @@ module.exports = (() => {
     },
 
     /**
-     * Set difference operation (using strict equality).
+     * Set difference operation, returning any item in "a" that is not
+     * contained in "b" (using strict equality).
      *
      * @static
      * @param {Array} a
@@ -8490,7 +8491,8 @@ module.exports = (() => {
     },
 
     /**
-     * Set difference operation, where the uniqueness is determined by a delegate.
+     * Set difference operation, returning any item in "a" that is not
+     * contained in "b" (where the uniqueness is determined by a delegate).
      *
      * @static
      * @param {Array} a
@@ -10037,7 +10039,7 @@ module.exports = function transformData(data, headers, fns) {
 };
 
 },{"./../utils":71}],61:[function(require,module,exports){
-(function (process){
+(function (process){(function (){
 'use strict';
 
 var utils = require('./utils');
@@ -10136,7 +10138,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-}).call(this,require('_process'))
+}).call(this)}).call(this,require('_process'))
 },{"./adapters/http":47,"./adapters/xhr":47,"./helpers/normalizeHeaderName":68,"./utils":71,"_process":72}],62:[function(require,module,exports){
 'use strict';
 
