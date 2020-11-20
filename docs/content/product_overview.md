@@ -50,7 +50,7 @@ This subscription provides the total volume traded (i.e. size) at each discrete 
 
 #### Web Browsers
 
-This SDK can be distributed as part of your browser-based applications. Consequently, your target browsers must support WebSockets (which all modern browsers do). Also, since the SDK's source code is written in [ES2018]((https://en.wikipedia.org/wiki/ECMAScript#9th_Edition_%E2%80%93_ECMAScript_2018), transpilation (with appropriate polyfills) is recommended before distribution.
+This SDK can be distributed as part of your browser-based applications. Your target browser(s) must support WebSockets (which all modern browsers do). Also, since the source code is written in [ES2018](https://en.wikipedia.org/wiki/ECMAScript#9th_Edition_%E2%80%93_ECMAScript_2018), transpilation is recommended.
 
 #### Node.js
 

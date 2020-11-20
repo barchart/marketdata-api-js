@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.7.1
+**No Functional Changes**
+
+* Minor improvements to documentation.
+
 ## 5.7.0
 **Configuration Changes**
 
