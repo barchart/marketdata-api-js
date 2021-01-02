@@ -1,0 +1,13 @@
+.idea
+node_modules
+.DS_Store
+npm-debug.log
+
+docs
+test
+example
+
+.gitignore
+.jshintrc
+gulpfile.js
+buildspec.yml
