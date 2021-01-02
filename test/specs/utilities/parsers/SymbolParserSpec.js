@@ -225,7 +225,7 @@ describe('When parsing a symbol for instrument type', () => {
 		});
 
 		it('the "year" should be 2020', () =>{
-			expect(instrumentType.year).toEqual(2020);
+			expect(instrumentType.year).toEqual(2030);
 		});
 	});
 

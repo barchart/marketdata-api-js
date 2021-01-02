@@ -3343,6 +3343,26 @@ module.exports = (() => {
       super(code, code);
     }
     /**
+     * Attempts to determine if daylight savings time is in effect.
+     *
+     * @public
+     * @param {Number=} timestamp - The moment at which the daylight savings time is checked, otherwise now.
+     * @returns {Number}
+     */
+
+
+    getIsDaylightSavingsTime(timestamp) {
+      let m;
+
+      if (is.number(timestamp)) {
+        m = moment(timestamp);
+      } else {
+        m = moment();
+      }
+
+      return m.tz(this.code).isDST();
+    }
+    /**
      * Calculates and returns the timezone's offset from UTC.
      *
      * @public
@@ -4463,7 +4483,7 @@ module.exports = (() => {
     },
 
     /**
-     * Attempts to guess the lock timezone.
+     * Attempts to guess the timezone of the current computer.
      *
      * @public
      * @static
@@ -16782,7 +16802,7 @@ describe('When parsing a symbol for instrument type', () => {
       instrumentType = SymbolParser.parseInstrumentType('CLF0');
     });
     it('the "year" should be 2020', () => {
-      expect(instrumentType.year).toEqual(2020);
+      expect(instrumentType.year).toEqual(2030);
     });
   });
   describe('and the symbol is CLF1 and the year is 2019', () => {
