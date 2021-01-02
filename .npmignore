@@ -11,3 +11,6 @@ example
 .jshintrc
 gulpfile.js
 buildspec.yml
+
+.awspublish-barchart-examples
+.awspublish-docs.barchart.com
