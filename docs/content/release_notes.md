@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.7.2
+**Technical Enhancements**
+
+* Add `.npmignore` file to reduce size of NPM package. The `docs`, `test`, and `example` folders are no longer included in the published package.
+
 ## 5.7.1
 **No Functional Changes**
 
