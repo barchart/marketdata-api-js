@@ -4,7 +4,7 @@
 
 ### Overview
 
-[Barchart](https://www.barchart.com) offers an exhaustive array of market data for multiple asset classes from exchanges around the world. **This SDK enables your applications to consume real-time market data**, as follows:
+[Barchart](https://www.barchart.com) offers an exhaustive array of market data for multiple asset classes which trade on exchanges around the world. **This SDK enables your applications to consume real-time market data**, as follows:
 
 * A **WebSocket** connection is established between your application and Barchart's quote servers, then
 * Your application requests market data for one or more symbols, then
@@ -19,7 +19,7 @@ Complete documentation for this SDK can be accessed at either of the following:
 
 ### Demos
 
-Working demos are available for web browser and Node.js environments. Please refer to the [documentation](https://barchart.github.io/marketdata-api-js/#/content/quick_start?id=demos).
+Working demos are available for web browser and Node.js environments. Please refer to the [documentation](https://docs.barchart.com/marketdata-api-js/#/content/quick_start?id=demos).
 
 ### Package Managers
 
@@ -31,4 +31,4 @@ This library has been published to NPM as [@barchart/marketdata-api-js](https://
 
 ### Build
 
-Source code is written in [ES2018](https://en.wikipedia.org/wiki/ECMAScript#9th_Edition_%E2%80%93_ECMAScript_2018). Consequently, transpilation (or polyfill use) is recommended for use in web browsers.
+Source code is written in [ES2018](https://en.wikipedia.org/wiki/ECMAScript#9th_Edition_%E2%80%93_ECMAScript_2018). Consequently, transpilation is recommended for use in web browsers.
