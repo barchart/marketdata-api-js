@@ -3113,7 +3113,9 @@ module.exports = (() => {
       const putCallCharacter = getPutCallCharacter(definition.option_type);
 
       if (definition.root.length < 3) {
-        const putCallCharacterCode = putCallCharacter.charCodeAt(0);
+        const putCallCharacterCode = putCallCharacter.charCodeAt(0); // 2021/01/02, BRI. Per Tom, symbols (for the same instrument) change each year.
+        // The letter D, E, F are calls (+1, +2, +3 years, respectively).
+
         converted = `${definition.root}${definition.month}${definition.strike}${String.fromCharCode(putCallCharacterCode + definition.year - getCurrentYear())}`;
       } else {
         converted = `${definition.root}${definition.month}${getYearDigits(definition.year, 1)}|${definition.strike}${putCallCharacter}`;
@@ -18193,10 +18195,10 @@ describe('When getting a producer symbol', () => {
     expect(SymbolParser.getProducerSymbol('ZWK465C')).toEqual('ZWK465C');
   });
   it('ZWK29465C should map to ZWK465L', () => {
-    expect(SymbolParser.getProducerSymbol('ZWK29465C')).toEqual('ZWK465L');
+    expect(SymbolParser.getProducerSymbol('ZWK29465C')).toEqual('ZWK465K');
   });
   it('ZWK9|465P should map to ZWK465Y', () => {
-    expect(SymbolParser.getProducerSymbol('ZWK9|465P')).toEqual('ZWK465Y');
+    expect(SymbolParser.getProducerSymbol('ZWK9|465P')).toEqual('ZWK465X');
   });
   it('BZ6N8|25C should map to BZ6N8|25C', () => {
     expect(SymbolParser.getProducerSymbol('BZ6N8|25C')).toEqual('BZ6N8|25C');

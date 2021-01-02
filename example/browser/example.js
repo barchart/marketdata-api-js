@@ -5048,7 +5048,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.7.1'
+    version: '5.7.2'
   };
 })();
 
@@ -7180,7 +7180,9 @@ module.exports = (() => {
       const putCallCharacter = getPutCallCharacter(definition.option_type);
 
       if (definition.root.length < 3) {
-        const putCallCharacterCode = putCallCharacter.charCodeAt(0);
+        const putCallCharacterCode = putCallCharacter.charCodeAt(0); // 2021/01/02, BRI. Per Tom, symbols (for the same instrument) change each year.
+        // The letter D, E, F are calls (+1, +2, +3 years, respectively).
+
         converted = `${definition.root}${definition.month}${definition.strike}${String.fromCharCode(putCallCharacterCode + definition.year - getCurrentYear())}`;
       } else {
         converted = `${definition.root}${definition.month}${getYearDigits(definition.year, 1)}|${definition.strike}${putCallCharacter}`;
@@ -8136,6 +8138,26 @@ module.exports = (() => {
   class Timezones extends Enum {
     constructor(code) {
       super(code, code);
+    }
+    /**
+     * Attempts to determine if daylight savings time is in effect.
+     *
+     * @public
+     * @param {Number=} timestamp - The moment at which the daylight savings time is checked, otherwise now.
+     * @returns {Number}
+     */
+
+
+    getIsDaylightSavingsTime(timestamp) {
+      let m;
+
+      if (is.number(timestamp)) {
+        m = moment(timestamp);
+      } else {
+        m = moment();
+      }
+
+      return m.tz(this.code).isDST();
     }
     /**
      * Calculates and returns the timezone's offset from UTC.
@@ -9258,7 +9280,7 @@ module.exports = (() => {
     },
 
     /**
-     * Attempts to guess the lock timezone.
+     * Attempts to guess the timezone of the current computer.
      *
      * @public
      * @static
