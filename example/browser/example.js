@@ -5048,7 +5048,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.7.2'
+    version: '5.7.3'
   };
 })();
 
