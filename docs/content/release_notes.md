@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.7.3
+**Technical Enhancements**
+
+* Upgrade [`@barchart/common-js`](https://github.com/barchart/common-js) dependency to version 4.0.0. No functional changes are included in this release.
+
 ## 5.7.2
 **Technical Enhancements**
 
