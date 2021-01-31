@@ -1,9 +1,14 @@
 # Release Notes
 
+## 5.7.4
+**Technical Enhancements**
+
+* Upgraded the [`axios`](https://github.com/barchart/common-js) dependency to version 0.21.1. No functional changes are included in this release.
+
 ## 5.7.3
 **Technical Enhancements**
 
-* Upgrade [`@barchart/common-js`](https://github.com/barchart/common-js) dependency to version 4.0.0. No functional changes are included in this release.
+* Upgraded the [`@barchart/common-js`](https://github.com/barchart/common-js) dependency to version 4.0.0. No functional changes are included in this release.
 
 ## 5.7.2
 **Technical Enhancements**
