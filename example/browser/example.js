@@ -5048,7 +5048,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.7.4'
+    version: '5.7.5'
   };
 })();
 
@@ -7000,7 +7000,7 @@ module.exports = (() => {
   types.cmdty.internal = /(\.CM)$/i;
   types.cmdty.external = /(\.CP)$/i;
   types.equities = {};
-  types.equities.options = /^([A-Z\$][A-Z\-]{0,})([0-9]?)(\.[A-Z]{2})?\|([[0-9]{4})([[0-9]{2})([[0-9]{2})\|([0-9]+\.[0-9]+)[P|W]?(C|P)/i;
+  types.equities.options = /^([A-Z\$][A-Z\-]{0,}(\.[A-Z]{1})?)([0-9]?)(\.[A-Z]{2})?\|([[0-9]{4})([[0-9]{2})([[0-9]{2})\|([0-9]+\.[0-9]+)[P|W]?(C|P)/i;
   types.forex = /^\^([A-Z]{3})([A-Z]{3})$/i;
   types.funds = {};
   types.funds.canadian = /(.*)(\.CF)$/i;
@@ -7077,17 +7077,17 @@ module.exports = (() => {
     const match = symbol.match(types.equities.options);
 
     if (match !== null) {
-      const suffix = typeof match[3] !== 'undefined' ? match[3] : '';
+      const suffix = typeof match[4] !== 'undefined' ? match[4] : '';
       definition = {};
       definition.symbol = symbol;
       definition.type = 'equity_option';
-      definition.option_type = match[8] === 'C' ? 'call' : 'put';
-      definition.strike = parseFloat(match[7]);
+      definition.option_type = match[9] === 'C' ? 'call' : 'put';
+      definition.strike = parseFloat(match[8]);
       definition.root = `${match[1]}${suffix}`;
-      definition.month = parseInt(match[5]);
-      definition.day = parseInt(match[6]);
-      definition.year = parseInt(match[4]);
-      definition.adjusted = match[2] !== '';
+      definition.month = parseInt(match[6]);
+      definition.day = parseInt(match[7]);
+      definition.year = parseInt(match[5]);
+      definition.adjusted = match[3] !== '';
     }
 
     return definition;
