@@ -1,9 +1,14 @@
 # Release Notes
 
+## 5.7.5
+**Bug Fixes**
+
+* Updated `SymbolParser.getIsEquityOption` and `SymbolParser.parseInstrumentType` to recognize options where the underlying equity symbol includes a dot character (e.g. `BRK.B|20210205|170.00C` or `BRK.B2|20210205|170.00C`).
+
 ## 5.7.4
 **Technical Enhancements**
 
-* Upgraded the [`axios`](https://github.com/barchart/common-js) dependency to version 0.21.1. No functional changes are included in this release.
+* Upgraded the [`axios`](https://github.com/axios/axios) dependency to version 0.21.1. No functional changes are included in this release.
 
 ## 5.7.3
 **Technical Enhancements**
