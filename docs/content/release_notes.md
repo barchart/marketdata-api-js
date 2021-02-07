@@ -3,7 +3,7 @@
 ## 5.7.5
 **Bug Fixes**
 
-* Updated `SymbolParser.getIsEquityOption` and `SymbolParser.parseInstrumentType` to recognize options where the underlying equity symbol includes a dot character (e.g. `BRK.B|20210205|170.00C` or `BRK.B2|20210205|170.00C`).
+* Updated `SymbolParser.getIsEquityOption` and `SymbolParser.parseInstrumentType` functions to recognize equity option symbols which include a dot character in the underlying equity (e.g. `BRK.B|20210205|170.00C` or `BRK.B2|20210205|170.00C`).
 
 ## 5.7.4
 **Technical Enhancements**
