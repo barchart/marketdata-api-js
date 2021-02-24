@@ -2465,3 +2465,17 @@ describe('When getting a producer symbol', () => {
 		expect(SymbolParser.getProducerSymbol('AAPL|20200515|250.00P')).toEqual('AAPL|20200515|250.00P');
 	});
 });
+
+describe('When checking to see if a symbol is pit-traded', () => {
+	it('the symbol "IBM" (with the name "International Business Machines") should return false', () => {
+		expect(SymbolParser.getIsPit('IBM', 'International Business Machines')).toEqual(false);
+	});
+
+	it('the symbol "ADU08" (with the name "Australian Dollar(P)") should return true', () => {
+		expect(SymbolParser.getIsPit('IBM', 'Australian Dollar(P)')).toEqual(true);
+	});
+
+	it('the symbol "BRQ17" (with the name "Brazilian Real (Pit)") should return true', () => {
+		expect(SymbolParser.getIsPit('IBM', 'Brazilian Real (Pit)')).toEqual(true);
+	});
+});
