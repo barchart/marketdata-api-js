@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.8.0
+**New Features**
+
+* Added utility function — called `SymbolParser.getIsPit` — to detect pit-traded instruments.
+
 ## 5.7.5
 **Bug Fixes**
 
