@@ -5048,7 +5048,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.7.5'
+    version: '5.8.0'
   };
 })();
 
@@ -6863,6 +6863,21 @@ module.exports = (() => {
       return is.string(symbol) && (types.platts.concrete.test(symbol) || types.platts.alias.test(symbol));
     }
     /**
+     * Returns true if the symbol represents a pit-traded instrument. The
+     * name must also be included.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @param {String} name
+     * @returns {Boolean}
+     */
+
+
+    static getIsPit(symbol, name) {
+      return is.string(symbol) && is.string(name) && predicates.pit.test(name);
+    }
+    /**
      * Returns a simple instrument definition containing information which
      * can be inferred from the symbol. A null value is returned if nothing
      * can be inferred based solely on the symbol.
@@ -6991,6 +7006,7 @@ module.exports = (() => {
   const predicates = {};
   predicates.bats = /^(.*)\.BZ$/i;
   predicates.percent = /(\.RT)$/;
+  predicates.pit = /\(P(it)?\)/;
   const types = {};
   types.c3 = {};
   types.c3.alias = /^(C3:)(.*)$/i;

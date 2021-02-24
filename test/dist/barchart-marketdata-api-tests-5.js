@@ -2796,6 +2796,21 @@ module.exports = (() => {
       return is.string(symbol) && (types.platts.concrete.test(symbol) || types.platts.alias.test(symbol));
     }
     /**
+     * Returns true if the symbol represents a pit-traded instrument. The
+     * name must also be included.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @param {String} name
+     * @returns {Boolean}
+     */
+
+
+    static getIsPit(symbol, name) {
+      return is.string(symbol) && is.string(name) && predicates.pit.test(name);
+    }
+    /**
      * Returns a simple instrument definition containing information which
      * can be inferred from the symbol. A null value is returned if nothing
      * can be inferred based solely on the symbol.
@@ -2924,6 +2939,7 @@ module.exports = (() => {
   const predicates = {};
   predicates.bats = /^(.*)\.BZ$/i;
   predicates.percent = /(\.RT)$/;
+  predicates.pit = /\(P(it)?\)/;
   const types = {};
   types.c3 = {};
   types.c3.alias = /^(C3:)(.*)$/i;
@@ -18496,6 +18512,17 @@ describe('When getting a producer symbol', () => {
   });
   it('AAPL|20200515|250.00P should map to AAPL|20200515|250.00P', () => {
     expect(SymbolParser.getProducerSymbol('AAPL|20200515|250.00P')).toEqual('AAPL|20200515|250.00P');
+  });
+});
+describe('When checking to see if a symbol is pit-traded', () => {
+  it('the symbol "IBM" (with the name "International Business Machines") should return false', () => {
+    expect(SymbolParser.getIsPit('IBM', 'International Business Machines')).toEqual(false);
+  });
+  it('the symbol "ADU08" (with the name "Australian Dollar(P)") should return true', () => {
+    expect(SymbolParser.getIsPit('IBM', 'Australian Dollar(P)')).toEqual(true);
+  });
+  it('the symbol "BRQ17" (with the name "Brazilian Real (Pit)") should return true', () => {
+    expect(SymbolParser.getIsPit('IBM', 'Brazilian Real (Pit)')).toEqual(true);
   });
 });
 
