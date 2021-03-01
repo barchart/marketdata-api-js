@@ -5,6 +5,7 @@
 
 * Fixed `SymbolParser.parseInstrumentType` handling of futures expiring between the year 2000 and 2009. Prior to the fix, a symbol `ZCH08` would have had its year set to 2028 instead of 2008. Please note that this is different from the `ZCH8` which does imply year 2028.
 
+
 ## 5.8.0
 **New Features**
 
