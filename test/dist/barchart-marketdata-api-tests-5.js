@@ -3901,72 +3901,25 @@ module.exports = (() => {
       } else if (comparator(item, a[0]) < 0) {
         a.unshift(item);
       } else {
-        a.splice(binarySearchForInsert(a, item, comparator, 0, a.length - 1), 0, item);
+        a.splice(binarySearch(a, item, comparator, 0, a.length - 1), 0, item);
       }
 
       return a;
-    },
-
-    /**
-     * Performs a binary search to locate an item within an array.
-     *
-     * @param {*[]} a
-     * @param {*} key
-     * @param {Function} comparator
-     * @param {Number=} start
-     * @param {Number=} end
-     * @returns {*|null}
-     */
-    binarySearch(a, key, comparator, start, end) {
-      assert.argumentIsArray(a, 'a');
-      assert.argumentIsRequired(comparator, 'comparator', Function);
-      assert.argumentIsOptional(start, 'start', Number);
-      assert.argumentIsOptional(end, 'end', Number);
-
-      if (a.length === 0) {
-        return null;
-      }
-
-      return binarySearchForMatch(a, key, comparator, start || 0, end || a.length - 1);
     }
 
   };
 
-  function binarySearchForMatch(a, key, comparator, start, end) {
+  function binarySearch(array, item, comparator, start, end) {
     const size = end - start;
     const midpointIndex = start + Math.floor(size / 2);
-    const midpointItem = a[midpointIndex];
-    const comparison = comparator(key, midpointItem);
-
-    if (comparison === 0) {
-      return midpointItem;
-    } else if (size < 2) {
-      const finalIndex = a.length - 1;
-      const finalItem = a[finalIndex];
-
-      if (end === finalIndex && comparator(key, finalItem) === 0) {
-        return finalItem;
-      } else {
-        return null;
-      }
-    } else if (comparison > 0) {
-      return binarySearchForMatch(a, key, comparator, midpointIndex, end);
-    } else {
-      return binarySearchForMatch(a, key, comparator, start, midpointIndex);
-    }
-  }
-
-  function binarySearchForInsert(a, item, comparator, start, end) {
-    const size = end - start;
-    const midpointIndex = start + Math.floor(size / 2);
-    const midpointItem = a[midpointIndex];
+    const midpointItem = array[midpointIndex];
     const comparison = comparator(item, midpointItem) > 0;
 
     if (size < 2) {
       if (comparison > 0) {
-        const finalIndex = a.length - 1;
+        const finalIndex = array.length - 1;
 
-        if (end === finalIndex && comparator(item, a[finalIndex]) > 0) {
+        if (end === finalIndex && comparator(item, array[finalIndex]) > 0) {
           return end + 1;
         } else {
           return end;
@@ -3975,9 +3928,9 @@ module.exports = (() => {
         return start;
       }
     } else if (comparison > 0) {
-      return binarySearchForInsert(a, item, comparator, midpointIndex, end);
+      return binarySearch(array, item, comparator, midpointIndex, end);
     } else {
-      return binarySearchForInsert(a, item, comparator, start, midpointIndex);
+      return binarySearch(array, item, comparator, start, midpointIndex);
     }
   }
 })();

@@ -5048,7 +5048,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.8.0'
+    version: '5.8.1'
   };
 })();
 
@@ -7252,7 +7252,7 @@ module.exports = (() => {
     const currentYear = getCurrentYear();
     let year = parseInt(yearString);
 
-    if (year < 10) {
+    if (year < 10 && yearString.length === 1) {
       const bump = year < currentYear % 10 ? 1 : 0;
       year = Math.floor(currentYear / 10) * 10 + year + bump * 10;
     } else if (year < 100) {
