@@ -13,6 +13,42 @@ describe('When parsing a symbol for instrument type', () => {
 		});
 	});
 
+	describe('and the symbol is ESM08', () => {
+		let instrumentType;
+
+		beforeEach(() => {
+			instrumentType = SymbolParser.parseInstrumentType('ESM08');
+		});
+
+		it('the result should not be null', () => {
+			expect(instrumentType).not.toBe(null);
+		});
+
+		it('the "symbol" should be "ESM08"', () => {
+			expect(instrumentType.symbol).toEqual('ESM08');
+		});
+
+		it('the "type" should be "future"', () => {
+			expect(instrumentType.type).toEqual('future');
+		});
+
+		it('the "dynamic" property should be false', () => {
+			expect(instrumentType.dynamic).toEqual(false);
+		});
+
+		it('the "root" should be "ES"', () => {
+			expect(instrumentType.root).toEqual('ES');
+		});
+
+		it('the "month" should be "M"', () => {
+			expect(instrumentType.month).toEqual('M');
+		});
+
+		it('the "year" should be 2008', () => {
+			expect(instrumentType.year).toEqual(2008);
+		});
+	});
+
 	describe('and the symbol is ESZ9', () => {
 		let instrumentType;
 

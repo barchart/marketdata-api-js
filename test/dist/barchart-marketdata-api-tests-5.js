@@ -3185,7 +3185,7 @@ module.exports = (() => {
     const currentYear = getCurrentYear();
     let year = parseInt(yearString);
 
-    if (year < 10) {
+    if (year < 10 && yearString.length === 1) {
       const bump = year < currentYear % 10 ? 1 : 0;
       year = Math.floor(currentYear / 10) * 10 + year + bump * 10;
     } else if (year < 100) {
@@ -3901,25 +3901,72 @@ module.exports = (() => {
       } else if (comparator(item, a[0]) < 0) {
         a.unshift(item);
       } else {
-        a.splice(binarySearch(a, item, comparator, 0, a.length - 1), 0, item);
+        a.splice(binarySearchForInsert(a, item, comparator, 0, a.length - 1), 0, item);
       }
 
       return a;
+    },
+
+    /**
+     * Performs a binary search to locate an item within an array.
+     *
+     * @param {*[]} a
+     * @param {*} key
+     * @param {Function} comparator
+     * @param {Number=} start
+     * @param {Number=} end
+     * @returns {*|null}
+     */
+    binarySearch(a, key, comparator, start, end) {
+      assert.argumentIsArray(a, 'a');
+      assert.argumentIsRequired(comparator, 'comparator', Function);
+      assert.argumentIsOptional(start, 'start', Number);
+      assert.argumentIsOptional(end, 'end', Number);
+
+      if (a.length === 0) {
+        return null;
+      }
+
+      return binarySearchForMatch(a, key, comparator, start || 0, end || a.length - 1);
     }
 
   };
 
-  function binarySearch(array, item, comparator, start, end) {
+  function binarySearchForMatch(a, key, comparator, start, end) {
     const size = end - start;
     const midpointIndex = start + Math.floor(size / 2);
-    const midpointItem = array[midpointIndex];
+    const midpointItem = a[midpointIndex];
+    const comparison = comparator(key, midpointItem);
+
+    if (comparison === 0) {
+      return midpointItem;
+    } else if (size < 2) {
+      const finalIndex = a.length - 1;
+      const finalItem = a[finalIndex];
+
+      if (end === finalIndex && comparator(key, finalItem) === 0) {
+        return finalItem;
+      } else {
+        return null;
+      }
+    } else if (comparison > 0) {
+      return binarySearchForMatch(a, key, comparator, midpointIndex, end);
+    } else {
+      return binarySearchForMatch(a, key, comparator, start, midpointIndex);
+    }
+  }
+
+  function binarySearchForInsert(a, item, comparator, start, end) {
+    const size = end - start;
+    const midpointIndex = start + Math.floor(size / 2);
+    const midpointItem = a[midpointIndex];
     const comparison = comparator(item, midpointItem) > 0;
 
     if (size < 2) {
       if (comparison > 0) {
-        const finalIndex = array.length - 1;
+        const finalIndex = a.length - 1;
 
-        if (end === finalIndex && comparator(item, array[finalIndex]) > 0) {
+        if (end === finalIndex && comparator(item, a[finalIndex]) > 0) {
           return end + 1;
         } else {
           return end;
@@ -3928,9 +3975,9 @@ module.exports = (() => {
         return start;
       }
     } else if (comparison > 0) {
-      return binarySearch(array, item, comparator, midpointIndex, end);
+      return binarySearchForInsert(a, item, comparator, midpointIndex, end);
     } else {
-      return binarySearch(array, item, comparator, start, midpointIndex);
+      return binarySearchForInsert(a, item, comparator, start, midpointIndex);
     }
   }
 })();
@@ -16659,6 +16706,33 @@ describe('When parsing a symbol for instrument type', () => {
     });
     it('the result should be null', () => {
       expect(instrumentType).toBe(null);
+    });
+  });
+  describe('and the symbol is ESM08', () => {
+    let instrumentType;
+    beforeEach(() => {
+      instrumentType = SymbolParser.parseInstrumentType('ESM08');
+    });
+    it('the result should not be null', () => {
+      expect(instrumentType).not.toBe(null);
+    });
+    it('the "symbol" should be "ESM08"', () => {
+      expect(instrumentType.symbol).toEqual('ESM08');
+    });
+    it('the "type" should be "future"', () => {
+      expect(instrumentType.type).toEqual('future');
+    });
+    it('the "dynamic" property should be false', () => {
+      expect(instrumentType.dynamic).toEqual(false);
+    });
+    it('the "root" should be "ES"', () => {
+      expect(instrumentType.root).toEqual('ES');
+    });
+    it('the "month" should be "M"', () => {
+      expect(instrumentType.month).toEqual('M');
+    });
+    it('the "year" should be 2008', () => {
+      expect(instrumentType.year).toEqual(2008);
     });
   });
   describe('and the symbol is ESZ9', () => {
