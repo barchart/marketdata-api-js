@@ -2,15 +2,15 @@
 
 **This SDK enables your JavaScript applications to consume real-time market data**, as follows:
 
-* A **WebSocket** connection is established between your application and Barchart's quote servers, then
+* A WebSocket connection is established between your application and Barchart's quote servers, then
 * Your application requests market data for one or more symbols, then
 * Your application receives a market data stream for subscribed symbols.
 
 ## Market Data Catalog
 
-Barchart offers an exhaustive array of market data for multiple asset classes which trade on exchanges around the world. Consult our website for more information:
+[Barchart](https://www.barchart.com) offers streaming market data for a wide range of asset classes which trade on exchanges around the world. Review our website for details:
 
-* [Barchart Market Data](https://www.barchart.com/solutions/data/market)
+* [Barchart Market Data Catalog](https://www.barchart.com/solutions/data/market)
 * [Barchart Streaming Services](https://www.barchart.com/solutions/services/stream)
 
 #### Asset Classes
