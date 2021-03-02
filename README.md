@@ -12,7 +12,7 @@
 
 **This SDK enables your applications to consume real-time market data**, as follows:
 
-* A **WebSocket** connection is established between your application and Barchart's quote servers, then
+* A WebSocket connection is established between your application and Barchart's quote servers, then
 * Your application requests market data for one or more symbols, then
 * Your application receives a market data stream for subscribed symbols.
 
