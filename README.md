@@ -8,7 +8,7 @@
 [Barchart](https://www.barchart.com) offers streaming market data:
 
 * For multiple asset classes,
-* For multiple exchanges around the world.
+* For [multiple exchanges](https://www.barchart.com/solutions/data/market) around the world.
 
 **This SDK enables your applications to consume real-time market data**, as follows:
 
