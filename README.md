@@ -13,10 +13,9 @@
 
 ### Documentation
 
-Complete documentation for this SDK can be accessed at either of the following:
+Complete documentation for this SDK can be accessed here:
 
 * [https://docs.barchart.com/marketdata-api-js/](https://docs.barchart.com/marketdata-api-js/)
-* [https://barchart.github.io/marketdata-api-js/](https://barchart.github.io/marketdata-api-js/)
 
 ### Demos
 
