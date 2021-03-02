@@ -5,10 +5,7 @@
 
 ### Overview
 
-[Barchart](https://www.barchart.com) offers streaming market data:
-
-* For multiple asset classes,
-* For [multiple exchanges](https://www.barchart.com/solutions/data/market) around the world.
+[Barchart](https://www.barchart.com) offers streaming market data for a wide range of asset classes which trade on exchanges around the world (review our [market data catalog](https://www.barchart.com/solutions/data/market) for details).
 
 **This SDK enables your applications to consume real-time market data**, as follows:
 
