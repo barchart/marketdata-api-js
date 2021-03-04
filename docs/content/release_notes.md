@@ -1,5 +1,14 @@
 # Release Notes
 
+## 5.9.0
+**New Features**
+
+* Added `convert/monthCodeToName.js` and `convert/monthCodeToName.js` functions.
+
+**Bug Fixes**
+
+* Updated `monthCodes.getCodeToNameMap` and `monthCodes.getCodeToNumberMap` to return copied objects, thereby protecting internal state from consumers.
+
 ## 5.8.1
 **Bug Fixes**
 
