@@ -7,7 +7,7 @@
 
 **Bug Fixes**
 
-* Updated `monthCodes.getCodeToNameMap` and `monthCodes.getCodeToNumberMap` to return copied objects, thereby protecting internal state from consumers.
+* Updated `monthCodes.getCodeToNameMap` and `monthCodes.getCodeToNumberMap` functions to return copied objects, thereby protecting internal state from consumers.
 
 ## 5.8.1
 **Bug Fixes**
