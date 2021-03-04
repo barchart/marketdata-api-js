@@ -599,7 +599,7 @@ module.exports = (() => {
   return CumulativeVolume;
 })();
 
-},{"./../logging/LoggerFactory":2,"@barchart/common-js/lang//object":31}],5:[function(require,module,exports){
+},{"./../logging/LoggerFactory":2,"@barchart/common-js/lang//object":33}],5:[function(require,module,exports){
 const SymbolParser = require('./../utilities/parsers/SymbolParser'),
       buildPriceFormatter = require('../utilities/format/factories/price');
 
@@ -764,7 +764,7 @@ module.exports = (() => {
   return Profile;
 })();
 
-},{"../utilities/format/factories/price":15,"./../utilities/parsers/SymbolParser":25}],6:[function(require,module,exports){
+},{"../utilities/format/factories/price":17,"./../utilities/parsers/SymbolParser":27}],6:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const UnitCode = require('./../data/UnitCode');
@@ -795,7 +795,7 @@ module.exports = (() => {
   return convertBaseCodeToUnitCode;
 })();
 
-},{"./../data/UnitCode":11,"@barchart/common-js/lang/is":30}],7:[function(require,module,exports){
+},{"./../data/UnitCode":13,"@barchart/common-js/lang/is":32}],7:[function(require,module,exports){
 const convertNumberToDayCode = require('./numberToDayCode');
 
 module.exports = (() => {
@@ -822,7 +822,7 @@ module.exports = (() => {
   return convertDateToDayCode;
 })();
 
-},{"./numberToDayCode":9}],8:[function(require,module,exports){
+},{"./numberToDayCode":11}],8:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -856,7 +856,67 @@ module.exports = (() => {
   return convertDayCodeToNumber;
 })();
 
-},{"@barchart/common-js/lang/is":30}],9:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":32}],9:[function(require,module,exports){
+const is = require('@barchart/common-js/lang/is');
+
+const monthCodes = require('./../data/monthCodes');
+
+module.exports = (() => {
+  'use strict';
+
+  const map = monthCodes.getCodeToNameMap();
+  /**
+   * Converts a futures month code to the month number (e.g. "F" to "January", or "N" to "July").
+   *
+   * @function
+   * @memberOf Functions
+   * @ignore
+   * @param {String} monthCode
+   * @returns {String|null}
+   */
+
+  function convertMonthCodeToNumber(monthCode) {
+    if (!is.string(monthCode)) {
+      return null;
+    }
+
+    return map[monthCode] || null;
+  }
+
+  return convertMonthCodeToNumber;
+})();
+
+},{"./../data/monthCodes":14,"@barchart/common-js/lang/is":32}],10:[function(require,module,exports){
+const is = require('@barchart/common-js/lang/is');
+
+const monthCodes = require('./../data/monthCodes');
+
+module.exports = (() => {
+  'use strict';
+
+  const map = monthCodes.getCodeToNumberMap();
+  /**
+   * Converts a futures month code to the month number (e.g. "F" to 1, or "N" to 7).
+   *
+   * @function
+   * @memberOf Functions
+   * @ignore
+   * @param {String} monthCode
+   * @returns {Number|null}
+   */
+
+  function convertMonthCodeToNumber(monthCode) {
+    if (!is.string(monthCode)) {
+      return null;
+    }
+
+    return map[monthCode] || null;
+  }
+
+  return convertMonthCodeToNumber;
+})();
+
+},{"./../data/monthCodes":14,"@barchart/common-js/lang/is":32}],11:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -893,7 +953,7 @@ module.exports = (() => {
   return convertNumberToDayCode;
 })();
 
-},{"@barchart/common-js/lang/is":30}],10:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":32}],12:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const UnitCode = require('./../data/UnitCode');
@@ -923,7 +983,7 @@ module.exports = (() => {
   return convertUnitCodeToBaseCode;
 })();
 
-},{"./../data/UnitCode":11,"@barchart/common-js/lang/is":30}],11:[function(require,module,exports){
+},{"./../data/UnitCode":13,"@barchart/common-js/lang/is":32}],13:[function(require,module,exports){
 const Enum = require('@barchart/common-js/lang/Enum');
 
 module.exports = (() => {
@@ -1138,7 +1198,7 @@ module.exports = (() => {
   return UnitCode;
 })();
 
-},{"@barchart/common-js/lang/Enum":26}],12:[function(require,module,exports){
+},{"@barchart/common-js/lang/Enum":28}],14:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1165,15 +1225,15 @@ module.exports = (() => {
   addMonth("Y", "Cash", 0);
   return {
     getCodeToNameMap: () => {
-      return monthMap;
+      return Object.assign({}, monthMap);
     },
     getCodeToNumberMap: () => {
-      return numberMap;
+      return Object.assign({}, numberMap);
     }
   };
 })();
 
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1207,7 +1267,7 @@ module.exports = (() => {
   return formatDate;
 })();
 
-},{}],14:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -1277,7 +1337,7 @@ module.exports = (() => {
   return formatDecimal;
 })();
 
-},{"@barchart/common-js/lang/is":30}],15:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":32}],17:[function(require,module,exports){
 const formatPrice = require('./../price');
 
 module.exports = (() => {
@@ -1313,7 +1373,7 @@ module.exports = (() => {
   return buildPriceFormatter;
 })();
 
-},{"./../price":17}],16:[function(require,module,exports){
+},{"./../price":19}],18:[function(require,module,exports){
 const formatQuote = require('./../quote');
 
 module.exports = (() => {
@@ -1347,7 +1407,7 @@ module.exports = (() => {
   return buildQuoteFormatter;
 })();
 
-},{"./../quote":18}],17:[function(require,module,exports){
+},{"./../quote":20}],19:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDecimal = require('./decimal');
@@ -1448,7 +1508,7 @@ module.exports = (() => {
   return formatPrice;
 })();
 
-},{"./../data/UnitCode":11,"./decimal":14,"@barchart/common-js/lang/is":30}],18:[function(require,module,exports){
+},{"./../data/UnitCode":13,"./decimal":16,"@barchart/common-js/lang/is":32}],20:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDate = require('./date'),
@@ -1533,7 +1593,7 @@ module.exports = (() => {
   return formatQuoteDateTime;
 })();
 
-},{"./date":13,"./time":20,"@barchart/common-js/lang/Timezones":27,"@barchart/common-js/lang/is":30}],19:[function(require,module,exports){
+},{"./date":15,"./time":22,"@barchart/common-js/lang/Timezones":29,"@barchart/common-js/lang/is":32}],21:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -1558,7 +1618,7 @@ module.exports = (() => {
   return formatSymbol;
 })();
 
-},{}],20:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1711,7 +1771,7 @@ module.exports = (() => {
   return formatTime;
 })();
 
-},{}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 const xmlDom = require('xmldom');
 
 const parseValue = require('./value'),
@@ -2264,7 +2324,7 @@ module.exports = (() => {
   return parseMessage;
 })();
 
-},{"./timestamp":22,"./value":23,"xmldom":35}],22:[function(require,module,exports){
+},{"./timestamp":24,"./value":25,"xmldom":37}],24:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -2318,7 +2378,7 @@ module.exports = (() => {
   return parseTimestamp;
 })();
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -2418,7 +2478,7 @@ module.exports = (() => {
   return parseValue;
 })();
 
-},{}],24:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const UnitCode = require('./../data/UnitCode');
@@ -2550,7 +2610,7 @@ module.exports = (() => {
   return parsePrice;
 })();
 
-},{"./../data/UnitCode":11,"@barchart/common-js/lang/is":30}],25:[function(require,module,exports){
+},{"./../data/UnitCode":13,"@barchart/common-js/lang/is":32}],27:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -3216,7 +3276,7 @@ module.exports = (() => {
   return SymbolParser;
 })();
 
-},{"@barchart/common-js/lang/is":30}],26:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":32}],28:[function(require,module,exports){
 const assert = require('./assert');
 
 module.exports = (() => {
@@ -3336,7 +3396,7 @@ module.exports = (() => {
   return Enum;
 })();
 
-},{"./assert":29}],27:[function(require,module,exports){
+},{"./assert":31}],29:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022');
 
 const Enum = require('./Enum'),
@@ -3478,7 +3538,7 @@ module.exports = (() => {
   return Timezones;
 })();
 
-},{"./Enum":26,"./is":30,"./timezone":32,"moment-timezone/builds/moment-timezone-with-data-2012-2022":33}],28:[function(require,module,exports){
+},{"./Enum":28,"./is":32,"./timezone":34,"moment-timezone/builds/moment-timezone-with-data-2012-2022":35}],30:[function(require,module,exports){
 const assert = require('./assert'),
       is = require('./is');
 
@@ -3935,7 +3995,7 @@ module.exports = (() => {
   }
 })();
 
-},{"./assert":29,"./is":30}],29:[function(require,module,exports){
+},{"./assert":31,"./is":32}],31:[function(require,module,exports){
 const is = require('./is');
 
 module.exports = (() => {
@@ -4080,7 +4140,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./is":30}],30:[function(require,module,exports){
+},{"./is":32}],32:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -4299,7 +4359,7 @@ module.exports = (() => {
   };
 })();
 
-},{}],31:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 const array = require('./array'),
       is = require('./is');
 
@@ -4459,7 +4519,7 @@ module.exports = (() => {
   return object;
 })();
 
-},{"./array":28,"./is":30}],32:[function(require,module,exports){
+},{"./array":30,"./is":32}],34:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022'),
       assert = require('./assert');
 
@@ -4514,7 +4574,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./assert":29,"moment-timezone/builds/moment-timezone-with-data-2012-2022":33}],33:[function(require,module,exports){
+},{"./assert":31,"moment-timezone/builds/moment-timezone-with-data-2012-2022":35}],35:[function(require,module,exports){
 //! moment-timezone.js
 //! version : 0.5.26
 //! Copyright (c) JS Foundation and other contributors
@@ -5740,7 +5800,7 @@ module.exports = (() => {
 	return moment;
 }));
 
-},{"moment":34}],34:[function(require,module,exports){
+},{"moment":36}],36:[function(require,module,exports){
 //! moment.js
 
 ;(function (global, factory) {
@@ -10344,7 +10404,7 @@ module.exports = (() => {
 
 })));
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -10597,7 +10657,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":36,"./sax":37}],36:[function(require,module,exports){
+},{"./dom":38,"./sax":39}],38:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -11843,7 +11903,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],37:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -12478,7 +12538,7 @@ function split(source,start){
 exports.XMLReader = XMLReader;
 
 
-},{}],38:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 const CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
 
 describe('When a cumulative volume container is created with a tick increment of 0.25', () => {
@@ -12817,7 +12877,7 @@ describe('When a cumulative volume container is created with a tick increment of
   });
 });
 
-},{"../../../lib/marketState/CumulativeVolume":4}],39:[function(require,module,exports){
+},{"../../../lib/marketState/CumulativeVolume":4}],41:[function(require,module,exports){
 const Profile = require('../../../lib/marketState/Profile');
 
 describe('When a Profile is created (for a symbol with unitCode "2")', () => {
@@ -12832,7 +12892,7 @@ describe('When a Profile is created (for a symbol with unitCode "2")', () => {
   });
 });
 
-},{"../../../lib/marketState/Profile":5}],40:[function(require,module,exports){
+},{"../../../lib/marketState/Profile":5}],42:[function(require,module,exports){
 const convertBaseCodeToUnitCode = require('./../../../../lib/utilities/convert/baseCodeToUnitCode');
 
 describe('When converting a baseCode to a unitCode', () => {
@@ -12889,7 +12949,7 @@ describe('When converting a baseCode to a unitCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":6}],41:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":6}],43:[function(require,module,exports){
 const convertDateToDayCode = require('./../../../../lib/utilities/convert/dateToDayCode');
 
 describe('When converting a date instance to a day code', () => {
@@ -12994,7 +13054,7 @@ describe('When converting a date instance to a day code', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dateToDayCode":7}],42:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dateToDayCode":7}],44:[function(require,module,exports){
 const convertDayCodeToNumber = require('./../../../../lib/utilities/convert/dayCodeToNumber');
 
 describe('When converting a dayCode to number', () => {
@@ -13165,7 +13225,37 @@ describe('When converting a dayCode to number', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dayCodeToNumber":8}],43:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dayCodeToNumber":8}],45:[function(require,module,exports){
+const convertMonthCodeToName = require('./../../../../lib/utilities/convert/monthCodeToName');
+
+describe('When converting a futures month code to a month name', () => {
+  it('The character "F" should translate to "January"', () => {
+    expect(convertMonthCodeToName('F')).toEqual('January');
+  });
+  it('The character "N" should translate to "July"', () => {
+    expect(convertMonthCodeToName('N')).toEqual('July');
+  });
+  it('The character "A" should translate to null value', () => {
+    expect(convertMonthCodeToName('A')).toBe(null);
+  });
+});
+
+},{"./../../../../lib/utilities/convert/monthCodeToName":9}],46:[function(require,module,exports){
+const convertMonthCodeToNumber = require('./../../../../lib/utilities/convert/monthCodeToNumber');
+
+describe('When converting a futures month code to a month name', () => {
+  it('The character "F" should translate to the number 1', () => {
+    expect(convertMonthCodeToNumber('F')).toEqual(1);
+  });
+  it('The character "N" should translate to the number 7', () => {
+    expect(convertMonthCodeToNumber('N')).toEqual(7);
+  });
+  it('The character "A" should translate to null value', () => {
+    expect(convertMonthCodeToNumber('A')).toBe(null);
+  });
+});
+
+},{"./../../../../lib/utilities/convert/monthCodeToNumber":10}],47:[function(require,module,exports){
 const convertNumberToDayCode = require('./../../../../lib/utilities/convert/numberToDayCode');
 
 describe('When converting a number to a dayCode', () => {
@@ -13270,7 +13360,7 @@ describe('When converting a number to a dayCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/numberToDayCode":9}],44:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/numberToDayCode":11}],48:[function(require,module,exports){
 const convertUnitCodeToBaseCode = require('./../../../../lib/utilities/convert/unitCodeToBaseCode');
 
 describe('When converting a unitCode to a baseCode', () => {
@@ -13327,7 +13417,7 @@ describe('When converting a unitCode to a baseCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":10}],45:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":12}],49:[function(require,module,exports){
 const UnitCode = require('../../../../lib/utilities/data/UnitCode');
 
 describe('When parsing an invalid argument', () => {
@@ -14022,7 +14112,7 @@ describe('When parsing a valid character as a unit code', () => {
   });
 });
 
-},{"../../../../lib/utilities/data/UnitCode":11}],46:[function(require,module,exports){
+},{"../../../../lib/utilities/data/UnitCode":13}],50:[function(require,module,exports){
 const monthCodes = require('../../../../lib/utilities/data/monthCodes');
 
 describe('When looking up a month name by code', () => {
@@ -14110,7 +14200,7 @@ describe('When looking up a month number by code', () => {
   });
 });
 
-},{"../../../../lib/utilities/data/monthCodes":12}],47:[function(require,module,exports){
+},{"../../../../lib/utilities/data/monthCodes":14}],51:[function(require,module,exports){
 const formatDate = require('./../../../../lib/utilities/format/date');
 
 describe('when using the date formatter', () => {
@@ -14122,7 +14212,7 @@ describe('when using the date formatter', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/date":13}],48:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/date":15}],52:[function(require,module,exports){
 const formatDecimal = require('./../../../../lib/utilities/format/decimal');
 
 describe('when formatting invalid values', () => {
@@ -14260,7 +14350,7 @@ describe('when formatting decimal values to format with parenthesis and no thous
   });
 });
 
-},{"./../../../../lib/utilities/format/decimal":14}],49:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/decimal":16}],53:[function(require,module,exports){
 const buildPriceFormatter = require('./../../../../../lib/utilities/format/factories/price');
 
 describe('When a price formatter is created', () => {
@@ -14620,7 +14710,7 @@ describe('When a price formatter is created', () => {
   });
 });
 
-},{"./../../../../../lib/utilities/format/factories/price":15}],50:[function(require,module,exports){
+},{"./../../../../../lib/utilities/format/factories/price":17}],54:[function(require,module,exports){
 const buildQuoteFormatter = require('./../../../../../lib/utilities/format/factories/quote');
 
 describe('When a time formatter is created (without specifying the clock)', () => {
@@ -15063,7 +15153,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../../lib/utilities/format/factories/quote":16}],51:[function(require,module,exports){
+},{"./../../../../../lib/utilities/format/factories/quote":18}],55:[function(require,module,exports){
 const formatPrice = require('./../../../../lib/utilities/format/price');
 /*
 describe('benchmark', () => {
@@ -15445,7 +15535,7 @@ describe('when valid prices are formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/price":17}],52:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/price":19}],56:[function(require,module,exports){
 const formatQuote = require('./../../../../lib/utilities/format/quote');
 
 describe('When a quote formatter is used (without specifying the clock)', () => {
@@ -15868,7 +15958,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../lib/utilities/format/quote":18}],53:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/quote":20}],57:[function(require,module,exports){
 const formatSymbol = require('./../../../../lib/utilities/format/symbol');
 
 describe('When a lowercase string is formatted as a symbol', () => {
@@ -15955,9 +16045,9 @@ describe('When an null value is formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/symbol":19}],54:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/symbol":21}],58:[function(require,module,exports){
 
-},{}],55:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 const parseMessage = require('../../../../../lib/utilities/parse/ddf/message');
 
 describe('when parsing an XML refresh message', () => {
@@ -16164,7 +16254,7 @@ describe('when parsing a DDF message', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/message":21}],56:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/message":23}],60:[function(require,module,exports){
 const parseValue = require('../../../../../lib/utilities/parse/ddf/value');
 
 describe('when parsing prices', () => {
@@ -16267,7 +16357,7 @@ describe('when parsing prices', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/value":23}],57:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/value":25}],61:[function(require,module,exports){
 const parsePrice = require('../../../../lib/utilities/parse/price');
 
 describe('when parsing invalid values', () => {
@@ -16648,7 +16738,7 @@ describe('when valid prices are parsed', () => {
   });
 });
 
-},{"../../../../lib/utilities/parse/price":24}],58:[function(require,module,exports){
+},{"../../../../lib/utilities/parse/price":26}],62:[function(require,module,exports){
 const SymbolParser = require('../../../../lib/utilities/parsers/SymbolParser');
 
 describe('When parsing a symbol for instrument type', () => {
@@ -18553,4 +18643,4 @@ describe('When checking to see if a symbol is pit-traded', () => {
   });
 });
 
-},{"../../../../lib/utilities/parsers/SymbolParser":25}]},{},[38,39,40,41,42,43,44,46,45,47,48,49,50,51,52,53,54,55,56,57,58]);
+},{"../../../../lib/utilities/parsers/SymbolParser":27}]},{},[40,41,42,43,44,45,46,47,48,50,49,51,52,53,54,55,56,57,58,59,60,61,62]);
