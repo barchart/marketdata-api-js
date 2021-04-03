@@ -18636,10 +18636,13 @@ describe('When checking to see if a symbol is pit-traded', () => {
     expect(SymbolParser.getIsPit('IBM', 'International Business Machines')).toEqual(false);
   });
   it('the symbol "ADU08" (with the name "Australian Dollar(P)") should return true', () => {
-    expect(SymbolParser.getIsPit('IBM', 'Australian Dollar(P)')).toEqual(true);
+    expect(SymbolParser.getIsPit('ADU08', 'Australian Dollar(P)')).toEqual(true);
   });
   it('the symbol "BRQ17" (with the name "Brazilian Real (Pit)") should return true', () => {
-    expect(SymbolParser.getIsPit('IBM', 'Brazilian Real (Pit)')).toEqual(true);
+    expect(SymbolParser.getIsPit('BRQ17', 'Brazilian Real (Pit)')).toEqual(true);
+  });
+  it('the symbol "CK21" (with the name "Corn (Pit) May 2021") should return true', () => {
+    expect(SymbolParser.getIsPit('CK21', 'Corn (Pit) May 2021')).toEqual(true);
   });
 });
 
