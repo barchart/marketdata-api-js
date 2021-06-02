@@ -16,7 +16,7 @@ module.exports = (() => {
 		var that = this;
 		var connection = null;
 
-		that.server = ko.observable('qsws-us-e-02.aws.barchart.com');
+		that.hostname = ko.observable('qsws-us-e-02.aws.barchart.com');
 
 		var timezoneLocal = timezones.guessTimezone();
 		var timezonesList = [ ];
@@ -129,11 +129,11 @@ module.exports = (() => {
 		that.connect = function() {
 			that.disconnect();
 
-			var server = that.server();
+			var hostname = that.hostname();
 			var username = that.username();
 			var password = that.password();
 
-			if (!server || !username || !password) {
+			if (!hostname || !username || !password) {
 				return;
 			}
 
@@ -149,7 +149,7 @@ module.exports = (() => {
 
 			connection.on('events', handleEvents);
 
-			connection.connect(server, username, password);
+			connection.connect(hostname, username, password);
 		};
 
 		that.disconnect = function() {

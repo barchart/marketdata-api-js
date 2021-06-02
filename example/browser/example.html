@@ -106,9 +106,9 @@
         <div class="container-center-outer">
             <div class="container-center-inner">
                 <form class="form-horizontal login">
-                    <div class="form-group" data-bind="css: { 'has-error': server().length === 0 }">
+                    <div class="form-group" data-bind="css: { 'has-error': hostname().length === 0 }">
                         <label class="pull-left">Server</label>
-                        <input class="form-control" data-bind="textInput: server" type="text" placeholder="Server">
+                        <input class="form-control" data-bind="textInput: hostname" type="text" placeholder="Server">
                     </div>
                     <div class="form-group" data-bind="css: { 'has-error': username().length === 0 }, event: { keypress: handleLoginKeypress }">
                         <label class="pull-left">Username</label>
@@ -177,7 +177,7 @@
     </script>
 
     <script type="text/html" id="footer-template">
-        <h4 class="pull-left"><a href="https://github.com/barchart/marketdata-api-js" target="_blank">[marketdata-api-js]</a><span data-bind="visible: connected"> <span data-bind="text: username"></span>@<span data-bind="text: server"></span></span></h4>
+        <h4 class="pull-left"><a href="https://github.com/barchart/marketdata-api-js" target="_blank">[marketdata-api-js]</a><span data-bind="visible: connected"> <span data-bind="text: username"></span>@<span data-bind="text: hostname"></span></span></h4>
         <h4 class="pull-right">Client Version: <span data-bind="text: version()"></span></h4>
     </script>
 </head>

@@ -41,7 +41,7 @@
 		"@barchart/common-js": "^4.0.0",
 		"axios": "^0.21.1",
 		"ws": "7.0.1",
-		"xmldom": "0.1.27"
+		"xmldom": "0.6.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.6.2",
