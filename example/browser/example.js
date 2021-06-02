@@ -16,7 +16,7 @@ module.exports = (() => {
   var PageModel = function () {
     var that = this;
     var connection = null;
-    that.server = ko.observable('qsws-us-e-02.aws.barchart.com');
+    that.hostname = ko.observable('qsws-us-e-02.aws.barchart.com');
     var timezoneLocal = timezones.guessTimezone();
     var timezonesList = [];
     timezonesList.push('Variable/Exchange_Local');
@@ -113,11 +113,11 @@ module.exports = (() => {
 
     that.connect = function () {
       that.disconnect();
-      var server = that.server();
+      var hostname = that.hostname();
       var username = that.username();
       var password = that.password();
 
-      if (!server || !username || !password) {
+      if (!hostname || !username || !password) {
         return;
       }
 
@@ -130,7 +130,7 @@ module.exports = (() => {
       connection = new Connection();
       connection.setExtendedProfileMode(true);
       connection.on('events', handleEvents);
-      connection.connect(server, username, password);
+      connection.connect(hostname, username, password);
     };
 
     that.disconnect = function () {
@@ -153,6 +153,26 @@ module.exports = (() => {
 
     that.resume = function () {
       connection.resume();
+    };
+
+    that.transmit = function () {
+      const message = that.symbol();
+      const matches = message.match(/ADD (.*)$/);
+
+      if (matches === null) {
+        connection.transmit(message);
+      } else {
+        var s = matches[1];
+        var model = new RowModel(s, that.timezone);
+
+        var handleMarketUpdate = function (m) {
+          model.quote(connection.getMarketState().getQuote(s));
+        };
+
+        model.setMarketUpdateHandler(handleMarketUpdate);
+        connection.on('marketUpdate', handleMarketUpdate, s);
+        that.rows.push(model);
+      }
     };
 
     that.handleLoginKeypress = function (d, e) {
@@ -510,9 +530,9 @@ module.exports = (() => {
       timestamp: []
     };
     const __loginInfo = {
+      hostname: null,
       username: null,
-      password: null,
-      server: null
+      password: null
     };
     let __decoder = null; //
     // Functions used to configure the connection.
@@ -557,17 +577,17 @@ module.exports = (() => {
      * reconnection if an involuntary disconnect occurs.
      *
      * @private
-     * @param {String} server
+     * @param {String} hostname
      * @param {String} username
      * @param {String} password
      * @param {WebSocketAdapterFactory} webSocketAdapterFactory
      */
 
 
-    function initializeConnection(server, username, password, webSocketAdapterFactory) {
+    function initializeConnection(hostname, username, password, webSocketAdapterFactory) {
       __connectionFactory = webSocketAdapterFactory;
       __reconnectAllowed = true;
-      connect(server, username, password);
+      connect(hostname, username, password);
     }
     /**
      * Disconnects from JERQ, setting the flag to prevent further reconnect attempts and
@@ -584,7 +604,7 @@ module.exports = (() => {
       __reconnectAllowed = false;
       __loginInfo.username = null;
       __loginInfo.password = null;
-      __loginInfo.server = null;
+      __loginInfo.hostname = null;
       __knownConsumerSymbols = {};
       __pendingProfileSymbols = {};
       __listeners.marketDepth = {};
@@ -599,15 +619,15 @@ module.exports = (() => {
      * Attempts to establish a connection to JERQ.
      *
      * @private
-     * @param {String} server
+     * @param {String} hostname
      * @param {String} username
      * @param {String} password
      */
 
 
-    function connect(server, username, password) {
-      if (!server) {
-        throw new Error('Unable to connect, the "server" argument is required.');
+    function connect(hostname, username, password) {
+      if (!hostname) {
+        throw new Error('Unable to connect, the "hostname" argument is required.');
       }
 
       if (!username) {
@@ -626,13 +646,21 @@ module.exports = (() => {
 
       ensureExchangeMetadata();
 
-      __logger.log(`Connection [ ${__instance} ]: Initializing. Version [ ${version} ]. Using [ ${username}@${server} ].`);
+      __logger.log(`Connection [ ${__instance} ]: Initializing. Version [ ${version} ]. Using [ ${username}@${hostname} ].`);
+
+      let protocol;
+
+      if (hostname === 'localhost') {
+        protocol = 'ws';
+      } else {
+        protocol = 'wss';
+      }
 
       __loginInfo.username = username;
       __loginInfo.password = password;
-      __loginInfo.server = server;
+      __loginInfo.hostname = hostname;
       __connectionState = state.disconnected;
-      __connection = __connectionFactory.build(`wss://${__loginInfo.server}/jerq`);
+      __connection = __connectionFactory.build(`${protocol}://${__loginInfo.hostname}/jerq`);
       __connection.binaryType = 'arraybuffer';
       __decoder = __connection.getDecoder();
 
@@ -677,7 +705,7 @@ module.exports = (() => {
           if (__reconnectAllowed) {
             __logger.log(`Connection [ ${__instance} ]: Scheduling reconnect attempt.`);
 
-            const reconnectAction = () => connect(__loginInfo.server, __loginInfo.username, __loginInfo.password);
+            const reconnectAction = () => connect(__loginInfo.hostname, __loginInfo.username, __loginInfo.password);
 
             const reconnectDelay = _RECONNECT_INTERVAL + Math.floor(Math.random() * _WATCHDOG_INTERVAL);
 
@@ -1098,6 +1126,23 @@ module.exports = (() => {
           __listeners.timestamp = removeHandler(__listeners.timestamp);
           break;
       }
+    }
+    /**
+     * Injects a message directly into the outbound message
+     * queue. This function should be used for diagnostic
+     * purposes only.
+     *
+     * @private
+     * @param {String} message
+     */
+
+
+    function transmit(message) {
+      if (typeof message !== 'string') {
+        throw new Error('The "message" argument must be a string.');
+      }
+
+      __outboundMessages.push(message);
     }
     /**
      * Enqueues a request to retrieve a profile.
@@ -2038,8 +2083,9 @@ module.exports = (() => {
       disconnect: terminateConnection,
       pause: pause,
       resume: resume,
-      off: off,
       on: on,
+      off: off,
+      transmit: transmit,
       getProducerSymbolCount: getProducerSymbolCount,
       setPollingFrequency: setPollingFrequency,
       setExtendedProfileMode: setExtendedProfileMode,
@@ -2064,7 +2110,7 @@ module.exports = (() => {
     }
 
     _connect(webSocketAdapterFactory) {
-      this._internal.connect(this.getServer(), this.getUsername(), this.getPassword(), webSocketAdapterFactory === null ? new WebSocketAdapterFactoryForBrowsers() : webSocketAdapterFactory);
+      this._internal.connect(this.getHostname(), this.getUsername(), this.getPassword(), webSocketAdapterFactory === null ? new WebSocketAdapterFactoryForBrowsers() : webSocketAdapterFactory);
     }
 
     _disconnect() {
@@ -2085,6 +2131,10 @@ module.exports = (() => {
 
     _off() {
       this._internal.off.apply(this._internal, arguments);
+    }
+
+    _transmit(message) {
+      this._internal.transmit.call(this._internal, message);
     }
 
     _getActiveSymbolCount() {
@@ -2132,7 +2182,7 @@ module.exports = (() => {
 
   class ConnectionBase {
     constructor() {
-      this._server = null;
+      this._hostname = null;
       this._username = null;
       this._password = null;
       this._marketState = new MarketState(symbol => this._handleProfileRequest(symbol));
@@ -2146,15 +2196,15 @@ module.exports = (() => {
      * {@link Enums.SubscriptionType}).
      *
      * @public
-     * @param {string} server - Barchart hostname (contact solutions@barchart.com)
+     * @param {string} hostname - Barchart hostname (contact solutions@barchart.com)
      * @param {string} username - Your username (contact solutions@barchart.com)
      * @param {string} password - Your password (contact solutions@barchart.com)
      * @param {WebSocketAdapterFactory=} webSocketAdapterFactory - Strategy for creating a WebSocket (required for Node.js)
      */
 
 
-    connect(server, username, password, webSocketAdapterFactory) {
-      this._server = server;
+    connect(hostname, username, password, webSocketAdapterFactory) {
+      this._hostname = hostname;
       this._username = username;
       this._password = password;
 
@@ -2178,7 +2228,7 @@ module.exports = (() => {
 
 
     disconnect() {
-      this._server = null;
+      this._hostname = null;
       this._username = null;
       this._password = null;
 
@@ -2275,6 +2325,23 @@ module.exports = (() => {
 
 
     _resume() {
+      return;
+    }
+    /**
+     * This undocumented function can be used to send a raw command to the
+     * remote server.
+     *
+     * @public
+     * @ignore
+     * @param {String} message
+     */
+
+
+    transmit(message) {
+      this._transmit(message);
+    }
+
+    _transmit(message) {
       return;
     }
 
@@ -2402,8 +2469,19 @@ module.exports = (() => {
      */
 
 
+    getHostname() {
+      return this._hostname;
+    }
+    /**
+     * The Barchart hostname.
+     *
+     * @public
+     * @returns {null|string}
+     */
+
+
     getServer() {
-      return this._server;
+      return this._hostname;
     }
     /**
      * The password used to authenticate to Barchart.
@@ -7418,6 +7496,7 @@ module.exports = (() => {
     /**
      * Compares two dates (in ascending order).
      *
+     * @public
      * @static
      * @param {Date} a
      * @param {Date} b
@@ -7432,6 +7511,7 @@ module.exports = (() => {
     /**
      * Compares two numbers (in ascending order).
      *
+     * @public
      * @static
      * @param {Number} a
      * @param {Number} b
@@ -7446,6 +7526,7 @@ module.exports = (() => {
     /**
      * Compares two strings (in ascending order), using {@link String#localeCompare}.
      *
+     * @public
      * @static
      * @param {String} a
      * @param {String} b
@@ -7460,6 +7541,7 @@ module.exports = (() => {
     /**
      * Compares two boolean values (in ascending order -- false first, true second).
      *
+     * @public
      * @static
      * @param {Boolean} a
      * @param {Boolean} b
@@ -7481,6 +7563,7 @@ module.exports = (() => {
     /**
      * Compares two objects, always returning zero.
      *
+     * @public
      * @static
      * @param {*} a
      * @param {*} b
@@ -8696,25 +8779,72 @@ module.exports = (() => {
       } else if (comparator(item, a[0]) < 0) {
         a.unshift(item);
       } else {
-        a.splice(binarySearch(a, item, comparator, 0, a.length - 1), 0, item);
+        a.splice(binarySearchForInsert(a, item, comparator, 0, a.length - 1), 0, item);
       }
 
       return a;
+    },
+
+    /**
+     * Performs a binary search to locate an item within an array.
+     *
+     * @param {*[]} a
+     * @param {*} key
+     * @param {Function} comparator
+     * @param {Number=} start
+     * @param {Number=} end
+     * @returns {*|null}
+     */
+    binarySearch(a, key, comparator, start, end) {
+      assert.argumentIsArray(a, 'a');
+      assert.argumentIsRequired(comparator, 'comparator', Function);
+      assert.argumentIsOptional(start, 'start', Number);
+      assert.argumentIsOptional(end, 'end', Number);
+
+      if (a.length === 0) {
+        return null;
+      }
+
+      return binarySearchForMatch(a, key, comparator, start || 0, end || a.length - 1);
     }
 
   };
 
-  function binarySearch(array, item, comparator, start, end) {
+  function binarySearchForMatch(a, key, comparator, start, end) {
     const size = end - start;
     const midpointIndex = start + Math.floor(size / 2);
-    const midpointItem = array[midpointIndex];
+    const midpointItem = a[midpointIndex];
+    const comparison = comparator(key, midpointItem);
+
+    if (comparison === 0) {
+      return midpointItem;
+    } else if (size < 2) {
+      const finalIndex = a.length - 1;
+      const finalItem = a[finalIndex];
+
+      if (end === finalIndex && comparator(key, finalItem) === 0) {
+        return finalItem;
+      } else {
+        return null;
+      }
+    } else if (comparison > 0) {
+      return binarySearchForMatch(a, key, comparator, midpointIndex, end);
+    } else {
+      return binarySearchForMatch(a, key, comparator, start, midpointIndex);
+    }
+  }
+
+  function binarySearchForInsert(a, item, comparator, start, end) {
+    const size = end - start;
+    const midpointIndex = start + Math.floor(size / 2);
+    const midpointItem = a[midpointIndex];
     const comparison = comparator(item, midpointItem) > 0;
 
     if (size < 2) {
       if (comparison > 0) {
-        const finalIndex = array.length - 1;
+        const finalIndex = a.length - 1;
 
-        if (end === finalIndex && comparator(item, array[finalIndex]) > 0) {
+        if (end === finalIndex && comparator(item, a[finalIndex]) > 0) {
           return end + 1;
         } else {
           return end;
@@ -8723,9 +8853,9 @@ module.exports = (() => {
         return start;
       }
     } else if (comparison > 0) {
-      return binarySearch(array, item, comparator, midpointIndex, end);
+      return binarySearchForInsert(a, item, comparator, midpointIndex, end);
     } else {
-      return binarySearch(array, item, comparator, start, midpointIndex);
+      return binarySearchForInsert(a, item, comparator, start, midpointIndex);
     }
   }
 })();
@@ -16920,8 +17050,8 @@ process.umask = function() { return 0; };
 },{}],76:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
-	
 }
+
 DOMParser.prototype.parseFromString = function(source,mimeType){
 	var options = this.options;
 	var sax =  new XMLReader();
@@ -16929,20 +17059,19 @@ DOMParser.prototype.parseFromString = function(source,mimeType){
 	var errorHandler = options.errorHandler;
 	var locator = options.locator;
 	var defaultNSMap = options.xmlns||{};
-	var entityMap = {'lt':'<','gt':'>','amp':'&','quot':'"','apos':"'"}
+	var isHTML = /\/x?html?$/.test(mimeType);//mimeType.toLowerCase().indexOf('html') > -1;
+  	var entityMap = isHTML?htmlEntity.entityMap:{'lt':'<','gt':'>','amp':'&','quot':'"','apos':"'"};
 	if(locator){
 		domBuilder.setDocumentLocator(locator)
 	}
-	
+
 	sax.errorHandler = buildErrorHandler(errorHandler,domBuilder,locator);
 	sax.domBuilder = options.domBuilder || domBuilder;
-	if(/\/x?html?$/.test(mimeType)){
-		entityMap.nbsp = '\xa0';
-		entityMap.copy = '\xa9';
+	if(isHTML){
 		defaultNSMap['']= 'http://www.w3.org/1999/xhtml';
 	}
 	defaultNSMap.xml = defaultNSMap.xml || 'http://www.w3.org/XML/1998/namespace';
-	if(source){
+	if(source && typeof source === 'string'){
 		sax.parse(source,defaultNSMap,entityMap);
 	}else{
 		sax.errorHandler.error("invalid doc source");
@@ -16978,8 +17107,8 @@ function buildErrorHandler(errorImpl,domBuilder,locator){
 /**
  * +ContentHandler+ErrorHandler
  * +LexicalHandler+EntityResolver2
- * -DeclHandler-DTDHandler 
- * 
+ * -DeclHandler-DTDHandler
+ *
  * DefaultHandler:EntityResolver, DTDHandler, ContentHandler, ErrorHandler
  * DefaultHandler2:DefaultHandler,LexicalHandler, DeclHandler, EntityResolver2
  * @link http://www.saxproject.org/apidoc/org/xml/sax/helpers/DefaultHandler.html
@@ -16994,7 +17123,7 @@ function position(locator,node){
 /**
  * @see org.xml.sax.ContentHandler#startDocument
  * @link http://www.saxproject.org/apidoc/org/xml/sax/ContentHandler.html
- */ 
+ */
 DOMHandler.prototype = {
 	startDocument : function() {
     	this.doc = new DOMImplementation().createDocument(null, null, null);
@@ -17008,7 +17137,7 @@ DOMHandler.prototype = {
 	    var len = attrs.length;
 	    appendElement(this, el);
 	    this.currentElement = el;
-	    
+
 		this.locator && position(this.locator,el)
 	    for (var i = 0 ; i < len; i++) {
 	        var namespaceURI = attrs.getURI(i);
@@ -17071,7 +17200,7 @@ DOMHandler.prototype = {
 	    this.locator && position(this.locator,comm)
 	    appendElement(this, comm);
 	},
-	
+
 	startCDATA:function() {
 	    //used in characters() methods
 	    this.cdata = true;
@@ -17079,7 +17208,7 @@ DOMHandler.prototype = {
 	endCDATA:function() {
 	    this.cdata = false;
 	},
-	
+
 	startDTD:function(name, publicId, systemId) {
 		var impl = this.doc.implementation;
 	    if (impl && impl.createDocumentType) {
@@ -17099,8 +17228,7 @@ DOMHandler.prototype = {
 		console.error('[xmldom error]\t'+error,_locator(this.locator));
 	},
 	fatalError:function(error) {
-		console.error('[xmldom fatalError]\t'+error,_locator(this.locator));
-	    throw error;
+		throw new ParseError(error, this.locator);
 	}
 }
 function _locator(l){
@@ -17164,20 +17292,17 @@ function appendElement (hander,node) {
 }//appendChild and setAttributeNS are preformance key
 
 //if(typeof require == 'function'){
-	var XMLReader = require('./sax').XMLReader;
-	var DOMImplementation = exports.DOMImplementation = require('./dom').DOMImplementation;
-	exports.XMLSerializer = require('./dom').XMLSerializer ;
-	exports.DOMParser = DOMParser;
+var htmlEntity = require('./entities');
+var sax = require('./sax');
+var XMLReader = sax.XMLReader;
+var ParseError = sax.ParseError;
+var DOMImplementation = exports.DOMImplementation = require('./dom').DOMImplementation;
+exports.XMLSerializer = require('./dom').XMLSerializer ;
+exports.DOMParser = DOMParser;
+exports.__DOMHandler = DOMHandler;
 //}
 
-},{"./dom":77,"./sax":78}],77:[function(require,module,exports){
-/*
- * DOM Level 2
- * Object DOMException
- * @see http://www.w3.org/TR/REC-DOM-Level-1/ecma-script-language-binding.html
- * @see http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/ecma-script-binding.html
- */
-
+},{"./dom":77,"./entities":78,"./sax":79}],77:[function(require,module,exports){
 function copy(src,dest){
 	for(var p in src){
 		dest[p] = src[p];
@@ -17189,10 +17314,6 @@ function copy(src,dest){
  */
 function _extends(Class,Super){
 	var pt = Class.prototype;
-	if(Object.create){
-		var ppt = Object.create(Super.prototype)
-		pt.__proto__ = ppt;
-	}
 	if(!(pt instanceof Super)){
 		function t(){};
 		t.prototype = Super.prototype;
@@ -17243,7 +17364,12 @@ var INVALID_MODIFICATION_ERR 	= ExceptionCode.INVALID_MODIFICATION_ERR 	= ((Exce
 var NAMESPACE_ERR            	= ExceptionCode.NAMESPACE_ERR           	= ((ExceptionMessage[14]="Invalid namespace"),14);
 var INVALID_ACCESS_ERR       	= ExceptionCode.INVALID_ACCESS_ERR      	= ((ExceptionMessage[15]="Invalid access"),15);
 
-
+/**
+ * DOM Level 2
+ * Object DOMException
+ * @see http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/ecma-script-binding.html
+ * @see http://www.w3.org/TR/REC-DOM-Level-1/ecma-script-language-binding.html
+ */
 function DOMException(code, message) {
 	if(message instanceof Error){
 		var error = message;
@@ -17785,6 +17911,21 @@ Document.prototype = {
 		return rtv;
 	},
 	
+	getElementsByClassName: function(className) {
+		var pattern = new RegExp("(^|\\s)" + className + "(\\s|$)");
+		return new LiveNodeList(this, function(base) {
+			var ls = [];
+			_visitNode(base.documentElement, function(node) {
+				if(node !== base && node.nodeType == ELEMENT_NODE) {
+					if(pattern.test(node.getAttribute('class'))) {
+						ls.push(node);
+					}
+				}
+			});
+			return ls;
+		});
+	},
+	
 	//document factory method:
 	createElement :	function(tagName){
 		var node = new Element();
@@ -18089,7 +18230,7 @@ XMLSerializer.prototype.serializeToString = function(node,isHtml,nodeFilter){
 Node.prototype.toString = nodeSerializeToString;
 function nodeSerializeToString(isHtml,nodeFilter){
 	var buf = [];
-	var refNode = this.nodeType == 9?this.documentElement:this;
+	var refNode = this.nodeType == 9 && this.documentElement || this;
 	var prefix = refNode.prefix;
 	var uri = refNode.namespaceURI;
 	
@@ -18188,9 +18329,13 @@ function serializeToString(node,buf,isHTML,nodeFilter,visibleNamespaces){
 		if (needNamespaceDefine(node,isHTML, visibleNamespaces)) {
 			var prefix = node.prefix||'';
 			var uri = node.namespaceURI;
-			var ns = prefix ? ' xmlns:' + prefix : " xmlns";
-			buf.push(ns, '="' , uri , '"');
-			visibleNamespaces.push({ prefix: prefix, namespace:uri });
+			if (uri) {
+				// Avoid empty namespace value like xmlns:ds=""
+				// Empty namespace URL will we produce an invalid XML document
+				var ns = prefix ? ' xmlns:' + prefix : " xmlns";
+				buf.push(ns, '="' , uri , '"');
+				visibleNamespaces.push({ prefix: prefix, namespace:uri });
+			}
 		}
 		
 		if(child || isHTML && !/^(?:meta|link|img|br|hr|input)$/i.test(nodeName)){
@@ -18228,9 +18373,33 @@ function serializeToString(node,buf,isHTML,nodeFilter,visibleNamespaces){
 		}
 		return;
 	case ATTRIBUTE_NODE:
-		return buf.push(' ',node.name,'="',node.value.replace(/[<&"]/g,_xmlEncoder),'"');
+		/**
+		 * Well-formedness constraint: No < in Attribute Values
+		 * The replacement text of any entity referred to directly or indirectly in an attribute value must not contain a <.
+		 * @see https://www.w3.org/TR/xml/#CleanAttrVals
+		 * @see https://www.w3.org/TR/xml/#NT-AttValue
+		 */
+		return buf.push(' ', node.name, '="', node.value.replace(/[<&"]/g,_xmlEncoder), '"');
 	case TEXT_NODE:
-		return buf.push(node.data.replace(/[<&]/g,_xmlEncoder));
+		/**
+		 * The ampersand character (&) and the left angle bracket (<) must not appear in their literal form,
+		 * except when used as markup delimiters, or within a comment, a processing instruction, or a CDATA section.
+		 * If they are needed elsewhere, they must be escaped using either numeric character references or the strings
+		 * `&amp;` and `&lt;` respectively.
+		 * The right angle bracket (>) may be represented using the string " &gt; ", and must, for compatibility,
+		 * be escaped using either `&gt;` or a character reference when it appears in the string `]]>` in content,
+		 * when that string is not marking the end of a CDATA section.
+		 *
+		 * In the content of elements, character data is any string of characters
+		 * which does not contain the start-delimiter of any markup
+		 * and does not include the CDATA-section-close delimiter, `]]>`.
+		 *
+		 * @see https://www.w3.org/TR/xml/#NT-CharData
+		 */
+		return buf.push(node.data
+			.replace(/[<&]/g,_xmlEncoder)
+			.replace(/]]>/g, ']]&gt;')
+		);
 	case CDATA_SECTION_NODE:
 		return buf.push( '<![CDATA[',node.data,']]>');
 	case COMMENT_NODE:
@@ -18240,13 +18409,13 @@ function serializeToString(node,buf,isHTML,nodeFilter,visibleNamespaces){
 		var sysid = node.systemId;
 		buf.push('<!DOCTYPE ',node.name);
 		if(pubid){
-			buf.push(' PUBLIC "',pubid);
+			buf.push(' PUBLIC ', pubid);
 			if (sysid && sysid!='.') {
-				buf.push( '" "',sysid);
+				buf.push(' ', sysid);
 			}
-			buf.push('">');
+			buf.push('>');
 		}else if(sysid && sysid!='.'){
-			buf.push(' SYSTEM "',sysid,'">');
+			buf.push(' SYSTEM ', sysid, '>');
 		}else{
 			var sub = node.internalSubset;
 			if(sub){
@@ -18412,11 +18581,258 @@ try{
 }
 
 //if(typeof require == 'function'){
+	exports.Node = Node;
+	exports.DOMException = DOMException;
 	exports.DOMImplementation = DOMImplementation;
 	exports.XMLSerializer = XMLSerializer;
 //}
 
 },{}],78:[function(require,module,exports){
+exports.entityMap = {
+       lt: '<',
+       gt: '>',
+       amp: '&',
+       quot: '"',
+       apos: "'",
+       Agrave: "À",
+       Aacute: "Á",
+       Acirc: "Â",
+       Atilde: "Ã",
+       Auml: "Ä",
+       Aring: "Å",
+       AElig: "Æ",
+       Ccedil: "Ç",
+       Egrave: "È",
+       Eacute: "É",
+       Ecirc: "Ê",
+       Euml: "Ë",
+       Igrave: "Ì",
+       Iacute: "Í",
+       Icirc: "Î",
+       Iuml: "Ï",
+       ETH: "Ð",
+       Ntilde: "Ñ",
+       Ograve: "Ò",
+       Oacute: "Ó",
+       Ocirc: "Ô",
+       Otilde: "Õ",
+       Ouml: "Ö",
+       Oslash: "Ø",
+       Ugrave: "Ù",
+       Uacute: "Ú",
+       Ucirc: "Û",
+       Uuml: "Ü",
+       Yacute: "Ý",
+       THORN: "Þ",
+       szlig: "ß",
+       agrave: "à",
+       aacute: "á",
+       acirc: "â",
+       atilde: "ã",
+       auml: "ä",
+       aring: "å",
+       aelig: "æ",
+       ccedil: "ç",
+       egrave: "è",
+       eacute: "é",
+       ecirc: "ê",
+       euml: "ë",
+       igrave: "ì",
+       iacute: "í",
+       icirc: "î",
+       iuml: "ï",
+       eth: "ð",
+       ntilde: "ñ",
+       ograve: "ò",
+       oacute: "ó",
+       ocirc: "ô",
+       otilde: "õ",
+       ouml: "ö",
+       oslash: "ø",
+       ugrave: "ù",
+       uacute: "ú",
+       ucirc: "û",
+       uuml: "ü",
+       yacute: "ý",
+       thorn: "þ",
+       yuml: "ÿ",
+       nbsp: "\u00a0",
+       iexcl: "¡",
+       cent: "¢",
+       pound: "£",
+       curren: "¤",
+       yen: "¥",
+       brvbar: "¦",
+       sect: "§",
+       uml: "¨",
+       copy: "©",
+       ordf: "ª",
+       laquo: "«",
+       not: "¬",
+       shy: "­­",
+       reg: "®",
+       macr: "¯",
+       deg: "°",
+       plusmn: "±",
+       sup2: "²",
+       sup3: "³",
+       acute: "´",
+       micro: "µ",
+       para: "¶",
+       middot: "·",
+       cedil: "¸",
+       sup1: "¹",
+       ordm: "º",
+       raquo: "»",
+       frac14: "¼",
+       frac12: "½",
+       frac34: "¾",
+       iquest: "¿",
+       times: "×",
+       divide: "÷",
+       forall: "∀",
+       part: "∂",
+       exist: "∃",
+       empty: "∅",
+       nabla: "∇",
+       isin: "∈",
+       notin: "∉",
+       ni: "∋",
+       prod: "∏",
+       sum: "∑",
+       minus: "−",
+       lowast: "∗",
+       radic: "√",
+       prop: "∝",
+       infin: "∞",
+       ang: "∠",
+       and: "∧",
+       or: "∨",
+       cap: "∩",
+       cup: "∪",
+       'int': "∫",
+       there4: "∴",
+       sim: "∼",
+       cong: "≅",
+       asymp: "≈",
+       ne: "≠",
+       equiv: "≡",
+       le: "≤",
+       ge: "≥",
+       sub: "⊂",
+       sup: "⊃",
+       nsub: "⊄",
+       sube: "⊆",
+       supe: "⊇",
+       oplus: "⊕",
+       otimes: "⊗",
+       perp: "⊥",
+       sdot: "⋅",
+       Alpha: "Α",
+       Beta: "Β",
+       Gamma: "Γ",
+       Delta: "Δ",
+       Epsilon: "Ε",
+       Zeta: "Ζ",
+       Eta: "Η",
+       Theta: "Θ",
+       Iota: "Ι",
+       Kappa: "Κ",
+       Lambda: "Λ",
+       Mu: "Μ",
+       Nu: "Ν",
+       Xi: "Ξ",
+       Omicron: "Ο",
+       Pi: "Π",
+       Rho: "Ρ",
+       Sigma: "Σ",
+       Tau: "Τ",
+       Upsilon: "Υ",
+       Phi: "Φ",
+       Chi: "Χ",
+       Psi: "Ψ",
+       Omega: "Ω",
+       alpha: "α",
+       beta: "β",
+       gamma: "γ",
+       delta: "δ",
+       epsilon: "ε",
+       zeta: "ζ",
+       eta: "η",
+       theta: "θ",
+       iota: "ι",
+       kappa: "κ",
+       lambda: "λ",
+       mu: "μ",
+       nu: "ν",
+       xi: "ξ",
+       omicron: "ο",
+       pi: "π",
+       rho: "ρ",
+       sigmaf: "ς",
+       sigma: "σ",
+       tau: "τ",
+       upsilon: "υ",
+       phi: "φ",
+       chi: "χ",
+       psi: "ψ",
+       omega: "ω",
+       thetasym: "ϑ",
+       upsih: "ϒ",
+       piv: "ϖ",
+       OElig: "Œ",
+       oelig: "œ",
+       Scaron: "Š",
+       scaron: "š",
+       Yuml: "Ÿ",
+       fnof: "ƒ",
+       circ: "ˆ",
+       tilde: "˜",
+       ensp: " ",
+       emsp: " ",
+       thinsp: " ",
+       zwnj: "‌",
+       zwj: "‍",
+       lrm: "‎",
+       rlm: "‏",
+       ndash: "–",
+       mdash: "—",
+       lsquo: "‘",
+       rsquo: "’",
+       sbquo: "‚",
+       ldquo: "“",
+       rdquo: "”",
+       bdquo: "„",
+       dagger: "†",
+       Dagger: "‡",
+       bull: "•",
+       hellip: "…",
+       permil: "‰",
+       prime: "′",
+       Prime: "″",
+       lsaquo: "‹",
+       rsaquo: "›",
+       oline: "‾",
+       euro: "€",
+       trade: "™",
+       larr: "←",
+       uarr: "↑",
+       rarr: "→",
+       darr: "↓",
+       harr: "↔",
+       crarr: "↵",
+       lceil: "⌈",
+       rceil: "⌉",
+       lfloor: "⌊",
+       rfloor: "⌋",
+       loz: "◊",
+       spades: "♠",
+       clubs: "♣",
+       hearts: "♥",
+       diams: "♦"
+};
+
+},{}],79:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -18436,6 +18852,21 @@ var S_ATTR_NOQUOT_VALUE = 4;//attr value(no quot value only)
 var S_ATTR_END = 5;//attr value end and no space(quot end)
 var S_TAG_SPACE = 6;//(attr value end || tag end ) && (space offer)
 var S_TAG_CLOSE = 7;//closed el<el />
+
+/**
+ * Creates an error that will not be caught by XMLReader aka the SAX parser.
+ *
+ * @param {string} message
+ * @param {any?} locator Optional, can provide details about the location in the source
+ * @constructor
+ */
+function ParseError(message, locator) {
+	this.message = message
+	this.locator = locator
+	if(Error.captureStackTrace) Error.captureStackTrace(this, ParseError);
+}
+ParseError.prototype = new Error();
+ParseError.prototype.name = ParseError.name
 
 function XMLReader(){
 	
@@ -18524,7 +18955,6 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 				if(end<0){
 					
 	        		tagName = source.substring(tagStart+2).replace(/[\s<].*/,'');
-	        		//console.error('#@@@@@@'+tagName)
 	        		errorHandler.error("end tag name: "+tagName+' is not complete:'+config.tagName);
 	        		end = tagStart+1+tagName.length;
 	        	}else if(tagName.match(/\s</)){
@@ -18532,8 +18962,6 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 	        		errorHandler.error("end tag name: "+tagName+' maybe not complete');
 	        		end = tagStart+1+tagName.length;
 				}
-				//console.error(parseStack.length,parseStack)
-				//console.error(config);
 				var localNSMap = config.localNSMap;
 				var endMatch = config.tagName == tagName;
 				var endIgnoreCaseMach = endMatch || config.tagName&&config.tagName.toLowerCase() == tagName.toLowerCase()
@@ -18545,7 +18973,7 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 						}
 					}
 					if(!endMatch){
-		            	errorHandler.fatalError("end tag name: "+tagName+' is not match the current start tagName:'+config.tagName );
+		            	errorHandler.fatalError("end tag name: "+tagName+' is not match the current start tagName:'+config.tagName ); // No known test case
 					}
 		        }else{
 		        	parseStack.push(config)
@@ -18585,7 +19013,6 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 						position(a.offset);
 						a.locator = copyLocator(locator,{});
 					}
-					//}catch(e){console.error('@@@@@'+e)}
 					domBuilder.locator = locator2
 					if(appendElement(el,domBuilder,currentNSMap)){
 						parseStack.push(el)
@@ -18606,10 +19033,11 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 				}
 			}
 		}catch(e){
+			if (e instanceof ParseError) {
+				throw e;
+			}
 			errorHandler.error('element parse error: '+e)
-			//errorHandler.error('element parse error: '+e);
 			end = -1;
-			//throw e;
 		}
 		if(end>start){
 			start = end;
@@ -18630,6 +19058,16 @@ function copyLocator(f,t){
  * @return end of the elementStartPart(end of elementEndPart for selfClosed el)
  */
 function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,errorHandler){
+
+	/**
+	 * @param {string} qname
+	 * @param {string} value
+	 * @param {number} startIndex
+	 */
+	function addAttribute(qname, value, startIndex) {
+		if (qname in el.attributeNames) errorHandler.fatalError('Attribute ' + qname + ' redefined')
+		el.addValue(qname, value, startIndex)
+	}
 	var attrName;
 	var value;
 	var p = ++start;
@@ -18645,7 +19083,7 @@ function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,error
 				s = S_EQ;
 			}else{
 				//fatalError: equal must after attrName or space after attrName
-				throw new Error('attribute equal must after attrName');
+				throw new Error('attribute equal must after attrName'); // No known test case
 			}
 			break;
 		case '\'':
@@ -18660,7 +19098,7 @@ function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,error
 				p = source.indexOf(c,start)
 				if(p>0){
 					value = source.slice(start,p).replace(/&#?\w+;/g,entityReplacer);
-					el.add(attrName,value,start-1);
+					addAttribute(attrName, value, start-1);
 					s = S_ATTR_END;
 				}else{
 					//fatalError: no end quot match
@@ -18669,14 +19107,14 @@ function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,error
 			}else if(s == S_ATTR_NOQUOT_VALUE){
 				value = source.slice(start,p).replace(/&#?\w+;/g,entityReplacer);
 				//console.log(attrName,value,start,p)
-				el.add(attrName,value,start);
+				addAttribute(attrName, value, start);
 				//console.dir(el)
 				errorHandler.warning('attribute "'+attrName+'" missed start quot('+c+')!!');
 				start = p+1;
 				s = S_ATTR_END
 			}else{
 				//fatalError: no equal before
-				throw new Error('attribute value must after "="');
+				throw new Error('attribute value must after "="'); // No known test case
 			}
 			break;
 		case '/':
@@ -18694,11 +19132,10 @@ function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,error
 				break;
 			//case S_EQ:
 			default:
-				throw new Error("attribute invalid close char('/')")
+				throw new Error("attribute invalid close char('/')") // No known test case
 			}
 			break;
 		case ''://end document
-			//throw new Error('unexpected end of input')
 			errorHandler.error('unexpected end of input');
 			if(s == S_TAG){
 				el.setTagName(source.slice(start,p));
@@ -18724,13 +19161,13 @@ function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,error
 					value = attrName;
 				}
 				if(s == S_ATTR_NOQUOT_VALUE){
-					errorHandler.warning('attribute "'+value+'" missed quot(")!!');
-					el.add(attrName,value.replace(/&#?\w+;/g,entityReplacer),start)
+					errorHandler.warning('attribute "'+value+'" missed quot(")!');
+					addAttribute(attrName, value.replace(/&#?\w+;/g,entityReplacer), start)
 				}else{
 					if(currentNSMap[''] !== 'http://www.w3.org/1999/xhtml' || !value.match(/^(?:disabled|checked|selected)$/i)){
 						errorHandler.warning('attribute "'+value+'" missed value!! "'+value+'" instead!!')
 					}
-					el.add(value,value,start)
+					addAttribute(value, value, start)
 				}
 				break;
 			case S_EQ:
@@ -18755,7 +19192,7 @@ function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,error
 				case S_ATTR_NOQUOT_VALUE:
 					var value = source.slice(start,p).replace(/&#?\w+;/g,entityReplacer);
 					errorHandler.warning('attribute "'+value+'" missed quot(")!!');
-					el.add(attrName,value,start)
+					addAttribute(attrName, value, start)
 				case S_ATTR_END:
 					s = S_TAG_SPACE;
 					break;
@@ -18778,7 +19215,7 @@ function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,error
 					if(currentNSMap[''] !== 'http://www.w3.org/1999/xhtml' || !attrName.match(/^(?:disabled|checked|selected)$/i)){
 						errorHandler.warning('attribute "'+attrName+'" missed value!! "'+attrName+'" instead2!!')
 					}
-					el.add(attrName,attrName,start);
+					addAttribute(attrName, attrName, start);
 					start = p;
 					s = S_ATTR;
 					break;
@@ -18950,11 +19387,18 @@ function parseDCC(source,start,domBuilder,errorHandler){//sure start with '<!'
 		var len = matchs.length;
 		if(len>1 && /!doctype/i.test(matchs[0][0])){
 			var name = matchs[1][0];
-			var pubid = len>3 && /^public$/i.test(matchs[2][0]) && matchs[3][0]
-			var sysid = len>4 && matchs[4][0];
+			var pubid = false;
+			var sysid = false;
+			if(len>3){
+				if(/^public$/i.test(matchs[2][0])){
+					pubid = matchs[3][0];
+					sysid = len>4 && matchs[4][0];
+				}else if(/^system$/i.test(matchs[2][0])){
+					sysid = matchs[3][0];
+				}
+			}
 			var lastMatch = matchs[len-1]
-			domBuilder.startDTD(name,pubid && pubid.replace(/^(['"])(.*?)\1$/,'$2'),
-					sysid && sysid.replace(/^(['"])(.*?)\1$/,'$2'));
+			domBuilder.startDTD(name, pubid, sysid);
 			domBuilder.endDTD();
 			
 			return lastMatch.index+lastMatch[0].length
@@ -18980,11 +19424,8 @@ function parseInstruction(source,start,domBuilder){
 	return -1;
 }
 
-/**
- * @param source
- */
-function ElementAttributes(source){
-	
+function ElementAttributes(){
+	this.attributeNames = {}
 }
 ElementAttributes.prototype = {
 	setTagName:function(tagName){
@@ -18993,10 +19434,11 @@ ElementAttributes.prototype = {
 		}
 		this.tagName = tagName
 	},
-	add:function(qName,value,offset){
+	addValue:function(qName, value, offset) {
 		if(!tagNamePattern.test(qName)){
 			throw new Error('invalid attribute:'+qName)
 		}
+		this.attributeNames[qName] = this.length;
 		this[this.length++] = {qName:qName,value:value,offset:offset}
 	},
 	length:0,
@@ -19019,23 +19461,6 @@ ElementAttributes.prototype = {
 
 
 
-
-function _set_proto_(thiz,parent){
-	thiz.__proto__ = parent;
-	return thiz;
-}
-if(!(_set_proto_({},_set_proto_.prototype) instanceof _set_proto_)){
-	_set_proto_ = function(thiz,parent){
-		function p(){};
-		p.prototype = parent;
-		p = new p();
-		for(parent in thiz){
-			p[parent] = thiz[parent];
-		}
-		return p;
-	}
-}
-
 function split(source,start){
 	var match;
 	var buf = [];
@@ -19049,6 +19474,6 @@ function split(source,start){
 }
 
 exports.XMLReader = XMLReader;
-
+exports.ParseError = ParseError;
 
 },{}]},{},[1]);

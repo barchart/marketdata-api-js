@@ -177,6 +177,29 @@ module.exports = (() => {
 			connection.resume();
 		};
 
+		that.transmit = function() {
+			const message = that.symbol();
+
+			const matches = message.match(/ADD (.*)$/);
+
+			if (matches === null) {
+				connection.transmit(message);
+			} else {
+				var s = matches[1];
+				var model = new RowModel(s, that.timezone);
+
+				var handleMarketUpdate = function(m) {
+					model.quote(connection.getMarketState().getQuote(s));
+				};
+
+				model.setMarketUpdateHandler(handleMarketUpdate);
+
+				connection.on('marketUpdate', handleMarketUpdate, s);
+
+				that.rows.push(model);
+			}
+		};
+
 		that.handleLoginKeypress = function(d, e) {
 			if (e.keyCode === 13) {
 				that.connect();
