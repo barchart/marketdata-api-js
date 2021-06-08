@@ -1,5 +1,4 @@
-const fs = require('fs'),
-    readline = require('readline');
+const fs = require('fs');
 
 module.exports = (() => {
     'use strict';
