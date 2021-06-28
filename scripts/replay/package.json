@@ -1,0 +1,11 @@
+{
+  "name": "@barchart/market-replay",
+  "version": "1.0.0",
+  "description": "A simple Node.js script which accepts WebSocket connections, mimics a Barchart market data server, and replays a stream of previously captured market data events from a text file.",
+  "main": "replay.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
