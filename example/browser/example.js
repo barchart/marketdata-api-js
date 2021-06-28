@@ -1,8 +1,7 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 const version = require('./../../../lib/meta').version;
 
-const Connection = require('./../../../lib/connection/Connection'),
-      retrieveConcreteSymbol = require('./../../../lib/connection/snapshots/symbols/retrieveConcrete');
+const Connection = require('./../../../lib/connection/Connection');
 
 const timezones = require('./../../../lib/utilities/data/timezones');
 
@@ -16,6 +15,7 @@ module.exports = (() => {
   var PageModel = function () {
     var that = this;
     var connection = null;
+    var diagnostics = null;
     that.hostname = ko.observable('qsws-us-e-02.aws.barchart.com');
     var timezoneLocal = timezones.guessTimezone();
     var timezonesList = [];
@@ -45,6 +45,9 @@ module.exports = (() => {
     that.timezones = ko.observableArray(timezonesList.concat(timezones.getTimezones()));
     that.username = ko.observable('');
     that.password = ko.observable('');
+    that.replayFile = ko.observable('');
+    that.replaySymbols = ko.observable('');
+    that.replayIndex = ko.observable(0);
     that.symbol = ko.observable('');
     that.symbolFocus = ko.observable(false);
     that.mode = ko.observable('Streaming');
@@ -70,6 +73,11 @@ module.exports = (() => {
       var activeTemplate = that.activeTemplate();
       return connected && activeTemplate !== 'grid-template';
     });
+    that.diagnosticsIndex = ko.observable(0);
+    that.diagnosticsEnabled = ko.computed(function () {
+      var hostname = that.hostname();
+      return hostname === 'localhost';
+    });
     that.rows = ko.observableArray();
     that.item = ko.observable(null);
     that.profile = ko.observable(null);
@@ -81,6 +89,33 @@ module.exports = (() => {
         if (event === 'login success') {
           that.connecting(false);
           that.connected(true);
+
+          if (that.diagnosticsEnabled() && diagnostics === null) {
+            that.diagnosticsIndex(0);
+            diagnostics = connection.getDiagnosticsController();
+            var replayFile = that.replayFile();
+            var replaySymbols = that.replaySymbols().toString().split(',');
+            var subscriptions = [];
+
+            for (var i = 0; i < replaySymbols.length; i++) {
+              var s = replaySymbols[i];
+              var model = new RowModel(s, that.timezone);
+
+              var handleMarketUpdate = function (message) {
+                model.quote(connection.getMarketState().getQuote(s));
+              };
+
+              model.setMarketUpdateHandler(handleMarketUpdate);
+              that.rows.push(model);
+              var subscription = {};
+              subscription.symbol = s;
+              subscription.callback = handleMarketUpdate;
+              subscriptions.push(subscription);
+            }
+
+            diagnostics.initialize(replayFile, subscriptions);
+          }
+
           that.showGrid();
         } else if (event === 'feed paused') {
           that.paused(true);
@@ -117,8 +152,27 @@ module.exports = (() => {
       var username = that.username();
       var password = that.password();
 
-      if (!hostname || !username || !password) {
+      if (!hostname) {
         return;
+      }
+
+      var diagnosticsEnabled = that.diagnosticsEnabled();
+      var replayFile = that.replayFile();
+      var replaySymbols = that.replaySymbols();
+
+      if (diagnosticsEnabled) {
+        if (!replayFile || !replaySymbols) {
+          return;
+        }
+
+        username = 'anonymous';
+        password = 'anonymous';
+        that.username(username);
+        that.password(password);
+      } else {
+        if (!username || !password) {
+          return;
+        }
       }
 
       that.connecting(true);
@@ -140,10 +194,12 @@ module.exports = (() => {
 
       connection.disconnect();
       connection = null;
+      diagnostics = null;
       that.rows.removeAll();
       that.connecting(false);
       that.connected(false);
       that.paused(false);
+      that.replayIndex(0);
       that.activeTemplate('disconnected-template');
     };
 
@@ -153,26 +209,6 @@ module.exports = (() => {
 
     that.resume = function () {
       connection.resume();
-    };
-
-    that.transmit = function () {
-      const message = that.symbol();
-      const matches = message.match(/ADD (.*)$/);
-
-      if (matches === null) {
-        connection.transmit(message);
-      } else {
-        var s = matches[1];
-        var model = new RowModel(s, that.timezone);
-
-        var handleMarketUpdate = function (m) {
-          model.quote(connection.getMarketState().getQuote(s));
-        };
-
-        model.setMarketUpdateHandler(handleMarketUpdate);
-        connection.on('marketUpdate', handleMarketUpdate, s);
-        that.rows.push(model);
-      }
     };
 
     that.handleLoginKeypress = function (d, e) {
@@ -268,7 +304,10 @@ module.exports = (() => {
       that.activeTemplate('grid-template');
       that.item(null);
       that.profile(null);
-      that.symbolFocus(true);
+
+      if (!that.diagnosticsEnabled()) {
+        that.symbolFocus(true);
+      }
     };
 
     that.showItemDetail = function (model) {
@@ -366,6 +405,37 @@ module.exports = (() => {
       }
     };
 
+    that.diagnosticsScroll = function () {
+      if (that.diagnosticsEnabled() && diagnostics !== null) {
+        var desiredIndex = that.diagnosticsIndex();
+
+        try {
+          desiredIndex = parseInt(desiredIndex);
+        } catch (e) {
+          desiredIndex = null;
+        }
+
+        if (desiredIndex !== null) {
+          diagnostics.scroll(desiredIndex);
+        }
+      }
+    };
+
+    that.diagnosticsNext = function () {
+      if (that.diagnosticsEnabled() && diagnostics !== null) {
+        diagnostics.next();
+        that.replayIndex(that.replayIndex() + 1);
+      }
+    };
+
+    that.handleDiagnosticsScrollKeypress = function (d, e) {
+      if (e.keyCode === 13) {
+        that.addSymbol();
+      }
+
+      return true;
+    };
+
     that.disconnect();
   };
 
@@ -446,7 +516,7 @@ module.exports = (() => {
   });
 })();
 
-},{"./../../../lib/connection/Connection":2,"./../../../lib/connection/snapshots/symbols/retrieveConcrete":10,"./../../../lib/meta":19,"./../../../lib/utilities/data/timezones":25,"./../../../lib/utilities/format/decimal":27,"./../../../lib/utilities/format/price":29,"./../../../lib/utilities/format/quote":30}],2:[function(require,module,exports){
+},{"./../../../lib/connection/Connection":2,"./../../../lib/meta":19,"./../../../lib/utilities/data/timezones":25,"./../../../lib/utilities/format/decimal":27,"./../../../lib/utilities/format/price":29,"./../../../lib/utilities/format/quote":30}],2:[function(require,module,exports){
 const array = require('@barchart/common-js/lang/array'),
       object = require('@barchart/common-js/lang/object');
 
@@ -460,6 +530,8 @@ const retrieveExchanges = require('./snapshots/exchanges/retrieveExchanges'),
 
 const WebSocketAdapterFactory = require('./adapter/WebSocketAdapterFactory'),
       WebSocketAdapterFactoryForBrowsers = require('./adapter/WebSocketAdapterFactoryForBrowsers');
+
+const DiagnosticsControllerBase = require('./diagnostics/DiagnosticsControllerBase');
 
 const LoggerFactory = require('./../logging/LoggerFactory');
 
@@ -534,7 +606,8 @@ module.exports = (() => {
       username: null,
       password: null
     };
-    let __decoder = null; //
+    let __decoder = null;
+    let __diagnosticsController = null; //
     // Functions used to configure the connection.
     //
 
@@ -649,18 +722,21 @@ module.exports = (() => {
       __logger.log(`Connection [ ${__instance} ]: Initializing. Version [ ${version} ]. Using [ ${username}@${hostname} ].`);
 
       let protocol;
+      let port;
 
       if (hostname === 'localhost') {
         protocol = 'ws';
+        port = 8080;
       } else {
         protocol = 'wss';
+        port = 443;
       }
 
       __loginInfo.username = username;
       __loginInfo.password = password;
       __loginInfo.hostname = hostname;
       __connectionState = state.disconnected;
-      __connection = __connectionFactory.build(`${protocol}://${__loginInfo.hostname}/jerq`);
+      __connection = __connectionFactory.build(`${protocol}://${__loginInfo.hostname}:${port}/jerq`);
       __connection.binaryType = 'arraybuffer';
       __decoder = __connection.getDecoder();
 
@@ -716,7 +792,7 @@ module.exports = (() => {
 
       __connection.onmessage = event => {
         __watchdogAwake = false;
-        let message = null;
+        let message;
 
         if (event.data instanceof ArrayBuffer) {
           message = __decoder.decode(event.data);
@@ -932,23 +1008,6 @@ module.exports = (() => {
         }
       }
 
-      const addListener = listeners => {
-        listeners = listeners || [];
-        const add = !listeners.some(candidate => {
-          return candidate === handler;
-        });
-        let updatedListeners;
-
-        if (add) {
-          updatedListeners = listeners.slice(0);
-          updatedListeners.push(handler);
-        } else {
-          updatedListeners = listeners;
-        }
-
-        return updatedListeners;
-      };
-
       const subscribe = (streamingTaskName, snapshotTaskName, listenerMap, sharedListenerMaps) => {
         const consumerSymbol = symbol;
         const producerSymbol = SymbolParser.getProducerSymbol(consumerSymbol);
@@ -967,7 +1026,7 @@ module.exports = (() => {
 
         addKnownConsumerSymbol(consumerSymbol, producerSymbol);
         const producerListenerExists = getProducerListenerExists(producerSymbol, sharedListenerMaps.concat(listenerMap));
-        listenerMap[consumerSymbol] = addListener(listenerMap[consumerSymbol]);
+        listenerMap[consumerSymbol] = addListener(listenerMap[consumerSymbol], handler);
 
         if (!__paused) {
           if (producerListenerExists) {
@@ -982,7 +1041,7 @@ module.exports = (() => {
 
       switch (subscriptionType) {
         case 'events':
-          __listeners.events = addListener(__listeners.events);
+          __listeners.events = addListener(__listeners.events, handler);
           break;
 
         case 'marketDepth':
@@ -1019,7 +1078,7 @@ module.exports = (() => {
           break;
 
         case 'timestamp':
-          __listeners.timestamp = addListener(__listeners.timestamp);
+          __listeners.timestamp = addListener(__listeners.timestamp, handler);
           break;
       }
     }
@@ -1070,20 +1129,13 @@ module.exports = (() => {
         }
       }
 
-      const removeHandler = listeners => {
-        const listenersToFilter = listeners || [];
-        return listenersToFilter.filter(candidate => {
-          return candidate !== handler;
-        });
-      };
-
       const unsubscribe = (stopTaskName, listenerMap, sharedListenerMaps) => {
         const consumerSymbol = symbol;
         const producerSymbol = SymbolParser.getProducerSymbol(consumerSymbol);
         const listenerMaps = sharedListenerMaps.concat(listenerMap);
         let previousProducerListenerExists = getProducerListenerExists(producerSymbol, listenerMaps);
         let currentProducerListenerExists;
-        listenerMap[consumerSymbol] = removeHandler(listenerMap[consumerSymbol] || []);
+        listenerMap[consumerSymbol] = removeListener(listenerMap[consumerSymbol], handler);
 
         if (listenerMap[consumerSymbol].length === 0) {
           delete listenerMap[consumerSymbol];
@@ -1102,7 +1154,7 @@ module.exports = (() => {
 
       switch (subscriptionType) {
         case 'events':
-          __listeners.events = removeHandler(__listeners.events);
+          __listeners.events = removeListener(__listeners.events, handler);
           break;
 
         case 'marketDepth':
@@ -1123,26 +1175,9 @@ module.exports = (() => {
           break;
 
         case 'timestamp':
-          __listeners.timestamp = removeHandler(__listeners.timestamp);
+          __listeners.timestamp = removeListener(__listeners.timestamp, handler);
           break;
       }
-    }
-    /**
-     * Injects a message directly into the outbound message
-     * queue. This function should be used for diagnostic
-     * purposes only.
-     *
-     * @private
-     * @param {String} message
-     */
-
-
-    function transmit(message) {
-      if (typeof message !== 'string') {
-        throw new Error('The "message" argument must be a string.');
-      }
-
-      __outboundMessages.push(message);
     }
     /**
      * Enqueues a request to retrieve a profile.
@@ -1494,6 +1529,9 @@ module.exports = (() => {
         if (!s) {
           done = true;
         } else {
+          //if (s.startsWith('%')) {
+          //	s = s + '\n';
+          //}
           let skip = false;
           let msgType = 1; // Assume DDF message containing \x03
 
@@ -2004,6 +2042,80 @@ module.exports = (() => {
       if (!consumerSymbols.some(candidate => candidate === consumerSymbol)) {
         consumerSymbols.push(consumerSymbol);
       }
+    }
+    /**
+     * Accepts an array of "listener" functions, copies the array, and adds a
+     * new "listener" function to the array (if it does not already exist), and
+     * returns the copied array.
+     *
+     * @private
+     * @param {Function[]} listeners
+     * @param {Function} listener
+     * @returns {Object}
+     */
+
+
+    function addListener(listeners, listener) {
+      listeners = listeners || [];
+      const add = !listeners.some(candidate => {
+        return candidate === listener;
+      });
+      let updatedListeners;
+
+      if (add) {
+        updatedListeners = listeners.slice(0);
+        updatedListeners.push(listener);
+      } else {
+        updatedListeners = listeners;
+      }
+
+      return updatedListeners;
+    }
+    /**
+     * Accepts an array of "listener" functions, copies the array, and removes an
+     * existing "listener" function frim the array (if it exists), and returns the
+     * copied array.
+     *
+     * @private
+     * @param {Function[]} listeners
+     * @param {Function} listener
+     */
+
+
+    function removeListener(listeners, listener) {
+      const listenersToFilter = listeners || [];
+      return listenersToFilter.filter(candidate => {
+        return candidate !== listener;
+      });
+    } //
+    // Diagnostics functions
+    //
+
+
+    function getDiagnosticsController() {
+      if (__connection === null || __loginInfo.hostname !== 'localhost') {
+        throw new Error('Diagnostics mode is only available when connected to localhost.');
+      }
+
+      if (__diagnosticsController === null) {
+        const subscribeAction = (symbol, callback) => {
+          __logger.log(`Connection [ ${__instance} ]: Added diagnostic subscription to market updates for [ ${symbol} ]`); //__listeners.marketUpdate[symbol] = addListener(__listeners.marketUpdate[symbol], callback);
+          //__knownConsumerSymbols[symbol] = [ symbol ];
+
+
+          on('marketUpdate', callback, symbol);
+        };
+
+        const transmitAction = message => {
+          __logger.log(`Connection [ ${__instance} ]: Enqueued outbound diagnostic message [ ${message} ]`);
+
+          __outboundMessages.push(message);
+        };
+
+        __diagnosticsController = new DiagnosticsController(transmitAction, subscribeAction);
+      }
+
+      return __diagnosticsController;
     } //
     // Pure utility functions.
     //
@@ -2085,12 +2197,35 @@ module.exports = (() => {
       resume: resume,
       on: on,
       off: off,
-      transmit: transmit,
       getProducerSymbolCount: getProducerSymbolCount,
       setPollingFrequency: setPollingFrequency,
       setExtendedProfileMode: setExtendedProfileMode,
-      handleProfileRequest: handleProfileRequest
+      handleProfileRequest: handleProfileRequest,
+      getDiagnosticsController: getDiagnosticsController
     };
+  }
+
+  class DiagnosticsController extends DiagnosticsControllerBase {
+    constructor(transmitAction, subscribeAction) {
+      super();
+      this._transmitAction = transmitAction;
+      this._subscribeAction = subscribeAction;
+    }
+
+    _initialize(subscriptions) {
+      subscriptions.forEach(subscription => {
+        this._subscribeAction(subscription.symbol, subscription.callback);
+      });
+    }
+
+    _transmit(message) {
+      this._transmitAction(message);
+    }
+
+    toString() {
+      return '[DiagnosticsController]';
+    }
+
   }
   /**
    * The **central component of the SDK**. It is responsible for connecting to Barchart's
@@ -2133,10 +2268,6 @@ module.exports = (() => {
       this._internal.off.apply(this._internal, arguments);
     }
 
-    _transmit(message) {
-      this._internal.transmit.call(this._internal, message);
-    }
-
     _getActiveSymbolCount() {
       return this._internal.getProducerSymbolCount();
     }
@@ -2153,6 +2284,10 @@ module.exports = (() => {
       this._internal.handleProfileRequest(symbol);
     }
 
+    _getDiagnosticsController() {
+      return this._internal.getDiagnosticsController.call(this._internal);
+    }
+
     toString() {
       return `[Connection (instance=${this._getInstance()})]`;
     }
@@ -2162,7 +2297,7 @@ module.exports = (() => {
   return Connection;
 })();
 
-},{"./../logging/LoggerFactory":12,"./../meta":19,"./../utilities/parse/ddf/message":32,"./../utilities/parsers/SymbolParser":35,"./ConnectionBase":3,"./adapter/WebSocketAdapterFactory":5,"./adapter/WebSocketAdapterFactoryForBrowsers":6,"./snapshots/exchanges/retrieveExchanges":7,"./snapshots/profiles/retrieveProfileExtensions":8,"./snapshots/quotes/retrieveSnapshots":9,"@barchart/common-js/lang/array":41,"@barchart/common-js/lang/object":44}],3:[function(require,module,exports){
+},{"./../logging/LoggerFactory":12,"./../meta":19,"./../utilities/parse/ddf/message":32,"./../utilities/parsers/SymbolParser":35,"./ConnectionBase":3,"./adapter/WebSocketAdapterFactory":5,"./adapter/WebSocketAdapterFactoryForBrowsers":6,"./diagnostics/DiagnosticsControllerBase":7,"./snapshots/exchanges/retrieveExchanges":8,"./snapshots/profiles/retrieveProfileExtensions":9,"./snapshots/quotes/retrieveSnapshots":10,"@barchart/common-js/lang/array":41,"@barchart/common-js/lang/object":44}],3:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const MarketState = require('./../marketState/MarketState');
@@ -2327,23 +2462,6 @@ module.exports = (() => {
     _resume() {
       return;
     }
-    /**
-     * This undocumented function can be used to send a raw command to the
-     * remote server.
-     *
-     * @public
-     * @ignore
-     * @param {String} message
-     */
-
-
-    transmit(message) {
-      this._transmit(message);
-    }
-
-    _transmit(message) {
-      return;
-    }
 
     getActiveSymbolCount() {
       return this._getActiveSymbolCount();
@@ -2449,6 +2567,29 @@ module.exports = (() => {
       return;
     }
     /**
+     * This is an undocumented feature which places the connection into "diagnostic
+     * mode" which allows the consumer to send raw messages directly to the remote
+     * server.
+     *
+     * @public
+     * @ignore
+     * @returns {DiagnosticsControllerBase}
+     */
+
+
+    getDiagnosticsController() {
+      return this._getDiagnosticsController();
+    }
+    /**
+     * @protected
+     * @ignore
+     */
+
+
+    _getDiagnosticsController() {
+      return null;
+    }
+    /**
      * Returns the {@link MarketState} singleton -- which can be used to access
      * {@link Quote}, {@link Profile}, and {@link CumulativeVolume} instances
      * for any symbol subscribed symbol.
@@ -2519,7 +2660,7 @@ module.exports = (() => {
     }
 
     toString() {
-      return `[ConnectionBase (instance=${this._instance}]`;
+      return `[ConnectionBase (instance=${this._instance})]`;
     }
 
   }
@@ -2815,6 +2956,86 @@ module.exports = (() => {
 })();
 
 },{"./../../logging/LoggerFactory":12,"./WebSocketAdapter":4,"./WebSocketAdapterFactory":5}],7:[function(require,module,exports){
+const assert = require('@barchart/common-js/lang/assert');
+
+const is = require('@barchart/common-js/lang/is');
+
+module.exports = (() => {
+  'use strict';
+  /**
+   * Contract for sending diagnostic commands to the remote server.
+   *
+   * @protected
+   * @abstract
+   * @ignore
+   */
+
+  class DiagnosticsControllerBase {
+    constructor() {
+      this._initialized = false;
+    }
+    /**
+     * @public
+     * @param {String} file
+     * @param {DiagnosticsSubscription[]=} subscriptions
+     */
+
+
+    initialize(file, subscriptions) {
+      if (this._initialized) {
+        throw new Error('The diagnostics controller has already been initialized.');
+      }
+
+      assert.argumentIsRequired(file, 'file', String);
+
+      if (subscriptions) {
+        assert.argumentIsArray(subscriptions, 'subscriptions', s => is.string(s.symbol) && is.fn(s.callback), 'DiagnosticsSubscription');
+      }
+
+      this._initialized = true;
+
+      this._initialize(subscriptions || []);
+
+      this._transmit(`LOAD ${file}`);
+    }
+
+    _initialize(subscriptions) {
+      return;
+    }
+
+    next() {
+      checkReady.call(this);
+
+      this._transmit('NEXT');
+    }
+
+    scroll(index) {
+      assert.argumentIsRequired(index, 'index', Number);
+      checkReady.call(this);
+
+      this._transmit(`SCROLL ${index.toString()}`);
+    }
+
+    _transmit(message) {
+      return;
+    }
+
+    toString() {
+      return `[DiagnosticsControllerBase]`;
+    }
+
+  }
+
+  function checkReady() {
+    if (!this._initialized) {
+      throw new Error('The diagnostics controller has not been initialized.');
+    }
+  }
+
+  return DiagnosticsControllerBase;
+})();
+
+},{"@barchart/common-js/lang/assert":42,"@barchart/common-js/lang/is":43}],8:[function(require,module,exports){
 const axios = require('axios');
 
 module.exports = (() => {
@@ -2862,7 +3083,7 @@ module.exports = (() => {
   return retrieveExchanges;
 })();
 
-},{"axios":46}],8:[function(require,module,exports){
+},{"axios":46}],9:[function(require,module,exports){
 const axios = require('axios');
 
 const array = require('@barchart/common-js/lang/array'),
@@ -3026,7 +3247,7 @@ module.exports = (() => {
   return retrieveProfileExtensions;
 })();
 
-},{"./../../../logging/LoggerFactory":12,"./../../../utilities/parsers/SymbolParser":35,"@barchart/common-js/lang/Day":38,"@barchart/common-js/lang/array":41,"@barchart/common-js/lang/assert":42,"@barchart/common-js/lang/is":43,"axios":46}],9:[function(require,module,exports){
+},{"./../../../logging/LoggerFactory":12,"./../../../utilities/parsers/SymbolParser":35,"@barchart/common-js/lang/Day":38,"@barchart/common-js/lang/array":41,"@barchart/common-js/lang/assert":42,"@barchart/common-js/lang/is":43,"axios":46}],10:[function(require,module,exports){
 const axios = require('axios');
 
 const array = require('@barchart/common-js/lang/array'),
@@ -3229,51 +3450,7 @@ module.exports = (() => {
   return retrieveSnapshots;
 })();
 
-},{"./../../../logging/LoggerFactory":12,"./../../../utilities/convert/baseCodeToUnitCode":20,"./../../../utilities/convert/dateToDayCode":21,"./../../../utilities/convert/dayCodeToNumber":22,"./../../../utilities/parsers/SymbolParser":35,"@barchart/common-js/lang/array":41,"@barchart/common-js/lang/is":43,"axios":46}],10:[function(require,module,exports){
-const axios = require('axios');
-
-const is = require('@barchart/common-js/lang/is');
-
-module.exports = (() => {
-  'use strict';
-  /**
-   * Promise-based utility for resolving symbol aliases (e.g. ES*1 is a reference
-   * to the front month for the ES contract -- e.g. ESZ19 -- not a concrete symbol).
-   *
-   * @function
-   * @ignore
-   * @param {String} symbol - The symbol to lookup (i.e. the alias).
-   * @returns {Promise<String>}
-   */
-
-  function retrieveConcreteSymbol(symbol) {
-    return Promise.resolve().then(() => {
-      if (!is.string(symbol)) {
-        throw new Error('The "symbol" argument must be a string.');
-      }
-
-      if (symbol.length === 0) {
-        throw new Error('The "symbol" argument must be at least one character.');
-      }
-
-      const options = {
-        url: `https://instruments-prod.aws.barchart.com/instruments/${encodeURIComponent(symbol)}`,
-        method: 'GET'
-      };
-      return Promise.resolve(axios(options)).then(response => {
-        if (!response.data || !response.data.instrument || !response.data.instrument.symbol) {
-          throw new Error(`The server was unable to resolve symbol ${symbol}.`);
-        }
-
-        return response.data.instrument.symbol;
-      });
-    });
-  }
-
-  return retrieveConcreteSymbol;
-})();
-
-},{"@barchart/common-js/lang/is":43,"axios":46}],11:[function(require,module,exports){
+},{"./../../../logging/LoggerFactory":12,"./../../../utilities/convert/baseCodeToUnitCode":20,"./../../../utilities/convert/dateToDayCode":21,"./../../../utilities/convert/dayCodeToNumber":22,"./../../../utilities/parsers/SymbolParser":35,"@barchart/common-js/lang/array":41,"@barchart/common-js/lang/is":43,"axios":46}],11:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**

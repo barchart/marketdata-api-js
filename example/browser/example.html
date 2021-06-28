@@ -110,14 +110,24 @@
                         <label class="pull-left">Server</label>
                         <input class="form-control" data-bind="textInput: hostname" type="text" placeholder="Server">
                     </div>
-                    <div class="form-group" data-bind="css: { 'has-error': username().length === 0 }, event: { keypress: handleLoginKeypress }">
+                    <div class="form-group" data-bind="css: { 'has-error': username().length === 0 }, event: { keypress: handleLoginKeypress }, visible: diagnosticsEnabled() === false">
                         <label class="pull-left">Username</label>
                         <input class="form-control" data-bind="textInput: username, hasFocus: true" type="text" placeholder="Username">
                     </div>
-                    <div class="form-group" data-bind="css: { 'has-error': password().length === 0 }, event: { keypress: handleLoginKeypress }">
+                    <div class="form-group" data-bind="css: { 'has-error': password().length === 0 }, event: { keypress: handleLoginKeypress }, visible: diagnosticsEnabled() === false">
                         <label class="pull-left">Password</label>
                         <input class="form-control" data-bind="textInput: password" type="password" placeholder="Password">
                     </div>
+
+                    <div class="form-group" data-bind="css: { 'has-error': replayFile().length === 0 }, event: { keypress: handleLoginKeypress }, visible: diagnosticsEnabled() === true">
+                        <label class="pull-left">Replay File</label>
+                        <input class="form-control" data-bind="textInput: replayFile" type="text">
+                    </div>
+                    <div class="form-group" data-bind="css: { 'has-error': replaySymbols().length === 0 }, event: { keypress: handleLoginKeypress }, visible: diagnosticsEnabled() === true">
+                        <label class="pull-left">Replay Symbols</label>
+                        <input class="form-control" data-bind="textInput: replaySymbols" type="text">
+                    </div>
+
                     <div class="form-group buttons">
                         <button class="form-control btn btn-primary" type="button" data-bind="click: connect, enable: canConnect">Connect</button>
                     </div>
@@ -127,22 +137,26 @@
     </script>
 
     <script type="text/html" id="header-template">
-        <div class="pull-left" data-bind="css: { 'can-reset': canReset}">
+        <div class="pull-left" data-bind="css: { 'can-reset': canReset }">
             <div class="header-action-buttons form-inline pull-left back-button center">
                 <span class="text-button text-button glyphicon glyphicon-arrow-left" data-bind="click: showGrid"></span>
             </div>
 
             <h4 class="pull-left header-text barchart-logo"><span>[Streaming Market Data Example]</span></h4>
 
-            <div class="header-action-buttons pull-right form-inline" data-bind="visible: connected">
+            <div class="header-action-buttons pull-right form-inline" data-bind="visible: connected() === true && diagnosticsEnabled() === false">
                 <input class="form-control" data-bind="textInput: symbol, hasFocus: symbolFocus, event: { keypress: handleSymbolKeypress }" type="text" placeholder="Add Symbol">
                 <span class="text-button glyphicon glyphicon-plus" data-bind="click: addSymbol"></span>
                 <span class="text-button glyphicon glyphicon-info-sign" data-bind="click: lookupProfile"></span>
                 <span class="text-button glyphicon glyphicon-pause" data-bind="click: pause, visible: canPause"></span>
                 <span class="text-button glyphicon glyphicon-play" data-bind="click: resume, visible: canResume"></span>
-                <span class="text-button glyphicon glyphicon-send" data-bind="click: transmit, visible: canDisconnect"></span>
                 <span class="text-button glyphicon glyphicon-remove" data-bind="click: disconnect, visible: canDisconnect"></span>
                 <span class="text-button glyphicon glyphicon-earphone" data-bind="click: connect, visible: canConnect"></span>
+            </div>
+
+            <div class="header-action-buttons pull-right form-inline" data-bind="visible: connected() === true && diagnosticsEnabled() === true">
+                <span class="text-button glyphicon glyphicon-play" data-bind="click: diagnosticsNext"></span>
+                <span class="text-button glyphicon glyphicon-remove" data-bind="click: disconnect, visible: canDisconnect"></span>
             </div>
         </div>
         <div class="pull-right">
@@ -162,7 +176,7 @@
 						<!-- /ko -->
 					</ul>
 				</div>
-                <div class="btn-group">
+                <div class="btn-group" data-bind="visible: diagnosticsEnabled() === false">
                     <button type="button" class="btn btn-primary form-control" data-bind="text: mode"></button>
                     <button type="button" class="btn btn-primary dropdown-toggle form-control" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="caret"></span>
@@ -180,6 +194,7 @@
     <script type="text/html" id="footer-template">
         <h4 class="pull-left"><a href="https://github.com/barchart/marketdata-api-js" target="_blank">[marketdata-api-js]</a><span data-bind="visible: connected"> <span data-bind="text: username"></span>@<span data-bind="text: hostname"></span></span></h4>
         <h4 class="pull-right">Client Version: <span data-bind="text: version()"></span></h4>
+        <h4 class="center" data-bind="visible: diagnosticsEnabled() === true"><span>--- DIAGNOSTICS MODE<span data-bind="visible: connected"> ... REPLAY FILE: <span data-bind="text: replayFile"></span> ... INDEX: <span data-bind="text: replayIndex"></span></span> ---</span></h4>
     </script>
 </head>
 <body>

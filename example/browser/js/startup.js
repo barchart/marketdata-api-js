@@ -1,7 +1,6 @@
 const version = require('./../../../lib/meta').version;
 
-const Connection = require('./../../../lib/connection/Connection'),
-	retrieveConcreteSymbol = require('./../../../lib/connection/snapshots/symbols/retrieveConcrete');
+const Connection = require('./../../../lib/connection/Connection');
 
 const timezones = require('./../../../lib/utilities/data/timezones');
 
@@ -15,6 +14,7 @@ module.exports = (() => {
 	var PageModel = function() {
 		var that = this;
 		var connection = null;
+		var diagnostics = null;
 
 		that.hostname = ko.observable('qsws-us-e-02.aws.barchart.com');
 
@@ -51,6 +51,10 @@ module.exports = (() => {
 		that.username = ko.observable('');
 		that.password = ko.observable('');
 
+		that.replayFile = ko.observable('');
+		that.replaySymbols = ko.observable('');
+		that.replayIndex = ko.observable(0);
+
 		that.symbol = ko.observable('');
 		that.symbolFocus = ko.observable(false);
 
@@ -83,6 +87,14 @@ module.exports = (() => {
 			return connected && activeTemplate !== 'grid-template';
 		});
 
+		that.diagnosticsIndex = ko.observable(0);
+
+		that.diagnosticsEnabled = ko.computed(function() {
+			var hostname = that.hostname();
+
+			return hostname === 'localhost';
+		});
+
 		that.rows = ko.observableArray();
 		that.item = ko.observable(null);
 		that.profile = ko.observable(null);
@@ -94,6 +106,40 @@ module.exports = (() => {
 				if (event === 'login success') {
 					that.connecting(false);
 					that.connected(true);
+
+					if (that.diagnosticsEnabled() && diagnostics === null) {
+						that.diagnosticsIndex(0);
+
+						diagnostics = connection.getDiagnosticsController();
+
+						var replayFile = that.replayFile();
+						var replaySymbols = that.replaySymbols().toString().split(',');
+
+						var subscriptions = [ ];
+
+						for (var i = 0; i < replaySymbols.length; i++) {
+							var s = replaySymbols[i];
+
+							var model = new RowModel(s, that.timezone);
+
+							var handleMarketUpdate = function(message) {
+								model.quote(connection.getMarketState().getQuote(s));
+							};
+
+							model.setMarketUpdateHandler(handleMarketUpdate);
+
+							that.rows.push(model);
+
+							var subscription = { };
+
+							subscription.symbol = s;
+							subscription.callback = handleMarketUpdate;
+
+							subscriptions.push(subscription);
+						}
+
+						diagnostics.initialize(replayFile, subscriptions);
+					}
 
 					that.showGrid();
 				} else if (event === 'feed paused') {
@@ -133,8 +179,28 @@ module.exports = (() => {
 			var username = that.username();
 			var password = that.password();
 
-			if (!hostname || !username || !password) {
+			if (!hostname) {
 				return;
+			}
+
+			var diagnosticsEnabled = that.diagnosticsEnabled();
+			var replayFile = that.replayFile();
+			var replaySymbols = that.replaySymbols();
+
+			if (diagnosticsEnabled) {
+				if (!replayFile || !replaySymbols) {
+					return;
+				}
+
+				username = 'anonymous';
+				password = 'anonymous';
+
+				that.username(username);
+				that.password(password);
+			} else {
+				if (!username || !password) {
+					return;
+				}
 			}
 
 			that.connecting(true);
@@ -158,13 +224,17 @@ module.exports = (() => {
 			}
 
 			connection.disconnect();
+
 			connection = null;
+			diagnostics = null;
 
 			that.rows.removeAll();
 
 			that.connecting(false);
 			that.connected(false);
 			that.paused(false);
+
+			that.replayIndex(0);
 
 			that.activeTemplate('disconnected-template');
 		};
@@ -175,29 +245,6 @@ module.exports = (() => {
 
 		that.resume = function() {
 			connection.resume();
-		};
-
-		that.transmit = function() {
-			const message = that.symbol();
-
-			const matches = message.match(/ADD (.*)$/);
-
-			if (matches === null) {
-				connection.transmit(message);
-			} else {
-				var s = matches[1];
-				var model = new RowModel(s, that.timezone);
-
-				var handleMarketUpdate = function(m) {
-					model.quote(connection.getMarketState().getQuote(s));
-				};
-
-				model.setMarketUpdateHandler(handleMarketUpdate);
-
-				connection.on('marketUpdate', handleMarketUpdate, s);
-
-				that.rows.push(model);
-			}
 		};
 
 		that.handleLoginKeypress = function(d, e) {
@@ -299,7 +346,9 @@ module.exports = (() => {
 			that.item(null);
 			that.profile(null);
 
-			that.symbolFocus(true);
+			if (!that.diagnosticsEnabled()) {
+				that.symbolFocus(true);
+			}
 		};
 
 		that.showItemDetail = function(model) {
@@ -406,6 +455,38 @@ module.exports = (() => {
 			if (connection !== null) {
 				connection.setPollingFrequency(5000);
 			}
+		};
+
+		that.diagnosticsScroll = function() {
+			if (that.diagnosticsEnabled() && diagnostics !== null) {
+				var desiredIndex = that.diagnosticsIndex();
+
+				try {
+					desiredIndex = parseInt(desiredIndex);
+				} catch (e) {
+					desiredIndex = null;
+				}
+
+				if (desiredIndex !== null) {
+					diagnostics.scroll(desiredIndex);
+				}
+			}
+		};
+
+		that.diagnosticsNext = function() {
+			if (that.diagnosticsEnabled() && diagnostics !== null) {
+				diagnostics.next();
+
+				that.replayIndex(that.replayIndex() + 1);
+			}
+		};
+
+		that.handleDiagnosticsScrollKeypress = function(d, e) {
+			if (e.keyCode === 13) {
+				that.addSymbol();
+			}
+
+			return true;
 		};
 
 		that.disconnect();

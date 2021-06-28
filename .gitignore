@@ -1,4 +1,5 @@
 .idea
+logs
 node_modules
 
 .awspublish-barchart-examples

@@ -3,7 +3,7 @@ const fs = require('fs');
 module.exports = (() => {
     'use strict';
 
-    class FileReader {
+    class ReplayFileReader {
         constructor(path) {
             this._position = 0;
 
@@ -31,11 +31,11 @@ module.exports = (() => {
         }
 
         static for(path) {
-            if (!FileReader.checkFile(path)) {
+            if (!ReplayFileReader.checkFile(path)) {
                 throw new Error(`File doesn't exist [ ${path} ]`);
             }
 
-            return new FileReader(path);
+            return new ReplayFileReader(path);
         }
 
         static checkFile(path) {
@@ -43,5 +43,5 @@ module.exports = (() => {
         }
     }
 
-    return FileReader;
+    return ReplayFileReader;
 })();
