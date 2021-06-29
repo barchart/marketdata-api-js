@@ -2324,7 +2324,7 @@ module.exports = (() => {
   return parseMessage;
 })();
 
-},{"./timestamp":24,"./value":25,"xmldom":37}],24:[function(require,module,exports){
+},{"./timestamp":24,"./value":25,"xmldom":38}],24:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -2611,7 +2611,8 @@ module.exports = (() => {
 })();
 
 },{"./../data/UnitCode":13,"@barchart/common-js/lang/is":32}],27:[function(require,module,exports){
-const is = require('@barchart/common-js/lang/is');
+const is = require('@barchart/common-js/lang/is'),
+      string = require('@barchart/common-js/lang/string');
 
 module.exports = (() => {
   'use strict';
@@ -2948,6 +2949,28 @@ module.exports = (() => {
       return formatted;
     }
     /**
+     * Converts an abbreviated futures symbol (with a single digit year) into
+     * a futures symbol with a two digit year. If the symbol is not a futures
+     * contract, a null value is returned.
+     *
+     * @static
+     * @public
+     * @param {String} symbol
+     * @returns {String|null}
+     */
+
+
+    static getFuturesExplicitFormat(symbol) {
+      let explicit = null;
+
+      if (SymbolParser.getIsFuture(symbol) && SymbolParser.getIsConcrete(symbol)) {
+        const parsed = SymbolParser.parseInstrumentType(symbol);
+        explicit = `${parsed.root}${parsed.month}${string.padLeft(Math.floor(parsed.year % 100).toString(), 2, '0')}`;
+      }
+
+      return explicit;
+    }
+    /**
      * Returns true if prices for the symbol should be represented as a percentage; false
      * otherwise.
      *
@@ -3276,7 +3299,7 @@ module.exports = (() => {
   return SymbolParser;
 })();
 
-},{"@barchart/common-js/lang/is":32}],28:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":32,"@barchart/common-js/lang/string":34}],28:[function(require,module,exports){
 const assert = require('./assert');
 
 module.exports = (() => {
@@ -3538,7 +3561,7 @@ module.exports = (() => {
   return Timezones;
 })();
 
-},{"./Enum":28,"./is":32,"./timezone":34,"moment-timezone/builds/moment-timezone-with-data-2012-2022":35}],30:[function(require,module,exports){
+},{"./Enum":28,"./is":32,"./timezone":35,"moment-timezone/builds/moment-timezone-with-data-2012-2022":36}],30:[function(require,module,exports){
 const assert = require('./assert'),
       is = require('./is');
 
@@ -3961,25 +3984,72 @@ module.exports = (() => {
       } else if (comparator(item, a[0]) < 0) {
         a.unshift(item);
       } else {
-        a.splice(binarySearch(a, item, comparator, 0, a.length - 1), 0, item);
+        a.splice(binarySearchForInsert(a, item, comparator, 0, a.length - 1), 0, item);
       }
 
       return a;
+    },
+
+    /**
+     * Performs a binary search to locate an item within an array.
+     *
+     * @param {*[]} a
+     * @param {*} key
+     * @param {Function} comparator
+     * @param {Number=} start
+     * @param {Number=} end
+     * @returns {*|null}
+     */
+    binarySearch(a, key, comparator, start, end) {
+      assert.argumentIsArray(a, 'a');
+      assert.argumentIsRequired(comparator, 'comparator', Function);
+      assert.argumentIsOptional(start, 'start', Number);
+      assert.argumentIsOptional(end, 'end', Number);
+
+      if (a.length === 0) {
+        return null;
+      }
+
+      return binarySearchForMatch(a, key, comparator, start || 0, end || a.length - 1);
     }
 
   };
 
-  function binarySearch(array, item, comparator, start, end) {
+  function binarySearchForMatch(a, key, comparator, start, end) {
     const size = end - start;
     const midpointIndex = start + Math.floor(size / 2);
-    const midpointItem = array[midpointIndex];
+    const midpointItem = a[midpointIndex];
+    const comparison = comparator(key, midpointItem);
+
+    if (comparison === 0) {
+      return midpointItem;
+    } else if (size < 2) {
+      const finalIndex = a.length - 1;
+      const finalItem = a[finalIndex];
+
+      if (end === finalIndex && comparator(key, finalItem) === 0) {
+        return finalItem;
+      } else {
+        return null;
+      }
+    } else if (comparison > 0) {
+      return binarySearchForMatch(a, key, comparator, midpointIndex, end);
+    } else {
+      return binarySearchForMatch(a, key, comparator, start, midpointIndex);
+    }
+  }
+
+  function binarySearchForInsert(a, item, comparator, start, end) {
+    const size = end - start;
+    const midpointIndex = start + Math.floor(size / 2);
+    const midpointItem = a[midpointIndex];
     const comparison = comparator(item, midpointItem) > 0;
 
     if (size < 2) {
       if (comparison > 0) {
-        const finalIndex = array.length - 1;
+        const finalIndex = a.length - 1;
 
-        if (end === finalIndex && comparator(item, array[finalIndex]) > 0) {
+        if (end === finalIndex && comparator(item, a[finalIndex]) > 0) {
           return end + 1;
         } else {
           return end;
@@ -3988,9 +4058,9 @@ module.exports = (() => {
         return start;
       }
     } else if (comparison > 0) {
-      return binarySearch(array, item, comparator, midpointIndex, end);
+      return binarySearchForInsert(a, item, comparator, midpointIndex, end);
     } else {
-      return binarySearch(array, item, comparator, start, midpointIndex);
+      return binarySearchForInsert(a, item, comparator, start, midpointIndex);
     }
   }
 })();
@@ -4520,6 +4590,132 @@ module.exports = (() => {
 })();
 
 },{"./array":30,"./is":32}],34:[function(require,module,exports){
+const assert = require('./assert'),
+      is = require('./is');
+
+module.exports = (() => {
+  'use strict';
+
+  const regex = {};
+  regex.camel = {};
+  regex.camel.violations = /\b[A-Z]/g;
+  /**
+   * Utility functions for strings.
+   *
+   * @public
+   * @module lang/string
+   */
+
+  return {
+    /**
+     * Adjusts a string, replacing the first character of each word with an uppercase
+     * character and all subsequent characters in the word with lowercase characters.
+     *
+     * @public
+     * @static
+     * @param {String} s
+     * @returns {String}
+     */
+    startCase(s) {
+      return s.split(' ').reduce((phrase, word) => {
+        if (word.length !== 0) {
+          phrase.push(word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+        }
+
+        return phrase;
+      }, []).join(' ');
+    },
+
+    /**
+     * Adjust a string to use camel case, where the first letter of each word is replaced
+     * with a lower case character.
+     *
+     * @public
+     * @static
+     * @param {String} s
+     * @returns {String}
+     */
+    camelCase(s) {
+      assert.argumentIsRequired(s, 's', String);
+      return s.replace(regex.camel.violations, m => m.toLocaleLowerCase());
+    },
+
+    /**
+     * If a string exceeds a desired length, it is truncated and a poor man's
+     * ellipsis (i.e. three periods) is appended. Otherwise, the original
+     * string is returned.
+     *
+     * @public
+     * @static
+     * @param {String} s
+     * @param {Number} length
+     * @returns {String}
+     */
+    truncate(s, length) {
+      if (is.string(s) && s.length > length) {
+        return s.substring(0, length) + ' ...';
+      } else {
+        return s;
+      }
+    },
+
+    /**
+     * Adds leading characters to a string, until the string length is a desired size.
+     *
+     * @public
+     * @static
+     * @param {String} s - The string to pad.
+     * @param {Number} length - The desired overall length of the string.
+     * @param {String} character - The character to use for padding.
+     * @returns {String}
+     */
+    padLeft(s, length, character) {
+      assert.argumentIsRequired(s, 's', String);
+      assert.argumentIsRequired(length, 'length', Number);
+      assert.argumentIsRequired(character, 'character', String);
+
+      if (character.length !== 1) {
+        throw new Error('The "character" argument must be one character in length.');
+      }
+
+      return character.repeat(length - s.length) + s;
+    },
+
+    /**
+     * Performs a simple token replacement on a string; where the tokens
+     * are braced numbers (e.g. {0}, {1}, {2}).
+     *
+     * @public
+     * @static
+     * @param {String} s - The string to format (e.g. 'my first name is {0} and my last name is {1}')
+     * @param {Array<String>} data - The replacement data
+     * @returns {String}
+     */
+    format(s, ...data) {
+      assert.argumentIsRequired(s, 's', String);
+      return s.replace(/{(\d+)}/g, (match, i) => {
+        let replacement;
+
+        if (i < data.length) {
+          const item = data[i];
+
+          if (!is.undefined(item) && !is.null(item)) {
+            replacement = item.toString();
+          } else {
+            replacement = match;
+          }
+        } else {
+          replacement = match;
+        }
+
+        return replacement;
+      });
+    }
+
+  };
+})();
+
+},{"./assert":31,"./is":32}],35:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022'),
       assert = require('./assert');
 
@@ -4574,7 +4770,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./assert":31,"moment-timezone/builds/moment-timezone-with-data-2012-2022":35}],35:[function(require,module,exports){
+},{"./assert":31,"moment-timezone/builds/moment-timezone-with-data-2012-2022":36}],36:[function(require,module,exports){
 //! moment-timezone.js
 //! version : 0.5.26
 //! Copyright (c) JS Foundation and other contributors
@@ -5800,7 +5996,7 @@ module.exports = (() => {
 	return moment;
 }));
 
-},{"moment":36}],36:[function(require,module,exports){
+},{"moment":37}],37:[function(require,module,exports){
 //! moment.js
 
 ;(function (global, factory) {
@@ -10404,11 +10600,11 @@ module.exports = (() => {
 
 })));
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
-	
 }
+
 DOMParser.prototype.parseFromString = function(source,mimeType){
 	var options = this.options;
 	var sax =  new XMLReader();
@@ -10416,20 +10612,19 @@ DOMParser.prototype.parseFromString = function(source,mimeType){
 	var errorHandler = options.errorHandler;
 	var locator = options.locator;
 	var defaultNSMap = options.xmlns||{};
-	var entityMap = {'lt':'<','gt':'>','amp':'&','quot':'"','apos':"'"}
+	var isHTML = /\/x?html?$/.test(mimeType);//mimeType.toLowerCase().indexOf('html') > -1;
+  	var entityMap = isHTML?htmlEntity.entityMap:{'lt':'<','gt':'>','amp':'&','quot':'"','apos':"'"};
 	if(locator){
 		domBuilder.setDocumentLocator(locator)
 	}
-	
+
 	sax.errorHandler = buildErrorHandler(errorHandler,domBuilder,locator);
 	sax.domBuilder = options.domBuilder || domBuilder;
-	if(/\/x?html?$/.test(mimeType)){
-		entityMap.nbsp = '\xa0';
-		entityMap.copy = '\xa9';
+	if(isHTML){
 		defaultNSMap['']= 'http://www.w3.org/1999/xhtml';
 	}
 	defaultNSMap.xml = defaultNSMap.xml || 'http://www.w3.org/XML/1998/namespace';
-	if(source){
+	if(source && typeof source === 'string'){
 		sax.parse(source,defaultNSMap,entityMap);
 	}else{
 		sax.errorHandler.error("invalid doc source");
@@ -10465,8 +10660,8 @@ function buildErrorHandler(errorImpl,domBuilder,locator){
 /**
  * +ContentHandler+ErrorHandler
  * +LexicalHandler+EntityResolver2
- * -DeclHandler-DTDHandler 
- * 
+ * -DeclHandler-DTDHandler
+ *
  * DefaultHandler:EntityResolver, DTDHandler, ContentHandler, ErrorHandler
  * DefaultHandler2:DefaultHandler,LexicalHandler, DeclHandler, EntityResolver2
  * @link http://www.saxproject.org/apidoc/org/xml/sax/helpers/DefaultHandler.html
@@ -10481,7 +10676,7 @@ function position(locator,node){
 /**
  * @see org.xml.sax.ContentHandler#startDocument
  * @link http://www.saxproject.org/apidoc/org/xml/sax/ContentHandler.html
- */ 
+ */
 DOMHandler.prototype = {
 	startDocument : function() {
     	this.doc = new DOMImplementation().createDocument(null, null, null);
@@ -10495,7 +10690,7 @@ DOMHandler.prototype = {
 	    var len = attrs.length;
 	    appendElement(this, el);
 	    this.currentElement = el;
-	    
+
 		this.locator && position(this.locator,el)
 	    for (var i = 0 ; i < len; i++) {
 	        var namespaceURI = attrs.getURI(i);
@@ -10558,7 +10753,7 @@ DOMHandler.prototype = {
 	    this.locator && position(this.locator,comm)
 	    appendElement(this, comm);
 	},
-	
+
 	startCDATA:function() {
 	    //used in characters() methods
 	    this.cdata = true;
@@ -10566,7 +10761,7 @@ DOMHandler.prototype = {
 	endCDATA:function() {
 	    this.cdata = false;
 	},
-	
+
 	startDTD:function(name, publicId, systemId) {
 		var impl = this.doc.implementation;
 	    if (impl && impl.createDocumentType) {
@@ -10586,8 +10781,7 @@ DOMHandler.prototype = {
 		console.error('[xmldom error]\t'+error,_locator(this.locator));
 	},
 	fatalError:function(error) {
-		console.error('[xmldom fatalError]\t'+error,_locator(this.locator));
-	    throw error;
+		throw new ParseError(error, this.locator);
 	}
 }
 function _locator(l){
@@ -10651,20 +10845,17 @@ function appendElement (hander,node) {
 }//appendChild and setAttributeNS are preformance key
 
 //if(typeof require == 'function'){
-	var XMLReader = require('./sax').XMLReader;
-	var DOMImplementation = exports.DOMImplementation = require('./dom').DOMImplementation;
-	exports.XMLSerializer = require('./dom').XMLSerializer ;
-	exports.DOMParser = DOMParser;
+var htmlEntity = require('./entities');
+var sax = require('./sax');
+var XMLReader = sax.XMLReader;
+var ParseError = sax.ParseError;
+var DOMImplementation = exports.DOMImplementation = require('./dom').DOMImplementation;
+exports.XMLSerializer = require('./dom').XMLSerializer ;
+exports.DOMParser = DOMParser;
+exports.__DOMHandler = DOMHandler;
 //}
 
-},{"./dom":38,"./sax":39}],38:[function(require,module,exports){
-/*
- * DOM Level 2
- * Object DOMException
- * @see http://www.w3.org/TR/REC-DOM-Level-1/ecma-script-language-binding.html
- * @see http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/ecma-script-binding.html
- */
-
+},{"./dom":39,"./entities":40,"./sax":41}],39:[function(require,module,exports){
 function copy(src,dest){
 	for(var p in src){
 		dest[p] = src[p];
@@ -10676,10 +10867,6 @@ function copy(src,dest){
  */
 function _extends(Class,Super){
 	var pt = Class.prototype;
-	if(Object.create){
-		var ppt = Object.create(Super.prototype)
-		pt.__proto__ = ppt;
-	}
 	if(!(pt instanceof Super)){
 		function t(){};
 		t.prototype = Super.prototype;
@@ -10730,7 +10917,12 @@ var INVALID_MODIFICATION_ERR 	= ExceptionCode.INVALID_MODIFICATION_ERR 	= ((Exce
 var NAMESPACE_ERR            	= ExceptionCode.NAMESPACE_ERR           	= ((ExceptionMessage[14]="Invalid namespace"),14);
 var INVALID_ACCESS_ERR       	= ExceptionCode.INVALID_ACCESS_ERR      	= ((ExceptionMessage[15]="Invalid access"),15);
 
-
+/**
+ * DOM Level 2
+ * Object DOMException
+ * @see http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/ecma-script-binding.html
+ * @see http://www.w3.org/TR/REC-DOM-Level-1/ecma-script-language-binding.html
+ */
 function DOMException(code, message) {
 	if(message instanceof Error){
 		var error = message;
@@ -11272,6 +11464,21 @@ Document.prototype = {
 		return rtv;
 	},
 	
+	getElementsByClassName: function(className) {
+		var pattern = new RegExp("(^|\\s)" + className + "(\\s|$)");
+		return new LiveNodeList(this, function(base) {
+			var ls = [];
+			_visitNode(base.documentElement, function(node) {
+				if(node !== base && node.nodeType == ELEMENT_NODE) {
+					if(pattern.test(node.getAttribute('class'))) {
+						ls.push(node);
+					}
+				}
+			});
+			return ls;
+		});
+	},
+	
 	//document factory method:
 	createElement :	function(tagName){
 		var node = new Element();
@@ -11576,7 +11783,7 @@ XMLSerializer.prototype.serializeToString = function(node,isHtml,nodeFilter){
 Node.prototype.toString = nodeSerializeToString;
 function nodeSerializeToString(isHtml,nodeFilter){
 	var buf = [];
-	var refNode = this.nodeType == 9?this.documentElement:this;
+	var refNode = this.nodeType == 9 && this.documentElement || this;
 	var prefix = refNode.prefix;
 	var uri = refNode.namespaceURI;
 	
@@ -11675,9 +11882,13 @@ function serializeToString(node,buf,isHTML,nodeFilter,visibleNamespaces){
 		if (needNamespaceDefine(node,isHTML, visibleNamespaces)) {
 			var prefix = node.prefix||'';
 			var uri = node.namespaceURI;
-			var ns = prefix ? ' xmlns:' + prefix : " xmlns";
-			buf.push(ns, '="' , uri , '"');
-			visibleNamespaces.push({ prefix: prefix, namespace:uri });
+			if (uri) {
+				// Avoid empty namespace value like xmlns:ds=""
+				// Empty namespace URL will we produce an invalid XML document
+				var ns = prefix ? ' xmlns:' + prefix : " xmlns";
+				buf.push(ns, '="' , uri , '"');
+				visibleNamespaces.push({ prefix: prefix, namespace:uri });
+			}
 		}
 		
 		if(child || isHTML && !/^(?:meta|link|img|br|hr|input)$/i.test(nodeName)){
@@ -11715,9 +11926,33 @@ function serializeToString(node,buf,isHTML,nodeFilter,visibleNamespaces){
 		}
 		return;
 	case ATTRIBUTE_NODE:
-		return buf.push(' ',node.name,'="',node.value.replace(/[<&"]/g,_xmlEncoder),'"');
+		/**
+		 * Well-formedness constraint: No < in Attribute Values
+		 * The replacement text of any entity referred to directly or indirectly in an attribute value must not contain a <.
+		 * @see https://www.w3.org/TR/xml/#CleanAttrVals
+		 * @see https://www.w3.org/TR/xml/#NT-AttValue
+		 */
+		return buf.push(' ', node.name, '="', node.value.replace(/[<&"]/g,_xmlEncoder), '"');
 	case TEXT_NODE:
-		return buf.push(node.data.replace(/[<&]/g,_xmlEncoder));
+		/**
+		 * The ampersand character (&) and the left angle bracket (<) must not appear in their literal form,
+		 * except when used as markup delimiters, or within a comment, a processing instruction, or a CDATA section.
+		 * If they are needed elsewhere, they must be escaped using either numeric character references or the strings
+		 * `&amp;` and `&lt;` respectively.
+		 * The right angle bracket (>) may be represented using the string " &gt; ", and must, for compatibility,
+		 * be escaped using either `&gt;` or a character reference when it appears in the string `]]>` in content,
+		 * when that string is not marking the end of a CDATA section.
+		 *
+		 * In the content of elements, character data is any string of characters
+		 * which does not contain the start-delimiter of any markup
+		 * and does not include the CDATA-section-close delimiter, `]]>`.
+		 *
+		 * @see https://www.w3.org/TR/xml/#NT-CharData
+		 */
+		return buf.push(node.data
+			.replace(/[<&]/g,_xmlEncoder)
+			.replace(/]]>/g, ']]&gt;')
+		);
 	case CDATA_SECTION_NODE:
 		return buf.push( '<![CDATA[',node.data,']]>');
 	case COMMENT_NODE:
@@ -11727,13 +11962,13 @@ function serializeToString(node,buf,isHTML,nodeFilter,visibleNamespaces){
 		var sysid = node.systemId;
 		buf.push('<!DOCTYPE ',node.name);
 		if(pubid){
-			buf.push(' PUBLIC "',pubid);
+			buf.push(' PUBLIC ', pubid);
 			if (sysid && sysid!='.') {
-				buf.push( '" "',sysid);
+				buf.push(' ', sysid);
 			}
-			buf.push('">');
+			buf.push('>');
 		}else if(sysid && sysid!='.'){
-			buf.push(' SYSTEM "',sysid,'">');
+			buf.push(' SYSTEM ', sysid, '>');
 		}else{
 			var sub = node.internalSubset;
 			if(sub){
@@ -11899,11 +12134,258 @@ try{
 }
 
 //if(typeof require == 'function'){
+	exports.Node = Node;
+	exports.DOMException = DOMException;
 	exports.DOMImplementation = DOMImplementation;
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
+exports.entityMap = {
+       lt: '<',
+       gt: '>',
+       amp: '&',
+       quot: '"',
+       apos: "'",
+       Agrave: "À",
+       Aacute: "Á",
+       Acirc: "Â",
+       Atilde: "Ã",
+       Auml: "Ä",
+       Aring: "Å",
+       AElig: "Æ",
+       Ccedil: "Ç",
+       Egrave: "È",
+       Eacute: "É",
+       Ecirc: "Ê",
+       Euml: "Ë",
+       Igrave: "Ì",
+       Iacute: "Í",
+       Icirc: "Î",
+       Iuml: "Ï",
+       ETH: "Ð",
+       Ntilde: "Ñ",
+       Ograve: "Ò",
+       Oacute: "Ó",
+       Ocirc: "Ô",
+       Otilde: "Õ",
+       Ouml: "Ö",
+       Oslash: "Ø",
+       Ugrave: "Ù",
+       Uacute: "Ú",
+       Ucirc: "Û",
+       Uuml: "Ü",
+       Yacute: "Ý",
+       THORN: "Þ",
+       szlig: "ß",
+       agrave: "à",
+       aacute: "á",
+       acirc: "â",
+       atilde: "ã",
+       auml: "ä",
+       aring: "å",
+       aelig: "æ",
+       ccedil: "ç",
+       egrave: "è",
+       eacute: "é",
+       ecirc: "ê",
+       euml: "ë",
+       igrave: "ì",
+       iacute: "í",
+       icirc: "î",
+       iuml: "ï",
+       eth: "ð",
+       ntilde: "ñ",
+       ograve: "ò",
+       oacute: "ó",
+       ocirc: "ô",
+       otilde: "õ",
+       ouml: "ö",
+       oslash: "ø",
+       ugrave: "ù",
+       uacute: "ú",
+       ucirc: "û",
+       uuml: "ü",
+       yacute: "ý",
+       thorn: "þ",
+       yuml: "ÿ",
+       nbsp: "\u00a0",
+       iexcl: "¡",
+       cent: "¢",
+       pound: "£",
+       curren: "¤",
+       yen: "¥",
+       brvbar: "¦",
+       sect: "§",
+       uml: "¨",
+       copy: "©",
+       ordf: "ª",
+       laquo: "«",
+       not: "¬",
+       shy: "­­",
+       reg: "®",
+       macr: "¯",
+       deg: "°",
+       plusmn: "±",
+       sup2: "²",
+       sup3: "³",
+       acute: "´",
+       micro: "µ",
+       para: "¶",
+       middot: "·",
+       cedil: "¸",
+       sup1: "¹",
+       ordm: "º",
+       raquo: "»",
+       frac14: "¼",
+       frac12: "½",
+       frac34: "¾",
+       iquest: "¿",
+       times: "×",
+       divide: "÷",
+       forall: "∀",
+       part: "∂",
+       exist: "∃",
+       empty: "∅",
+       nabla: "∇",
+       isin: "∈",
+       notin: "∉",
+       ni: "∋",
+       prod: "∏",
+       sum: "∑",
+       minus: "−",
+       lowast: "∗",
+       radic: "√",
+       prop: "∝",
+       infin: "∞",
+       ang: "∠",
+       and: "∧",
+       or: "∨",
+       cap: "∩",
+       cup: "∪",
+       'int': "∫",
+       there4: "∴",
+       sim: "∼",
+       cong: "≅",
+       asymp: "≈",
+       ne: "≠",
+       equiv: "≡",
+       le: "≤",
+       ge: "≥",
+       sub: "⊂",
+       sup: "⊃",
+       nsub: "⊄",
+       sube: "⊆",
+       supe: "⊇",
+       oplus: "⊕",
+       otimes: "⊗",
+       perp: "⊥",
+       sdot: "⋅",
+       Alpha: "Α",
+       Beta: "Β",
+       Gamma: "Γ",
+       Delta: "Δ",
+       Epsilon: "Ε",
+       Zeta: "Ζ",
+       Eta: "Η",
+       Theta: "Θ",
+       Iota: "Ι",
+       Kappa: "Κ",
+       Lambda: "Λ",
+       Mu: "Μ",
+       Nu: "Ν",
+       Xi: "Ξ",
+       Omicron: "Ο",
+       Pi: "Π",
+       Rho: "Ρ",
+       Sigma: "Σ",
+       Tau: "Τ",
+       Upsilon: "Υ",
+       Phi: "Φ",
+       Chi: "Χ",
+       Psi: "Ψ",
+       Omega: "Ω",
+       alpha: "α",
+       beta: "β",
+       gamma: "γ",
+       delta: "δ",
+       epsilon: "ε",
+       zeta: "ζ",
+       eta: "η",
+       theta: "θ",
+       iota: "ι",
+       kappa: "κ",
+       lambda: "λ",
+       mu: "μ",
+       nu: "ν",
+       xi: "ξ",
+       omicron: "ο",
+       pi: "π",
+       rho: "ρ",
+       sigmaf: "ς",
+       sigma: "σ",
+       tau: "τ",
+       upsilon: "υ",
+       phi: "φ",
+       chi: "χ",
+       psi: "ψ",
+       omega: "ω",
+       thetasym: "ϑ",
+       upsih: "ϒ",
+       piv: "ϖ",
+       OElig: "Œ",
+       oelig: "œ",
+       Scaron: "Š",
+       scaron: "š",
+       Yuml: "Ÿ",
+       fnof: "ƒ",
+       circ: "ˆ",
+       tilde: "˜",
+       ensp: " ",
+       emsp: " ",
+       thinsp: " ",
+       zwnj: "‌",
+       zwj: "‍",
+       lrm: "‎",
+       rlm: "‏",
+       ndash: "–",
+       mdash: "—",
+       lsquo: "‘",
+       rsquo: "’",
+       sbquo: "‚",
+       ldquo: "“",
+       rdquo: "”",
+       bdquo: "„",
+       dagger: "†",
+       Dagger: "‡",
+       bull: "•",
+       hellip: "…",
+       permil: "‰",
+       prime: "′",
+       Prime: "″",
+       lsaquo: "‹",
+       rsaquo: "›",
+       oline: "‾",
+       euro: "€",
+       trade: "™",
+       larr: "←",
+       uarr: "↑",
+       rarr: "→",
+       darr: "↓",
+       harr: "↔",
+       crarr: "↵",
+       lceil: "⌈",
+       rceil: "⌉",
+       lfloor: "⌊",
+       rfloor: "⌋",
+       loz: "◊",
+       spades: "♠",
+       clubs: "♣",
+       hearts: "♥",
+       diams: "♦"
+};
+
+},{}],41:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -11923,6 +12405,21 @@ var S_ATTR_NOQUOT_VALUE = 4;//attr value(no quot value only)
 var S_ATTR_END = 5;//attr value end and no space(quot end)
 var S_TAG_SPACE = 6;//(attr value end || tag end ) && (space offer)
 var S_TAG_CLOSE = 7;//closed el<el />
+
+/**
+ * Creates an error that will not be caught by XMLReader aka the SAX parser.
+ *
+ * @param {string} message
+ * @param {any?} locator Optional, can provide details about the location in the source
+ * @constructor
+ */
+function ParseError(message, locator) {
+	this.message = message
+	this.locator = locator
+	if(Error.captureStackTrace) Error.captureStackTrace(this, ParseError);
+}
+ParseError.prototype = new Error();
+ParseError.prototype.name = ParseError.name
 
 function XMLReader(){
 	
@@ -12011,7 +12508,6 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 				if(end<0){
 					
 	        		tagName = source.substring(tagStart+2).replace(/[\s<].*/,'');
-	        		//console.error('#@@@@@@'+tagName)
 	        		errorHandler.error("end tag name: "+tagName+' is not complete:'+config.tagName);
 	        		end = tagStart+1+tagName.length;
 	        	}else if(tagName.match(/\s</)){
@@ -12019,8 +12515,6 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 	        		errorHandler.error("end tag name: "+tagName+' maybe not complete');
 	        		end = tagStart+1+tagName.length;
 				}
-				//console.error(parseStack.length,parseStack)
-				//console.error(config);
 				var localNSMap = config.localNSMap;
 				var endMatch = config.tagName == tagName;
 				var endIgnoreCaseMach = endMatch || config.tagName&&config.tagName.toLowerCase() == tagName.toLowerCase()
@@ -12032,7 +12526,7 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 						}
 					}
 					if(!endMatch){
-		            	errorHandler.fatalError("end tag name: "+tagName+' is not match the current start tagName:'+config.tagName );
+		            	errorHandler.fatalError("end tag name: "+tagName+' is not match the current start tagName:'+config.tagName ); // No known test case
 					}
 		        }else{
 		        	parseStack.push(config)
@@ -12072,7 +12566,6 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 						position(a.offset);
 						a.locator = copyLocator(locator,{});
 					}
-					//}catch(e){console.error('@@@@@'+e)}
 					domBuilder.locator = locator2
 					if(appendElement(el,domBuilder,currentNSMap)){
 						parseStack.push(el)
@@ -12093,10 +12586,11 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 				}
 			}
 		}catch(e){
+			if (e instanceof ParseError) {
+				throw e;
+			}
 			errorHandler.error('element parse error: '+e)
-			//errorHandler.error('element parse error: '+e);
 			end = -1;
-			//throw e;
 		}
 		if(end>start){
 			start = end;
@@ -12117,6 +12611,16 @@ function copyLocator(f,t){
  * @return end of the elementStartPart(end of elementEndPart for selfClosed el)
  */
 function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,errorHandler){
+
+	/**
+	 * @param {string} qname
+	 * @param {string} value
+	 * @param {number} startIndex
+	 */
+	function addAttribute(qname, value, startIndex) {
+		if (qname in el.attributeNames) errorHandler.fatalError('Attribute ' + qname + ' redefined')
+		el.addValue(qname, value, startIndex)
+	}
 	var attrName;
 	var value;
 	var p = ++start;
@@ -12132,7 +12636,7 @@ function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,error
 				s = S_EQ;
 			}else{
 				//fatalError: equal must after attrName or space after attrName
-				throw new Error('attribute equal must after attrName');
+				throw new Error('attribute equal must after attrName'); // No known test case
 			}
 			break;
 		case '\'':
@@ -12147,7 +12651,7 @@ function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,error
 				p = source.indexOf(c,start)
 				if(p>0){
 					value = source.slice(start,p).replace(/&#?\w+;/g,entityReplacer);
-					el.add(attrName,value,start-1);
+					addAttribute(attrName, value, start-1);
 					s = S_ATTR_END;
 				}else{
 					//fatalError: no end quot match
@@ -12156,14 +12660,14 @@ function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,error
 			}else if(s == S_ATTR_NOQUOT_VALUE){
 				value = source.slice(start,p).replace(/&#?\w+;/g,entityReplacer);
 				//console.log(attrName,value,start,p)
-				el.add(attrName,value,start);
+				addAttribute(attrName, value, start);
 				//console.dir(el)
 				errorHandler.warning('attribute "'+attrName+'" missed start quot('+c+')!!');
 				start = p+1;
 				s = S_ATTR_END
 			}else{
 				//fatalError: no equal before
-				throw new Error('attribute value must after "="');
+				throw new Error('attribute value must after "="'); // No known test case
 			}
 			break;
 		case '/':
@@ -12181,11 +12685,10 @@ function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,error
 				break;
 			//case S_EQ:
 			default:
-				throw new Error("attribute invalid close char('/')")
+				throw new Error("attribute invalid close char('/')") // No known test case
 			}
 			break;
 		case ''://end document
-			//throw new Error('unexpected end of input')
 			errorHandler.error('unexpected end of input');
 			if(s == S_TAG){
 				el.setTagName(source.slice(start,p));
@@ -12211,13 +12714,13 @@ function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,error
 					value = attrName;
 				}
 				if(s == S_ATTR_NOQUOT_VALUE){
-					errorHandler.warning('attribute "'+value+'" missed quot(")!!');
-					el.add(attrName,value.replace(/&#?\w+;/g,entityReplacer),start)
+					errorHandler.warning('attribute "'+value+'" missed quot(")!');
+					addAttribute(attrName, value.replace(/&#?\w+;/g,entityReplacer), start)
 				}else{
 					if(currentNSMap[''] !== 'http://www.w3.org/1999/xhtml' || !value.match(/^(?:disabled|checked|selected)$/i)){
 						errorHandler.warning('attribute "'+value+'" missed value!! "'+value+'" instead!!')
 					}
-					el.add(value,value,start)
+					addAttribute(value, value, start)
 				}
 				break;
 			case S_EQ:
@@ -12242,7 +12745,7 @@ function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,error
 				case S_ATTR_NOQUOT_VALUE:
 					var value = source.slice(start,p).replace(/&#?\w+;/g,entityReplacer);
 					errorHandler.warning('attribute "'+value+'" missed quot(")!!');
-					el.add(attrName,value,start)
+					addAttribute(attrName, value, start)
 				case S_ATTR_END:
 					s = S_TAG_SPACE;
 					break;
@@ -12265,7 +12768,7 @@ function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,error
 					if(currentNSMap[''] !== 'http://www.w3.org/1999/xhtml' || !attrName.match(/^(?:disabled|checked|selected)$/i)){
 						errorHandler.warning('attribute "'+attrName+'" missed value!! "'+attrName+'" instead2!!')
 					}
-					el.add(attrName,attrName,start);
+					addAttribute(attrName, attrName, start);
 					start = p;
 					s = S_ATTR;
 					break;
@@ -12437,11 +12940,18 @@ function parseDCC(source,start,domBuilder,errorHandler){//sure start with '<!'
 		var len = matchs.length;
 		if(len>1 && /!doctype/i.test(matchs[0][0])){
 			var name = matchs[1][0];
-			var pubid = len>3 && /^public$/i.test(matchs[2][0]) && matchs[3][0]
-			var sysid = len>4 && matchs[4][0];
+			var pubid = false;
+			var sysid = false;
+			if(len>3){
+				if(/^public$/i.test(matchs[2][0])){
+					pubid = matchs[3][0];
+					sysid = len>4 && matchs[4][0];
+				}else if(/^system$/i.test(matchs[2][0])){
+					sysid = matchs[3][0];
+				}
+			}
 			var lastMatch = matchs[len-1]
-			domBuilder.startDTD(name,pubid && pubid.replace(/^(['"])(.*?)\1$/,'$2'),
-					sysid && sysid.replace(/^(['"])(.*?)\1$/,'$2'));
+			domBuilder.startDTD(name, pubid, sysid);
 			domBuilder.endDTD();
 			
 			return lastMatch.index+lastMatch[0].length
@@ -12467,11 +12977,8 @@ function parseInstruction(source,start,domBuilder){
 	return -1;
 }
 
-/**
- * @param source
- */
-function ElementAttributes(source){
-	
+function ElementAttributes(){
+	this.attributeNames = {}
 }
 ElementAttributes.prototype = {
 	setTagName:function(tagName){
@@ -12480,10 +12987,11 @@ ElementAttributes.prototype = {
 		}
 		this.tagName = tagName
 	},
-	add:function(qName,value,offset){
+	addValue:function(qName, value, offset) {
 		if(!tagNamePattern.test(qName)){
 			throw new Error('invalid attribute:'+qName)
 		}
+		this.attributeNames[qName] = this.length;
 		this[this.length++] = {qName:qName,value:value,offset:offset}
 	},
 	length:0,
@@ -12506,23 +13014,6 @@ ElementAttributes.prototype = {
 
 
 
-
-function _set_proto_(thiz,parent){
-	thiz.__proto__ = parent;
-	return thiz;
-}
-if(!(_set_proto_({},_set_proto_.prototype) instanceof _set_proto_)){
-	_set_proto_ = function(thiz,parent){
-		function p(){};
-		p.prototype = parent;
-		p = new p();
-		for(parent in thiz){
-			p[parent] = thiz[parent];
-		}
-		return p;
-	}
-}
-
 function split(source,start){
 	var match;
 	var buf = [];
@@ -12536,9 +13027,9 @@ function split(source,start){
 }
 
 exports.XMLReader = XMLReader;
+exports.ParseError = ParseError;
 
-
-},{}],40:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 const CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
 
 describe('When a cumulative volume container is created with a tick increment of 0.25', () => {
@@ -12877,7 +13368,7 @@ describe('When a cumulative volume container is created with a tick increment of
   });
 });
 
-},{"../../../lib/marketState/CumulativeVolume":4}],41:[function(require,module,exports){
+},{"../../../lib/marketState/CumulativeVolume":4}],43:[function(require,module,exports){
 const Profile = require('../../../lib/marketState/Profile');
 
 describe('When a Profile is created (for a symbol with unitCode "2")', () => {
@@ -12892,7 +13383,7 @@ describe('When a Profile is created (for a symbol with unitCode "2")', () => {
   });
 });
 
-},{"../../../lib/marketState/Profile":5}],42:[function(require,module,exports){
+},{"../../../lib/marketState/Profile":5}],44:[function(require,module,exports){
 const convertBaseCodeToUnitCode = require('./../../../../lib/utilities/convert/baseCodeToUnitCode');
 
 describe('When converting a baseCode to a unitCode', () => {
@@ -12949,7 +13440,7 @@ describe('When converting a baseCode to a unitCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":6}],43:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":6}],45:[function(require,module,exports){
 const convertDateToDayCode = require('./../../../../lib/utilities/convert/dateToDayCode');
 
 describe('When converting a date instance to a day code', () => {
@@ -13054,7 +13545,7 @@ describe('When converting a date instance to a day code', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dateToDayCode":7}],44:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dateToDayCode":7}],46:[function(require,module,exports){
 const convertDayCodeToNumber = require('./../../../../lib/utilities/convert/dayCodeToNumber');
 
 describe('When converting a dayCode to number', () => {
@@ -13225,7 +13716,7 @@ describe('When converting a dayCode to number', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dayCodeToNumber":8}],45:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dayCodeToNumber":8}],47:[function(require,module,exports){
 const convertMonthCodeToName = require('./../../../../lib/utilities/convert/monthCodeToName');
 
 describe('When converting a futures month code to a month name', () => {
@@ -13240,7 +13731,7 @@ describe('When converting a futures month code to a month name', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/monthCodeToName":9}],46:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/monthCodeToName":9}],48:[function(require,module,exports){
 const convertMonthCodeToNumber = require('./../../../../lib/utilities/convert/monthCodeToNumber');
 
 describe('When converting a futures month code to a month name', () => {
@@ -13255,7 +13746,7 @@ describe('When converting a futures month code to a month name', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/monthCodeToNumber":10}],47:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/monthCodeToNumber":10}],49:[function(require,module,exports){
 const convertNumberToDayCode = require('./../../../../lib/utilities/convert/numberToDayCode');
 
 describe('When converting a number to a dayCode', () => {
@@ -13360,7 +13851,7 @@ describe('When converting a number to a dayCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/numberToDayCode":11}],48:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/numberToDayCode":11}],50:[function(require,module,exports){
 const convertUnitCodeToBaseCode = require('./../../../../lib/utilities/convert/unitCodeToBaseCode');
 
 describe('When converting a unitCode to a baseCode', () => {
@@ -13417,7 +13908,7 @@ describe('When converting a unitCode to a baseCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":12}],49:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":12}],51:[function(require,module,exports){
 const UnitCode = require('../../../../lib/utilities/data/UnitCode');
 
 describe('When parsing an invalid argument', () => {
@@ -14112,7 +14603,7 @@ describe('When parsing a valid character as a unit code', () => {
   });
 });
 
-},{"../../../../lib/utilities/data/UnitCode":13}],50:[function(require,module,exports){
+},{"../../../../lib/utilities/data/UnitCode":13}],52:[function(require,module,exports){
 const monthCodes = require('../../../../lib/utilities/data/monthCodes');
 
 describe('When looking up a month name by code', () => {
@@ -14200,7 +14691,7 @@ describe('When looking up a month number by code', () => {
   });
 });
 
-},{"../../../../lib/utilities/data/monthCodes":14}],51:[function(require,module,exports){
+},{"../../../../lib/utilities/data/monthCodes":14}],53:[function(require,module,exports){
 const formatDate = require('./../../../../lib/utilities/format/date');
 
 describe('when using the date formatter', () => {
@@ -14212,7 +14703,7 @@ describe('when using the date formatter', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/date":15}],52:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/date":15}],54:[function(require,module,exports){
 const formatDecimal = require('./../../../../lib/utilities/format/decimal');
 
 describe('when formatting invalid values', () => {
@@ -14350,7 +14841,7 @@ describe('when formatting decimal values to format with parenthesis and no thous
   });
 });
 
-},{"./../../../../lib/utilities/format/decimal":16}],53:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/decimal":16}],55:[function(require,module,exports){
 const buildPriceFormatter = require('./../../../../../lib/utilities/format/factories/price');
 
 describe('When a price formatter is created', () => {
@@ -14710,7 +15201,7 @@ describe('When a price formatter is created', () => {
   });
 });
 
-},{"./../../../../../lib/utilities/format/factories/price":17}],54:[function(require,module,exports){
+},{"./../../../../../lib/utilities/format/factories/price":17}],56:[function(require,module,exports){
 const buildQuoteFormatter = require('./../../../../../lib/utilities/format/factories/quote');
 
 describe('When a time formatter is created (without specifying the clock)', () => {
@@ -15153,7 +15644,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../../lib/utilities/format/factories/quote":18}],55:[function(require,module,exports){
+},{"./../../../../../lib/utilities/format/factories/quote":18}],57:[function(require,module,exports){
 const formatPrice = require('./../../../../lib/utilities/format/price');
 /*
 describe('benchmark', () => {
@@ -15535,7 +16026,7 @@ describe('when valid prices are formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/price":19}],56:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/price":19}],58:[function(require,module,exports){
 const formatQuote = require('./../../../../lib/utilities/format/quote');
 
 describe('When a quote formatter is used (without specifying the clock)', () => {
@@ -15958,7 +16449,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../lib/utilities/format/quote":20}],57:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/quote":20}],59:[function(require,module,exports){
 const formatSymbol = require('./../../../../lib/utilities/format/symbol');
 
 describe('When a lowercase string is formatted as a symbol', () => {
@@ -16045,9 +16536,9 @@ describe('When an null value is formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/symbol":21}],58:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/symbol":21}],60:[function(require,module,exports){
 
-},{}],59:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 const parseMessage = require('../../../../../lib/utilities/parse/ddf/message');
 
 describe('when parsing an XML refresh message', () => {
@@ -16254,7 +16745,7 @@ describe('when parsing a DDF message', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/message":23}],60:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/message":23}],62:[function(require,module,exports){
 const parseValue = require('../../../../../lib/utilities/parse/ddf/value');
 
 describe('when parsing prices', () => {
@@ -16357,7 +16848,7 @@ describe('when parsing prices', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/value":25}],61:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/value":25}],63:[function(require,module,exports){
 const parsePrice = require('../../../../lib/utilities/parse/price');
 
 describe('when parsing invalid values', () => {
@@ -16738,7 +17229,7 @@ describe('when valid prices are parsed', () => {
   });
 });
 
-},{"../../../../lib/utilities/parse/price":26}],62:[function(require,module,exports){
+},{"../../../../lib/utilities/parse/price":26}],64:[function(require,module,exports){
 const SymbolParser = require('../../../../lib/utilities/parsers/SymbolParser');
 
 describe('When parsing a symbol for instrument type', () => {
@@ -18564,7 +19055,21 @@ describe('When checking to see if a symbol is a BATS listing', () => {
     expect(SymbolParser.getIsBats('IBM.BZ')).toEqual(true);
   });
 });
-describe('When checking the display format for the symbol ', () => {
+describe('When checking to see if a symbol is pit-traded', () => {
+  it('the symbol "IBM" (with the name "International Business Machines") should return false', () => {
+    expect(SymbolParser.getIsPit('IBM', 'International Business Machines')).toEqual(false);
+  });
+  it('the symbol "ADU08" (with the name "Australian Dollar(P)") should return true', () => {
+    expect(SymbolParser.getIsPit('ADU08', 'Australian Dollar(P)')).toEqual(true);
+  });
+  it('the symbol "BRQ17" (with the name "Brazilian Real (Pit)") should return true', () => {
+    expect(SymbolParser.getIsPit('BRQ17', 'Brazilian Real (Pit)')).toEqual(true);
+  });
+  it('the symbol "CK21" (with the name "Corn (Pit) May 2021") should return true', () => {
+    expect(SymbolParser.getIsPit('CK21', 'Corn (Pit) May 2021')).toEqual(true);
+  });
+});
+describe('When checking the display format for the symbol', () => {
   it('The symbol "HPIUSA.RP" should not be formatted as a percent', () => {
     expect(SymbolParser.displayUsingPercent('HPIUSA.RP')).toEqual(false);
   });
@@ -18631,19 +19136,25 @@ describe('When getting a producer symbol', () => {
     expect(SymbolParser.getProducerSymbol('AAPL|20200515|250.00P')).toEqual('AAPL|20200515|250.00P');
   });
 });
-describe('When checking to see if a symbol is pit-traded', () => {
-  it('the symbol "IBM" (with the name "International Business Machines") should return false', () => {
-    expect(SymbolParser.getIsPit('IBM', 'International Business Machines')).toEqual(false);
+describe('When getting an explicit futures symbol', () => {
+  it('TSLA should map to a null value', () => {
+    expect(SymbolParser.getFuturesExplicitFormat('TSLA')).toEqual(null);
   });
-  it('the symbol "ADU08" (with the name "Australian Dollar(P)") should return true', () => {
-    expect(SymbolParser.getIsPit('ADU08', 'Australian Dollar(P)')).toEqual(true);
+  it('ZC*0 should map to a null value', () => {
+    expect(SymbolParser.getFuturesExplicitFormat('ZC*0')).toEqual(null);
   });
-  it('the symbol "BRQ17" (with the name "Brazilian Real (Pit)") should return true', () => {
-    expect(SymbolParser.getIsPit('BRQ17', 'Brazilian Real (Pit)')).toEqual(true);
+  it('ZC*1 should map to a null value', () => {
+    expect(SymbolParser.getFuturesExplicitFormat('ZC*1')).toEqual(null);
   });
-  it('the symbol "CK21" (with the name "Corn (Pit) May 2021") should return true', () => {
-    expect(SymbolParser.getIsPit('CK21', 'Corn (Pit) May 2021')).toEqual(true);
+  it('ZCZ21 should map to ZCZ21', () => {
+    expect(SymbolParser.getFuturesExplicitFormat('ZCZ21')).toEqual('ZCZ21');
+  });
+  it('ZCZ0 should map to ZCZ21', () => {
+    expect(SymbolParser.getFuturesExplicitFormat('ZCZ0')).toEqual('ZCZ30');
+  });
+  it('ZCZ6 should map to ZCZ26', () => {
+    expect(SymbolParser.getFuturesExplicitFormat('ZCZ6')).toEqual('ZCZ26');
   });
 });
 
-},{"../../../../lib/utilities/parsers/SymbolParser":27}]},{},[40,41,42,43,44,45,46,47,48,50,49,51,52,53,54,55,56,57,58,59,60,61,62]);
+},{"../../../../lib/utilities/parsers/SymbolParser":27}]},{},[42,43,44,45,46,47,48,49,50,52,51,53,54,55,56,57,58,59,60,61,62,63,64]);
