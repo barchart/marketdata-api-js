@@ -212,6 +212,7 @@ module.exports = (() => {
 			connection = new Connection();
 
 			connection.setExtendedProfileMode(true);
+			connection.setExtendedQuoteMode(true);
 
 			connection.on('events', handleEvents);
 
