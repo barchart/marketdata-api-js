@@ -2414,7 +2414,25 @@ describe('When checking to see if a symbol is a BATS listing', () => {
 	});
 });
 
-describe('When checking the display format for the symbol ', () => {
+describe('When checking to see if a symbol is pit-traded', () => {
+	it('the symbol "IBM" (with the name "International Business Machines") should return false', () => {
+		expect(SymbolParser.getIsPit('IBM', 'International Business Machines')).toEqual(false);
+	});
+
+	it('the symbol "ADU08" (with the name "Australian Dollar(P)") should return true', () => {
+		expect(SymbolParser.getIsPit('ADU08', 'Australian Dollar(P)')).toEqual(true);
+	});
+
+	it('the symbol "BRQ17" (with the name "Brazilian Real (Pit)") should return true', () => {
+		expect(SymbolParser.getIsPit('BRQ17', 'Brazilian Real (Pit)')).toEqual(true);
+	});
+
+	it('the symbol "CK21" (with the name "Corn (Pit) May 2021") should return true', () => {
+		expect(SymbolParser.getIsPit('CK21', 'Corn (Pit) May 2021')).toEqual(true);
+	});
+});
+
+describe('When checking the display format for the symbol', () => {
 	it('The symbol "HPIUSA.RP" should not be formatted as a percent', () => {
 		expect(SymbolParser.displayUsingPercent('HPIUSA.RP')).toEqual(false);
 	});
@@ -2502,20 +2520,29 @@ describe('When getting a producer symbol', () => {
 	});
 });
 
-describe('When checking to see if a symbol is pit-traded', () => {
-	it('the symbol "IBM" (with the name "International Business Machines") should return false', () => {
-		expect(SymbolParser.getIsPit('IBM', 'International Business Machines')).toEqual(false);
+describe('When getting an explicit futures symbol', () => {
+	it('TSLA should map to a null value', () => {
+		expect(SymbolParser.getFuturesExplicitFormat('TSLA')).toEqual(null);
 	});
 
-	it('the symbol "ADU08" (with the name "Australian Dollar(P)") should return true', () => {
-		expect(SymbolParser.getIsPit('ADU08', 'Australian Dollar(P)')).toEqual(true);
+	it('ZC*0 should map to a null value', () => {
+		expect(SymbolParser.getFuturesExplicitFormat('ZC*0')).toEqual(null);
 	});
 
-	it('the symbol "BRQ17" (with the name "Brazilian Real (Pit)") should return true', () => {
-		expect(SymbolParser.getIsPit('BRQ17', 'Brazilian Real (Pit)')).toEqual(true);
+	it('ZC*1 should map to a null value', () => {
+		expect(SymbolParser.getFuturesExplicitFormat('ZC*1')).toEqual(null);
 	});
 
-	it('the symbol "CK21" (with the name "Corn (Pit) May 2021") should return true', () => {
-		expect(SymbolParser.getIsPit('CK21', 'Corn (Pit) May 2021')).toEqual(true);
+	it('ZCZ21 should map to ZCZ21', () => {
+		expect(SymbolParser.getFuturesExplicitFormat('ZCZ21')).toEqual('ZCZ21');
+	});
+
+	it('ZCZ0 should map to ZCZ21', () => {
+		expect(SymbolParser.getFuturesExplicitFormat('ZCZ0')).toEqual('ZCZ30');
+	});
+
+	it('ZCZ6 should map to ZCZ26', () => {
+		expect(SymbolParser.getFuturesExplicitFormat('ZCZ6')).toEqual('ZCZ26');
 	});
 });
+
