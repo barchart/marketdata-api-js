@@ -95,6 +95,16 @@ describe('when valid prices are formatted', () => {
 			});
 		});
 
+		describe('with a dash fraction separator', () => {
+			it('formats 123.0 as "123-0"', () => {
+				expect(formatPrice(123.0, '2', '-')).toEqual('123-0');
+			});
+
+			it('formats 123.5 as "123-4"', () => {
+				expect(formatPrice(123.5, '2', '-')).toEqual('123-4');
+			});
+		});
+
 		describe('with a decimal fraction separator', () => {
 			it('formats 0 as "0.000"', () => {
 				expect(formatPrice(0, '2', '.')).toEqual('0.000');
@@ -358,7 +368,41 @@ describe('when valid prices are formatted', () => {
 		});
 	});
 
+	describe('with a unit code of "3"', () => {
+		describe('with a dash fraction separator', () => {
+			it('formats 123.0 as "123-00"', () => {
+				expect(formatPrice(123.0, '3', '-')).toEqual('123-00');
+			});
+
+			it('formats 123.5 as "123-4"', () => {
+				expect(formatPrice(123.5, '3', '-')).toEqual('123-08');
+			});
+		});
+	});
+
+	describe('with a unit code of "4"', () => {
+		describe('with a dash fraction separator', () => {
+			it('formats 123.0 as "123-00"', () => {
+				expect(formatPrice(123.0, '4', '-')).toEqual('123-00');
+			});
+
+			it('formats 123.5 as "123-4"', () => {
+				expect(formatPrice(123.5, '4', '-')).toEqual('123-16');
+			});
+		});
+	});
+
 	describe('with a unit code of "5"', () => {
+		describe('with a dash fraction separator', () => {
+			it('formats 123.0 as "123-00"', () => {
+				expect(formatPrice(123.0, '5', '-')).toEqual('123-00');
+			});
+
+			it('formats 123.5 as "123-32"', () => {
+				expect(formatPrice(123.5, '5', '-')).toEqual('123-32');
+			});
+		});
+
 		describe('with a dash fraction separator and special fractions', () => {
 			it('formats 123.625 as "123-200"', () => {
 				expect(formatPrice(123.625, '5', '-', true)).toEqual('123-200');
@@ -405,6 +449,16 @@ describe('when valid prices are formatted', () => {
 	});
 
 	describe('with a unit code of "6"', () => {
+		describe('with a dash fraction separator', () => {
+			it('formats 123.0 as "123-000"', () => {
+				expect(formatPrice(123.0, '6', '-')).toEqual('123-000');
+			});
+
+			it('formats 123.5 as "123-064"', () => {
+				expect(formatPrice(123.5, '6', '-')).toEqual('123-064');
+			});
+		});
+
 		describe('with a dash fraction separator and special fractions', () => {
 			it('formats 114.5156 as "114-165"', () => {
 				expect(formatPrice(114.5156, '6', '-', true)).toEqual('114-165');
@@ -427,7 +481,19 @@ describe('when valid prices are formatted', () => {
 			});
 		});
 	});
-	
+
+	describe('with a unit code of "6"', () => {
+		describe('with a dash fraction separator', () => {
+			it('formats 123.0 as "123-000"', () => {
+				expect(formatPrice(123.0, '7', '-')).toEqual('123-000');
+			});
+
+			it('formats 123.5 as "123-128"', () => {
+				expect(formatPrice(123.5, '7', '-')).toEqual('123-128');
+			});
+		});
+	});
+
 	describe('with a unit code of "8"', () => {
 		describe('with a decimal fraction separator', () => {
 			it('formats 0 as "0"', () => {
