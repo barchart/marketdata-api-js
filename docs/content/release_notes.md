@@ -1,5 +1,38 @@
 # Release Notes
 
+## 5.11.0
+**New Features**
+
+* Added `Quote.refresh` property, which will contain the most recent DDF refresh message.
+
+**Bug Fixes**
+
+* Adjusted logic to assign any DDF message to the `Quoute.message` property, not just refresh messages.
+
+## 5.10.0
+**New Features**
+
+* Added `Connection.setExtendedQuoteMode` function which causes additional `Quote` properties to be populated.
+* Added `Quote.contractHigh` and `Quote.contractLow` properties, which are populated in "extended" quote mode.
+* Added `SymbolParser.getFuturesExplicitFormat` function.
+* Added undocumented functions for interacting with a replay server.
+
+**Bug Fixes**
+
+* Suppressed requests to download out-of-band profile data, if the data has already been downloaded.
+
+**Technical Enhancements**
+
+* Updated the [`ws`](https://www.npmjs.com/package/ws) library from version 7.0.1 to 7.4.6.
+* Updated the [`xmldom`](https://www.npmjs.com/package/xmldom) library from version 0.1.27 to 0.6.0.
+* Corrected unit tests for `SymbolParser.getIsPit` function.
+
+**Other**
+
+* Renamed the `ConnectionBase.connect` function's `server` parameter to `hostname` and added the `Connection.getHostname` function.
+* Added a Node.js script which captures market data feed messages to a file (for diagnostic purposes).
+* Added a Node.js script which replays market data feed messages from a file (for diagnostic purposes).
+
 ## 5.9.0
 **New Features**
 

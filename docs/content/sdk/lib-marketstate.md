@@ -483,6 +483,7 @@
     * _instance_
         * [.symbol](#Quotesymbol)
         * [.profile](#Quoteprofile)
+        * [.refresh](#Quoterefresh)
         * [.message](#Quotemessage)
         * [.flag](#Quoteflag)
         * [.mode](#Quotemode)
@@ -504,6 +505,8 @@
         * [.openPrice](#QuoteopenPrice)
         * [.highPrice](#QuotehighPrice)
         * [.lowPrice](#QuotelowPrice)
+        * [.recordHighPrice](#QuoterecordHighPrice)
+        * [.recordLowPrice](#QuoterecordLowPrice)
         * [.volume](#Quotevolume)
         * [.openInterest](#QuoteopenInterest)
         * [.previousPrice](#QuotepreviousPrice)
@@ -539,6 +542,19 @@
 
 * * *
 
+### quote.refresh :id=quoterefresh
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| message | <code>string</code> | <p>Most recent DDF refresh message which caused this instance to mutate.</p> |
+
+
+* * *
+
 ### quote.message :id=quotemessage
 **Kind**: instance property of [<code>Quote</code>](#Quote)  
 **Access**: public  
@@ -547,7 +563,7 @@
 
 | Name | Type | Description |
 | --- | --- | --- |
-| message | <code>string</code> | <p>Most recent DDF message to cause a this instance to mutate.</p> |
+| message | <code>string</code> | <p>Most recent DDF message which caused this instance to mutate.</p> |
 
 
 * * *
@@ -808,6 +824,32 @@
 | Name | Type | Description |
 | --- | --- | --- |
 | lowPrice | <code>number</code> \| <code>null</code> | <p>The lowest trade price from the current trading session.</p> |
+
+
+* * *
+
+### quote.recordHighPrice :id=quoterecordhighprice
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| recordHighPrice | <code>number</code> \| <code>null</code> | <p>The all-time highest trade price from current or previous trading sessions.</p> |
+
+
+* * *
+
+### quote.recordLowPrice :id=quoterecordlowprice
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| recordLowPrice | <code>number</code> \| <code>null</code> | <p>The all-time lowest trade price from current or previous trading sessions.</p> |
 
 
 * * *

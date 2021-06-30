@@ -24,7 +24,7 @@
 
 * [Connection](#Connection) ⇐ <code>ConnectionBase</code>
     * _instance_
-        * [.connect(server, username, password, [webSocketAdapterFactory])](#Connectionconnect)
+        * [.connect(hostname, username, password, [webSocketAdapterFactory])](#Connectionconnect)
         * [.disconnect()](#Connectiondisconnect)
         * [.on(subscriptionType, callback, [symbol])](#Connectionon)
         * [.off(subscriptionType, callback, [symbol])](#Connectionoff)
@@ -33,8 +33,11 @@
         * [.setPollingFrequency(pollingFrequency)](#ConnectionsetPollingFrequency)
         * [.getPollingFrequency()](#ConnectiongetPollingFrequency) ⇒ <code>number</code> \| <code>null</code>
         * [.setExtendedProfileMode(mode)](#ConnectionsetExtendedProfileMode)
-        * [.getExtendedProfileMode()](#ConnectiongetExtendedProfileMode) ⇒ <code>boolean</code>
+        * [.getExtendedProfileMode()](#ConnectiongetExtendedProfileMode) ⇒ <code>Boolean</code>
+        * [.setExtendedQuoteMode(mode)](#ConnectionsetExtendedQuoteMode)
+        * [.getExtendedQuoteMode()](#ConnectiongetExtendedQuoteMode) ⇒ <code>Boolean</code>
         * [.getMarketState()](#ConnectiongetMarketState) ⇒ [<code>MarketState</code>](/content/sdk/lib-marketstate?id=marketstate)
+        * [.getHostname()](#ConnectiongetHostname) ⇒ <code>null</code> \| <code>string</code>
         * [.getServer()](#ConnectiongetServer) ⇒ <code>null</code> \| <code>string</code>
         * [.getPassword()](#ConnectiongetPassword) ⇒ <code>null</code> \| <code>string</code>
         * [.getUsername()](#ConnectiongetUsername) ⇒ <code>null</code> \| <code>string</code>
@@ -42,7 +45,7 @@
 
 * * *
 
-### connection.connect(server, username, password, [webSocketAdapterFactory]) :id=connectionconnect
+### connection.connect(hostname, username, password, [webSocketAdapterFactory]) :id=connectionconnect
 > Establishes WebSocket connection to Barchart's servers and authenticates. Success
 > or failure is reported asynchronously by the <strong>Events</strong> subscription (see
 > [SubscriptionType](#enumssubscriptiontype)).
@@ -53,7 +56,7 @@
 
 | Param | Type | Description |
 | --- | --- | --- |
-| server | <code>string</code> | <p>Barchart hostname (contact solutions@barchart.com)</p> |
+| hostname | <code>string</code> | <p>Barchart hostname (contact solutions@barchart.com)</p> |
 | username | <code>string</code> | <p>Your username (contact solutions@barchart.com)</p> |
 | password | <code>string</code> | <p>Your password (contact solutions@barchart.com)</p> |
 | [webSocketAdapterFactory] | [<code>WebSocketAdapterFactory</code>](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) | <p>Strategy for creating a WebSocket (required for Node.js)</p> |
@@ -155,10 +158,9 @@
 * * *
 
 ### connection.setExtendedProfileMode(mode) :id=connectionsetextendedprofilemode
-> When set to true, additional properties properties become
-> available on [Profile](/content/sdk/lib-marketstate?id=profile) instances (e.g. future contract
-> expiration date). This is accomplished by making additional
-> out-of-band queries to Barchart services.
+> When set to true, additional properties become available on [Profile](/content/sdk/lib-marketstate?id=profile)
+> instances (e.g. the &quot;first notice dates&quot; for futures contracts). This is accomplished
+> by making additional out-of-band queries to web Barchart services.
 
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
 **Overrides**: [<code>setExtendedProfileMode</code>](#ConnectionBasesetExtendedProfileMode)  
@@ -172,12 +174,39 @@
 * * *
 
 ### connection.getExtendedProfileMode() :id=connectiongetextendedprofilemode
-> Indicates if additional [Profile](/content/sdk/lib-marketstate?id=profile) data (e.g. future contract
-> expiration dates) should be loaded (via out-of-band queries).
+> Indicates if additional [Profile](/content/sdk/lib-marketstate?id=profile) data (e.g. the &quot;first notice dates&quot; for
+> futures contracts) should be loaded (via out-of-band queries).
 
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
 **Overrides**: [<code>getExtendedProfileMode</code>](#ConnectionBasegetExtendedProfileMode)  
-**Returns**: <code>boolean</code>  
+**Returns**: <code>Boolean</code>  
+**Access**: public  
+
+* * *
+
+### connection.setExtendedQuoteMode(mode) :id=connectionsetextendedquotemode
+> When set to true, additional properties become available on [Quote](/content/sdk/lib-marketstate?id=quote) instances
+> (e.g. &quot;record high price&quot; for futures contracts). This is accomplished by making
+> additional out-of-band queries to Barchart web services.
+
+**Kind**: instance method of [<code>Connection</code>](#Connection)  
+**Overrides**: [<code>setExtendedQuoteMode</code>](#ConnectionBasesetExtendedQuoteMode)  
+**Access**: public  
+
+| Param | Type |
+| --- | --- |
+| mode | <code>Boolean</code> | 
+
+
+* * *
+
+### connection.getExtendedQuoteMode() :id=connectiongetextendedquotemode
+> Indicates if additional [Quote](/content/sdk/lib-marketstate?id=quote) data (e.g. &quot;record high price&quot; for futures
+> contracts) should be loaded (via out-of-band queries).
+
+**Kind**: instance method of [<code>Connection</code>](#Connection)  
+**Overrides**: [<code>getExtendedQuoteMode</code>](#ConnectionBasegetExtendedQuoteMode)  
+**Returns**: <code>Boolean</code>  
 **Access**: public  
 
 * * *
@@ -190,6 +219,16 @@
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
 **Overrides**: [<code>getMarketState</code>](#ConnectionBasegetMarketState)  
 **Returns**: [<code>MarketState</code>](/content/sdk/lib-marketstate?id=marketstate)  
+**Access**: public  
+
+* * *
+
+### connection.getHostname() :id=connectiongethostname
+> The Barchart hostname.
+
+**Kind**: instance method of [<code>Connection</code>](#Connection)  
+**Overrides**: [<code>getHostname</code>](#ConnectionBasegetHostname)  
+**Returns**: <code>null</code> \| <code>string</code>  
 **Access**: public  
 
 * * *
