@@ -184,6 +184,7 @@ module.exports = (() => {
       connection = new Connection();
       connection.setExtendedProfileMode(true);
       connection.setExtendedQuoteMode(true);
+      connection.setDeferredDayChangeMode(true);
       connection.on('events', handleEvents);
       connection.connect(hostname, username, password);
     };
@@ -588,6 +589,9 @@ module.exports = (() => {
     let __pollingFrequency = null;
     let __extendedProfile = false;
     let __extendedQuote = false;
+    let __processOptions = {
+      deferDayChange: false
+    };
     let __watchdogToken = null;
     let __watchdogAwake = false;
     let __exchangeMetadataPromise = null;
@@ -649,6 +653,12 @@ module.exports = (() => {
     function setExtendedQuoteMode(mode) {
       if (__extendedQuote !== mode) {
         __extendedQuote = mode;
+      }
+    }
+
+    function setDeferredDayChangeMode(mode) {
+      if (__processOptions.deferDayChange !== mode) {
+        __processOptions.deferDayChange = mode;
       }
     } //
     // Functions for connecting to and disconnecting from JERQ, monitoring
@@ -1401,7 +1411,7 @@ module.exports = (() => {
       let parsed;
 
       try {
-        parsed = parseMessage(message);
+        parsed = parseMessage(message, __processOptions);
       } catch (e) {
         parsed = null;
 
@@ -2267,6 +2277,7 @@ module.exports = (() => {
       setPollingFrequency: setPollingFrequency,
       setExtendedProfileMode: setExtendedProfileMode,
       setExtendedQuoteMode: setExtendedQuoteMode,
+      setDeferredDayChangeMode: setDeferredDayChangeMode,
       handleProfileRequest: handleProfileRequest,
       getDiagnosticsController: getDiagnosticsController
     };
@@ -2351,6 +2362,10 @@ module.exports = (() => {
       return this._internal.setExtendedQuoteMode(mode);
     }
 
+    _setDeferredDayChangeMode(mode) {
+      return this._internal.setDeferredDayChangeMode(mode);
+    }
+
     _handleProfileRequest(symbol) {
       this._internal.handleProfileRequest(symbol);
     }
@@ -2395,6 +2410,7 @@ module.exports = (() => {
       this._pollingFrequency = null;
       this._extendedProfileMode = false;
       this._extendedQuoteMode = false;
+      this._deferredDayChangeMode = false;
       this._instance = ++instanceCounter;
     }
     /**
@@ -2664,6 +2680,39 @@ module.exports = (() => {
 
     getExtendedQuoteMode() {
       return this._extendedQuoteMode;
+    }
+    /**
+     * @public
+     * @ignore
+     * @param {Boolean}
+     */
+
+
+    setDeferredDayChangeMode(mode) {
+      if (is.boolean(mode) && this._deferredDayChangeMode !== mode) {
+        this._deferredDayChangeMode = mode;
+
+        this._setDeferredDayChangeMode(this._deferredDayChangeMode);
+      }
+    }
+    /**
+     * @protected
+     * @ignore
+     */
+
+
+    _setDeferredDayChangeMode(mode) {
+      return;
+    }
+    /**
+     * @public
+     * @ignore
+     * @returns {Boolean}
+     */
+
+
+    getDeferredDayChangeMode() {
+      return this._deferredDayChangeMode;
     }
     /**
      * @protected
@@ -3086,7 +3135,7 @@ module.exports = (() => {
     /**
      * @public
      * @param {String} file
-     * @param {DiagnosticsSubscription[]=} subscriptions
+     * @param {*} subscriptions
      */
 
 
@@ -3367,8 +3416,6 @@ const SymbolParser = require('./../../../utilities/parsers/SymbolParser');
 
 module.exports = (() => {
   'use strict';
-
-  let logger = null;
   /**
    * Executes an HTTP request for a quote snapshot extension(s). A quote
    * extension contains supplemental quote-related data that is not available
@@ -3460,7 +3507,7 @@ module.exports = (() => {
    * @param symbols
    * @param username
    * @param password
-   * @returns {Promise<>}
+   * @returns {Promise<Object[]>}
    */
 
 
@@ -4608,7 +4655,7 @@ module.exports = (() => {
       }
     };
 
-    const _processMessage = message => {
+    const _processMessage = (message, options) => {
       const symbol = message.symbol;
 
       if (message.type === 'TIMESTAMP') {
@@ -4689,31 +4736,40 @@ module.exports = (() => {
         const dayNum = convertDayCodeToNumber(message.day);
 
         if (dayNum > q.dayNum || q.dayNum - dayNum > 5) {
-          // Roll the quote
-          q.day = message.day;
-          q.dayNum = dayNum;
-          q.flag = 'p';
-          q.bidPrice = 0.0;
-          q.bidSize = undefined;
-          q.askPrice = undefined;
-          q.askSize = undefined;
+          let allowRoll = true;
 
-          if (q.settlementPrice) {
-            q.previousSettlementPrice = q.settlementPrice;
-            q.previousPrice = q.settlementPrice;
-            q.settlementPrice = undefined;
-          } else if (q.lastPrice) {
-            q.previousPrice = q.lastPrice;
+          if (options && options.deferDayChange && !(message.type === 'REFRESH_DDF' || message.type === 'TRADE' || message.type === 'OPEN')) {
+            allowRoll = false;
           }
 
-          q.lastPrice = undefined;
-          q.tradePrice = undefined;
-          q.tradeSize = undefined;
-          q.numberOfTrades = undefined;
-          q.openPrice = undefined;
-          q.highPrice = undefined;
-          q.lowPrice = undefined;
-          q.volume = undefined;
+          if (allowRoll) {
+            q.message = message; // Roll the quote
+
+            q.day = message.day;
+            q.dayNum = dayNum;
+            q.flag = 'p';
+            q.bidPrice = 0.0;
+            q.bidSize = undefined;
+            q.askPrice = undefined;
+            q.askSize = undefined;
+
+            if (q.settlementPrice) {
+              q.previousSettlementPrice = q.settlementPrice;
+              q.previousPrice = q.settlementPrice;
+              q.settlementPrice = undefined;
+            } else if (q.lastPrice) {
+              q.previousPrice = q.lastPrice;
+            }
+
+            q.lastPrice = undefined;
+            q.tradePrice = undefined;
+            q.tradeSize = undefined;
+            q.numberOfTrades = undefined;
+            q.openPrice = undefined;
+            q.highPrice = undefined;
+            q.lowPrice = undefined;
+            q.volume = undefined;
+          }
         } else if (q.dayNum > dayNum) {
           return;
         }
@@ -4725,6 +4781,7 @@ module.exports = (() => {
 
       switch (message.type) {
         case 'HIGH':
+          q.message = message;
           q.highPrice = message.value;
 
           _deriveRecordHighPrice(q);
@@ -4732,6 +4789,7 @@ module.exports = (() => {
           break;
 
         case 'LOW':
+          q.message = message;
           q.lowPrice = message.value;
 
           _deriveRecordLowPrice(q);
@@ -4739,6 +4797,7 @@ module.exports = (() => {
           break;
 
         case 'OPEN':
+          q.message = message;
           q.flag = undefined;
           q.openPrice = message.value;
           q.highPrice = message.value;
@@ -4756,6 +4815,7 @@ module.exports = (() => {
           break;
 
         case 'OPEN_INTEREST':
+          q.message = message;
           q.openInterest = message.value;
           break;
 
@@ -4765,6 +4825,7 @@ module.exports = (() => {
             case '2':
             case '3':
               q.message = message;
+              q.refresh = message;
 
               if (message.openPrice === null) {
                 q.openPrice = undefined;
@@ -4854,6 +4915,7 @@ module.exports = (() => {
           }
 
           q.message = message;
+          q.refresh = message;
           q.flag = message.flag;
           q.mode = message.mode;
 
@@ -4899,6 +4961,7 @@ module.exports = (() => {
           break;
 
         case 'SETTLEMENT':
+          q.message = message;
           q.lastPrice = message.value;
           q.settlement = message.value;
 
@@ -4909,6 +4972,7 @@ module.exports = (() => {
           break;
 
         case 'TOB':
+          q.message = message;
           q.bidPrice = message.bidPrice;
           q.bidSize = message.bidSize;
           q.askPrice = message.askPrice;
@@ -4922,6 +4986,7 @@ module.exports = (() => {
           break;
 
         case 'TRADE':
+          q.message = message;
           q.flag = undefined;
           q.tradePrice = message.tradePrice;
           q.lastPrice = message.tradePrice;
@@ -4958,6 +5023,8 @@ module.exports = (() => {
           break;
 
         case 'TRADE_OUT_OF_SEQUENCE':
+          q.message = message;
+
           if (message.tradeSize) {
             q.volume += message.tradeSize;
           }
@@ -4971,6 +5038,7 @@ module.exports = (() => {
           break;
 
         case 'VOLUME':
+          q.message = message;
           q.volume = message.value;
           break;
 
@@ -4978,6 +5046,7 @@ module.exports = (() => {
           break;
 
         case 'VWAP':
+          q.message = message;
           q.vwap1 = message.value;
           break;
 
@@ -5176,8 +5245,8 @@ module.exports = (() => {
      */
 
 
-    processMessage(message) {
-      return this._internal.processMessage(message);
+    processMessage(message, options) {
+      return this._internal.processMessage(message, options);
     }
     /**
      * @ignore
@@ -5413,7 +5482,14 @@ module.exports = (() => {
 
       this.profile = null;
       /**
-       * @property {string} message - Most recent DDF message to cause a this instance to mutate.
+       * @property {string} message - Most recent DDF refresh message which caused this instance to mutate.
+       * @public
+       * @readonly
+       */
+
+      this.refresh = null;
+      /**
+       * @property {string} message - Most recent DDF message which caused this instance to mutate.
        * @public
        * @readonly
        */
@@ -5636,7 +5712,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.10.0'
+    version: '5.11.0'
   };
 })();
 
@@ -6540,11 +6616,12 @@ module.exports = (() => {
    * @exported
    * @function
    * @param {String} msg
+   * @param {Object=} options
    * @returns {Object}
    */
 
 
-  function parseMessage(msg) {
+  function parseMessage(msg, options) {
     const message = {
       message: msg,
       type: null
@@ -6701,12 +6778,19 @@ module.exports = (() => {
 
                   const premarket = typeof sessions.combined.lastPrice === 'undefined';
                   const postmarket = !premarket && typeof sessions.combined.settlementPrice !== 'undefined';
-                  const session = premarket ? sessions.previous : sessions.combined;
+                  const session = premarket ? sessions.previous : sessions.combined; // 2021/06/30, This seems wrong. We may be selecting most values
+                  // from the "combined" session ... but, the "previousPrice" value
+                  // from the "previous" session ... This can give us the same "previousPrice"
+                  // and "lastPrice" values (e.g. ZCN1 right after 4:45 PM, when the
+                  // snapshots change).
+                  // 2021/06/30, The "options" concept is a hack.
 
-                  if (sessions.combined.previousPrice) {
-                    message.previousPrice = sessions.combined.previousPrice;
+                  if (premarket && options && options.deferDayChange) {
+                    message.previousPrice = sessions.previous.previousPrice; //console.log(`Using option 1, previous price = ${message.previousPrice}`);
+                  } else if (sessions.combined.previousPrice) {
+                    message.previousPrice = sessions.combined.previousPrice; //console.log(`Using option 2, previous price = ${message.previousPrice}`);
                   } else {
-                    message.previousPrice = sessions.previous.previousPrice;
+                    message.previousPrice = sessions.previous.previousPrice; //console.log(`Using option 3, previous price = ${message.previousPrice}`);
                   }
 
                   if (session.lastPrice) message.lastPrice = session.lastPrice;
