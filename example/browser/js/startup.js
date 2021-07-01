@@ -213,6 +213,7 @@ module.exports = (() => {
 
 			connection.setExtendedProfileMode(true);
 			connection.setExtendedQuoteMode(true);
+			connection.setDeferredDayChangeMode(true);
 
 			connection.on('events', handleEvents);
 
