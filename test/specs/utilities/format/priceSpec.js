@@ -482,7 +482,7 @@ describe('when valid prices are formatted', () => {
 		});
 	});
 
-	describe('with a unit code of "6"', () => {
+	describe('with a unit code of "7"', () => {
 		describe('with a dash fraction separator', () => {
 			it('formats 123.0 as "123-000"', () => {
 				expect(formatPrice(123.0, '7', '-')).toEqual('123-000');
