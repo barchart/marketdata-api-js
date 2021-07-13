@@ -10,7 +10,7 @@ const formatPrice = require('./../../../../lib/utilities/format/price');
 // See maps (with explanations) below ...
 
 describe('when formatting decimals as ticks', () => {
-	it('should be formatted correctly where (each tick = 1/32, e.g. root=ZB)', () => {
+	it('should be formatted correctly (each tick = 1/32, e.g. root=ZB)', () => {
 		const rules = THIRTY_SECONDS;
 		const code = '4';
 
@@ -22,7 +22,7 @@ describe('when formatting decimals as ticks', () => {
 		});
 	});
 
-	it('should be formatted correctly where (each tick = 1/2 of a 1/32, e.g. root=ZN)', () => {
+	it('should be formatted correctly (each tick = 1/2 of a 1/32, e.g. root=ZN)', () => {
 		const rules = HALVES_OF_THIRTY_SECONDS;
 		const code = '5';
 
@@ -34,7 +34,7 @@ describe('when formatting decimals as ticks', () => {
 		});
 	});
 
-	it('should be formatted correctly where (each tick = 1/4 of a 1/32, e.g. root=ZF)', () => {
+	it('should be formatted correctly (each tick = 1/4 of a 1/32, e.g. root=ZF)', () => {
 		const rules = QUARTERS_OF_THIRTY_SECONDS;
 		const code = '5';
 
@@ -46,7 +46,7 @@ describe('when formatting decimals as ticks', () => {
 		});
 	});
 	
-	it('should be formatted correctly where (each tick = 1/8 of a 1/32, e.g. root=ZT)', () => {
+	it('should be formatted correctly (each tick = 1/8 of a 1/32, e.g. root=ZT)', () => {
 		const rules = EIGHTHS_OF_THIRTY_SECONDS;
 		const code = '7';
 
