@@ -599,9 +599,11 @@ module.exports = (() => {
   return CumulativeVolume;
 })();
 
-},{"./../logging/LoggerFactory":2,"@barchart/common-js/lang//object":33}],5:[function(require,module,exports){
+},{"./../logging/LoggerFactory":2,"@barchart/common-js/lang//object":34}],5:[function(require,module,exports){
 const SymbolParser = require('./../utilities/parsers/SymbolParser'),
       buildPriceFormatter = require('../utilities/format/factories/price');
+
+const AssetClass = require('./../utilities/data/AssetClass');
 
 module.exports = (() => {
   'use strict';
@@ -666,19 +668,21 @@ module.exports = (() => {
 
       this.tickIncrement = tickIncrement;
       const info = SymbolParser.parseInstrumentType(this.symbol);
+      const future = info !== null && info.asset === AssetClass.FUTURE;
+      const option = info !== null && info.asset === AssetClass.FUTURE_OPTION;
 
-      if (info) {
-        if (info.type === 'future') {
-          /**
-           * @property {string|undefined} root - Root symbol (futures only).
-           * @public
-           * @readonly
-           */
-          this.root = info.root;
+      if (future || option) {
+        /**
+         * @property {string|undefined} root - Root symbol (futures and futures options only).
+         * @public
+         * @readonly
+         */
+        this.root = info.root;
+
+        if (future) {
           /**
            * @property {string|undefined} month - Month code (futures only).
            */
-
           this.month = info.month;
           /**
            * @property {number|undefined} year - Expiration year (futures only).
@@ -696,6 +700,16 @@ module.exports = (() => {
 
           this.firstNotice = null;
         }
+      }
+      /**
+       * @property {AssetClass|null} type - The instrument type (a.k.a. asset class). This will only be present when inference based on the instrument symbol is possible.
+       */
+
+
+      this.asset = null;
+
+      if (info && info.asset) {
+        this.asset = info.asset;
       }
 
       if (typeof additional === 'object' && additional !== null) {
@@ -716,12 +730,13 @@ module.exports = (() => {
 
 
     formatPrice(price) {
-      return formatter(price, this.unitCode);
+      return formatter(price, this.unitCode, this);
     }
     /**
      * Configures the logic used to format all prices using the {@link Profile#formatPrice} instance function.
      *
      * @public
+     * @static
      * @param {string} fractionSeparator - usually a dash or a period
      * @param {boolean} specialFractions - usually true
      * @param {string=} thousandsSeparator - usually a comma
@@ -730,6 +745,19 @@ module.exports = (() => {
 
     static setPriceFormatter(fractionSeparator, specialFractions, thousandsSeparator) {
       formatter = buildPriceFormatter(fractionSeparator, specialFractions, thousandsSeparator);
+    }
+    /**
+     * An alternative to {@link Profile.setPriceFormatter} which allows the consumer to specify
+     * a function to
+     *
+     * @public
+     * @static
+     * @param {Callbacks.CustomPriceFormatterCallback} fn - The function to use for price formatting (which replaces the default logic).
+     */
+
+
+    static setPriceFormatterCustom(fn) {
+      formatter = fn;
     }
     /**
      * Alias for {@link Profile.setPriceFormatter} function.
@@ -764,7 +792,7 @@ module.exports = (() => {
   return Profile;
 })();
 
-},{"../utilities/format/factories/price":17,"./../utilities/parsers/SymbolParser":27}],6:[function(require,module,exports){
+},{"../utilities/format/factories/price":18,"./../utilities/data/AssetClass":13,"./../utilities/parsers/SymbolParser":28}],6:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const UnitCode = require('./../data/UnitCode');
@@ -795,7 +823,7 @@ module.exports = (() => {
   return convertBaseCodeToUnitCode;
 })();
 
-},{"./../data/UnitCode":13,"@barchart/common-js/lang/is":32}],7:[function(require,module,exports){
+},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":33}],7:[function(require,module,exports){
 const convertNumberToDayCode = require('./numberToDayCode');
 
 module.exports = (() => {
@@ -856,7 +884,7 @@ module.exports = (() => {
   return convertDayCodeToNumber;
 })();
 
-},{"@barchart/common-js/lang/is":32}],9:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":33}],9:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const monthCodes = require('./../data/monthCodes');
@@ -886,7 +914,7 @@ module.exports = (() => {
   return convertMonthCodeToNumber;
 })();
 
-},{"./../data/monthCodes":14,"@barchart/common-js/lang/is":32}],10:[function(require,module,exports){
+},{"./../data/monthCodes":15,"@barchart/common-js/lang/is":33}],10:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const monthCodes = require('./../data/monthCodes');
@@ -916,7 +944,7 @@ module.exports = (() => {
   return convertMonthCodeToNumber;
 })();
 
-},{"./../data/monthCodes":14,"@barchart/common-js/lang/is":32}],11:[function(require,module,exports){
+},{"./../data/monthCodes":15,"@barchart/common-js/lang/is":33}],11:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -953,7 +981,7 @@ module.exports = (() => {
   return convertNumberToDayCode;
 })();
 
-},{"@barchart/common-js/lang/is":32}],12:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":33}],12:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const UnitCode = require('./../data/UnitCode');
@@ -983,14 +1011,154 @@ module.exports = (() => {
   return convertUnitCodeToBaseCode;
 })();
 
-},{"./../data/UnitCode":13,"@barchart/common-js/lang/is":32}],13:[function(require,module,exports){
+},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":33}],13:[function(require,module,exports){
 const Enum = require('@barchart/common-js/lang/Enum');
 
 module.exports = (() => {
   'use strict';
   /**
-   * Describes how an instrument's price is formatted. In most cases, unit codes are stored as a
-   * single character; however, this enumeration adds additional information. There are fourteen
+   * An enumeration for instrument types (e.g. stock, future, etc).
+   *
+   * @public
+   * @exported
+   * @extends {Enum}
+   * @param {String} code
+   * @param {String} description
+   * @param {Number} id
+   */
+
+  class AssetClass extends Enum {
+    constructor(code, description, id) {
+      super(code, description);
+      this._id = id;
+    }
+    /**
+     * A unique numeric identifier assigned by Barchart.
+     *
+     * @public
+     * @returns {Number}
+     */
+
+
+    get id() {
+      return this._id;
+    }
+
+    toJSON() {
+      return this._id;
+    }
+    /**
+     * Converts the string-based identifier into an enumeration item.
+     *
+     * @public
+     * @static
+     * @param {String} code
+     * @returns {AssetClass|null}
+     */
+
+
+    static parse(code) {
+      return Enum.fromCode(UnitCode, code);
+    }
+    /**
+     * Converts the numeric identifier into an enumeration item.
+     *
+     * @public
+     * @static
+     * @param {Number} id
+     * @returns {AssetClass|null}
+     */
+
+
+    static fromId(id) {
+      return Enum.getItems(AssetClass).find(x => x.id === id) || null;
+    }
+    /**
+     * A stock.
+     *
+     * @public
+     * @static
+     * @returns {AssetClass}
+     */
+
+
+    static get STOCK() {
+      return STOCK;
+    }
+    /**
+     * A stock option.
+     *
+     * @public
+     * @static
+     * @returns {AssetClass}
+     */
+
+
+    static get STOCK_OPTION() {
+      return STOCK_OPTION;
+    }
+    /**
+     * A future.
+     *
+     * @public
+     * @static
+     * @returns {AssetClass}
+     */
+
+
+    static get FUTURE() {
+      return FUTURE;
+    }
+    /**
+     * A future option.
+     *
+     * @public
+     * @static
+     * @returns {AssetClass}
+     */
+
+
+    static get FUTURE_OPTION() {
+      return FUTURE_OPTION;
+    }
+    /**
+     * A foreign exchange instrument.
+     *
+     * @public
+     * @static
+     * @returns {AssetClass}
+     */
+
+
+    static get FOREX() {
+      return FOREX;
+    }
+
+    toString() {
+      return `[AssetClass (id=${this.id}, code=${this.code})]`;
+    }
+
+  }
+
+  const STOCK = new AssetClass('STK', 'U.S. Equity', 1);
+  const STOCK_OPTION = new AssetClass('STKOPT', 'Equity Option', 34);
+  const FUTURE = new AssetClass('FUT', 'Future', 2);
+  const FUTURE_OPTION = new AssetClass('FUTOPT', 'Future Option', 12);
+  const FOREX = new AssetClass('FOREX', 'FOREX', 10);
+  return AssetClass;
+})();
+
+},{"@barchart/common-js/lang/Enum":29}],14:[function(require,module,exports){
+const Enum = require('@barchart/common-js/lang/Enum');
+
+module.exports = (() => {
+  'use strict'; // 2021/07/14, For a more detailed on the "special" fractional formatting (i.e. CME
+  // tick notation), please refer to the detailed unit test suite written for CME
+  // notation (see the cmeSpec.js file).
+
+  /**
+   * An enumeration that describes different styles for pricing instruments (and
+   * formatting instrument prices for display to humans). Barchart uses fourteen
    * distinct unit codes.
    *
    * @public
@@ -998,12 +1166,12 @@ module.exports = (() => {
    * @extends {Enum}
    * @param {String} code
    * @param {Number} baseCode
-   * @param {Number} decimalDigits
-   * @param {Boolean} supportsFractions
-   * @param {Number=} fractionFactor
-   * @param {Number=} fractionDigits
-   * @param {Number=} fractionFactorSpecial
-   * @param {Number=} fractionDigitsSpecial
+   * @param {Number} decimalDigits - When formatting a price as a decimal value, the number of decimal places to display.
+   * @param {Boolean} supportsFractions - As an alternative to decimal-formatted prices, some instruments support fractional representations.
+   * @param {Number=} fractionFactor - The count of discrete prices which a unit can be divided into (e.g. a US dollar can be divided into 100 cents). By default, this is also the implied denominator in fractional notation (e.g. 3.6875 equals 3 and 22/32 — which is represented in fractional notation as 3-22, where the denominator of 32 is implied).
+   * @param {Number=} fractionDigits - The number of digits of the fraction's numerator to display (e.g. two digits of the fraction 22/32 are shown in the fractional notation 3-22).
+   * @param {Number=} fractionFactorSpecial - Special fraction factors refer to the CME tick notation scheme (read more (here)[https://www.cmegroup.com/confluence/display/EPICSANDBOX/Fractional+Pricing+-+Tick+and+Decimal+Conversions]). For example, the CME notation for 0.51171875 (in 1/8ths of 1/32nds) is 0-163, where the numerator of 163 means 16 thirty-seconds and 3 eighths of a thirty-second, where the actual fraction is 16.3[75] / 32, which equals 0.51171875.
+   * @param {Number=} fractionDigitsSpecial - The number of digits of the fraction's numerator to display, when formatting in CME tick notation. For example, the 0-163 (in 1/8ths of 1/32nds) equates to the fraction of 16.375/32. This notation is limited to three digits (163) and omits the trailing two digits (75).
    */
 
   class UnitCode extends Enum {
@@ -1072,14 +1240,10 @@ module.exports = (() => {
       return this._supportsFractions;
     }
     /**
-     * When formatting with fractional notation (instead of decimal notation), multiply the
-     * decimal part of the value by this factor to get the fractional (i.e. numerator) value.
-     * In other words, this factor is the denominator.
-     *
-     * For example, the value 9.5 will be formatted as "9-4" with a fractional factor of eight.
-     * This is because 8 * 0.5 = 4. In other words, the price is quoted in eighths and 0.5 is
-     * four eighths. Using the same logic, the value of 9.75 will be formatted as "9-6" with
-     * a fractional factor of eight.
+     * The count of discrete prices which a unit can be divided into (e.g. a US dollar can be divided
+     * into 100 cents). By default, this is also the implied denominator in fractional notation (e.g. 3.6875
+     * equals 3 and 22/32 — which is represented in fractional notation as 3-22, where the denominator of 32
+     * is implied).
      *
      * @public
      * @returns {Number|undefined}
@@ -1103,7 +1267,11 @@ module.exports = (() => {
       return this._fractionDigits;
     }
     /**
-     * Same as {@link UnitCode#fractionFactor} for "special" fractions.
+     * Special fraction factors refer to the CME tick notation scheme (read more (here)[https://www.cmegroup.com/confluence/display/EPICSANDBOX/Fractional+Pricing+-+Tick+and+Decimal+Conversions]).
+     *
+     * For example, the CME notation for 0.51171875 (in 1/8ths of 1/32nds) is 0-163, where the
+     * numerator of 163 means 16 thirty-seconds and 3 eighths of a thirty-second, where the
+     * actual fraction is 16.3[75] / 32, which equals 0.51171875.
      *
      * @public
      * @returns {Number|undefined}
@@ -1125,7 +1293,10 @@ module.exports = (() => {
       return this._fractionDigitsSpecial;
     }
     /**
-     * Returns the {@link UnitCode#fractionFactor} or {@link UnitCode#fractionFactorSpecial} value.
+     * The number of digits of the fraction's numerator to display, when formatting
+     * in CME tick notation. For example, the 0-163 (in 1/8ths of 1/32nds) equates
+     * to the fraction of 16.375/32. This notation is limited to three digits (163)
+     * and omits the trailing two digits (75).
      *
      * @public
      * @param {Boolean=} special
@@ -1147,6 +1318,10 @@ module.exports = (() => {
 
     getFractionDigits(special) {
       return special === true ? this._fractionDigitsSpecial : this._fractionDigits;
+    }
+
+    toString() {
+      return `[UnitCode (code=${this.code})]`;
     }
     /**
      * Converts a unit code character into a {@link UnitCode} enumeration item.
@@ -1175,10 +1350,6 @@ module.exports = (() => {
       return Enum.getItems(UnitCode).find(x => x.baseCode === code) || null;
     }
 
-    static toString() {
-      return `[UnitCode (code=${this.code})]`;
-    }
-
   }
 
   const TWO = new UnitCode('2', -1, 3, true, 8, 1);
@@ -1198,7 +1369,7 @@ module.exports = (() => {
   return UnitCode;
 })();
 
-},{"@barchart/common-js/lang/Enum":28}],14:[function(require,module,exports){
+},{"@barchart/common-js/lang/Enum":29}],15:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1233,7 +1404,7 @@ module.exports = (() => {
   };
 })();
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1267,7 +1438,7 @@ module.exports = (() => {
   return formatDate;
 })();
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -1337,7 +1508,7 @@ module.exports = (() => {
   return formatDecimal;
 })();
 
-},{"@barchart/common-js/lang/is":32}],17:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":33}],18:[function(require,module,exports){
 const formatPrice = require('./../price');
 
 module.exports = (() => {
@@ -1373,7 +1544,7 @@ module.exports = (() => {
   return buildPriceFormatter;
 })();
 
-},{"./../price":19}],18:[function(require,module,exports){
+},{"./../price":20}],19:[function(require,module,exports){
 const formatQuote = require('./../quote');
 
 module.exports = (() => {
@@ -1407,7 +1578,7 @@ module.exports = (() => {
   return buildQuoteFormatter;
 })();
 
-},{"./../quote":20}],19:[function(require,module,exports){
+},{"./../quote":21}],20:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDecimal = require('./decimal');
@@ -1508,7 +1679,7 @@ module.exports = (() => {
   return formatPrice;
 })();
 
-},{"./../data/UnitCode":13,"./decimal":16,"@barchart/common-js/lang/is":32}],20:[function(require,module,exports){
+},{"./../data/UnitCode":14,"./decimal":17,"@barchart/common-js/lang/is":33}],21:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDate = require('./date'),
@@ -1593,7 +1764,7 @@ module.exports = (() => {
   return formatQuoteDateTime;
 })();
 
-},{"./date":15,"./time":22,"@barchart/common-js/lang/Timezones":29,"@barchart/common-js/lang/is":32}],21:[function(require,module,exports){
+},{"./date":16,"./time":23,"@barchart/common-js/lang/Timezones":30,"@barchart/common-js/lang/is":33}],22:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -1618,7 +1789,7 @@ module.exports = (() => {
   return formatSymbol;
 })();
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1771,7 +1942,7 @@ module.exports = (() => {
   return formatTime;
 })();
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 const xmlDom = require('xmldom');
 
 const parseValue = require('./value'),
@@ -2332,7 +2503,7 @@ module.exports = (() => {
   return parseMessage;
 })();
 
-},{"./timestamp":24,"./value":25,"xmldom":38}],24:[function(require,module,exports){
+},{"./timestamp":25,"./value":26,"xmldom":39}],25:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -2386,7 +2557,7 @@ module.exports = (() => {
   return parseTimestamp;
 })();
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -2486,7 +2657,7 @@ module.exports = (() => {
   return parseValue;
 })();
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const UnitCode = require('./../data/UnitCode');
@@ -2618,9 +2789,11 @@ module.exports = (() => {
   return parsePrice;
 })();
 
-},{"./../data/UnitCode":13,"@barchart/common-js/lang/is":32}],27:[function(require,module,exports){
+},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":33}],28:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is'),
       string = require('@barchart/common-js/lang/string');
+
+const AssetClass = require('./../data/AssetClass');
 
 module.exports = (() => {
   'use strict';
@@ -3078,6 +3251,7 @@ module.exports = (() => {
       definition = {};
       definition.symbol = symbol;
       definition.type = 'future';
+      definition.asset = AssetClass.FUTURE;
       definition.dynamic = false;
       definition.root = match[1];
       definition.month = match[2];
@@ -3094,6 +3268,7 @@ module.exports = (() => {
       definition = {};
       definition.symbol = symbol;
       definition.type = 'future';
+      definition.asset = AssetClass.FUTURE;
       definition.dynamic = true;
       definition.root = match[1];
       definition.dynamicCode = match[3];
@@ -3108,6 +3283,7 @@ module.exports = (() => {
       definition = {};
       definition.symbol = symbol;
       definition.type = 'forex';
+      definition.asset = AssetClass.FOREX;
     }
 
     return definition;
@@ -3121,6 +3297,7 @@ module.exports = (() => {
       definition = {};
       definition.symbol = symbol;
       definition.type = 'equity_option';
+      definition.asset = AssetClass.STOCK_OPTION;
       definition.option_type = match[9] === 'C' ? 'call' : 'put';
       definition.strike = parseFloat(match[8]);
       definition.root = `${match[1]}${suffix}`;
@@ -3176,6 +3353,7 @@ module.exports = (() => {
 
       definition.symbol = symbol;
       definition.type = 'future_option';
+      definition.asset = AssetClass.FUTURE_OPTION;
       definition.option_type = optionType;
       definition.strike = parseInt(match[3]);
       definition.root = match[1];
@@ -3193,6 +3371,7 @@ module.exports = (() => {
       definition = {};
       definition.symbol = symbol;
       definition.type = 'future_option';
+      definition.asset = AssetClass.FUTURE_OPTION;
       definition.option_type = match[5] === 'C' ? 'call' : 'put';
       definition.strike = parseInt(match[4]);
       definition.root = match[1];
@@ -3307,7 +3486,7 @@ module.exports = (() => {
   return SymbolParser;
 })();
 
-},{"@barchart/common-js/lang/is":32,"@barchart/common-js/lang/string":34}],28:[function(require,module,exports){
+},{"./../data/AssetClass":13,"@barchart/common-js/lang/is":33,"@barchart/common-js/lang/string":35}],29:[function(require,module,exports){
 const assert = require('./assert');
 
 module.exports = (() => {
@@ -3427,7 +3606,7 @@ module.exports = (() => {
   return Enum;
 })();
 
-},{"./assert":31}],29:[function(require,module,exports){
+},{"./assert":32}],30:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022');
 
 const Enum = require('./Enum'),
@@ -3569,7 +3748,7 @@ module.exports = (() => {
   return Timezones;
 })();
 
-},{"./Enum":28,"./is":32,"./timezone":35,"moment-timezone/builds/moment-timezone-with-data-2012-2022":36}],30:[function(require,module,exports){
+},{"./Enum":29,"./is":33,"./timezone":36,"moment-timezone/builds/moment-timezone-with-data-2012-2022":37}],31:[function(require,module,exports){
 const assert = require('./assert'),
       is = require('./is');
 
@@ -4073,7 +4252,7 @@ module.exports = (() => {
   }
 })();
 
-},{"./assert":31,"./is":32}],31:[function(require,module,exports){
+},{"./assert":32,"./is":33}],32:[function(require,module,exports){
 const is = require('./is');
 
 module.exports = (() => {
@@ -4218,7 +4397,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./is":32}],32:[function(require,module,exports){
+},{"./is":33}],33:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -4437,7 +4616,7 @@ module.exports = (() => {
   };
 })();
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 const array = require('./array'),
       is = require('./is');
 
@@ -4597,7 +4776,7 @@ module.exports = (() => {
   return object;
 })();
 
-},{"./array":30,"./is":32}],34:[function(require,module,exports){
+},{"./array":31,"./is":33}],35:[function(require,module,exports){
 const assert = require('./assert'),
       is = require('./is');
 
@@ -4723,7 +4902,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./assert":31,"./is":32}],35:[function(require,module,exports){
+},{"./assert":32,"./is":33}],36:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022'),
       assert = require('./assert');
 
@@ -4778,7 +4957,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./assert":31,"moment-timezone/builds/moment-timezone-with-data-2012-2022":36}],36:[function(require,module,exports){
+},{"./assert":32,"moment-timezone/builds/moment-timezone-with-data-2012-2022":37}],37:[function(require,module,exports){
 //! moment-timezone.js
 //! version : 0.5.26
 //! Copyright (c) JS Foundation and other contributors
@@ -6004,7 +6183,7 @@ module.exports = (() => {
 	return moment;
 }));
 
-},{"moment":37}],37:[function(require,module,exports){
+},{"moment":38}],38:[function(require,module,exports){
 //! moment.js
 
 ;(function (global, factory) {
@@ -10608,7 +10787,7 @@ module.exports = (() => {
 
 })));
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 }
@@ -10863,7 +11042,7 @@ exports.DOMParser = DOMParser;
 exports.__DOMHandler = DOMHandler;
 //}
 
-},{"./dom":39,"./entities":40,"./sax":41}],39:[function(require,module,exports){
+},{"./dom":40,"./entities":41,"./sax":42}],40:[function(require,module,exports){
 function copy(src,dest){
 	for(var p in src){
 		dest[p] = src[p];
@@ -12148,7 +12327,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 exports.entityMap = {
        lt: '<',
        gt: '>',
@@ -12393,7 +12572,7 @@ exports.entityMap = {
        diams: "♦"
 };
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -13037,7 +13216,7 @@ function split(source,start){
 exports.XMLReader = XMLReader;
 exports.ParseError = ParseError;
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 const CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
 
 describe('When a cumulative volume container is created with a tick increment of 0.25', () => {
@@ -13376,7 +13555,7 @@ describe('When a cumulative volume container is created with a tick increment of
   });
 });
 
-},{"../../../lib/marketState/CumulativeVolume":4}],43:[function(require,module,exports){
+},{"../../../lib/marketState/CumulativeVolume":4}],44:[function(require,module,exports){
 const Profile = require('../../../lib/marketState/Profile');
 
 describe('When a Profile is created (for a symbol with unitCode "2")', () => {
@@ -13391,7 +13570,7 @@ describe('When a Profile is created (for a symbol with unitCode "2")', () => {
   });
 });
 
-},{"../../../lib/marketState/Profile":5}],44:[function(require,module,exports){
+},{"../../../lib/marketState/Profile":5}],45:[function(require,module,exports){
 const convertBaseCodeToUnitCode = require('./../../../../lib/utilities/convert/baseCodeToUnitCode');
 
 describe('When converting a baseCode to a unitCode', () => {
@@ -13448,7 +13627,7 @@ describe('When converting a baseCode to a unitCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":6}],45:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":6}],46:[function(require,module,exports){
 const convertDateToDayCode = require('./../../../../lib/utilities/convert/dateToDayCode');
 
 describe('When converting a date instance to a day code', () => {
@@ -13553,7 +13732,7 @@ describe('When converting a date instance to a day code', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dateToDayCode":7}],46:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dateToDayCode":7}],47:[function(require,module,exports){
 const convertDayCodeToNumber = require('./../../../../lib/utilities/convert/dayCodeToNumber');
 
 describe('When converting a dayCode to number', () => {
@@ -13724,7 +13903,7 @@ describe('When converting a dayCode to number', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dayCodeToNumber":8}],47:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dayCodeToNumber":8}],48:[function(require,module,exports){
 const convertMonthCodeToName = require('./../../../../lib/utilities/convert/monthCodeToName');
 
 describe('When converting a futures month code to a month name', () => {
@@ -13739,7 +13918,7 @@ describe('When converting a futures month code to a month name', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/monthCodeToName":9}],48:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/monthCodeToName":9}],49:[function(require,module,exports){
 const convertMonthCodeToNumber = require('./../../../../lib/utilities/convert/monthCodeToNumber');
 
 describe('When converting a futures month code to a month name', () => {
@@ -13754,7 +13933,7 @@ describe('When converting a futures month code to a month name', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/monthCodeToNumber":10}],49:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/monthCodeToNumber":10}],50:[function(require,module,exports){
 const convertNumberToDayCode = require('./../../../../lib/utilities/convert/numberToDayCode');
 
 describe('When converting a number to a dayCode', () => {
@@ -13859,7 +14038,7 @@ describe('When converting a number to a dayCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/numberToDayCode":11}],50:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/numberToDayCode":11}],51:[function(require,module,exports){
 const convertUnitCodeToBaseCode = require('./../../../../lib/utilities/convert/unitCodeToBaseCode');
 
 describe('When converting a unitCode to a baseCode', () => {
@@ -13916,7 +14095,7 @@ describe('When converting a unitCode to a baseCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":12}],51:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":12}],52:[function(require,module,exports){
 const UnitCode = require('../../../../lib/utilities/data/UnitCode');
 
 describe('When parsing an invalid argument', () => {
@@ -14611,7 +14790,7 @@ describe('When parsing a valid character as a unit code', () => {
   });
 });
 
-},{"../../../../lib/utilities/data/UnitCode":13}],52:[function(require,module,exports){
+},{"../../../../lib/utilities/data/UnitCode":14}],53:[function(require,module,exports){
 const monthCodes = require('../../../../lib/utilities/data/monthCodes');
 
 describe('When looking up a month name by code', () => {
@@ -14699,7 +14878,80 @@ describe('When looking up a month number by code', () => {
   });
 });
 
-},{"../../../../lib/utilities/data/monthCodes":14}],53:[function(require,module,exports){
+},{"../../../../lib/utilities/data/monthCodes":15}],54:[function(require,module,exports){
+const string = require('@barchart/common-js/lang/string');
+
+const formatPrice = require('./../../../../lib/utilities/format/price'); // 2021/07/12, BRI. These tests are based on mapping tables (between decimal
+// values and expected fractional representations) published by the CME:
+//
+// https://www.cmegroup.com/confluence/display/EPICSANDBOX/Fractional+Pricing+-+Tick+and+Decimal+Conversions
+//
+// See maps (with explanations) below ...
+
+
+describe('when formatting decimals as ticks', () => {
+  it('should be formatted correctly (each tick = 1/32, e.g. root=ZB)', () => {
+    const rules = THIRTY_SECONDS;
+    const code = '4';
+    rules.forEach(rule => {
+      const decimal = rule[1];
+      const expected = `0-${string.padLeft(rule[0].toString(), 2, '0')}`;
+      expect(formatPrice(decimal, code, '-', true)).toEqual(expected);
+    });
+  });
+  it('should be formatted correctly (each tick = 1/2 of a 1/32, e.g. root=ZN)', () => {
+    const rules = HALVES_OF_THIRTY_SECONDS;
+    const code = '5';
+    rules.forEach(rule => {
+      const decimal = rule[1];
+      const expected = `0-${string.padLeft(rule[0].toString(), 3, '0')}`;
+      expect(formatPrice(decimal, code, '-', true)).toEqual(expected);
+    });
+  });
+  it('should be formatted correctly (each tick = 1/4 of a 1/32, e.g. root=ZF)', () => {
+    const rules = QUARTERS_OF_THIRTY_SECONDS;
+    const code = '5';
+    rules.forEach(rule => {
+      const decimal = rule[1];
+      const expected = `0-${string.padLeft(rule[0].toString(), 3, '0')}`;
+      expect(formatPrice(decimal, code, '-', true)).toEqual(expected);
+    });
+  });
+  it('should be formatted correctly (each tick = 1/8 of a 1/32, e.g. root=ZT)', () => {
+    const rules = EIGHTHS_OF_THIRTY_SECONDS;
+    const code = '7';
+    rules.forEach(rule => {
+      const decimal = rule[1];
+      const expected = `0-${string.padLeft(rule[0].toString(), 3, '0')}`;
+      expect(formatPrice(decimal, code, '-', true)).toEqual(expected);
+    });
+  });
+});
+const THIRTY_SECONDS = [// 1/32nd = 0-01 (numerator shown, denominator implied) = 1/32 = 0.3125,
+// 2/32nd = 0-02 (numerator shown, denominator implied) = 2/32 = 0.0625...
+[0, 0], [1, 0.03125], [2, 0.0625], [3, 0.09375], [4, 0.125], [5, 0.15625], [6, 0.1875], [7, 0.21875], [8, 0.25], [9, 0.28125], [10, 0.3125], [11, 0.34375], [12, 0.375], [13, 0.40625], [14, 0.4375], [15, 0.46875], [16, 0.5], [17, 0.53125], [18, 0.5625], [19, 0.59375], [20, 0.625], [21, 0.65625], [22, 0.6875], [23, 0.71875], [24, 0.75], [25, 0.78125], [26, 0.8125], [27, 0.84375], [28, 0.875], [29, 0.90625], [30, 0.9375], [31, 0.96875]];
+const HALVES_OF_THIRTY_SECONDS = [// 0/32nds + 1/2 of a 32nd = 0.5/32nd = 0-005 (numerator shown without decimal point, denominator implied) = 0.5/32 = 0.015625,
+// 1/32nds + 0/2 of a 32nd = 1.0/32nd = 0-010 (numerator shown without decimal point, denominator implied) = 1/32 = 0.32125,
+// 1/32nds + 1/2 of a 32nd = 1.5/32nd = 0-015 (numerator shown without decimal point, denominator implied) = 1.5/32 = 0.046875...
+[0, 0], [5, 0.015625], [10, 0.03125], [15, 0.046875], [20, 0.0625], [25, 0.078125], [30, 0.09375], [35, 0.109375], [40, 0.125], [45, 0.140625], [50, 0.15625], [55, 0.171875], [60, 0.1875], [65, 0.203125], [70, 0.21875], [75, 0.234375], [80, 0.25], [85, 0.265625], [90, 0.28125], [95, 0.296875], [100, 0.3125], [105, 0.328125], [110, 0.34375], [115, 0.359375], [120, 0.375], [125, 0.390625], [130, 0.40625], [135, 0.421875], [140, 0.4375], [145, 0.453125], [150, 0.46875], [155, 0.484375], [160, 0.5], [165, 0.515625], [170, 0.53125], [175, 0.546875], [180, 0.5625], [185, 0.578125], [190, 0.59375], [195, 0.609375], [200, 0.625], [205, 0.640625], [210, 0.65625], [215, 0.671875], [220, 0.6875], [225, 0.703125], [230, 0.71875], [235, 0.734375], [240, 0.75], [245, 0.765625], [250, 0.78125], [255, 0.796875], [260, 0.8125], [265, 0.828125], [270, 0.84375], [275, 0.859375], [280, 0.875], [285, 0.890625], [290, 0.90625], [295, 0.921875], [300, 0.9375], [305, 0.953125], [310, 0.96875], [315, 0.984375]];
+const QUARTERS_OF_THIRTY_SECONDS = [// 0/32nds + 1/4 of a 32nd = 0.25/32nd = 0-002[5] = 0-002 (numerator shown without decimal point and omitting last digit, denominator implied) = 0.25/32 = 0.0078125,
+// 0/32nds + 2/4 of a 32nd = 0.50/32nd = 0-005[0] = 0-005 (numerator shown without decimal point and omitting last digit, denominator implied) = 0.50/32 = 0.015625,
+// 0/32nds + 3/4 of a 32nd = 0.75/32nd = 0-007[5] = 0-007 (numerator shown without decimal point and omitting last digit, denominator implied) = 0.75/32 = 0.0234375,
+// 1/32nds + 0/4 of a 32nd = 1.00/32nd = 0-010[0] = 0-010 (numerator shown without decimal point and omitting last digit, denominator implied) = 1/32 = 0.03125,
+// 1/32nds + 1/4 of a 32nd = 1.25/32nd = 0-012[5] = 0-012 (numerator shown without decimal point and omitting last digit, denominator implied) = 1.25/32 = 0.0390625 ...
+[0, 0], [2, 0.0078125], [5, 0.015625], [7, 0.0234375], [10, 0.03125], [12, 0.0390625], [15, 0.046875], [17, 0.0546875], [20, 0.0625], [22, 0.0703125], [25, 0.078125], [27, 0.0859375], [30, 0.09375], [32, 0.1015625], [35, 0.109375], [37, 0.1171875], [40, 0.125], [42, 0.1328125], [45, 0.140625], [47, 0.1484375], [50, 0.15625], [52, 0.1640625], [55, 0.171875], [57, 0.1796875], [60, 0.1875], [62, 0.1953125], [65, 0.203125], [67, 0.2109375], [70, 0.21875], [72, 0.2265625], [75, 0.234375], [77, 0.2421875], [80, 0.25], [82, 0.2578125], [85, 0.265625], [87, 0.2734375], [90, 0.28125], [92, 0.2890625], [95, 0.296875], [97, 0.3046875], [100, 0.3125], [102, 0.3203125], [105, 0.328125], [107, 0.3359375], [110, 0.34375], [112, 0.3515625], [115, 0.359375], [117, 0.3671875], [120, 0.375], [122, 0.3828125], [125, 0.390625], [127, 0.3984375], [130, 0.40625], [132, 0.4140625], [135, 0.421875], [137, 0.4296875], [140, 0.4375], [142, 0.4453125], [145, 0.453125], [147, 0.4609375], [150, 0.46875], [152, 0.4765625], [155, 0.484375], [157, 0.4921875], [160, 0.5], [162, 0.5078125], [165, 0.515625], [167, 0.5234375], [170, 0.53125], [172, 0.5390625], [175, 0.546875], [177, 0.5546875], [180, 0.5625], [182, 0.5703125], [185, 0.578125], [187, 0.5859375], [190, 0.59375], [192, 0.6015625], [195, 0.609375], [197, 0.6171875], [200, 0.625], [202, 0.6328125], [205, 0.640625], [207, 0.6484375], [210, 0.65625], [212, 0.6640625], [215, 0.671875], [217, 0.6796875], [220, 0.6875], [222, 0.6953125], [225, 0.703125], [227, 0.7109375], [230, 0.71875], [232, 0.7265625], [235, 0.734375], [237, 0.7421875], [240, 0.75], [242, 0.7578125], [245, 0.765625], [247, 0.7734375], [250, 0.78125], [252, 0.7890625], [255, 0.796875], [257, 0.8046875], [260, 0.8125], [262, 0.8203125], [265, 0.828125], [267, 0.8359375], [270, 0.84375], [272, 0.8515625], [275, 0.859375], [277, 0.8671875], [280, 0.875], [282, 0.8828125], [285, 0.890625], [287, 0.8984375], [290, 0.90625], [292, 0.9140625], [295, 0.921875], [297, 0.9296875], [300, 0.9375], [302, 0.9453125], [305, 0.953125], [307, 0.9609375], [310, 0.96875], [312, 0.9765625], [315, 0.984375], [317, 0.9921875]];
+const EIGHTHS_OF_THIRTY_SECONDS = [// 0/32nds + 1/8 of a 32nd = 0.125/32nd = 0-001[25] = 0-001 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 0.125/32 = 0.00390625,
+// 0/32nds + 2/8 of a 32nd = 0.250/32nd = 0-002[50] = 0-002 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 0.250/32 = 0.0078125,
+// 0/32nds + 3/8 of a 32nd = 0.75/32nd = 0-003[75] = 0-003 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 0.375/32 = 0.01171875,
+// 0/32nds + 4/8 of a 32nd = 1.00/32nd = 0-005[00] = 0-005 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 0.500/32 = 0.015625,
+// 0/32nds + 5/8 of a 32nd = 1.25/32nd = 0-006[25] = 0-006 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 0.625/32 = 0.01953125,
+// 0/32nds + 6/8 of a 32nd = 0.25/32nd = 0-007[50] = 0-007 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 0.750/32 = 0.0234375,
+// 0/32nds + 7/8 of a 32nd = 0.50/32nd = 0-008[75] = 0-008 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 0.875/32 = 0.02734375,
+// 0/32nds + 0/8 of a 32nd = 0.75/32nd = 0-010[00] = 0-010 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 1.000/32 = 0.03125,
+// 0/32nds + 1/8 of a 32nd = 1.00/32nd = 0-011[25] = 0-011 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 1.125/32 = 0.03515625...
+[0, 0], [1, 0.00390625], [2, 0.0078125], [3, 0.01171875], [5, 0.015625], [6, 0.01953125], [7, 0.0234375], [8, 0.02734375], [10, 0.03125], [11, 0.03515625], [12, 0.0390625], [13, 0.04296875], [15, 0.046875], [16, 0.05078125], [17, 0.0546875], [18, 0.05859375], [20, 0.0625], [21, 0.06640625], [22, 0.0703125], [23, 0.07421875], [25, 0.078125], [26, 0.08203125], [27, 0.0859375], [28, 0.08984375], [30, 0.09375], [31, 0.09765625], [32, 0.1015625], [33, 0.10546875], [35, 0.109375], [36, 0.11328125], [37, 0.1171875], [38, 0.12109375], [40, 0.125], [41, 0.12890625], [42, 0.1328125], [43, 0.13671875], [45, 0.140625], [46, 0.14453125], [47, 0.1484375], [48, 0.15234375], [50, 0.15625], [51, 0.16015625], [52, 0.1640625], [53, 0.16796875], [55, 0.171875], [56, 0.17578125], [57, 0.1796875], [58, 0.18359375], [60, 0.1875], [61, 0.19140625], [62, 0.1953125], [63, 0.19921875], [65, 0.203125], [66, 0.20703125], [67, 0.2109375], [68, 0.21484375], [70, 0.21875], [71, 0.22265625], [72, 0.2265625], [73, 0.23046875], [75, 0.234375], [76, 0.23828125], [77, 0.2421875], [78, 0.24609375], [80, 0.25], [81, 0.25390625], [82, 0.2578125], [83, 0.26171875], [85, 0.265625], [86, 0.26953125], [87, 0.2734375], [88, 0.27734375], [90, 0.28125], [91, 0.28515625], [92, 0.2890625], [93, 0.29296875], [95, 0.296875], [96, 0.30078125], [97, 0.3046875], [98, 0.30859375], [100, 0.3125], [101, 0.31640625], [102, 0.3203125], [103, 0.32421875], [105, 0.328125], [106, 0.33203125], [107, 0.3359375], [108, 0.33984375], [110, 0.34375], [111, 0.34765625], [112, 0.3515625], [113, 0.35546875], [115, 0.359375], [116, 0.36328125], [117, 0.3671875], [118, 0.37109375], [120, 0.375], [121, 0.37890625], [122, 0.3828125], [123, 0.38671875], [125, 0.390625], [126, 0.39453125], [127, 0.3984375], [128, 0.40234375], [130, 0.40625], [131, 0.41015625], [132, 0.4140625], [133, 0.41796875], [135, 0.421875], [136, 0.42578125], [137, 0.4296875], [138, 0.43359375], [140, 0.4375], [141, 0.44140625], [142, 0.4453125], [143, 0.44921875], [145, 0.453125], [146, 0.45703125], [147, 0.4609375], [148, 0.46484375], [150, 0.46875], [151, 0.47265625], [152, 0.4765625], [153, 0.48046875], [155, 0.484375], [156, 0.48828125], [157, 0.4921875], [158, 0.49609375], [160, 0.5], [161, 0.50390625], [162, 0.5078125], [163, 0.51171875], [165, 0.515625], [166, 0.51953125], [167, 0.5234375], [168, 0.52734375], [170, 0.53125], [171, 0.53515625], [172, 0.5390625], [173, 0.54296875], [175, 0.546875], [176, 0.55078125], [177, 0.5546875], [178, 0.55859375], [180, 0.5625], [181, 0.56640625], [182, 0.5703125], [183, 0.57421875], [185, 0.578125], [186, 0.58203125], [187, 0.5859375], [188, 0.58984375], [190, 0.59375], [191, 0.59765625], [192, 0.6015625], [193, 0.60546875], [195, 0.609375], [196, 0.61328125], [197, 0.6171875], [198, 0.62109375], [200, 0.625], [201, 0.62890625], [202, 0.6328125], [203, 0.63671875], [205, 0.640625], [206, 0.64453125], [207, 0.6484375], [208, 0.65234375], [210, 0.65625], [211, 0.66015625], [212, 0.6640625], [213, 0.66796875], [215, 0.671875], [216, 0.67578125], [217, 0.6796875], [218, 0.68359375], [220, 0.6875], [221, 0.69140625], [222, 0.6953125], [223, 0.69921875], [225, 0.703125], [226, 0.70703125], [227, 0.7109375], [228, 0.71484375], [230, 0.71875], [231, 0.72265625], [232, 0.7265625], [233, 0.73046875], [235, 0.734375], [236, 0.73828125], [237, 0.7421875], [238, 0.74609375], [240, 0.75], [241, 0.75390625], [242, 0.7578125], [243, 0.76171875], [245, 0.765625], [246, 0.76953125], [247, 0.7734375], [248, 0.77734375], [250, 0.78125], [251, 0.78515625], [252, 0.7890625], [253, 0.79296875], [255, 0.796875], [256, 0.80078125], [257, 0.8046875], [258, 0.80859375], [260, 0.8125], [261, 0.81640625], [262, 0.8203125], [263, 0.82421875], [265, 0.828125], [266, 0.83203125], [267, 0.8359375], [268, 0.83984375], [270, 0.84375], [271, 0.84765625], [272, 0.8515625], [273, 0.85546875], [275, 0.859375], [276, 0.86328125], [277, 0.8671875], [278, 0.87109375], [280, 0.875], [281, 0.87890625], [282, 0.8828125], [283, 0.88671875], [285, 0.890625], [286, 0.89453125], [287, 0.8984375], [288, 0.90234375], [290, 0.90625], [291, 0.91015625], [292, 0.9140625], [293, 0.91796875], [295, 0.921875], [296, 0.92578125], [297, 0.9296875], [298, 0.93359375], [300, 0.9375], [301, 0.94140625], [302, 0.9453125], [303, 0.94921875], [305, 0.953125], [306, 0.95703125], [307, 0.9609375], [308, 0.96484375], [310, 0.96875], [311, 0.97265625], [312, 0.9765625], [313, 0.98046875], [315, 0.984375], [316, 0.98828125], [317, 0.9921875], [318, 0.99609375]];
+
+},{"./../../../../lib/utilities/format/price":20,"@barchart/common-js/lang/string":35}],55:[function(require,module,exports){
 const formatDate = require('./../../../../lib/utilities/format/date');
 
 describe('when using the date formatter', () => {
@@ -14711,7 +14963,7 @@ describe('when using the date formatter', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/date":15}],54:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/date":16}],56:[function(require,module,exports){
 const formatDecimal = require('./../../../../lib/utilities/format/decimal');
 
 describe('when formatting invalid values', () => {
@@ -14849,7 +15101,7 @@ describe('when formatting decimal values to format with parenthesis and no thous
   });
 });
 
-},{"./../../../../lib/utilities/format/decimal":16}],55:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/decimal":17}],57:[function(require,module,exports){
 const buildPriceFormatter = require('./../../../../../lib/utilities/format/factories/price');
 
 describe('When a price formatter is created', () => {
@@ -15209,7 +15461,7 @@ describe('When a price formatter is created', () => {
   });
 });
 
-},{"./../../../../../lib/utilities/format/factories/price":17}],56:[function(require,module,exports){
+},{"./../../../../../lib/utilities/format/factories/price":18}],58:[function(require,module,exports){
 const buildQuoteFormatter = require('./../../../../../lib/utilities/format/factories/quote');
 
 describe('When a time formatter is created (without specifying the clock)', () => {
@@ -15652,7 +15904,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../../lib/utilities/format/factories/quote":18}],57:[function(require,module,exports){
+},{"./../../../../../lib/utilities/format/factories/quote":19}],59:[function(require,module,exports){
 const formatPrice = require('./../../../../lib/utilities/format/price');
 /*
 describe('benchmark', () => {
@@ -16035,7 +16287,7 @@ describe('when valid prices are formatted', () => {
       });
     });
   });
-  describe('with a unit code of "6"', () => {
+  describe('with a unit code of "7"', () => {
     describe('with a dash fraction separator', () => {
       it('formats 123.0 as "123-000"', () => {
         expect(formatPrice(123.0, '7', '-')).toEqual('123-000');
@@ -16088,7 +16340,7 @@ describe('when valid prices are formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/price":19}],58:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/price":20}],60:[function(require,module,exports){
 const formatQuote = require('./../../../../lib/utilities/format/quote');
 
 describe('When a quote formatter is used (without specifying the clock)', () => {
@@ -16511,7 +16763,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../lib/utilities/format/quote":20}],59:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/quote":21}],61:[function(require,module,exports){
 const formatSymbol = require('./../../../../lib/utilities/format/symbol');
 
 describe('When a lowercase string is formatted as a symbol', () => {
@@ -16598,9 +16850,9 @@ describe('When an null value is formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/symbol":21}],60:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/symbol":22}],62:[function(require,module,exports){
 
-},{}],61:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 const parseMessage = require('../../../../../lib/utilities/parse/ddf/message');
 
 describe('when parsing an XML refresh message', () => {
@@ -16807,7 +17059,7 @@ describe('when parsing a DDF message', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/message":23}],62:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/message":24}],64:[function(require,module,exports){
 const parseValue = require('../../../../../lib/utilities/parse/ddf/value');
 
 describe('when parsing prices', () => {
@@ -16910,7 +17162,7 @@ describe('when parsing prices', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/value":25}],63:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/value":26}],65:[function(require,module,exports){
 const parsePrice = require('../../../../lib/utilities/parse/price');
 
 describe('when parsing invalid values', () => {
@@ -17291,7 +17543,7 @@ describe('when valid prices are parsed', () => {
   });
 });
 
-},{"../../../../lib/utilities/parse/price":26}],64:[function(require,module,exports){
+},{"../../../../lib/utilities/parse/price":27}],66:[function(require,module,exports){
 const SymbolParser = require('../../../../lib/utilities/parsers/SymbolParser');
 
 describe('When parsing a symbol for instrument type', () => {
@@ -19219,4 +19471,4 @@ describe('When getting an explicit futures symbol', () => {
   });
 });
 
-},{"../../../../lib/utilities/parsers/SymbolParser":27}]},{},[42,43,44,45,46,47,48,49,50,52,51,53,54,55,56,57,58,59,60,61,62,63,64]);
+},{"../../../../lib/utilities/parsers/SymbolParser":28}]},{},[43,44,45,46,47,48,49,50,51,53,52,54,55,56,57,58,59,60,61,62,63,64,65,66]);
