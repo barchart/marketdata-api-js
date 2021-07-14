@@ -8,8 +8,22 @@ const formatDecimal = require('./../../../lib/utilities/format/decimal'),
 	formatPrice = require('./../../../lib/utilities/format/price'),
 	formatQuote = require('./../../../lib/utilities/format/quote');
 
+const AssetClass = require('./../../../lib/utilities/data/AssetClass');
+
+const Profile = require('./../../../lib/marketState/Profile');
+
 module.exports = (() => {
 	'use strict';
+
+	function customPriceFormatter(value, unitCode, profile) {
+		if (profile.asset === AssetClass.FUTURE_OPTION && (profile.root === 'ZB' || profile.root === 'ZN')) {
+			return formatPrice(value, unitCode, '-', false, ',');
+		} else {
+			return formatPrice(value, unitCode, '-', true, ',');
+		}
+	}
+
+	Profile.setPriceFormatterCustom(customPriceFormatter);
 
 	var PageModel = function() {
 		var that = this;
@@ -550,7 +564,9 @@ module.exports = (() => {
 		};
 
 		that.formatPrice = function(price) {
-			return formatPrice(price, that.quote().profile.unitCode, '-', true);
+			return that.quote().profile.formatPrice(price);
+
+			//return formatPrice(price, that.quote().profile.unitCode, '-', true);
 		};
 
 		that.formatInteger = function(value) {
