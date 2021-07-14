@@ -1,13 +1,20 @@
 # Release Notes
 
+## 5.12.0
+**New Features**
+
+* Added the `AssetClass` enumeration to describe instrument types (e.g. stocks, futures, options, etc).
+* Added the `Profile.asset` property which references an `AssetClass` item, assuming the asset class can be inferred from the instrument's symbol. 
+* Added the `Profile.setPriceFormatterCustom` function which allows the consumer to specify their own price format function, completely overriding the default price formatting logic.
+
 ## 5.11.0
 **New Features**
 
-* Added `Quote.refresh` property, which will contain the most recent DDF refresh message.
+* Added `Quote.refresh` property to hold the most recent DDF refresh message.
 
 **Bug Fixes**
 
-* Adjusted logic to assign any DDF message to the `Quoute.message` property, not just refresh messages.
+* Adjusted `Quoute.message` property to hold the most recent DDF message (regardless of type).
 
 ## 5.10.0
 **New Features**

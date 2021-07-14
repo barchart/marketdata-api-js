@@ -12,6 +12,8 @@
 
 * [Schema](#Schema) 
 
+* [Callbacks](#Callbacks) 
+
 
 * * *
 
@@ -286,9 +288,11 @@
         * [.year](#Profileyear)
         * [.expiration](#Profileexpiration)
         * [.firstNotice](#ProfilefirstNotice)
+        * [.asset](#Profileasset)
         * [.formatPrice(price)](#ProfileformatPrice) ⇒ <code>string</code>
     * _static_
         * [.setPriceFormatter(fractionSeparator, specialFractions, [thousandsSeparator])](#ProfilesetPriceFormatter)
+        * [.setPriceFormatterCustom(fn)](#ProfilesetPriceFormatterCustom)
 
 
 * * *
@@ -392,7 +396,7 @@
 
 | Name | Type | Description |
 | --- | --- | --- |
-| root | <code>string</code> \| <code>undefined</code> | <p>Root symbol (futures only).</p> |
+| root | <code>string</code> \| <code>undefined</code> | <p>Root symbol (futures and futures options only).</p> |
 
 
 * * *
@@ -441,6 +445,17 @@
 
 * * *
 
+### profile.asset :id=profileasset
+**Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| type | [<code>AssetClass</code>](/content/sdk/lib-utilities-data?id=assetclass) \| <code>null</code> | <p>The instrument type (a.k.a. asset class). This will only be present when inference based on the instrument symbol is possible.</p> |
+
+
+* * *
+
 ### profile.formatPrice(price) :id=profileformatprice
 > Given a price, returns a the human-readable string representation.
 
@@ -466,6 +481,20 @@
 | fractionSeparator | <code>string</code> | <p>usually a dash or a period</p> |
 | specialFractions | <code>boolean</code> | <p>usually true</p> |
 | [thousandsSeparator] | <code>string</code> | <p>usually a comma</p> |
+
+
+* * *
+
+### Profile.setPriceFormatterCustom(fn) :id=profilesetpriceformattercustom
+> An alternative to [setPriceFormatter](#profilesetpriceformatter) which allows the consumer to specify
+> a function to
+
+**Kind**: static method of [<code>Profile</code>](#Profile)  
+**Access**: public  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| fn | [<code>CustomPriceFormatterCallback</code>](#CallbacksCustomPriceFormatterCallback) | <p>The function to use for price formatting (which replaces the default logic).</p> |
 
 
 * * *
@@ -976,6 +1005,29 @@
 | --- | --- | --- |
 | price | <code>number</code> | <p>The price level.</p> |
 | size | <code>number</code> | <p>The aggregate quantity traded.</p> |
+
+
+* * *
+
+## Callbacks :id=callbacks
+> A meta namespace containing signatures of anonymous functions.
+
+**Kind**: global namespace  
+
+* * *
+
+### Callbacks.CustomPriceFormatterCallback :id=callbackscustompriceformattercallback
+> The signature of a &quot;custom&quot; function used to format price values.
+
+**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Returns**: <code>String</code>  
+**Access**: public  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| value | <code>Number</code> | <p>The price value to format.</p> |
+| value | <code>String</code> | <p>The price value to format.</p> |
+| profile | [<code>Profile</code>](#Profile) | <p>The instrument being priced.</p> |
 
 
 * * *

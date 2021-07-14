@@ -1,5 +1,7 @@
 ## Contents {docsify-ignore}
 
+* [AssetClass](#AssetClass) 
+
 * [UnitCode](#UnitCode) 
 
 * [getTimezones()](#getTimezones) 
@@ -9,9 +11,129 @@
 
 * * *
 
+## AssetClass :id=assetclass
+> An enumeration for instrument types (e.g. stock, future, etc).
+
+**Kind**: global class  
+**Extends**: <code>Enum</code>  
+**Access**: public  
+**Import**: @barchart/marketdata-api-js/lib/utilities/data/AssetClass  
+**File**: /lib/utilities/data/AssetClass.js  
+
+* [AssetClass](#AssetClass) ⇐ <code>Enum</code>
+    * _instance_
+        * [.id](#AssetClassid) ⇒ <code>Number</code>
+    * _static_
+        * [.STOCK](#AssetClassSTOCK) ⇒ [<code>AssetClass</code>](#AssetClass)
+        * [.STOCK_OPTION](#AssetClassSTOCK_OPTION) ⇒ [<code>AssetClass</code>](#AssetClass)
+        * [.FUTURE](#AssetClassFUTURE) ⇒ [<code>AssetClass</code>](#AssetClass)
+        * [.FUTURE_OPTION](#AssetClassFUTURE_OPTION) ⇒ [<code>AssetClass</code>](#AssetClass)
+        * [.FOREX](#AssetClassFOREX) ⇒ [<code>AssetClass</code>](#AssetClass)
+        * [.parse(code)](#AssetClassparse) ⇒ [<code>AssetClass</code>](#AssetClass) \| <code>null</code>
+        * [.fromId(id)](#AssetClassfromId) ⇒ [<code>AssetClass</code>](#AssetClass) \| <code>null</code>
+    * _constructor_
+        * [new AssetClass(code, description, id)](#new_AssetClass_new)
+
+
+* * *
+
+### assetClass.id :id=assetclassid
+> A unique numeric identifier assigned by Barchart.
+
+**Kind**: instance property of [<code>AssetClass</code>](#AssetClass)  
+**Returns**: <code>Number</code>  
+**Access**: public  
+
+* * *
+
+### AssetClass.STOCK :id=assetclassstock
+> A stock.
+
+**Kind**: static property of [<code>AssetClass</code>](#AssetClass)  
+**Returns**: [<code>AssetClass</code>](#AssetClass)  
+**Access**: public  
+
+* * *
+
+### AssetClass.STOCK\_OPTION :id=assetclassstock_option
+> A stock option.
+
+**Kind**: static property of [<code>AssetClass</code>](#AssetClass)  
+**Returns**: [<code>AssetClass</code>](#AssetClass)  
+**Access**: public  
+
+* * *
+
+### AssetClass.FUTURE :id=assetclassfuture
+> A future.
+
+**Kind**: static property of [<code>AssetClass</code>](#AssetClass)  
+**Returns**: [<code>AssetClass</code>](#AssetClass)  
+**Access**: public  
+
+* * *
+
+### AssetClass.FUTURE\_OPTION :id=assetclassfuture_option
+> A future option.
+
+**Kind**: static property of [<code>AssetClass</code>](#AssetClass)  
+**Returns**: [<code>AssetClass</code>](#AssetClass)  
+**Access**: public  
+
+* * *
+
+### AssetClass.FOREX :id=assetclassforex
+> A foreign exchange instrument.
+
+**Kind**: static property of [<code>AssetClass</code>](#AssetClass)  
+**Returns**: [<code>AssetClass</code>](#AssetClass)  
+**Access**: public  
+
+* * *
+
+### AssetClass.parse(code) :id=assetclassparse
+> Converts the string-based identifier into an enumeration item.
+
+**Kind**: static method of [<code>AssetClass</code>](#AssetClass)  
+**Returns**: [<code>AssetClass</code>](#AssetClass) \| <code>null</code>  
+**Access**: public  
+
+| Param | Type |
+| --- | --- |
+| code | <code>String</code> | 
+
+
+* * *
+
+### AssetClass.fromId(id) :id=assetclassfromid
+> Converts the numeric identifier into an enumeration item.
+
+**Kind**: static method of [<code>AssetClass</code>](#AssetClass)  
+**Returns**: [<code>AssetClass</code>](#AssetClass) \| <code>null</code>  
+**Access**: public  
+
+| Param | Type |
+| --- | --- |
+| id | <code>Number</code> | 
+
+
+* * *
+
+### new AssetClass(code, description, id) :id=new_assetclass_new
+**Kind**: constructor of [<code>AssetClass</code>](#AssetClass)  
+
+| Param | Type |
+| --- | --- |
+| code | <code>String</code> | 
+| description | <code>String</code> | 
+| id | <code>Number</code> | 
+
+
+* * *
+
 ## UnitCode :id=unitcode
-> Describes how an instrument's price is formatted. In most cases, unit codes are stored as a
-> single character; however, this enumeration adds additional information. There are fourteen
+> An enumeration that describes different styles for pricing instruments (and
+> formatting instrument prices for display to humans). Barchart uses fourteen
 > distinct unit codes.
 
 **Kind**: global class  
@@ -80,13 +202,10 @@
 * * *
 
 ### unitCode.fractionFactor :id=unitcodefractionfactor
-> When formatting with fractional notation (instead of decimal notation), multiply the
-> decimal part of the value by this factor to get the fractional (i.e. numerator) value.
-> In other words, this factor is the denominator.</p>
-> <p>For example, the value 9.5 will be formatted as &quot;9-4&quot; with a fractional factor of eight.
-> This is because 8 * 0.5 = 4. In other words, the price is quoted in eighths and 0.5 is
-> four eighths. Using the same logic, the value of 9.75 will be formatted as &quot;9-6&quot; with
-> a fractional factor of eight.
+> The count of discrete prices which a unit can be divided into (e.g. a US dollar can be divided
+> into 100 cents). By default, this is also the implied denominator in fractional notation (e.g. 3.6875
+> equals 3 and 22/32 — which is represented in fractional notation as 3-22, where the denominator of 32
+> is implied).
 
 **Kind**: instance property of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Number</code> \| <code>undefined</code>  
@@ -106,7 +225,10 @@
 * * *
 
 ### unitCode.fractionFactorSpecial :id=unitcodefractionfactorspecial
-> Same as [fractionFactor](#unitcodefractionfactor) for &quot;special&quot; fractions.
+> Special fraction factors refer to the CME tick notation scheme (read more (here)[https://www.cmegroup.com/confluence/display/EPICSANDBOX/Fractional+Pricing+-+Tick+and+Decimal+Conversions]).</p>
+> <p>For example, the CME notation for 0.51171875 (in 1/8ths of 1/32nds) is 0-163, where the
+> numerator of 163 means 16 thirty-seconds and 3 eighths of a thirty-second, where the
+> actual fraction is 16.3[75] / 32, which equals 0.51171875.
 
 **Kind**: instance property of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Number</code> \| <code>undefined</code>  
@@ -124,7 +246,10 @@
 * * *
 
 ### unitCode.getFractionFactor([special]) :id=unitcodegetfractionfactor
-> Returns the [fractionFactor](#unitcodefractionfactor) or [fractionFactorSpecial](#unitcodefractionfactorspecial) value.
+> The number of digits of the fraction's numerator to display, when formatting
+> in CME tick notation. For example, the 0-163 (in 1/8ths of 1/32nds) equates
+> to the fraction of 16.375/32. This notation is limited to three digits (163)
+> and omits the trailing two digits (75).
 
 **Kind**: instance method of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Number</code> \| <code>undefined</code>  
@@ -182,16 +307,16 @@
 ### new UnitCode(code, baseCode, decimalDigits, supportsFractions, [fractionFactor], [fractionDigits], [fractionFactorSpecial], [fractionDigitsSpecial]) :id=new_unitcode_new
 **Kind**: constructor of [<code>UnitCode</code>](#UnitCode)  
 
-| Param | Type |
-| --- | --- |
-| code | <code>String</code> | 
-| baseCode | <code>Number</code> | 
-| decimalDigits | <code>Number</code> | 
-| supportsFractions | <code>Boolean</code> | 
-| [fractionFactor] | <code>Number</code> | 
-| [fractionDigits] | <code>Number</code> | 
-| [fractionFactorSpecial] | <code>Number</code> | 
-| [fractionDigitsSpecial] | <code>Number</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| code | <code>String</code> |  |
+| baseCode | <code>Number</code> |  |
+| decimalDigits | <code>Number</code> | <p>When formatting a price as a decimal value, the number of decimal places to display.</p> |
+| supportsFractions | <code>Boolean</code> | <p>As an alternative to decimal-formatted prices, some instruments support fractional representations.</p> |
+| [fractionFactor] | <code>Number</code> | <p>The count of discrete prices which a unit can be divided into (e.g. a US dollar can be divided into 100 cents). By default, this is also the implied denominator in fractional notation (e.g. 3.6875 equals 3 and 22/32 — which is represented in fractional notation as 3-22, where the denominator of 32 is implied).</p> |
+| [fractionDigits] | <code>Number</code> | <p>The number of digits of the fraction's numerator to display (e.g. two digits of the fraction 22/32 are shown in the fractional notation 3-22).</p> |
+| [fractionFactorSpecial] | <code>Number</code> | <p>Special fraction factors refer to the CME tick notation scheme (read more (here)[https://www.cmegroup.com/confluence/display/EPICSANDBOX/Fractional+Pricing+-+Tick+and+Decimal+Conversions]). For example, the CME notation for 0.51171875 (in 1/8ths of 1/32nds) is 0-163, where the numerator of 163 means 16 thirty-seconds and 3 eighths of a thirty-second, where the actual fraction is 16.3[75] / 32, which equals 0.51171875.</p> |
+| [fractionDigitsSpecial] | <code>Number</code> | <p>The number of digits of the fraction's numerator to display, when formatting in CME tick notation. For example, the 0-163 (in 1/8ths of 1/32nds) equates to the fraction of 16.375/32. This notation is limited to three digits (163) and omits the trailing two digits (75).</p> |
 
 
 * * *
