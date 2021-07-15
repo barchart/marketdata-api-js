@@ -12,18 +12,12 @@ const AssetClass = require('./../../../lib/utilities/data/AssetClass');
 
 const Profile = require('./../../../lib/marketState/Profile');
 
+const formatterForCmdtyView = require('./../../../lib/utilities/format/specialized/cmdtyView');
+
 module.exports = (() => {
 	'use strict';
 
-	function customPriceFormatter(value, unitCode, profile) {
-		if (profile.asset === AssetClass.FUTURE_OPTION && (profile.root === 'ZB' || profile.root === 'ZN')) {
-			return formatPrice(value, unitCode, '-', false, ',');
-		} else {
-			return formatPrice(value, unitCode, '-', true, ',');
-		}
-	}
-
-	Profile.setPriceFormatterCustom(customPriceFormatter);
+	Profile.setPriceFormatterCustom(formatterForCmdtyView);
 
 	var PageModel = function() {
 		var that = this;
