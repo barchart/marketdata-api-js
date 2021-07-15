@@ -15952,6 +15952,30 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 });
 
 },{"./../../../../../lib/utilities/format/factories/quote":19}],60:[function(require,module,exports){
+const formatFraction = require('./../../../../lib/utilities/format/fraction');
+
+describe('when formatting in halves of thirty-seconds', () => {
+  it('formats 0.984375 as 0-315', () => {
+    expect(formatFraction(0.984375, 320, 3, '-')).toEqual('0-315');
+  });
+});
+describe('when formatting in quarters of thirty-seconds', () => {
+  it('formats 0.9921875 as 0-317', () => {
+    expect(formatFraction(0.9921875, 320, 3, '-')).toEqual('0-317');
+  });
+});
+describe('when formatting in sixty-fourths', () => {
+  it('formats 0.984375 as 0-315', () => {
+    expect(formatFraction(0.984375, 64, 2, '-')).toEqual('0-63');
+  });
+});
+describe('when formatting in halves of sixty-fourths', () => {
+  it('formats 0.9921875 as 0-317', () => {
+    expect(formatFraction(0.9921875, 640, 3, '-')).toEqual('0-635');
+  });
+});
+
+},{"./../../../../lib/utilities/format/fraction":20}],61:[function(require,module,exports){
 const formatPrice = require('./../../../../lib/utilities/format/price');
 /*
 describe('benchmark', () => {
@@ -16387,7 +16411,7 @@ describe('when valid prices are formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/price":21}],61:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/price":21}],62:[function(require,module,exports){
 const formatQuote = require('./../../../../lib/utilities/format/quote');
 
 describe('When a quote formatter is used (without specifying the clock)', () => {
@@ -16810,7 +16834,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../lib/utilities/format/quote":22}],62:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/quote":22}],63:[function(require,module,exports){
 const formatSymbol = require('./../../../../lib/utilities/format/symbol');
 
 describe('When a lowercase string is formatted as a symbol', () => {
@@ -16897,9 +16921,9 @@ describe('When an null value is formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/symbol":23}],63:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/symbol":23}],64:[function(require,module,exports){
 
-},{}],64:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 const parseMessage = require('../../../../../lib/utilities/parse/ddf/message');
 
 describe('when parsing an XML refresh message', () => {
@@ -17106,7 +17130,7 @@ describe('when parsing a DDF message', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/message":25}],65:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/message":25}],66:[function(require,module,exports){
 const parseValue = require('../../../../../lib/utilities/parse/ddf/value');
 
 describe('when parsing prices', () => {
@@ -17209,7 +17233,7 @@ describe('when parsing prices', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/value":27}],66:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/value":27}],67:[function(require,module,exports){
 const parsePrice = require('../../../../lib/utilities/parse/price');
 
 describe('when parsing invalid values', () => {
@@ -17590,7 +17614,7 @@ describe('when valid prices are parsed', () => {
   });
 });
 
-},{"../../../../lib/utilities/parse/price":28}],67:[function(require,module,exports){
+},{"../../../../lib/utilities/parse/price":28}],68:[function(require,module,exports){
 const SymbolParser = require('../../../../lib/utilities/parsers/SymbolParser');
 
 describe('When parsing a symbol for instrument type', () => {
@@ -19518,4 +19542,4 @@ describe('When getting an explicit futures symbol', () => {
   });
 });
 
-},{"../../../../lib/utilities/parsers/SymbolParser":29}]},{},[44,45,46,47,48,49,50,51,52,54,53,55,56,57,58,59,60,61,62,63,64,65,66,67]);
+},{"../../../../lib/utilities/parsers/SymbolParser":29}]},{},[44,45,46,47,48,49,50,51,52,54,53,55,56,57,58,59,60,61,62,63,64,65,66,67,68]);
