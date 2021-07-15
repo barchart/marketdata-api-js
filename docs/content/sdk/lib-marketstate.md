@@ -1023,11 +1023,11 @@
 **Returns**: <code>String</code>  
 **Access**: public  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| value | <code>Number</code> | <p>The price value to format.</p> |
-| value | <code>String</code> | <p>The price value to format.</p> |
-| profile | [<code>Profile</code>](#Profile) | <p>The instrument being priced.</p> |
+| Param | Type |
+| --- | --- |
+| value | <code>Number</code> | 
+| unitcode | <code>String</code> | 
+| profile | [<code>Profile</code>](#Profile) | 
 
 
 * * *
