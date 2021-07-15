@@ -7,6 +7,7 @@
     * _static_
         * [.formatDate([date], [utc])](#FunctionsformatDate) ⇒ <code>String</code>
         * [.formatDecimal(value, digits, [thousandsSeparator], [useParenthesis])](#FunctionsformatDecimal) ⇒ <code>String</code>
+        * [.formatFraction(value, fractionFactor, fractionDigits, [fractionSeparator], [useParenthesis])](#FunctionsformatFraction) ⇒ <code>String</code>
         * [.formatPrice(value, unitCode, [fractionSeparator], [specialFractions], [thousandsSeparator], [useParenthesis])](#FunctionsformatPrice) ⇒ <code>String</code>
         * [.formatQuoteDateTime(quote, [useTwelveHourClock], [short], [timezone])](#FunctionsformatQuoteDateTime) ⇒ <code>String</code>
         * [.formatSymbol(symbol)](#FunctionsformatSymbol) ⇒ <code>String</code> \| <code>\*</code>
@@ -32,7 +33,8 @@
 * * *
 
 ### Functions.formatDecimal(value, digits, [thousandsSeparator], [useParenthesis]) :id=functionsformatdecimal
-> Formats a number as a string.
+> Formats a number as decimal value (with a given number of digits after the decimal place,
+> thousands separator(s), and options for displaying negative values).
 
 **Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code>  
@@ -45,6 +47,25 @@
 | digits | <code>Number</code> | 
 | [thousandsSeparator] | <code>String</code> | 
 | [useParenthesis] | <code>Boolean</code> | 
+
+
+* * *
+
+### Functions.formatFraction(value, fractionFactor, fractionDigits, [fractionSeparator], [useParenthesis]) :id=functionsformatfraction
+> Formats a value using fractional notation.
+
+**Kind**: static method of [<code>Functions</code>](#Functions)  
+**Returns**: <code>String</code>  
+**Import**: @barchart/marketdata-api-js/lib/utilities/format/fraction  
+**File**: /lib/utilities/format/fraction.js  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| value | <code>Number</code> | <p>The decimal value to format as a fraction.</p> |
+| fractionFactor | <code>Number</code> | <p>The count of discrete prices which a unit can be divided into (e.g. a US dollar can be divided into 100 cents). By default, this is also the implied denominator in fractional notation (e.g. 3.6875 equals 3 and 22/32 — which is represented in fractional notation as &quot;3-22&quot; where the denominator of 32 is implied).</p> |
+| fractionDigits | <code>Number</code> | <p>The number of digits of the fraction's numerator to display (e.g. using two digits, the fraction 22/32 is shown as &quot;0-22&quot;; using three digits, the fraction 22.375/32 is shown as &quot;0-223&quot;).</p> |
+| [fractionSeparator] | <code>String</code> | <p>An optional character to insert between the whole and fractional part of the value.</p> |
+| [useParenthesis] | <code>Boolean</code> | <p>If true, negative values will be wrapped in parenthesis.</p> |
 
 
 * * *

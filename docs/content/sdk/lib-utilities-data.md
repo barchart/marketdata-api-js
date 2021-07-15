@@ -158,7 +158,7 @@
         * [.parse(code)](#UnitCodeparse) ⇒ [<code>UnitCode</code>](#UnitCode) \| <code>null</code>
         * [.fromBaseCode(code)](#UnitCodefromBaseCode) ⇒ [<code>UnitCode</code>](#UnitCode) \| <code>null</code>
     * _constructor_
-        * [new UnitCode(code, baseCode, decimalDigits, supportsFractions, [fractionFactor], [fractionDigits], [fractionFactorSpecial], [fractionDigitsSpecial])](#new_UnitCode_new)
+        * [new UnitCode(code, baseCode, decimalDigits, supportsFractions, [fractionFactor], fractionDigits, [fractionFactorSpecial], [fractionDigitsSpecial])](#new_UnitCode_new)
 
 
 * * *
@@ -214,9 +214,8 @@
 * * *
 
 ### unitCode.fractionDigits :id=unitcodefractiondigits
-> In fractional notation, the number of digits to which appear after the fraction separator.
-> For example, two digits are used in &quot;9-01&quot; and &quot;9-11&quot; (where a dash is the fraction
-> separator).
+> The number of digits of the fraction's numerator to display (e.g. using two digits, the fraction 22/32 is
+> shown as &quot;0-22&quot;; using three digits, the fraction 22.375/32 is shown as &quot;0-223&quot;).
 
 **Kind**: instance property of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Number</code> \| <code>undefined</code>  
@@ -304,7 +303,7 @@
 
 * * *
 
-### new UnitCode(code, baseCode, decimalDigits, supportsFractions, [fractionFactor], [fractionDigits], [fractionFactorSpecial], [fractionDigitsSpecial]) :id=new_unitcode_new
+### new UnitCode(code, baseCode, decimalDigits, supportsFractions, [fractionFactor], fractionDigits, [fractionFactorSpecial], [fractionDigitsSpecial]) :id=new_unitcode_new
 **Kind**: constructor of [<code>UnitCode</code>](#UnitCode)  
 
 | Param | Type | Description |
@@ -314,7 +313,7 @@
 | decimalDigits | <code>Number</code> | <p>When formatting a price as a decimal value, the number of decimal places to display.</p> |
 | supportsFractions | <code>Boolean</code> | <p>As an alternative to decimal-formatted prices, some instruments support fractional representations.</p> |
 | [fractionFactor] | <code>Number</code> | <p>The count of discrete prices which a unit can be divided into (e.g. a US dollar can be divided into 100 cents). By default, this is also the implied denominator in fractional notation (e.g. 3.6875 equals 3 and 22/32 — which is represented in fractional notation as &quot;3-22&quot;, where the denominator of 32 is implied).</p> |
-| [fractionDigits] | <code>Number</code> | <p>The number of digits of the fraction's numerator to display (e.g. two digits of the fraction 22/32 are shown in the fractional notation &quot;3-22&quot;).</p> |
+| fractionDigits | <code>Number</code> | <p>The number of digits of the fraction's numerator to display (e.g. using two digits, the fraction 22/32 is shown as &quot;0-22&quot;; using three digits, the fraction 22.375/32 is shown as &quot;0-223&quot;).</p> |
 | [fractionFactorSpecial] | <code>Number</code> | <p>Special fraction factors refer to the CME tick notation scheme (read more <a href="https://www.cmegroup.com/confluence/display/EPICSANDBOX/Fractional+Pricing+-+Tick+and+Decimal+Conversions">here</a>). For example, the CME notation for 0.51171875 (in 1/8ths of 1/32nds) is &quot;0-163&quot;, where the numerator of &quot;163&quot; means 16 thirty-seconds and 3 eighths of a thirty-second, where the actual fraction is 16.3[75] / 32, which equals 0.51171875.</p> |
 | [fractionDigitsSpecial] | <code>Number</code> | <p>The number of digits of the fraction's numerator to display, when formatting in CME tick notation. For example, the notation &quot;0-163&quot; (in 1/8ths of 1/32nds) equates to the fraction of 16.375/32. This notation is limited to three digits (163) and omits the trailing two digits (75).</p> |
 

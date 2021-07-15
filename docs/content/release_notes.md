@@ -1,5 +1,14 @@
 # Release Notes
 
+## 5.13.0
+**New Features**
+
+* Added the `formatFraction` function which converts numbers into fractional notation (e.g. 12-213) directly — without requiring a `UnitCode` reference.
+
+**Other**
+
+* Refactored the `formatPrice` function to use the new `formatFraction` function.
+
 ## 5.12.0
 **New Features**
 
