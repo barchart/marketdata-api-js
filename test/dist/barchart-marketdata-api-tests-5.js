@@ -1620,7 +1620,7 @@ module.exports = (() => {
    */
 
 
-  function formatFraction(value, fractionFactor, fractionDigits, fractionSeparator, specialFractions, useParenthesis) {
+  function formatFraction(value, fractionFactor, fractionDigits, fractionSeparator, useParenthesis) {
     if (!is.number(value)) {
       return '';
     }
@@ -1719,7 +1719,7 @@ module.exports = (() => {
     } else {
       const fractionFactor = unitCodeItem.getFractionFactor(specialFractions);
       const fractionDigits = unitCodeItem.getFractionDigits(specialFractions);
-      return formatFraction(value, fractionFactor, fractionDigits, fractionSeparator, specialFractions, useParenthesis);
+      return formatFraction(value, fractionFactor, fractionDigits, fractionSeparator, useParenthesis);
     }
   }
 
