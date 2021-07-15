@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.13.1
+**Bug Fixes**
+
+* Corrected signature of `formatFraction` function, removing unused parameter.
+
 ## 5.13.0
 **New Features**
 
