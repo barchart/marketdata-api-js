@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.14.1
+**Bug Fixes**
+
+* Extended the "special case" formatting rules for options of certain futures roots (ZB, ZT, ZF, and ZN). This only applies to the custom formatter for [cmdtyView](https://www.barchart.com/cmdty/trading/cmdtyview).
+
 ## 5.14.0
 **New Features**
 
