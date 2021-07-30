@@ -565,6 +565,14 @@ module.exports = (() => {
 		that.formatInteger = function(value) {
 			return formatDecimal(value, 0, ',');
 		};
+
+		that.formatPercent = function(value) {
+			if (value) {
+				return (value * 100).toFixed(2) + '%';
+			} else {
+				return '--';
+			}
+		};
 	};
 
 	var PriceLevelModel = function(price, volume) {
