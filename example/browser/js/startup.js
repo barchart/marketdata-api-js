@@ -59,8 +59,8 @@ module.exports = (() => {
 		that.username = ko.observable('');
 		that.password = ko.observable('');
 
-		that.replayFile = ko.observable('');
-		that.replaySymbols = ko.observable('');
+		that.replayFile = ko.observable('ZCN1.ddf');
+		that.replaySymbols = ko.observable('ZCN1');
 		that.replayIndex = ko.observable(0);
 
 		that.symbol = ko.observable('');
@@ -221,7 +221,6 @@ module.exports = (() => {
 
 			connection.setExtendedProfileMode(true);
 			connection.setExtendedQuoteMode(true);
-			connection.setDeferredDayChangeMode(true);
 
 			connection.on('events', handleEvents);
 
