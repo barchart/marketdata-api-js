@@ -490,6 +490,16 @@ module.exports = (() => {
 			}
 		};
 
+		that.diagnosticsScroll = function() {
+			if (that.diagnosticsEnabled() && diagnostics !== null) {
+				const scrollIndex = that.replayIndex() + 100;
+
+				diagnostics.scroll(scrollIndex);
+
+				that.replayIndex(scrollIndex);
+			}
+		};
+
 		that.handleDiagnosticsScrollKeypress = function(d, e) {
 			if (e.keyCode === 13) {
 				that.addSymbol();

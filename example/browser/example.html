@@ -23,16 +23,16 @@
             <th class="text-right col-md-1">Last</th>
             <th class="text-right col-md-1">Change</th>
             <th class="text-right col-md-1">Change %</th>
-            <!--
             <th class="text-right col-md-1">Bid</th>
             <th class="text-right col-md-1">Size</th>
             <th class="text-right col-md-1">Ask</th>
             <th class="text-right col-md-1">Size</th>
-            -->
+            <!--
             <th class="text-right col-md-1">Low</th>
             <th class="text-right col-md-1">High</th>
             <th class="text-right col-md-1">Lowest</th>
             <th class="text-right col-md-1">Highest</th>
+            -->
             <!--
             <th class="text-right col-md-1">Trades</th>
 
@@ -58,16 +58,16 @@
 	        <td class="text-right col-md-1" data-bind="text: $parent.formatPrice(lastPrice)"></td>
 	        <td class="text-right col-md-1" data-bind="text: $parent.formatPrice(priceChange)"></td>
             <td class="text-right col-md-1" data-bind="text: $parent.formatPercent(priceChangePercent)"></td>
-            <!--
             <td class="text-right col-md-1" data-bind="text: $parent.formatPrice(bidPrice)"></td>
 	        <td class="text-right col-md-1" data-bind="text: $parent.formatInteger(bidSize)"></td>
             <td class="text-right col-md-1" data-bind="text: $parent.formatPrice(askPrice)"></td>
 	        <td class="text-right col-md-1" data-bind="text: $parent.formatInteger(askSize)"></td>
-	        -->
+            <!--
             <td class="text-right col-md-1" data-bind="text: $parent.formatPrice(lowPrice)"></td>
             <td class="text-right col-md-1" data-bind="text: $parent.formatPrice(highPrice)"></td>
             <td class="text-right col-md-1" data-bind="text: $parent.formatPrice(recordLowPrice)"></td>
             <td class="text-right col-md-1" data-bind="text: $parent.formatPrice(recordHighPrice)"></td>
+            -->
             <!--
             <td class="text-right col-md-1" data-bind="text: $parent.formatInteger(numberOfTrades)"></td>
             -->
@@ -175,6 +175,7 @@
 
             <div class="header-action-buttons pull-right form-inline" data-bind="visible: connected() === true && diagnosticsEnabled() === true">
                 <span class="text-button glyphicon glyphicon-play" data-bind="click: diagnosticsNext"></span>
+                <span class="text-button glyphicon glyphicon-forward" data-bind="click: diagnosticsScroll"></span>
                 <span class="text-button glyphicon glyphicon-remove" data-bind="click: disconnect, visible: canDisconnect"></span>
             </div>
         </div>
