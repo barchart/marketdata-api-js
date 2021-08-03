@@ -125,12 +125,11 @@ module.exports = (() => {
 
 						var subscriptions = [ ];
 
-						for (var i = 0; i < replaySymbols.length; i++) {
-							var s = replaySymbols[i];
-
+						function bindReplaySymbol(s) {
 							var model = new RowModel(s, that.timezone);
 
 							var handleMarketUpdate = function(message) {
+								console.log(`handing update for ${message.symbol} and routing to ${model.symbol}`);
 								model.quote(connection.getMarketState().getQuote(s));
 							};
 
@@ -144,6 +143,10 @@ module.exports = (() => {
 							subscription.callback = handleMarketUpdate;
 
 							subscriptions.push(subscription);
+						}
+
+						for (var i = 0; i < replaySymbols.length; i++) {
+							bindReplaySymbol(replaySymbols[i]);
 						}
 
 						diagnostics.initialize(replayFile, subscriptions);
