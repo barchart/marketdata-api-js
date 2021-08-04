@@ -5762,7 +5762,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.14.1'
+    version: '5.15.0'
   };
 })();
 
@@ -7084,27 +7084,12 @@ module.exports = (() => {
                   // snapshots change).
 
                   if (premarket) {
-                    console.log('assigning previous price from previous session');
                     message.previousPrice = sessions.previous.previousPrice;
                   } else if (sessions.combined.previousPrice) {
                     message.previousPrice = sessions.combined.previousPrice;
                   } else {
                     message.previousPrice = sessions.previous.previousPrice;
                   }
-                  /*
-                  // 2021/06/30, The "options" concept is a hack.
-                  	if (premarket && options && options.deferDayChange) {
-                  	message.previousPrice = sessions.previous.previousPrice;
-                  		//console.log(`Using option 1, previous price = ${message.previousPrice}`);
-                  } else if (sessions.combined.previousPrice) {
-                  	message.previousPrice = sessions.combined.previousPrice;
-                  		//console.log(`Using option 2, previous price = ${message.previousPrice}`);
-                  } else {
-                  	message.previousPrice = sessions.previous.previousPrice;
-                  		//console.log(`Using option 3, previous price = ${message.previousPrice}`);
-                  }
-                  */
-
 
                   if (session.lastPrice) message.lastPrice = session.lastPrice;
                   if (session.openPrice) message.openPrice = session.openPrice;
