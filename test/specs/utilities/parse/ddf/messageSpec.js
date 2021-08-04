@@ -124,8 +124,16 @@ describe('when parsing an XML refresh message', () => {
 					</QUOTE>`);
 		});
 
+		// 2021/08/05, BRI. We are now reading from the previous session (instead of the combined session).
+
+		/*
 		it('the "previousPrice" should come from the "combined" session', () => {
 			expect(x.previousPrice).toEqual(15.59);
+		});
+		*/
+
+		it('the "previousPrice" should come from the "previous" session', () => {
+			expect(x.previousPrice).toEqual(15.49);
 		});
 	});
 });
