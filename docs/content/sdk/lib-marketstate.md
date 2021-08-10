@@ -440,7 +440,7 @@
 
 | Name | Type | Description |
 | --- | --- | --- |
-| expiration | <code>string</code> \| <code>undefined</code> | <p>First notice date, formatted as YYYY-MM-DD (futures only).</p> |
+| firstNotice | <code>string</code> \| <code>undefined</code> | <p>First notice date, formatted as YYYY-MM-DD (futures only).</p> |
 
 
 * * *
@@ -451,7 +451,7 @@
 
 | Name | Type | Description |
 | --- | --- | --- |
-| type | [<code>AssetClass</code>](/content/sdk/lib-utilities-data?id=assetclass) \| <code>null</code> | <p>The instrument type (a.k.a. asset class). This will only be present when inference based on the instrument symbol is possible.</p> |
+| asset | [<code>AssetClass</code>](/content/sdk/lib-utilities-data?id=assetclass) \| <code>null</code> | <p>The instrument type (a.k.a. asset class). This will only be present when inference based on the instrument symbol is possible.</p> |
 
 
 * * *
@@ -579,7 +579,7 @@
 
 | Name | Type | Description |
 | --- | --- | --- |
-| message | <code>string</code> | <p>Most recent DDF refresh message which caused this instance to mutate.</p> |
+| refresh | <code>string</code> | <p>Most recent DDF refresh message which caused this instance to mutate.</p> |
 
 
 * * *
@@ -616,9 +616,9 @@
 **Read only**: true  
 **Properties**
 
-| Type | Description |
-| --- | --- |
-| <code>string</code> | <p>One of two values, &quot;I&quot; or &quot;R&quot; -- indicating delayed or realtime data, respectively.</p> |
+| Name | Type | Description |
+| --- | --- | --- |
+| mode | <code>string</code> | <p>One of two values, &quot;I&quot; or &quot;R&quot; -- indicating delayed or realtime data, respectively.</p> |
 
 
 * * *
@@ -683,7 +683,7 @@
 
 | Name | Type | Description |
 | --- | --- | --- |
-| time | <code>Date</code> \| <code>null</code> | <p>A timezone-aware version of [lastUpdate](#quotelastupdate). This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known.</p> |
+| lastUpdateUtc | <code>Date</code> \| <code>null</code> | <p>A timezone-aware version of [lastUpdate](#quotelastupdate). This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known.</p> |
 
 
 * * *
@@ -943,7 +943,7 @@
 
 | Name | Type | Description |
 | --- | --- | --- |
-| time | <code>Date</code> \| <code>null</code> | <p>A timezone-aware version of [time](#quotetime). This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known.</p> |
+| timeUtc | <code>Date</code> \| <code>null</code> | <p>A timezone-aware version of [time](#quotetime). This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known.</p> |
 
 
 * * *

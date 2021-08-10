@@ -53,8 +53,8 @@ module.exports = (() => {
     that.timezones = ko.observableArray(timezonesList.concat(timezones.getTimezones()));
     that.username = ko.observable('');
     that.password = ko.observable('');
-    that.replayFile = ko.observable('');
-    that.replaySymbols = ko.observable('');
+    that.replayFile = ko.observable('ZCN1.ddf');
+    that.replaySymbols = ko.observable('ZCN1');
     that.replayIndex = ko.observable(0);
     that.symbol = ko.observable('');
     that.symbolFocus = ko.observable(false);
@@ -105,11 +105,11 @@ module.exports = (() => {
             var replaySymbols = that.replaySymbols().toString().split(',');
             var subscriptions = [];
 
-            for (var i = 0; i < replaySymbols.length; i++) {
-              var s = replaySymbols[i];
+            function bindReplaySymbol(s) {
               var model = new RowModel(s, that.timezone);
 
               var handleMarketUpdate = function (message) {
+                console.log(`handing update for ${message.symbol} and routing to ${model.symbol}`);
                 model.quote(connection.getMarketState().getQuote(s));
               };
 
@@ -119,6 +119,10 @@ module.exports = (() => {
               subscription.symbol = s;
               subscription.callback = handleMarketUpdate;
               subscriptions.push(subscription);
+            }
+
+            for (var i = 0; i < replaySymbols.length; i++) {
+              bindReplaySymbol(replaySymbols[i]);
             }
 
             diagnostics.initialize(replayFile, subscriptions);
@@ -192,7 +196,6 @@ module.exports = (() => {
       connection = new Connection();
       connection.setExtendedProfileMode(true);
       connection.setExtendedQuoteMode(true);
-      connection.setDeferredDayChangeMode(true);
       connection.on('events', handleEvents);
       connection.connect(hostname, username, password);
     };
@@ -438,6 +441,14 @@ module.exports = (() => {
       }
     };
 
+    that.diagnosticsScroll = function () {
+      if (that.diagnosticsEnabled() && diagnostics !== null) {
+        const scrollIndex = that.replayIndex() + 100;
+        diagnostics.scroll(scrollIndex);
+        that.replayIndex(scrollIndex);
+      }
+    };
+
     that.handleDiagnosticsScrollKeypress = function (d, e) {
       if (e.keyCode === 13) {
         that.addSymbol();
@@ -503,6 +514,14 @@ module.exports = (() => {
 
     that.formatInteger = function (value) {
       return formatDecimal(value, 0, ',');
+    };
+
+    that.formatPercent = function (value) {
+      if (value) {
+        return (value * 100).toFixed(2) + '%';
+      } else {
+        return '--';
+      }
     };
   };
 
@@ -597,9 +616,7 @@ module.exports = (() => {
     let __pollingFrequency = null;
     let __extendedProfile = false;
     let __extendedQuote = false;
-    let __processOptions = {
-      deferDayChange: false
-    };
+    let __processOptions = {};
     let __watchdogToken = null;
     let __watchdogAwake = false;
     let __exchangeMetadataPromise = null;
@@ -661,12 +678,6 @@ module.exports = (() => {
     function setExtendedQuoteMode(mode) {
       if (__extendedQuote !== mode) {
         __extendedQuote = mode;
-      }
-    }
-
-    function setDeferredDayChangeMode(mode) {
-      if (__processOptions.deferDayChange !== mode) {
-        __processOptions.deferDayChange = mode;
       }
     } //
     // Functions for connecting to and disconnecting from JERQ, monitoring
@@ -2285,7 +2296,6 @@ module.exports = (() => {
       setPollingFrequency: setPollingFrequency,
       setExtendedProfileMode: setExtendedProfileMode,
       setExtendedQuoteMode: setExtendedQuoteMode,
-      setDeferredDayChangeMode: setDeferredDayChangeMode,
       handleProfileRequest: handleProfileRequest,
       getDiagnosticsController: getDiagnosticsController
     };
@@ -2370,10 +2380,6 @@ module.exports = (() => {
       return this._internal.setExtendedQuoteMode(mode);
     }
 
-    _setDeferredDayChangeMode(mode) {
-      return this._internal.setDeferredDayChangeMode(mode);
-    }
-
     _handleProfileRequest(symbol) {
       this._internal.handleProfileRequest(symbol);
     }
@@ -2418,7 +2424,6 @@ module.exports = (() => {
       this._pollingFrequency = null;
       this._extendedProfileMode = false;
       this._extendedQuoteMode = false;
-      this._deferredDayChangeMode = false;
       this._instance = ++instanceCounter;
     }
     /**
@@ -2688,39 +2693,6 @@ module.exports = (() => {
 
     getExtendedQuoteMode() {
       return this._extendedQuoteMode;
-    }
-    /**
-     * @public
-     * @ignore
-     * @param {Boolean}
-     */
-
-
-    setDeferredDayChangeMode(mode) {
-      if (is.boolean(mode) && this._deferredDayChangeMode !== mode) {
-        this._deferredDayChangeMode = mode;
-
-        this._setDeferredDayChangeMode(this._deferredDayChangeMode);
-      }
-    }
-    /**
-     * @protected
-     * @ignore
-     */
-
-
-    _setDeferredDayChangeMode(mode) {
-      return;
-    }
-    /**
-     * @public
-     * @ignore
-     * @returns {Boolean}
-     */
-
-
-    getDeferredDayChangeMode() {
-      return this._deferredDayChangeMode;
     }
     /**
      * @protected
@@ -4663,6 +4635,31 @@ module.exports = (() => {
       }
     };
 
+    const _derivePriceChange = quote => {
+      let currentPrice = quote.lastPrice || null;
+      let comparePrice = quote.previousPrice || null;
+
+      if (quote.flag === 'p' && quote.days.length > 0) {
+        const previousDay = quote.days[0];
+        currentPrice = currentPrice || previousDay.lastPrice;
+        comparePrice = previousDay.previousPrice || comparePrice;
+      }
+
+      let priceChange = null;
+      let priceChangePercent = null;
+
+      if (is.number(currentPrice) && is.number(comparePrice)) {
+        priceChange = currentPrice - comparePrice;
+
+        if (comparePrice !== 0) {
+          priceChangePercent = priceChange / Math.abs(comparePrice);
+        }
+      }
+
+      quote.priceChange = priceChange;
+      quote.priceChangePercent = priceChangePercent;
+    };
+
     const _processMessage = (message, options) => {
       const symbol = message.symbol;
 
@@ -4744,40 +4741,44 @@ module.exports = (() => {
         const dayNum = convertDayCodeToNumber(message.day);
 
         if (dayNum > q.dayNum || q.dayNum - dayNum > 5) {
-          let allowRoll = true;
+          q.message = message; // Roll the quote
 
-          if (options && options.deferDayChange && !(message.type === 'REFRESH_DDF' || message.type === 'TRADE' || message.type === 'OPEN')) {
-            allowRoll = false;
+          q.days.unshift({
+            day: q.day,
+            previousPrice: q.previousPrice,
+            lastPrice: q.lastPrice
+          });
+
+          while (q.days.length > 3) {
+            q.days.pop();
           }
 
-          if (allowRoll) {
-            q.message = message; // Roll the quote
+          q.day = message.day;
+          q.dayNum = dayNum;
+          q.flag = 'p';
+          q.bidPrice = 0.0;
+          q.bidSize = undefined;
+          q.askPrice = undefined;
+          q.askSize = undefined;
 
-            q.day = message.day;
-            q.dayNum = dayNum;
-            q.flag = 'p';
-            q.bidPrice = 0.0;
-            q.bidSize = undefined;
-            q.askPrice = undefined;
-            q.askSize = undefined;
-
-            if (q.settlementPrice) {
-              q.previousSettlementPrice = q.settlementPrice;
-              q.previousPrice = q.settlementPrice;
-              q.settlementPrice = undefined;
-            } else if (q.lastPrice) {
-              q.previousPrice = q.lastPrice;
-            }
-
-            q.lastPrice = undefined;
-            q.tradePrice = undefined;
-            q.tradeSize = undefined;
-            q.numberOfTrades = undefined;
-            q.openPrice = undefined;
-            q.highPrice = undefined;
-            q.lowPrice = undefined;
-            q.volume = undefined;
+          if (q.settlementPrice) {
+            q.previousPrice = q.settlementPrice;
+            q.previousSettlementPrice = q.settlementPrice;
+          } else if (q.lastPrice) {
+            q.previousPrice = q.lastPrice;
           }
+
+          q.lastPrice = undefined;
+          q.tradePrice = undefined;
+          q.tradeSize = undefined;
+          q.numberOfTrades = undefined;
+          q.openPrice = undefined;
+          q.highPrice = undefined;
+          q.lowPrice = undefined;
+          q.volume = undefined;
+          q.settlementPrice = undefined;
+
+          _derivePriceChange(q);
         } else if (q.dayNum > dayNum) {
           return;
         }
@@ -4811,6 +4812,8 @@ module.exports = (() => {
           q.highPrice = message.value;
           q.lowPrice = message.value;
           q.lastPrice = message.value;
+
+          _derivePriceChange(q);
 
           _deriveRecordHighPrice(q);
 
@@ -4908,6 +4911,8 @@ module.exports = (() => {
                 q.lastUpdateUtc = _getUtcTimestamp(symbol, message.time);
               }
 
+              _derivePriceChange(q);
+
               break;
           }
 
@@ -4950,6 +4955,8 @@ module.exports = (() => {
           q.highPrice = message.highPrice;
           q.lowPrice = message.lowPrice;
 
+          _derivePriceChange(q);
+
           _deriveRecordHighPrice(q);
 
           _deriveRecordLowPrice(q);
@@ -4976,6 +4983,8 @@ module.exports = (() => {
           if (message.element === 'D') {
             q.flag = 's';
           }
+
+          _derivePriceChange(q);
 
           break;
 
@@ -5023,6 +5032,8 @@ module.exports = (() => {
             q.time = message.time;
             q.timeUtc = _getUtcTimestamp(symbol, message.time);
           }
+
+          _derivePriceChange(q);
 
           if (cv && cv.container && message.tradePrice && message.tradeSize) {
             cv.container.incrementVolume(message.tradePrice, message.tradeSize);
@@ -5394,14 +5405,14 @@ module.exports = (() => {
 
           this.expiration = null;
           /**
-           * @property {string|undefined} expiration - First notice date, formatted as YYYY-MM-DD (futures only).
+           * @property {string|undefined} firstNotice - First notice date, formatted as YYYY-MM-DD (futures only).
            */
 
           this.firstNotice = null;
         }
       }
       /**
-       * @property {AssetClass|null} type - The instrument type (a.k.a. asset class). This will only be present when inference based on the instrument symbol is possible.
+       * @property {AssetClass|null} asset - The instrument type (a.k.a. asset class). This will only be present when inference based on the instrument symbol is possible.
        */
 
 
@@ -5518,7 +5529,7 @@ module.exports = (() => {
 
       this.profile = null;
       /**
-       * @property {string} message - Most recent DDF refresh message which caused this instance to mutate.
+       * @property {string} refresh - Most recent DDF refresh message which caused this instance to mutate.
        * @public
        * @readonly
        */
@@ -5539,7 +5550,7 @@ module.exports = (() => {
 
       this.flag = null;
       /**
-       * @property {string} - One of two values, "I" or "R" -- indicating delayed or realtime data, respectively.
+       * @property {string} mode - One of two values, "I" or "R" -- indicating delayed or realtime data, respectively.
        * @public
        * @readonly
        */
@@ -5574,7 +5585,7 @@ module.exports = (() => {
 
       this.lastUpdate = null;
       /**
-       * @property {Date|null} time - A timezone-aware version of {@link Quote#lastUpdate}. This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known.
+       * @property {Date|null} lastUpdateUtc - A timezone-aware version of {@link Quote#lastUpdate}. This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known.
        * @public
        * @readonly
        */
@@ -5719,12 +5730,15 @@ module.exports = (() => {
 
       this.time = null;
       /**
-       * @property {Date|null} time - A timezone-aware version of {@link Quote#time}. This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known.
+       * @property {Date|null} timeUtc - A timezone-aware version of {@link Quote#time}. This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known.
        * @public
        * @readonly
        */
 
       this.timeUtc = null;
+      this.priceChange = null;
+      this.priceChangePercent = null;
+      this.days = [];
       this.ticks = [];
     }
 
@@ -5748,7 +5762,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.14.1'
+    version: '5.15.0'
   };
 })();
 
@@ -7068,14 +7082,13 @@ module.exports = (() => {
                   // from the "previous" session ... This can give us the same "previousPrice"
                   // and "lastPrice" values (e.g. ZCN1 right after 4:45 PM, when the
                   // snapshots change).
-                  // 2021/06/30, The "options" concept is a hack.
 
-                  if (premarket && options && options.deferDayChange) {
-                    message.previousPrice = sessions.previous.previousPrice; //console.log(`Using option 1, previous price = ${message.previousPrice}`);
+                  if (premarket) {
+                    message.previousPrice = sessions.previous.previousPrice;
                   } else if (sessions.combined.previousPrice) {
-                    message.previousPrice = sessions.combined.previousPrice; //console.log(`Using option 2, previous price = ${message.previousPrice}`);
+                    message.previousPrice = sessions.combined.previousPrice;
                   } else {
-                    message.previousPrice = sessions.previous.previousPrice; //console.log(`Using option 3, previous price = ${message.previousPrice}`);
+                    message.previousPrice = sessions.previous.previousPrice;
                   }
 
                   if (session.lastPrice) message.lastPrice = session.lastPrice;

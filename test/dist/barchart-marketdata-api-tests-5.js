@@ -695,14 +695,14 @@ module.exports = (() => {
 
           this.expiration = null;
           /**
-           * @property {string|undefined} expiration - First notice date, formatted as YYYY-MM-DD (futures only).
+           * @property {string|undefined} firstNotice - First notice date, formatted as YYYY-MM-DD (futures only).
            */
 
           this.firstNotice = null;
         }
       }
       /**
-       * @property {AssetClass|null} type - The instrument type (a.k.a. asset class). This will only be present when inference based on the instrument symbol is possible.
+       * @property {AssetClass|null} asset - The instrument type (a.k.a. asset class). This will only be present when inference based on the instrument symbol is possible.
        */
 
 
@@ -2198,14 +2198,13 @@ module.exports = (() => {
                   // from the "previous" session ... This can give us the same "previousPrice"
                   // and "lastPrice" values (e.g. ZCN1 right after 4:45 PM, when the
                   // snapshots change).
-                  // 2021/06/30, The "options" concept is a hack.
 
-                  if (premarket && options && options.deferDayChange) {
-                    message.previousPrice = sessions.previous.previousPrice; //console.log(`Using option 1, previous price = ${message.previousPrice}`);
+                  if (premarket) {
+                    message.previousPrice = sessions.previous.previousPrice;
                   } else if (sessions.combined.previousPrice) {
-                    message.previousPrice = sessions.combined.previousPrice; //console.log(`Using option 2, previous price = ${message.previousPrice}`);
+                    message.previousPrice = sessions.combined.previousPrice;
                   } else {
-                    message.previousPrice = sessions.previous.previousPrice; //console.log(`Using option 3, previous price = ${message.previousPrice}`);
+                    message.previousPrice = sessions.previous.previousPrice;
                   }
 
                   if (session.lastPrice) message.lastPrice = session.lastPrice;
@@ -17023,9 +17022,16 @@ describe('when parsing an XML refresh message', () => {
 					<SESSION day="J" session="R" timestamp="20160920160021" open="1574" high="1576" low="1551" previous="1559" tradesize="1483737" volume="67399368" numtrades="96903" pricevolume="1041029293.48" tradetime="20160920160021" ticks=".." id="combined"/>
 					<SESSION day="I" timestamp="20160919000000" open="1555" high="1578" low="1555" last="1559" previous="1549" settlement="1559" volume="66174800" ticks=".." id="previous"/>
 					</QUOTE>`);
-    });
+    }); // 2021/08/05, BRI. We are now reading from the previous session (instead of the combined session).
+
+    /*
     it('the "previousPrice" should come from the "combined" session', () => {
-      expect(x.previousPrice).toEqual(15.59);
+    	expect(x.previousPrice).toEqual(15.59);
+    });
+    */
+
+    it('the "previousPrice" should come from the "previous" session', () => {
+      expect(x.previousPrice).toEqual(15.49);
     });
   });
 });

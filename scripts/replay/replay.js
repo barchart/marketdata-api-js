@@ -68,9 +68,27 @@ module.exports = (() => {
 
 				const data = fileReader.scroll(to);
 
+				const sendNext = () => {
+					setTimeout(() => {
+						const line = data.lines.shift();
+
+						if (line) {
+							ws.send(toBuffer(line));
+						}
+
+						if (data.lines.length > 0) {
+							sendNext();
+						}
+					}, 75);
+				};
+
+				sendNext();
+
+				/*
 				data.lines.forEach((line) => {
 					ws.send(toBuffer(line));
 				});
+				*/
 
 				break;
 			}

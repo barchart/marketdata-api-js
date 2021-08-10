@@ -125,12 +125,11 @@ module.exports = (() => {
 
 						var subscriptions = [ ];
 
-						for (var i = 0; i < replaySymbols.length; i++) {
-							var s = replaySymbols[i];
-
+						function bindReplaySymbol(s) {
 							var model = new RowModel(s, that.timezone);
 
 							var handleMarketUpdate = function(message) {
+								console.log(`handing update for ${message.symbol} and routing to ${model.symbol}`);
 								model.quote(connection.getMarketState().getQuote(s));
 							};
 
@@ -144,6 +143,10 @@ module.exports = (() => {
 							subscription.callback = handleMarketUpdate;
 
 							subscriptions.push(subscription);
+						}
+
+						for (var i = 0; i < replaySymbols.length; i++) {
+							bindReplaySymbol(replaySymbols[i]);
 						}
 
 						diagnostics.initialize(replayFile, subscriptions);
@@ -490,6 +493,16 @@ module.exports = (() => {
 			}
 		};
 
+		that.diagnosticsScroll = function() {
+			if (that.diagnosticsEnabled() && diagnostics !== null) {
+				const scrollIndex = that.replayIndex() + 100;
+
+				diagnostics.scroll(scrollIndex);
+
+				that.replayIndex(scrollIndex);
+			}
+		};
+
 		that.handleDiagnosticsScrollKeypress = function(d, e) {
 			if (e.keyCode === 13) {
 				that.addSymbol();
@@ -564,6 +577,14 @@ module.exports = (() => {
 
 		that.formatInteger = function(value) {
 			return formatDecimal(value, 0, ',');
+		};
+
+		that.formatPercent = function(value) {
+			if (value) {
+				return (value * 100).toFixed(2) + '%';
+			} else {
+				return '--';
+			}
 		};
 	};
 

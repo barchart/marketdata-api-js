@@ -1,5 +1,19 @@
 # Release Notes
 
+## 5.15.0
+**New Features**
+
+* Added `Quote.priceChange` and `Quote.priceChangePercent` properties. The values of these properties are derived. The derivation logic preserves values from the previous trading day until a trade occurs in the current trading day.
+
+**Bug Fixes**
+
+* Updated the DDF message parser to read the _previousPrice_ value from the _previous_ session during pre-market hours.
+
+**Other**
+
+* Removed some undocumented features.
+
+
 ## 5.14.1
 **Bug Fixes**
 
