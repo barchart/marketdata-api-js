@@ -5762,7 +5762,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.15.0'
+    version: '5.15.1'
   };
 })();
 
@@ -7508,7 +7508,7 @@ module.exports = (() => {
    * @param {String} str
    * @param {String} unitCode
    * @param {String=} thousandsSeparator
-   * @returns {Number}
+   * @returns {Number|undefined|null}
    */
 
 

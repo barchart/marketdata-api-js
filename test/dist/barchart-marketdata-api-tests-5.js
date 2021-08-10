@@ -2624,7 +2624,7 @@ module.exports = (() => {
    * @param {String} str
    * @param {String} unitCode
    * @param {String=} thousandsSeparator
-   * @returns {Number}
+   * @returns {Number|undefined|null}
    */
 
 
