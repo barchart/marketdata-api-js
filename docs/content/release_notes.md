@@ -1,9 +1,14 @@
 # Release Notes
 
+## 5.15.1
+**Other**
+
+* Merged code from branch. No functional changes.
+
 ## 5.15.0
 **New Features**
 
-* Added `Quote.priceChange` and `Quote.priceChangePercent` properties. The values of these properties are derived. The derivation logic preserves values from the previous trading day until a trade occurs in the current trading day.
+* Added `Quote.priceChange` and `Quote.priceChangePercent` properties. The values of these properties are derived. The derivation logic preserves figures from the previous trading day until a trade occurs in the current trading day.
 
 **Bug Fixes**
 
