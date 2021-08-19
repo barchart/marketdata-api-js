@@ -10,7 +10,7 @@ const CustomLoggingProvider = require('./logging/CustomLoggingProvider');
 
 const LoggerFactory = require('./../../lib/logging/LoggerFactory');
 
-const startup = (() => {
+(() => {
 	'use strict';
 	
 	//LoggerFactory.configureForConsole();
