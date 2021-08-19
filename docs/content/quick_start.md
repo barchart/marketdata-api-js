@@ -31,7 +31,7 @@ connection.on('events', (data) => {
 	}
 });
 
-const server = 'qsws-us-e-02.aws.barchart.com';
+const server = 'wsqs-cf.aws.barchart.com';
 const username = 'contact solutions@barchart.com for your free username and password';
 const password = 'contact solutions@barchart.com for your free username and password';
 
@@ -56,7 +56,7 @@ connection.on('events', (event) => {
 	}
 });
 
-const server = 'qsws-us-e-02.aws.barchart.com';
+const server = 'wsqs-cf.aws.barchart.com';
 const username = 'contact solutions@barchart.com for your free username and password';
 const password = 'contact solutions@barchart.com for your free username and password';
 

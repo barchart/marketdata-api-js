@@ -24,7 +24,7 @@ module.exports = (() => {
     var that = this;
     var connection = null;
     var diagnostics = null;
-    that.hostname = ko.observable('qsws-us-e-02.aws.barchart.com');
+    that.hostname = ko.observable('wsqs-cf.aws.barchart.com');
     var timezoneLocal = timezones.guessTimezone();
     var timezonesList = [];
     timezonesList.push('Variable/Exchange_Local');
