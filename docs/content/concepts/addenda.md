@@ -1,3 +1,7 @@
+## Price Formatting
+
+
+
 ## Logging
 
 By default, log statements are written to the ```Console```. However, it is possible to customize logging behavior via the [```lib/logging/LoggerFactory```](/content/sdk/lib-logging?id=loggerfactory) class. Any customization must occur before instantiating a ```Connection``` (because the SDK will cache ```Logger``` instances).
