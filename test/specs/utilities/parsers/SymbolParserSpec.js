@@ -855,6 +855,10 @@ describe('When checking to see if a symbol is a future', () => {
 		expect(SymbolParser.getIsFuture('^EURUSD')).toEqual(false);
 	});
 
+	it('the symbol "^BTCUSDT" should return false', () => {
+		expect(SymbolParser.getIsFuture('^BTCUSDT')).toEqual(false);
+	});
+
 	it('the symbol "-001A" should return false', () => {
 		expect(SymbolParser.getIsFuture('-001A')).toEqual(false);
 	});
@@ -1045,6 +1049,10 @@ describe('When checking to see if a symbol is sector', () => {
 		expect(SymbolParser.getIsSector('^EURUSD')).toEqual(false);
 	});
 
+	it('the symbol "^BTCUSDT" should return false', () => {
+		expect(SymbolParser.getIsSector('^BTCUSDT')).toEqual(false);
+	});
+
 	it('the symbol "-001A" should return true', () => {
 		expect(SymbolParser.getIsSector('-001A')).toEqual(true);
 	});
@@ -1187,6 +1195,10 @@ describe('When checking to see if a symbol is forex', () => {
 		expect(SymbolParser.getIsForex('^EURUSD')).toEqual(true);
 	});
 
+	it('the symbol "^BTCUSDT" should return false', () => {
+		expect(SymbolParser.getIsForex('^BTCUSDT')).toEqual(false);
+	});
+
 	it('the symbol "-001A" should return false', () => {
 		expect(SymbolParser.getIsForex('-001A')).toEqual(false);
 	});
@@ -1284,6 +1296,153 @@ describe('When checking to see if a symbol is forex', () => {
 	});
 });
 
+
+describe('When checking to see if a symbol is crypto', () => {
+	it('the symbol "ES*1" should return false', () => {
+		expect(SymbolParser.getIsCrypto('ES*1')).toEqual(false);
+	});
+
+	it('the symbol "NG*13" should return false', () => {
+		expect(SymbolParser.getIsCrypto('NG*13')).toEqual(false);
+	});
+
+	it('the symbol "ESZ6" should return false', () => {
+		expect(SymbolParser.getIsCrypto('ESZ6')).toEqual(false);
+	});
+
+	it('the symbol "ESZ16" should return false', () => {
+		expect(SymbolParser.getIsCrypto('ESZ16')).toEqual(false);
+	});
+
+	it('the symbol "ESZ2016" should return false', () => {
+		expect(SymbolParser.getIsCrypto('ESZ2016')).toEqual(false);
+	});
+
+	it('the symbol "ESZ016" should return false', () => {
+		expect(SymbolParser.getIsCrypto('ESZ016')).toEqual(false);
+	});
+
+	it('the symbol "O!H7" should return false', () => {
+		expect(SymbolParser.getIsCrypto('O!H7')).toEqual(false);
+	});
+
+	it('the symbol "O!H17" should return false', () => {
+		expect(SymbolParser.getIsCrypto('O!H17')).toEqual(false);
+	});
+
+	it('the symbol "O!H2017" should return false', () => {
+		expect(SymbolParser.getIsCrypto('O!H2017')).toEqual(false);
+	});
+
+	it('the symbol "IBM" should return false', () => {
+		expect(SymbolParser.getIsCrypto('IBM')).toEqual(false);
+	});
+
+	it('the symbol "^EURUSD" should return true', () => {
+		expect(SymbolParser.getIsCrypto('^EURUSD')).toEqual(true); // should return false ...
+	});
+
+	it('the symbol "^BTCUSDT" should return true', () => {
+		expect(SymbolParser.getIsCrypto('^BTCUSDT')).toEqual(true);
+	});
+
+	it('the symbol "-001A" should return false', () => {
+		expect(SymbolParser.getIsCrypto('-001A')).toEqual(false);
+	});
+
+	it('the symbol "$DOWI" should return false', () => {
+		expect(SymbolParser.getIsCrypto('$DOWI')).toEqual(false);
+	});
+
+	it('the symbol "$S1GE" should return false', () => {
+		expect(SymbolParser.getIsCrypto('$S1GE')).toEqual(false);
+	});
+
+	it('the symbol "_S_SP_ZCH7_ZCK7" should return false', () => {
+		expect(SymbolParser.getIsCrypto('_S_SP_ZCH7_ZCK7')).toEqual(false);
+	});
+
+	it('the symbol "ESZ2660Q" should return false', () => {
+		expect(SymbolParser.getIsCrypto('ESZ2660Q')).toEqual(false);
+	});
+
+	it('the symbol "ZWH9|470C" should return false', () => {
+		expect(SymbolParser.getIsCrypto('ZWH9|470C')).toEqual(false);
+	});
+
+	it('the symbol "BB1F8|12050C" should return false', () => {
+		expect(SymbolParser.getIsCrypto('BB1F8|12050C')).toEqual(false);
+	});
+
+	it('the symbol "ZWK18465C" should return false', () => {
+		expect(SymbolParser.getIsCrypto('ZWK18465C')).toEqual(false);
+	});
+
+	it('the symbol "PLATTS:AAVSV00C" should return false', () => {
+		expect(SymbolParser.getIsCrypto('PLATTS:AAVSV00C')).toEqual(false);
+	});
+
+	it('the symbol "PLATTS:AAVSV00" should return false', () => {
+		expect(SymbolParser.getIsCrypto('PLATTS:AAVSV00')).toEqual(false);
+	});
+
+	it('the symbol "AAVSV00.PT" should return false', () => {
+		expect(SymbolParser.getIsCrypto('AAVSV00.PT')).toEqual(false);
+	});
+
+	it('the symbol "ZCPAUS.CM" should return false', () => {
+		expect(SymbolParser.getIsCrypto('ZCPAUS.CM')).toEqual(false);
+	});
+
+	it('the symbol "SCB001.CP" should return false', () => {
+		expect(SymbolParser.getIsCrypto('SCB001.CP')).toEqual(false);
+	});
+
+	it('the symbol "AE030UBX.CS" should return false', () => {
+		expect(SymbolParser.getIsCrypto('AE030UBX.CS')).toEqual(false);
+	});
+
+	it('the symbol "AAPL|20200515|250.00P" should return false', () => {
+		expect(SymbolParser.getIsCrypto('AAPL|20200515|250.00P')).toEqual(false);
+	});
+
+	it('the symbol "AAPL1|20200515|250.00P" should return false', () => {
+		expect(SymbolParser.getIsCrypto('AAPL1|20200515|250.00P')).toEqual(false);
+	});
+
+	it('the symbol "HBM.TO|20220121|1.00C" should return false', () => {
+		expect(SymbolParser.getIsCrypto('HBM.TO|20220121|1.00C')).toEqual(false);
+	});
+
+	it('the symbol "HBM2.TO|20220121|1.00C" should return false', () => {
+		expect(SymbolParser.getIsCrypto('HBM2.TO|20220121|1.00C')).toEqual(false);
+	});
+
+	it('the symbol "BRK.B|20210205|170.00C" should return false', () => {
+		expect(SymbolParser.getIsCrypto('BRK.B|20210205|170.00C')).toEqual(false);
+	});
+
+	it('the symbol "BRK.B2|20210205|170.00C" should return false', () => {
+		expect(SymbolParser.getIsCrypto('BRK.B2|20210205|170.00C')).toEqual(false);
+	});
+
+	it('the symbol "$VIX|20200422|20.00WP" should return false', () => {
+		expect(SymbolParser.getIsCrypto('$VIX|20200422|20.00WP')).toEqual(false);
+	});
+
+	it('the symbol "AL79MRM1.C3" should return false', () => {
+		expect(SymbolParser.getIsCrypto('AL79MRM1.C3')).toEqual(false);
+	});
+
+	it('the symbol "C3:AL79MRM1" should return false', () => {
+		expect(SymbolParser.getIsCrypto('C3:AL79MRM1')).toEqual(false);
+	});
+
+	it('the symbol "VIC400.CF" should return false', () => {
+		expect(SymbolParser.getIsCrypto('VIC400.CF')).toEqual(false);
+	});
+});
+
 describe('When checking to see if a symbol is a future spread', () => {
 	it('the symbol "ES*1" should return false', () => {
 		expect(SymbolParser.getIsFutureSpread('ES*1')).toEqual(false);
@@ -1327,6 +1486,10 @@ describe('When checking to see if a symbol is a future spread', () => {
 
 	it('the symbol "^EURUSD" should return false', () => {
 		expect(SymbolParser.getIsFutureSpread('^EURUSD')).toEqual(false);
+	});
+
+	it('the symbol "^BTCUSDT" should return false', () => {
+		expect(SymbolParser.getIsFutureSpread('^BTCUSDT')).toEqual(false);
 	});
 
 	it('the symbol "-001A" should return false', () => {
@@ -1471,6 +1634,10 @@ describe('When checking to see if a symbol is a future option', () => {
 		expect(SymbolParser.getIsFutureOption('^EURUSD')).toEqual(false);
 	});
 
+	it('the symbol "^BTCUSDT" should return false', () => {
+		expect(SymbolParser.getIsFutureOption('^BTCUSDT')).toEqual(false);
+	});
+
 	it('the symbol "-001A" should return false', () => {
 		expect(SymbolParser.getIsFutureOption('-001A')).toEqual(false);
 	});
@@ -1611,6 +1778,10 @@ describe('When checking to see if a symbol is a cmdty-branded instrument', () =>
 
 	it('the symbol "^EURUSD" should return false', () => {
 		expect(SymbolParser.getIsCmdty('^EURUSD')).toEqual(false);
+	});
+
+	it('the symbol "^BTCUSDT" should return false', () => {
+		expect(SymbolParser.getIsCmdty('^BTCUSDT')).toEqual(false);
 	});
 
 	it('the symbol "-001A" should return false', () => {
@@ -1755,6 +1926,10 @@ describe('When checking to see if a symbol is a cmdtyStats instrument', () => {
 		expect(SymbolParser.getIsCmdtyStats('^EURUSD')).toEqual(false);
 	});
 
+	it('the symbol "^BTCUSDT" should return false', () => {
+		expect(SymbolParser.getIsCmdtyStats('^BTCUSDT')).toEqual(false);
+	});
+
 	it('the symbol "-001A" should return false', () => {
 		expect(SymbolParser.getIsCmdtyStats('-001A')).toEqual(false);
 	});
@@ -1895,6 +2070,10 @@ describe('When checking to see if a symbol is a equity option', () => {
 
 	it('the symbol "^EURUSD" should return false', () => {
 		expect(SymbolParser.getIsEquityOption('^EURUSD')).toEqual(false);
+	});
+
+	it('the symbol "^BTCUSDT" should return false', () => {
+		expect(SymbolParser.getIsEquityOption('^BTCUSDT')).toEqual(false);
 	});
 
 	it('the symbol "-001A" should return false', () => {
@@ -2039,6 +2218,10 @@ describe('When checking to see if a symbol is a C3 instrument', () => {
 		expect(SymbolParser.getIsC3('^EURUSD')).toEqual(false);
 	});
 
+	it('the symbol "^BTCUSDT" should return false', () => {
+		expect(SymbolParser.getIsC3('^BTCUSDT')).toEqual(false);
+	});
+
 	it('the symbol "-001A" should return false', () => {
 		expect(SymbolParser.getIsC3('-001A')).toEqual(false);
 	});
@@ -2173,6 +2356,10 @@ describe('When checking to see if a symbol is a Platts instrument', () => {
 		expect(SymbolParser.getIsPlatts('^EURUSD')).toEqual(false);
 	});
 
+	it('the symbol "^BTCUSDT" should return false', () => {
+		expect(SymbolParser.getIsPlatts('^BTCUSDT')).toEqual(false);
+	});
+
 	it('the symbol "-001A" should return false', () => {
 		expect(SymbolParser.getIsPlatts('-001A')).toEqual(false);
 	});
@@ -2305,6 +2492,10 @@ describe('When checking to see if a symbol is a Canadian mutual fund', () => {
 
 	it('the symbol "^EURUSD" should return false', () => {
 		expect(SymbolParser.getIsCanadianFund('^EURUSD')).toEqual(false);
+	});
+
+	it('the symbol "^BTCUSDT" should return false', () => {
+		expect(SymbolParser.getIsCanadianFund('^BTCUSDT')).toEqual(false);
 	});
 
 	it('the symbol "-001A" should return false', () => {
@@ -2477,6 +2668,10 @@ describe('When getting a producer symbol', () => {
 
 	it('^EURUSD should map to ^EURUSD', () => {
 		expect(SymbolParser.getProducerSymbol('^EURUSD')).toEqual('^EURUSD');
+	});
+
+	it('^BTCUSDT should map to ^BTCUSDT', () => {
+		expect(SymbolParser.getProducerSymbol('^BTCUSDT')).toEqual('^BTCUSDT');
 	});
 
 	it('ZWK465C should map to ZWK465C', () => {
