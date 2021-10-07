@@ -2662,7 +2662,7 @@ module.exports = (() => {
      * additional out-of-band queries to Barchart web services.
      *
      * @public
-     * @param {Boolean}
+     * @param {Boolean} mode
      */
 
 
@@ -2697,7 +2697,7 @@ module.exports = (() => {
     /**
      * @protected
      * @ignore
-     * @param {String}
+     * @param {String} symbol
      */
 
 
@@ -5444,6 +5444,8 @@ module.exports = (() => {
     }
     /**
      * Configures the logic used to format all prices using the {@link Profile#formatPrice} instance function.
+     * Alternately, the {@link Profile.setPriceFormatterCustom} function can be used for complete control over
+     * price formatting.
      *
      * @public
      * @static
@@ -5458,7 +5460,8 @@ module.exports = (() => {
     }
     /**
      * An alternative to {@link Profile.setPriceFormatter} which allows the consumer to specify
-     * a function to
+     * a function to format prices. Use of this function overrides the rules set using the
+     * {link Profile.setPriceFormatter} function.
      *
      * @public
      * @static
@@ -5470,7 +5473,7 @@ module.exports = (() => {
       formatter = fn;
     }
     /**
-     * Alias for {@link Profile.setPriceFormatter} function.
+     * Alias for the {@link Profile.setPriceFormatter} function.
      *
      * @public
      * @static
@@ -5762,7 +5765,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.15.2'
+    version: '5.16.0'
   };
 })();
 
@@ -7670,7 +7673,9 @@ module.exports = (() => {
       return is.string(symbol) && (types.futures.options.short.test(symbol) || types.futures.options.long.test(symbol) || types.futures.options.historical.test(symbol));
     }
     /**
-     *  Returns true when a symbol represents a foreign exchange currency pair.
+     * Returns true when a symbol represents a foreign exchange currency pair. However,
+     * this function can return false positives (cyptocurrency symbols can use the same
+     * pattern).
      *
      * @public
      * @static
@@ -7681,6 +7686,20 @@ module.exports = (() => {
 
     static getIsForex(symbol) {
       return is.string(symbol) && types.forex.test(symbol);
+    }
+    /**
+     * Returns true when a symbol represents a cryptocurrency. However, this function can
+     * return false positives (forex symbols can use the same pattern).
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsCrypto(symbol) {
+      return is.string(symbol) && types.crypto.test(symbol);
     }
     /**
      * Returns true if the symbol represents an external index (i.e. an index
@@ -8010,6 +8029,7 @@ module.exports = (() => {
   types.cmdty.stats = /(\.CS)$/i;
   types.cmdty.internal = /(\.CM)$/i;
   types.cmdty.external = /(\.CP)$/i;
+  types.crypto = /^\^([A-Z]{3})([A-Z]{3,4})$/i;
   types.equities = {};
   types.equities.options = /^([A-Z\$][A-Z\-]{0,}(\.[A-Z]{1})?)([0-9]?)(\.[A-Z]{2})?\|([[0-9]{4})([[0-9]{2})([[0-9]{2})\|([0-9]+\.[0-9]+)[P|W]?(C|P)/i;
   types.forex = /^\^([A-Z]{3})([A-Z]{3})$/i;
