@@ -6877,7 +6877,7 @@ module.exports = (() => {
 })();
 
 },{}],36:[function(require,module,exports){
-const xmlDom = require('xmldom');
+const xmlDom = require('@xmldom/xmldom');
 
 const parseValue = require('./value'),
       parseTimestamp = require('./timestamp');
@@ -7436,7 +7436,7 @@ module.exports = (() => {
   return parseMessage;
 })();
 
-},{"./timestamp":37,"./value":38,"xmldom":81}],37:[function(require,module,exports){
+},{"./timestamp":37,"./value":38,"@xmldom/xmldom":81}],37:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
