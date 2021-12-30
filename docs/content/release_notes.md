@@ -3,7 +3,7 @@
 ## 5.16.2
 **Technical Enhancements**
 
-* Switched the [`xmldom`](https://www.npmjs.com/package/xmldom) library to [`@xmldom/xmldom`](https://www.npmjs.com/package/@xmldom/xmldom) to resolve security issue present in version 0.6.0. 
+* Switched the [`xmldom`](https://www.npmjs.com/package/xmldom) library to the [`@xmldom/xmldom`](https://www.npmjs.com/package/@xmldom/xmldom) library, resolving security issue present in version 0.6.0 of [`xmldom`](https://www.npmjs.com/package/xmldom). 
 
 ## 5.16.1
 **Bug Fixes**
