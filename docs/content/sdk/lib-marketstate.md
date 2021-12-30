@@ -472,6 +472,8 @@
 
 ### Profile.setPriceFormatter(fractionSeparator, specialFractions, [thousandsSeparator]) :id=profilesetpriceformatter
 > Configures the logic used to format all prices using the [formatPrice](#profileformatprice) instance function.
+> Alternately, the [setPriceFormatterCustom](#profilesetpriceformattercustom) function can be used for complete control over
+> price formatting.
 
 **Kind**: static method of [<code>Profile</code>](#Profile)  
 **Access**: public  
@@ -487,7 +489,8 @@
 
 ### Profile.setPriceFormatterCustom(fn) :id=profilesetpriceformattercustom
 > An alternative to [setPriceFormatter](#profilesetpriceformatter) which allows the consumer to specify
-> a function to
+> a function to format prices. Use of this function overrides the rules set using the
+> {link Profile.setPriceFormatter} function.
 
 **Kind**: static method of [<code>Profile</code>](#Profile)  
 **Access**: public  

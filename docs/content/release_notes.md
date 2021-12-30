@@ -1,9 +1,20 @@
 # Release Notes
 
+## 5.16.1
+**Bug Fixes**
+
+* The `SymbolParser.parseInstrumentType` function now identifies "cash" futures contracts as expiring in the future (e.g. `ESY00` now "expires" in the year 2100, instead of 2000).
+* The `SymbolParser.getIsExpired` function now indicates that "cash" futures contracts are not expired (e.g. `ESY00` is not expired).
+
+## 5.16.0
+**New Features**
+
+* Added the `SymbolParser.getIsCrypto` function.
+
 ## 5.15.1
 **Other**
 
-* Merged code from branch. No functional changes.
+* Merged code from branch. No functional changes. Merged code was included in previous release.
 
 ## 5.15.0
 **New Features**
@@ -27,7 +38,7 @@
 ## 5.14.0
 **New Features**
 
-* In some cases, the default price formatting rules (based on the `UnitCode` class) need to be tweaked. To that end, we already added the `Profile.setPriceFormatterCustom` function which allows the consumer to specify their own price-formatting delegate. This version adds an implementation of that delegate that is intended for use with the [cmdtyView](https://www.barchart.com/cmdty/trading/cmdtyview) product.
+* In some cases, the default price formatting rules (based on the `UnitCode` class) need to be tweaked. In a prior version, we added the `Profile.setPriceFormatterCustom` function which allows the consumer to specify their own price-formatting delegate. This version adds an implementation of that delegate that is intended for use with the [cmdtyView](https://www.barchart.com/cmdty/trading/cmdtyview) product.
 
 ## 5.13.1
 **Bug Fixes**
