@@ -3521,7 +3521,9 @@ module.exports = (() => {
     const currentYear = getCurrentYear();
     let year = parseInt(yearString);
 
-    if (year < 10 && yearString.length === 1) {
+    if (year === 0 && yearString.length === 2) {
+      year = Math.floor(currentYear / 100) * 100 + 100;
+    } else if (year < 10 && yearString.length === 1) {
       const bump = year < currentYear % 10 ? 1 : 0;
       year = Math.floor(currentYear / 10) * 10 + year + bump * 10;
     } else if (year < 100) {
@@ -17761,6 +17763,33 @@ describe('When parsing a symbol for instrument type', () => {
       expect(instrumentType.year).toEqual(2016);
     });
   });
+  describe('and the symbol is SPY00', () => {
+    let instrumentType;
+    beforeEach(() => {
+      instrumentType = SymbolParser.parseInstrumentType('SPY00');
+    });
+    it('the result should not be null', () => {
+      expect(instrumentType).not.toBe(null);
+    });
+    it('the "symbol" should be "SPY00"', () => {
+      expect(instrumentType.symbol).toEqual('SPY00');
+    });
+    it('the "type" should be "future"', () => {
+      expect(instrumentType.type).toEqual('future');
+    });
+    it('the "dynamic" property should be false', () => {
+      expect(instrumentType.dynamic).toEqual(false);
+    });
+    it('the "root" should be "SP"', () => {
+      expect(instrumentType.root).toEqual('SP');
+    });
+    it('the "month" should be "Y"', () => {
+      expect(instrumentType.month).toEqual('Y');
+    });
+    it('the "year" should be 2100', () => {
+      expect(instrumentType.year).toEqual(2100);
+    });
+  });
   describe('and the symbol is ES*0', () => {
     let instrumentType;
     beforeEach(() => {
@@ -19691,6 +19720,17 @@ describe('When getting a producer symbol', () => {
   });
   it('AAPL|20200515|250.00P should map to AAPL|20200515|250.00P', () => {
     expect(SymbolParser.getProducerSymbol('AAPL|20200515|250.00P')).toEqual('AAPL|20200515|250.00P');
+  });
+});
+describe('When checking to see if a symbol is expired', () => {
+  it('TSLA should not be expired', () => {
+    expect(SymbolParser.getIsExpired('TSLA')).toEqual(false);
+  });
+  it('ZC*0 should not be expired', () => {
+    expect(SymbolParser.getIsExpired('ZC*0')).toEqual(false);
+  });
+  it('SPY00 should not be expired', () => {
+    expect(SymbolParser.getIsExpired('SPY00')).toEqual(false);
   });
 });
 describe('When getting an explicit futures symbol', () => {
