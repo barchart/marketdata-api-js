@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.16.3
+**Bug Fixes**
+
+* Improve previous fix for detection of expiration of cash contracts (8.g. `ESY00`).
+
 ## 5.16.2
 **Technical Enhancements**
 
