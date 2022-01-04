@@ -2670,7 +2670,7 @@ describe('When checking the display format for the symbol', () => {
 });
 
 describe('When getting a producer symbol', () => {
-	describe('When the year is unspecified', () => {
+	describe('When the year is unimportant', () => {
 		it('TSLA should map to TSLA', () => {
 			expect(SymbolParser.getProducerSymbol('TSLA')).toEqual('TSLA');
 		});
