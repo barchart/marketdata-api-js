@@ -123,7 +123,7 @@ module.exports = (() => {
 						var replayFile = that.replayFile();
 						var replaySymbols = that.replaySymbols().toString().split(',');
 
-						var subscriptions = [ ];
+						var subscriptions = [];
 
 						function bindReplaySymbol(s) {
 							var model = new RowModel(s, that.timezone);
@@ -137,7 +137,7 @@ module.exports = (() => {
 
 							that.rows.push(model);
 
-							var subscription = { };
+							var subscription = {};
 
 							subscription.symbol = s;
 							subscription.callback = handleMarketUpdate;
@@ -153,6 +153,8 @@ module.exports = (() => {
 					}
 
 					that.showGrid();
+				} else if (event === 'login fail') {
+					that.disconnect();
 				} else if (event === 'feed paused') {
 					that.paused(true);
 				} else if (event === 'feed resumed') {
