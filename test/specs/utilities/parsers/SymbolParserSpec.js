@@ -2714,11 +2714,11 @@ describe('When getting a producer symbol', () => {
 		expect(SymbolParser.getProducerSymbol('ZWK465C')).toEqual('ZWK465C');
 	});
 
-	it('ZWK29465C should map to ZWK465L', () => {
+	it('ZWK29465C should map to ZWK465K', () => {
 		expect(SymbolParser.getProducerSymbol('ZWK29465C')).toEqual('ZWK465K');
 	});
 
-	it('ZWK9|465P should map to ZWK465Y', () => {
+	it('ZWK9|465P should map to ZWK465X', () => {
 		expect(SymbolParser.getProducerSymbol('ZWK9|465P')).toEqual('ZWK465X');
 	});
 
