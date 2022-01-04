@@ -445,7 +445,7 @@ describe('When parsing a symbol for instrument type', () => {
 		});
 
 		it('the "year" should be next year', () => {
-			expect(instrumentType.year).toEqual(new Date().getFullYear()+1);
+			expect(instrumentType.year).toEqual(new Date().getFullYear() + 1);
 		});
 
 		it('the "strike" should be 2660', () => {
@@ -2670,84 +2670,116 @@ describe('When checking the display format for the symbol', () => {
 });
 
 describe('When getting a producer symbol', () => {
-	it('TSLA should map to TSLA', () => {
-		expect(SymbolParser.getProducerSymbol('TSLA')).toEqual('TSLA');
+	describe('When the year is unspecified', () => {
+		it('TSLA should map to TSLA', () => {
+			expect(SymbolParser.getProducerSymbol('TSLA')).toEqual('TSLA');
+		});
+
+		it('TSLA.BZ should map to TSLA.BZ', () => {
+			expect(SymbolParser.getProducerSymbol('TSLA.BZ')).toEqual('TSLA.BZ');
+		});
+
+		it('ESZ6 should map to ESZ6', () => {
+			expect(SymbolParser.getProducerSymbol('ESZ6')).toEqual('ESZ6');
+		});
+
+		it('ESZ16 should map to ESZ6', () => {
+			expect(SymbolParser.getProducerSymbol('ESZ16')).toEqual('ESZ6');
+		});
+
+		it('ESZ2016 should map to ESZ6', () => {
+			expect(SymbolParser.getProducerSymbol('ESZ16')).toEqual('ESZ6');
+		});
+
+		it('ES*0 should map to ES*0', () => {
+			expect(SymbolParser.getProducerSymbol('ES*0')).toEqual('ES*0');
+		});
+
+		it('NG*13 should map to NG*13', () => {
+			expect(SymbolParser.getProducerSymbol('NG*13')).toEqual('NG*13');
+		});
+
+		it('$DOWI should map to $DOWI', () => {
+			expect(SymbolParser.getProducerSymbol('$DOWI')).toEqual('$DOWI');
+		});
+
+		it('^EURUSD should map to ^EURUSD', () => {
+			expect(SymbolParser.getProducerSymbol('^EURUSD')).toEqual('^EURUSD');
+		});
+
+		it('^BTCUSDT should map to ^BTCUSDT', () => {
+			expect(SymbolParser.getProducerSymbol('^BTCUSDT')).toEqual('^BTCUSDT');
+		});
+
+		it('ZWK465C should map to ZWK465C', () => {
+			expect(SymbolParser.getProducerSymbol('ZWK465C')).toEqual('ZWK465C');
+		});
+
+		it('BZ6N8|25C should map to BZ6N8|25C', () => {
+			expect(SymbolParser.getProducerSymbol('BZ6N8|25C')).toEqual('BZ6N8|25C');
+		});
+
+		it('BZ6N9|25P should map to BZ6N9|25P', () => {
+			expect(SymbolParser.getProducerSymbol('BZ6N9|25P')).toEqual('BZ6N9|25P');
+		});
+
+		it('BZ6N20|25P should map to BZ6N20|25P', () => {
+			expect(SymbolParser.getProducerSymbol('BZ6N20|25P')).toEqual('BZ6N0|25P');
+		});
+
+		it('PLATTS:AAVSV00 should map to AAVSV00.PT', () => {
+			expect(SymbolParser.getProducerSymbol('PLATTS:AAVSV00')).toEqual('AAVSV00.PT');
+		});
+
+		it('AAVSV00.PT should map to AAVSV00.PT', () => {
+			expect(SymbolParser.getProducerSymbol('AAVSV00.PT')).toEqual('AAVSV00.PT');
+		});
+
+		it('VIC400.CF should map to VIC400.CF', () => {
+			expect(SymbolParser.getProducerSymbol('VIC400.CF')).toEqual('VIC400.CF');
+		});
+
+		it('AAPL|20200515|250.00P should map to AAPL|20200515|250.00P', () => {
+			expect(SymbolParser.getProducerSymbol('AAPL|20200515|250.00P')).toEqual('AAPL|20200515|250.00P');
+		});
 	});
 
-	it('TSLA.BZ should map to TSLA.BZ', () => {
-		expect(SymbolParser.getProducerSymbol('TSLA.BZ')).toEqual('TSLA.BZ');
-	});
+	describe('When the year is unspecified', () => {
+		describe('When testing ZWK29465C in 2021', () => {
+			let producerSymbol;
 
-	it('ESZ6 should map to ESZ6', () => {
-		expect(SymbolParser.getProducerSymbol('ESZ6')).toEqual('ESZ6');
-	});
+			beforeEach(() => {
+				let getFullYear = Date.prototype.getFullYear;
 
-	it('ESZ16 should map to ESZ6', () => {
-		expect(SymbolParser.getProducerSymbol('ESZ16')).toEqual('ESZ6');
-	});
+				Date.prototype.getFullYear = () => { return 2021; };
 
-	it('ESZ2016 should map to ESZ6', () => {
-		expect(SymbolParser.getProducerSymbol('ESZ16')).toEqual('ESZ6');
-	});
+				producerSymbol = SymbolParser.getProducerSymbol('ZWK29465C');
 
-	it('ES*0 should map to ES*0', () => {
-		expect(SymbolParser.getProducerSymbol('ES*0')).toEqual('ES*0');
-	});
+				Date.prototype.getFullYear = getFullYear;
+			});
 
-	it('NG*13 should map to NG*13', () => {
-		expect(SymbolParser.getProducerSymbol('NG*13')).toEqual('NG*13');
-	});
+			it('ZWK29465C should map to ZWK465K', () =>{
+				expect(producerSymbol).toEqual('ZWK465K');
+			});
+		});
 
-	it('$DOWI should map to $DOWI', () => {
-		expect(SymbolParser.getProducerSymbol('$DOWI')).toEqual('$DOWI');
-	});
+		describe('When testing ZWK9|465P in 2021', () => {
+			let producerSymbol;
 
-	it('^EURUSD should map to ^EURUSD', () => {
-		expect(SymbolParser.getProducerSymbol('^EURUSD')).toEqual('^EURUSD');
-	});
+			beforeEach(() => {
+				let getFullYear = Date.prototype.getFullYear;
 
-	it('^BTCUSDT should map to ^BTCUSDT', () => {
-		expect(SymbolParser.getProducerSymbol('^BTCUSDT')).toEqual('^BTCUSDT');
-	});
+				Date.prototype.getFullYear = () => { return 2021; };
 
-	it('ZWK465C should map to ZWK465C', () => {
-		expect(SymbolParser.getProducerSymbol('ZWK465C')).toEqual('ZWK465C');
-	});
+				producerSymbol = SymbolParser.getProducerSymbol('ZWK9|465P');
 
-	it('ZWK29465C should map to ZWK465K', () => {
-		expect(SymbolParser.getProducerSymbol('ZWK29465C')).toEqual('ZWK465K');
-	});
+				Date.prototype.getFullYear = getFullYear;
+			});
 
-	it('ZWK9|465P should map to ZWK465X', () => {
-		expect(SymbolParser.getProducerSymbol('ZWK9|465P')).toEqual('ZWK465X');
-	});
-
-	it('BZ6N8|25C should map to BZ6N8|25C', () => {
-		expect(SymbolParser.getProducerSymbol('BZ6N8|25C')).toEqual('BZ6N8|25C');
-	});
-
-	it('BZ6N9|25P should map to BZ6N9|25P', () => {
-		expect(SymbolParser.getProducerSymbol('BZ6N9|25P')).toEqual('BZ6N9|25P');
-	});
-
-	it('BZ6N20|25P should map to BZ6N20|25P', () => {
-		expect(SymbolParser.getProducerSymbol('BZ6N20|25P')).toEqual('BZ6N0|25P');
-	});
-
-	it('PLATTS:AAVSV00 should map to AAVSV00.PT', () => {
-		expect(SymbolParser.getProducerSymbol('PLATTS:AAVSV00')).toEqual('AAVSV00.PT');
-	});
-
-	it('AAVSV00.PT should map to AAVSV00.PT', () => {
-		expect(SymbolParser.getProducerSymbol('AAVSV00.PT')).toEqual('AAVSV00.PT');
-	});
-
-	it('VIC400.CF should map to VIC400.CF', () => {
-		expect(SymbolParser.getProducerSymbol('VIC400.CF')).toEqual('VIC400.CF');
-	});
-
-	it('AAPL|20200515|250.00P should map to AAPL|20200515|250.00P', () => {
-		expect(SymbolParser.getProducerSymbol('AAPL|20200515|250.00P')).toEqual('AAPL|20200515|250.00P');
+			it('ZWK9|465P should map to ZWK465X', () =>{
+				expect(producerSymbol).toEqual('ZWK465X');
+			});
+		});
 	});
 });
 
