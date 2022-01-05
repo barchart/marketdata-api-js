@@ -1,5 +1,18 @@
 # Release Notes
 
+## 5.16.4
+**Bug Fixes**
+
+* Fixed failure to attempt reconnection (when JERQ drops connection before inbound control messages are processed).
+
+**Other**
+
+* Fixed login screen of single-page web application. The login screen no longer remains locked after failure (e.g. bad password).
+* Corrected unit tests for some symbol conversions (where the output changes based on the current year).
+* Added additional debug-level logging for inbound JERQ control messages.
+* Added to documentation, explicitly stating that reconnect attempts will continue until `Connection.disconnect` is invoked.
+
+
 ## 5.16.3
 **Bug Fixes**
 

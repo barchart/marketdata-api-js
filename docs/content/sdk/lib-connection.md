@@ -48,7 +48,8 @@
 ### connection.connect(hostname, username, password, [webSocketAdapterFactory]) :id=connectionconnect
 > Establishes WebSocket connection to Barchart's servers and authenticates. Success
 > or failure is reported asynchronously by the <strong>Events</strong> subscription (see
-> [SubscriptionType](#enumssubscriptiontype)).
+> [SubscriptionType](#enumssubscriptiontype)). Connection attempts will continue until
+> the disconnect function is called.
 
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
 **Overrides**: [<code>connect</code>](#ConnectionBaseconnect)  
@@ -65,7 +66,8 @@
 * * *
 
 ### connection.disconnect() :id=connectiondisconnect
-> Forces a disconnect from the server. All subscriptions are discarded.
+> Forces a disconnect from the server. All subscriptions are discarded. Reconnection
+> attempts will cease.
 
 **Kind**: instance method of [<code>Connection</code>](#Connection)  
 **Overrides**: [<code>disconnect</code>](#ConnectionBasedisconnect)  
