@@ -129,6 +129,8 @@ module.exports = (() => {
           }
 
           that.showGrid();
+        } else if (event === 'login fail') {
+          that.disconnect();
         } else if (event === 'feed paused') {
           that.paused(true);
         } else if (event === 'feed resumed') {
@@ -799,6 +801,7 @@ module.exports = (() => {
         // failure.
 
         const loginFailed = __inboundMessages.length > 0 && __inboundMessages[0].indexOf('-') === 0;
+        let messages = __inboundMessages;
         __inboundMessages = [];
         __marketMessages = [];
         __pendingTasks = [];
@@ -807,6 +810,15 @@ module.exports = (() => {
         if (loginFailed) {
           __logger.warn(`Connection [ ${__instance} ]: Connection closed before login was processed.`);
 
+          const lines = messages[0].split('\n');
+
+          __logger.debug(`Connection [ ${__instance} ]: Discarding pending message(s) because connection was closed.`);
+
+          lines.forEach(line => {
+            if (line.length > 0) {
+              __logger.debug(`Connection [ ${__instance} ] << ${line}`);
+            }
+          });
           broadcastEvent('events', {
             event: 'login fail'
           });
@@ -816,16 +828,16 @@ module.exports = (() => {
           broadcastEvent('events', {
             event: 'disconnect'
           });
+        }
 
-          if (__reconnectAllowed) {
-            __logger.log(`Connection [ ${__instance} ]: Scheduling reconnect attempt.`);
+        if (__reconnectAllowed) {
+          __logger.log(`Connection [ ${__instance} ]: Scheduling reconnect attempt.`);
 
-            const reconnectAction = () => connect(__loginInfo.hostname, __loginInfo.username, __loginInfo.password);
+          const reconnectAction = () => connect(__loginInfo.hostname, __loginInfo.username, __loginInfo.password);
 
-            const reconnectDelay = _RECONNECT_INTERVAL + Math.floor(Math.random() * _WATCHDOG_INTERVAL);
+          const reconnectDelay = _RECONNECT_INTERVAL + Math.floor(Math.random() * _WATCHDOG_INTERVAL);
 
-            setTimeout(reconnectAction, reconnectDelay);
-          }
+          setTimeout(reconnectAction, reconnectDelay);
         }
       };
 
@@ -1349,6 +1361,16 @@ module.exports = (() => {
       if (__connectionState === state.connecting) {
         const lines = message.split('\n');
 
+        if (lines.length > 0) {
+          __logger.debug(`Connection [ ${__instance} ]: Processing inbound message(s) in [ connecting ] mode.`);
+
+          lines.forEach(line => {
+            if (line.length > 0) {
+              __logger.debug(`Connection [ ${__instance} ] << ${line}`);
+            }
+          });
+        }
+
         if (lines.some(line => line == '+++')) {
           __connectionState = state.authenticating;
 
@@ -1357,6 +1379,18 @@ module.exports = (() => {
           __connection.send(`LOGIN ${__loginInfo.username}:${__loginInfo.password} VERSION=${_API_VERSION}\r\n`);
         }
       } else if (__connectionState === state.authenticating) {
+        const lines = message.split('\n');
+
+        if (lines.length > 0) {
+          __logger.debug(`Connection [ ${__instance} ]: Processing inbound message(s) in [ authenticating ] mode.`);
+
+          lines.forEach(line => {
+            if (line.length > 0) {
+              __logger.debug(`Connection [ ${__instance} ] << ${line}`);
+            }
+          });
+        }
+
         const firstCharacter = message.charAt(0);
 
         if (firstCharacter === '+') {
@@ -2429,7 +2463,8 @@ module.exports = (() => {
     /**
      * Establishes WebSocket connection to Barchart's servers and authenticates. Success
      * or failure is reported asynchronously by the **Events** subscription (see
-     * {@link Enums.SubscriptionType}).
+     * {@link Enums.SubscriptionType}). Connection attempts will continue until
+     * the disconnect function is called.
      *
      * @public
      * @param {string} hostname - Barchart hostname (contact solutions@barchart.com)
@@ -2457,7 +2492,8 @@ module.exports = (() => {
       return;
     }
     /**
-     * Forces a disconnect from the server. All subscriptions are discarded.
+     * Forces a disconnect from the server. All subscriptions are discarded. Reconnection
+     * attempts will cease.
      *
      * @public
      */
@@ -2624,7 +2660,7 @@ module.exports = (() => {
      * by making additional out-of-band queries to web Barchart services.
      *
      * @public
-     * @param {Boolean}
+     * @param {Boolean} mode
      */
 
 
@@ -5765,7 +5801,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.16.3'
+    version: '5.16.4'
   };
 })();
 
@@ -8218,7 +8254,9 @@ module.exports = (() => {
 
       if (definition.root.length < 3) {
         const putCallCharacterCode = putCallCharacter.charCodeAt(0); // 2021/01/02, BRI. Per Tom, symbols (for the same instrument) change each year.
-        // The letter D, E, F are calls (+1, +2, +3 years, respectively).
+        // For calls that expire this year, the letter is "C" ... For calls that expire next
+        // year, the letter is "D" ... For calls that expire two years from now, the letter
+        // is "E" ... etc ...
 
         converted = `${definition.root}${definition.month}${definition.strike}${String.fromCharCode(putCallCharacterCode + definition.year - getCurrentYear())}`;
       } else {
