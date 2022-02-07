@@ -9,7 +9,7 @@ const Connection = require('./../../lib/connection/Connection'),
 
 const LoggerFactory = require('./../../lib/logging/LoggerFactory');
 
-const startup = (() => {
+(() => {
 	'use strict';
 
 	LoggerFactory.configureForConsole();

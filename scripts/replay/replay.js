@@ -3,7 +3,7 @@ const is = require('@barchart/common-js/lang/is');
 const ReplayFileReader = require('./common/ReplayFileReader'),
 	ReplayWebSocket = require('./common/ReplayWebSocket');
 
-module.exports = (() => {
+(() => {
 	'use strict';
 
 	let fileReader = null;
