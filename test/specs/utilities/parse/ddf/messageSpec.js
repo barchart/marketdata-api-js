@@ -248,7 +248,7 @@ describe('when parsing a DDF message', () => {
 			expect(x.subrecord).toEqual('Z');
 		});
 
-		it('the "symbol" should be "AAPL"', () => {
+		it('the "symbol" should be "TSLA"', () => {
 			expect(x.symbol).toEqual('TSLA');
 		});
 
