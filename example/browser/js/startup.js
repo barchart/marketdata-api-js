@@ -129,7 +129,6 @@ module.exports = (() => {
 							var model = new RowModel(s, that.timezone);
 
 							var handleMarketUpdate = function(message) {
-								console.log(`handing update for ${message.symbol} and routing to ${model.symbol}`);
 								model.quote(connection.getMarketState().getQuote(s));
 							};
 
