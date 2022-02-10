@@ -1,5 +1,14 @@
 # Release Notes
 
+## 5.17.0
+**New Features**
+
+* Added support for OHLC messages (DDF record=2 and subrecord=6). These message were previously ignored. Now, when an OHLC message is received, the `Quote` object will be updated and the `MarketUpdateCallback` will be triggered.
+
+**Other**
+
+* Replaced several instances of the JavaScript [equality operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Equality) with the [strict equality operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Strict_equality).
+
 ## 5.16.4
 **Bug Fixes**
 
@@ -7,16 +16,16 @@
 
 **Other**
 
-* Fixed login screen of single-page web application. The login screen no longer remains locked after failure (e.g. bad password).
+* Fixed login screen of single-page example application. The login screen no longer remains locked after failure (e.g. bad password).
 * Corrected unit tests for some symbol conversions (where the output changes based on the current year).
 * Added additional debug-level logging for inbound JERQ control messages.
-* Added to documentation, explicitly stating that reconnect attempts will continue until `Connection.disconnect` is invoked.
+* Added documentation, explicitly stating that reconnect attempts will continue until `Connection.disconnect` is invoked.
 
 
 ## 5.16.3
 **Bug Fixes**
 
-* Improve previous fix for detection of expiration of cash contracts (8.g. `ESY00`).
+* Improved previous fix for detection of expiration of cash contracts (e.g. `ESY00`).
 
 ## 5.16.2
 **Technical Enhancements**
