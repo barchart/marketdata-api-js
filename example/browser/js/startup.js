@@ -59,8 +59,8 @@ module.exports = (() => {
 		that.username = ko.observable('');
 		that.password = ko.observable('');
 
-		that.replayFile = ko.observable('ZCN1.ddf');
-		that.replaySymbols = ko.observable('ZCN1');
+		that.replayFile = ko.observable('$M1LX.ddf');
+		that.replaySymbols = ko.observable('$M1LX');
 		that.replayIndex = ko.observable(0);
 
 		that.symbol = ko.observable('');

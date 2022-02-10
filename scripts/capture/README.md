@@ -12,5 +12,5 @@ This script accepts four parameters:
 * Symbols - A comma-delimited list of symbols.
 
 ```shell
-node capture.js qsws-us-e-02.aws.barchart.com my-username my-password TSLA,IBM
+node capture.js qsws-us-e-02.aws.barchart.com bri cmdty \$M1LX
 ```

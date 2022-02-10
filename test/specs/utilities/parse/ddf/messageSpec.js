@@ -268,4 +268,56 @@ describe('when parsing a DDF message', () => {
 			expect(x.session).toEqual('I');
 		});
 	});
+
+	describe('for a 2,6 message for $M1LX', () => {
+		let x;
+
+		beforeEach(() => {
+			x = parseMessage('\x012$M1LX,6\x02AI10,20200,20500,20100,20400,,,,,,,,,,540600,8 \x03');
+		});
+
+		it('the "record" should be "2"', () => {
+			expect(x.record).toEqual('2');
+		});
+
+		it('the "subrecord" should be "6"', () => {
+			expect(x.subrecord).toEqual('6');
+		});
+
+		it('the "symbol" should be "$M1LX"', () => {
+			expect(x.symbol).toEqual('$M1LX');
+		});
+
+		it('the "type" should be "OHLC"', () => {
+			expect(x.type).toEqual('OHLC');
+		});
+
+		it('the "openPrice" should be "202.00"', () => {
+			expect(x.openPrice).toEqual(202.00);
+		});
+
+		it('the "highPrice" should be "205.00"', () => {
+			expect(x.highPrice).toEqual(205.00);
+		});
+
+		it('the "lowPrice" should be "201.00"', () => {
+			expect(x.lowPrice).toEqual(201.00);
+		});
+
+		it('the "lastPrice" should be "204.00"', () => {
+			expect(x.lastPrice).toEqual(204.00);
+		});
+
+		it('the "volume" should be "540600"', () => {
+			expect(x.volume).toEqual(540600);
+		});
+
+		it('the "day" should be "8"', () => {
+			expect(x.day).toEqual('8');
+		});
+
+		it('the "session" should be " "', () => {
+			expect(x.session).toEqual(' ');
+		});
+	});
 });
