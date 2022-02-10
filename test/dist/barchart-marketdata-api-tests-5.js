@@ -974,7 +974,7 @@ module.exports = (() => {
 
     if (d >= 1 && d <= 9) {
       return String.fromCharCode(ASCII_ONE + d - 1);
-    } else if (d == 10) {
+    } else if (d === 10) {
       return '0';
     } else {
       return String.fromCharCode(ASCII_A + d - 11);
@@ -2163,7 +2163,7 @@ module.exports = (() => {
                   const sessions = {};
 
                   for (let j = 0; j < node.childNodes.length; j++) {
-                    if (node.childNodes[j].nodeName == 'SESSION') {
+                    if (node.childNodes[j].nodeName === 'SESSION') {
                       const s = {};
                       const attributes = node.childNodes[j].attributes;
                       if (attributes.getNamedItem('id')) s.id = attributes.getNamedItem('id').value;
@@ -2376,21 +2376,21 @@ module.exports = (() => {
                           break;
 
                         case 'C':
-                          if (message.modifier == '1') message.type = 'OPEN_INTEREST';
+                          if (message.modifier === '1') message.type = 'OPEN_INTEREST';
                           break;
 
                         case 'D':
                         case 'd':
-                          if (message.modifier == '0') message.type = 'SETTLEMENT';
+                          if (message.modifier === '0') message.type = 'SETTLEMENT';
                           break;
 
                         case 'V':
-                          if (message.modifier == '0') message.type = 'VWAP';
+                          if (message.modifier === '0') message.type = 'VWAP';
                           break;
 
                         case '0':
                           {
-                            if (message.modifier == '0') {
+                            if (message.modifier === '0') {
                               message.tradePrice = message.value;
                               message.type = 'TRADE';
                             }
@@ -2408,7 +2408,7 @@ module.exports = (() => {
 
                         case '7':
                           {
-                            if (message.modifier == '1') message.type = 'VOLUME_YESTERDAY';else if (message.modifier == '6') message.type = 'VOLUME';
+                            if (message.modifier === '1') message.type = 'VOLUME_YESTERDAY';else if (message.modifier === '6') message.type = 'VOLUME';
                             break;
                           }
                       }
@@ -2439,6 +2439,23 @@ module.exports = (() => {
                       message.session = ary[14].substr(1, 1);
                       message.time = parseTimestamp(msg.substr(msg.indexOf('\x03') + 1, 9));
                       message.type = 'REFRESH_DDF';
+                      break;
+                    }
+
+                  case '6':
+                    {
+                      if (msg.substr(1, 1) === '2') {
+                        const ary = msg.substring(pos + 8).split(',');
+                        message.openPrice = parseValue(ary[0], message.unitcode);
+                        message.highPrice = parseValue(ary[1], message.unitcode);
+                        message.lowPrice = parseValue(ary[2], message.unitcode);
+                        message.lastPrice = parseValue(ary[3], message.unitcode);
+                        message.volume = ary[13].length > 0 ? parseInt(ary[13]) : undefined;
+                        message.day = ary[14].substr(0, 1);
+                        message.session = ary[14].substr(1, 1);
+                        message.type = 'OHLC';
+                      }
+
                       break;
                     }
 
@@ -2508,8 +2525,8 @@ module.exports = (() => {
                     {
                       message.unitcode = msg.substr(pos + 3, 1);
                       message.exchange = msg.substr(pos + 4, 1);
-                      message.bidDepth = msg.substr(pos + 5, 1) == 'A' ? 10 : parseInt(msg.substr(pos + 5, 1));
-                      message.askDepth = msg.substr(pos + 6, 1) == 'A' ? 10 : parseInt(msg.substr(pos + 6, 1));
+                      message.bidDepth = msg.substr(pos + 5, 1) === 'A' ? 10 : parseInt(msg.substr(pos + 5, 1));
+                      message.askDepth = msg.substr(pos + 6, 1) === 'A' ? 10 : parseInt(msg.substr(pos + 6, 1));
                       message.bids = [];
                       message.asks = [];
                       const ary = msg.substring(pos + 8).split(',');
@@ -2646,7 +2663,7 @@ module.exports = (() => {
       return parseFloat(str);
     }
 
-    const sign = str.substr(0, 1) == '-' ? -1 : 1;
+    const sign = str.substr(0, 1) === '-' ? -1 : 1;
 
     if (sign === -1) {
       str = str.substr(1);
@@ -17653,7 +17670,7 @@ describe('when parsing a DDF message', () => {
     it('the "subrecord" should be "Z"', () => {
       expect(x.subrecord).toEqual('Z');
     });
-    it('the "symbol" should be "AAPL"', () => {
+    it('the "symbol" should be "TSLA"', () => {
       expect(x.symbol).toEqual('TSLA');
     });
     it('the "type" should be "TRADE_OUT_OF_SEQUENCE"', () => {
@@ -17667,6 +17684,45 @@ describe('when parsing a DDF message', () => {
     });
     it('the "session" should be "I"', () => {
       expect(x.session).toEqual('I');
+    });
+  });
+  describe('for a 2,6 message for $M1LX', () => {
+    let x;
+    beforeEach(() => {
+      x = parseMessage('\x012$M1LX,6\x02AI10,20200,20500,20100,20400,,,,,,,,,,540600,8 \x03');
+    });
+    it('the "record" should be "2"', () => {
+      expect(x.record).toEqual('2');
+    });
+    it('the "subrecord" should be "6"', () => {
+      expect(x.subrecord).toEqual('6');
+    });
+    it('the "symbol" should be "$M1LX"', () => {
+      expect(x.symbol).toEqual('$M1LX');
+    });
+    it('the "type" should be "OHLC"', () => {
+      expect(x.type).toEqual('OHLC');
+    });
+    it('the "openPrice" should be "202.00"', () => {
+      expect(x.openPrice).toEqual(202.00);
+    });
+    it('the "highPrice" should be "205.00"', () => {
+      expect(x.highPrice).toEqual(205.00);
+    });
+    it('the "lowPrice" should be "201.00"', () => {
+      expect(x.lowPrice).toEqual(201.00);
+    });
+    it('the "lastPrice" should be "204.00"', () => {
+      expect(x.lastPrice).toEqual(204.00);
+    });
+    it('the "volume" should be "540600"', () => {
+      expect(x.volume).toEqual(540600);
+    });
+    it('the "day" should be "8"', () => {
+      expect(x.day).toEqual('8');
+    });
+    it('the "session" should be " "', () => {
+      expect(x.session).toEqual(' ');
     });
   });
 });
