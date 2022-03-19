@@ -4,7 +4,9 @@
   * - [Connections](/content/concepts/connections)
   * - [Subscriptions](/content/concepts/subscriptions)
   * - [Data Structures](/content/concepts/data_structures)
-  * - [Addenda](/content/concepts/addenda)
+* Appendices
+  * - [Logging](/content/appendices/logging)
+  * - [Price Formatting](/content/appendices/price_formatting)
 <!-- sdk_open -->
 * [SDK Reference](/content/sdk_reference)
 <!-- sdk_close -->
