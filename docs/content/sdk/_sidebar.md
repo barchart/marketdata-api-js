@@ -5,8 +5,8 @@
   * - [Subscriptions](/content/concepts/subscriptions)
   * - [Data Structures](/content/concepts/data_structures)
 * Appendices
+  * - [Price Formats](/content/appendices/price_formats)
   * - [Logging](/content/appendices/logging)
-  * - [Price Formatting](/content/appendices/price_formatting)
 <!-- sdk_open -->
 * [SDK Reference](/content/sdk_reference)
 	* [lib/connection](/content/sdk/lib-connection)
