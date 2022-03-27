@@ -20,11 +20,11 @@ const handleMarketUpdate = (event) => {
 connection.on(SubscriptionType.MarketUpdate, 'AAPL', handleMarketUpdate)
 ```
 
-The same is true for [`Quote`](/content/sdk/lib-marketstate?id=quote) quote class.
+The same is true for [`Quote`](/content/sdk/lib-marketstate?id=quote) class.
 
 > Recall the Quote class is used to track the current state of an instrument. It mutates to reflect new information as market data messages are received. Read more in the [Key Concepts: Data Structures](/content/concepts/data_structures?id=quotes).
 
-Many of the properties of a ```Quote``` object are numbers. Here are a few examples:
+Many instance properties of a ```Quote``` class are numbers. Here are a few examples:
 
 * [lastPrice](/content/sdk/lib-marketstate?id=quotelastprice)
 * [bidPrice](/content/sdk/lib-marketstate?id=quotebidprice)
@@ -36,13 +36,13 @@ Generally speaking, we convert numbers for presentation purposes. This is a very
 
 ### Decimal Formatting Basics
 
-Regardless, let's assume that the last price for an instrument was _fifteen dollars the thirty cents_. In theory, the numeric value of the ```Quote.lastPrice``` property could be:
+Regardless, let's assume that the last price for an instrument was _fifteen dollars the fifty cents_. In theory, the numeric value of the ```Quote.lastPrice``` property could be:
 
-* `15.3`
-* `15.300000000000004`
-* `15.299999999999999`
+* `15.5`
+* `15.500000000000004`
+* `15.499999999999999`
 
-Regardless of the floating point value, we want to display these values, with two decimal places, as the literal string ```"15.30"```.
+Regardless of the floating point value, we want to display these values, with two decimal places, as the literal string ```"15.50"```.
 
 ### Decimal Formatting Rules
 
@@ -64,19 +64,19 @@ With that said, most fractional prices are formatted using _tick notation_ inste
 
 ### Tick Notation (Method 1)
 
-Using tick notation, the fraction's numerator is displayed; however, the fraction's denominator is not displayed. Instead, the fraction's denominator is implied. Tick notation is combines an integer with a fractional numerator, separating the components with a tick (or a dash). 
+Tick notation (method 1) combines the whole number potion of a value with its fractional numerator, separating the components with a backtick (or a single quote or a dash). The fraction's numerator is displayed; however, the fraction's denominator is not displayed. Instead, the fraction's denominator is implied. 
 
-For example, we could represent the decimal value of `15.50` with tick notation in different, but equivalent, ways, depending on the denominator:
+For example, we could represent the decimal value of `15.50` using tick notation (method 1) in different, but equivalent, ways, depending on the denominator:
 
-* tick notation in _eighths_ would be ```15`4``` — where a denominator of ```8``` is implied, and
-* tick notation in _sixteenths_ would be ```15`8``` — where a denominator of ```16``` is implied, and
-* tick notation in _thirty-seconds_ would be ```15`16``` — where a denominator of ```32``` is implied, etc.
+* tick notation in _eighths_ would be ```15`4``` — where a denominator of ```8``` in the fraction ```4/8``` is implied, and
+* tick notation in _sixteenths_ would be ```15`8``` — where a denominator of ```16``` in the fraction ```8/16``` is implied, and
+* tick notation in _thirty-seconds_ would be ```15`16``` — where a denominator of ```32``` in the fraction ```16/32``` is implied, etc.
 
 All of these cases, the implied denominator represents the number of discreet steps — or _ticks_ — in pricing that exist between two consecutive whole numbers. 
 
-**Tick Notation in Eighths**
+**Tick Notation (method 1) in Eighths**
 
-For example, when pricing in eighths, there are eight discrete prices between eleven and twelve:
+For example, when pricing in eighths, there are eight discrete price points between eleven and twelve:
 
 | Tick Notation | Integer Value | Tick | Fraction Numerator | Fraction Denominator (implied) | Decimal Calculation |
 |---:|---:|---:|---:|---:|---:|
@@ -90,7 +90,7 @@ For example, when pricing in eighths, there are eight discrete prices between el
 | ```11`7``` | ```11``` | ```7``` | 7 | 8 | 11 + (7 / 8) = 11.875 |
 | ```12`0``` | ```12``` | ```0``` | 0 | 8 | 12 + (0 / 8) = 12.000 |
 
-**Tick Notation in Sixteenths**
+**Tick Notation (method 1) in Sixteenths**
 
 Similarly, when pricing in sixteenths, there are sixteen discrete prices between eleven and twelve. 
 
