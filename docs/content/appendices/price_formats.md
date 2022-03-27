@@ -126,6 +126,39 @@ However, ticks are not always sequential. This is because there is a second meth
 
 ### Tick Notation (Method 2)
 
+Tick notation (method 2) allows a tick to be further subdivided. This method is best described by example.
+
+Consider sixty-four discrete price points within a whole number. Using method 1:
+
+* The decimal value of `0.015625` is equivalent to the fraction 1/64, where the tick would be `01`,
+* The decimal value of `0.031250` is equivalent to the fraction 2/64, where the tick would be `02`,
+* The decimal value of `0.046875` is equivalent to the fraction 3/64, where the tick would be `03`, ...
+* The decimal value of `0.968750` is equivalent to the fraction 62/64, where the tick would be `62`, 
+* The decimal value of `0.984375` is equivalent to the fraction 63/64, where the tick would be `63`
+
+Alternately, using method 2, we could divide sixty-four discrete price points into thirty seconds _and_ halves of thirty-seconds, as follows:
+
+* The decimal value of `0.015625` is equivalent to 0/32 + 1/2 of 1/32,
+* The decimal value of `0.031250` is equivalent to 1/32 + 0/2 of 1/32,
+* The decimal value of `0.046875` is equivalent to 1/32 + 1/2 of 1/32, ...
+* The decimal value of `0.968750` is equivalent to 31/32 + 0/2 of 1/32,
+* The decimal value of `0.984375` is equivalent to 31/32 + 1/2 of 1/32
+
+When we subdivide a tick, we represent the numerator of the fraction as a decimal value. Again, using _halves_ of _thirty-seconds_, we could represent the same values as follows:
+
+* The decimal value of `0.015625` is equivalent to 0.5/32,
+* The decimal value of `0.031250` is equivalent to 1.0/32
+* The decimal value of `0.046875` is equivalent to 1.5/32, ...
+* The decimal value of `0.968750` is equivalent to 31.0/32,
+* The decimal value of `0.984375` is equivalent to 31.5/32
+
+Using method 2, we take the _decimal_ formatted numerator and display its digits as follows:
+
+**Tick Notation (method 2) in Halves of Thirty-Seconds**
+
+
+
+
 
 
 
