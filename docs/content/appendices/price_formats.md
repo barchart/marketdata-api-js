@@ -138,19 +138,19 @@ Consider sixty-four discrete price points within a whole number. Using method 1:
 
 Alternately, using method 2, we could divide sixty-four discrete price points into thirty seconds _and_ halves of thirty-seconds, as follows:
 
-* The decimal value of `0.015625` is equivalent to 0/32 + 1/2 of 1/32,
-* The decimal value of `0.031250` is equivalent to 1/32 + 0/2 of 1/32,
-* The decimal value of `0.046875` is equivalent to 1/32 + 1/2 of 1/32, ...
-* The decimal value of `0.968750` is equivalent to 31/32 + 0/2 of 1/32,
-* The decimal value of `0.984375` is equivalent to 31/32 + 1/2 of 1/32
+* A decimal value of `0.015625` is equivalent to 0/32 + 1/2 of 1/32,
+* A decimal value of `0.031250` is equivalent to 1/32 + 0/2 of 1/32,
+* A decimal value of `0.046875` is equivalent to 1/32 + 1/2 of 1/32, ...
+* A decimal value of `0.968750` is equivalent to 31/32 + 0/2 of 1/32,
+* A decimal value of `0.984375` is equivalent to 31/32 + 1/2 of 1/32
 
 When we subdivide a tick, we represent the numerator of the fraction as a decimal value. Again, using _halves_ of _thirty-seconds_, we could represent the same values as follows:
 
-* The decimal value of `0.015625` is equivalent to 0.5/32,
-* The decimal value of `0.031250` is equivalent to 1.0/32
-* The decimal value of `0.046875` is equivalent to 1.5/32, ...
-* The decimal value of `0.968750` is equivalent to 31.0/32,
-* The decimal value of `0.984375` is equivalent to 31.5/32
+* A decimal value of `0.015625` is equivalent to 0.5/32,
+* A decimal value of `0.031250` is equivalent to 1.0/32
+* A decimal value of `0.046875` is equivalent to 1.5/32, ...
+* A decimal value of `0.968750` is equivalent to 31.0/32,
+* A decimal value of `0.984375` is equivalent to 31.5/32
 
 Using method 2, we take the _decimal_ formatted numerator and display its digits as follows:
 
