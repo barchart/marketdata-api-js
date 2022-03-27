@@ -80,15 +80,15 @@ For example, when pricing in _eighths_, there are eight discrete price points be
 
 | Tick Notation | Integer Value | Tick | Fraction Numerator | Fraction Denominator (implied) | Decimal Calculation |
 |---:|---:|---:|---:|---:|---:|
-| ```11`0``` | ```11``` | ```0``` | 0 | 8 | 11 + (0 / 8) = 11.000 |
-| ```11`1``` | ```11``` | ```1``` | 1 | 8 | 11 + (1 / 8) = 11.125 |
-| ```11`2``` | ```11``` | ```2``` | 2 | 8 | 11 + (2 / 8) = 11.250 |
-| ```11`3``` | ```11``` | ```3``` | 3 | 8 | 11 + (3 / 8) = 11.375 |
-| ```11`4``` | ```11``` | ```4``` | 4 | 8 | 11 + (4 / 8) = 11.500 |
-| ```11`5``` | ```11``` | ```5``` | 5 | 8 | 11 + (5 / 8) = 11.625 |
-| ```11`6``` | ```11``` | ```6``` | 6 | 8 | 11 + (6 / 8) = 11.750 |
-| ```11`7``` | ```11``` | ```7``` | 7 | 8 | 11 + (7 / 8) = 11.875 |
-| ```12`0``` | ```12``` | ```0``` | 0 | 8 | 12 + (0 / 8) = 12.000 |
+| ```11`0``` | ```11``` | &nbsp; ```0``` | 0 | 8 | &nbsp;&nbsp; 11 + (0 / 8) = 11.000 |
+| ```11`1``` | ```11``` | &nbsp; ```1``` | 1 | 8 | &nbsp;&nbsp; 11 + (1 / 8) = 11.125 |
+| ```11`2``` | ```11``` | &nbsp; ```2``` | 2 | 8 | &nbsp;&nbsp; 11 + (2 / 8) = 11.250 |
+| ```11`3``` | ```11``` | &nbsp; ```3``` | 3 | 8 | &nbsp;&nbsp; 11 + (3 / 8) = 11.375 |
+| ```11`4``` | ```11``` | &nbsp; ```4``` | 4 | 8 | &nbsp;&nbsp; 11 + (4 / 8) = 11.500 |
+| ```11`5``` | ```11``` | &nbsp; ```5``` | 5 | 8 | &nbsp;&nbsp; 11 + (5 / 8) = 11.625 |
+| ```11`6``` | ```11``` | &nbsp; ```6``` | 6 | 8 | &nbsp;&nbsp; 11 + (6 / 8) = 11.750 |
+| ```11`7``` | ```11``` | &nbsp; ```7``` | 7 | 8 | &nbsp;&nbsp; 11 + (7 / 8) = 11.875 |
+| ```12`0``` | ```12``` | &nbsp; ```0``` | 0 | 8 | &nbsp;&nbsp; 12 + (0 / 8) = 12.000 |
 
 **Tick Notation in Sixteenths**
 
@@ -142,14 +142,28 @@ For example, assuming a price value of `11.9375`, ticks are calculated as follow
 * In _sixty-fourths_, the tick value is ```60``` using ```0.9375 / ( 1 / 64) = 60```,
 * etc ...
 
-Using this equation, here is an abbreviated table showing derivation ticks for _sixty-fourths_:
+Using this equation, here is an abbreviated table showing derivation ticks for _thirty-seconds_ and _sixty-fourths_:
+
+**Tick Notation in Thirty-Seconds**
+
+| Price | Decimal Component | Tick Formula | Formula Result | Tick | Tick-Formatted Price |
+|---:|---:|---:|---:|---:|---:|
+| &nbsp; 11.00000 | 0.00000 | &nbsp; 0.00000 / (1 / 32) | 0 | ```00``` | ```11`00``` |
+| &nbsp; 11.03125 | 0.03125 | &nbsp; 0.03125 / (1 / 32) | 1 | ```01``` | ```11`01``` |
+| &nbsp; 11.06250 | 0.06250 | &nbsp; 0.06250 / (1 / 32) | 2 | ```02``` | ```11`02``` |
+| &nbsp; ... | ... | &nbsp;  ... | ... | ... | ... |
+| &nbsp; 11.90625 | 0.90625 | &nbsp; 0.90625 / (1 / 32) | 29 | ```29``` | ```11`29``` |
+| &nbsp; 11.93750 | 0.93750 | &nbsp; 0.93750 / (1 / 32) | 30 | ```30``` | ```11`30``` |
+| &nbsp; 11.96875 | 0.96875 | &nbsp; 0.96875 / (1 / 32) | 31 | ```31``` | ```11`31``` |
+
+**Tick Notation in Sixty-Fourths**
 
 |  Price | Decimal Component | Tick Formula | Formula Result | Tick | Tick-Formatted Price |
 |---:|---:|---:|---:|---:|---:|
 | 11.000000 | 0.000000 | 0.000000 / (1 / 64) | 0 | ```00``` | ```11`00``` |
 | 11.015625 | 0.015625 | 0.015625 / (1 / 64) | 1 | ```01``` | ```11`01``` |
 | 11.031250 | 0.031250 | 0.031250 / (1 / 64) | 2 | ```02``` | ```11`02``` |
-| ... | ... | ... |  | ... | ... |
+| ... | ... | ... |  ... | ... | ... |
 | 11.953125 | 0.953125 | 0.953125 / (1 / 64) | 61 | ```61``` | ```11`61``` |
 | 11.968750 | 0.968750 | 0.968750 / (1 / 64) | 62 | ```62``` | ```11`62``` |
 | 11.984375 | 0.984375 | 0.984375 / (1 / 64) | 63 | ```63``` | ```11`63``` |
@@ -169,6 +183,31 @@ Consider sixty-four discrete price steps within a whole number. In previous exam
 | 5 | 5/64 = 0.078125 | 2 | 1 | 2/32 + (1/2 * 1/32) = 0.078125 |
 | 6 | 6/32 = 0.093750 | 3 | 0 | 3/32 + (0/2 * 1/32) = 0.093750 |
 | 7 | ... |  |  | ... |
+
+**Tick Notation in Halves of Thirty-Seconds**
+
+Here, we calculate tick values in _havles of thirty-seconds_. Notice three significant differences, when compared with the calculations for _sixty-fourths_:
+
+1. Even though there are sixty-four discrete steps, the formula's divisor is 32.
+2. Because the formula's divisor is 32, the formula result isn't always a whole number.
+3. To derive the tick, we use the digits from the formula's result — without the decimal point.
+
+| Price | Decimal Component | Tick Formula | Formula Result | Tick | Tick-Formatted Price |
+|---:|---:|---:|---:|---:|---:|
+| 11.000000 | 0.000000 | 0.000000 / (1 / 32) | [0]0.0 | ```000``` | ```11`000``` |
+| 11.015625 | 0.015625 | 0.015625 / (1 / 32) | [0]0.5 | ```005``` | ```11`005``` |
+| 11.031250 | 0.031250 | 0.031250 / (1 / 32) | [0]1.0 | ```010``` | ```11`010``` |
+| 11.046875 | 0.046875 | 0.046875 / (1 / 32) | [0]1.5 | ```015``` | ```11`015``` |
+| 11.062500 | 0.062500 | 0.062500 / (1 / 32) | [0]2.0 | ```020``` | ```11`020``` |
+| 11.078125 | 0.078125 | 0.078125 / (1 / 32) | [0]2.5 | ```025``` | ```11`025``` |
+| ... | ... | ... | ... | ... | ... |
+| 11.953125 | 0.953125 | 0.953125 / (1 / 32) | 30.5 | ```305``` | ```11`305``` |
+| 11.968750 | 0.968750 | 0.968750 / (1 / 32) | 31.0 | ```310``` | ```11`310``` |
+| 11.984375 | 0.984375 | 0.984375 / (1 / 32) | 31.5 | ```315``` | ```11`315``` |
+
+So, for _halves of thirty-seconds_, the repeating sequence of ticks is:
+
+```{ 000, 005, 010, 015, 020, 025, 030, 035, 040, 045, 050, 055, 060, 065, 070, 075, 080, 085, 090, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300, 305, 310, 315, 000, 005, 010, ... }```
 
 ### Supported Tick Notations
 
