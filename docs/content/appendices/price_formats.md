@@ -114,6 +114,8 @@ Similarly, when pricing in _sixteenths_, there are sixteen discrete prices betwe
 | ```11`15``` | ```11``` | ```15``` | 15 | 16 | 11 + (15 / 16) = 11.9375 |
 | ```12`00``` | ```12``` | ```00``` | 0 | 16 | 12 + (0 / 16) = 12.0000 |
 
+> For _sixteenths_, notice the tick uses two digits, including a leading zero, when appropriate. For, _eighths_, only one tick digit was required.
+
 In the previous examples, the tick values were sequential. For _eighths_ the sequence was:
 
 ```{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 1, 2, ... }```
