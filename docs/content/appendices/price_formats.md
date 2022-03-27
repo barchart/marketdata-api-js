@@ -154,7 +154,7 @@ When we subdivide a tick, we represent the numerator of the fraction as a decima
 * A decimal value of `0.968750` is equivalent to 31.0/32,
 * A decimal value of `0.984375` is equivalent to 31.5/32
 
-Using method 2, we take the _decimal_ formatted numerator and display its digits as follows:
+Using method 2, we take the _decimal-formatted_ numerator and display its digits as follows:
 
 **Tick Notation (method 2) in Halves of Thirty-Seconds**
 
