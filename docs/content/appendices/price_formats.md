@@ -137,10 +137,9 @@ Before continuing, let's examine a question that's been glossed over in the prev
 
 For example, assuming a price value of `11.9375`, ticks are calculated as follows:
 
-* In _sixteenths_, the tick value is ```15``` using ```0.9375 / ( 1 / 16) = 15```,
-* In _thirty-seconds_, the tick value is ```30``` using ```0.9375 / ( 1 / 32) = 30```,
-* In _sixty-fourths_, the tick value is ```60``` using ```0.9375 / ( 1 / 64) = 60```,
-* etc ...
+* In _sixteenths_, the tick value is ```15``` using ```0.9375 / ( 1 / 16) = 15```, or
+* In _thirty-seconds_, the tick value is ```30``` using ```0.9375 / ( 1 / 32) = 30```, or
+* In _sixty-fourths_, the tick value is ```60``` using ```0.9375 / ( 1 / 64) = 60```, etc.
 
 Using this equation, here is an abbreviated table showing derivation ticks for _thirty-seconds_ and _sixty-fourths_:
 
@@ -209,20 +208,25 @@ So, for _halves of thirty-seconds_, the repeating sequence of ticks is:
 
 ```{ 000, 005, 010, 015, 020, 025, 030, 035, 040, 045, 050, 055, 060, 065, 070, 075, 080, 085, 090, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300, 305, 310, 315, 000, 005, 010, ... }```
 
-> Looking closely, we'll note the first two digits represent the number of thirty-second ticks. When the final digit is a ```5```, another half of a thirty-second is added. Why does ```5``` represent one half? Because one half, in decimal form, is ```0.5```.
+> Looking at the sequence closely, note the two leading digits represent the number of thirty-second ticks. When the final digit is a ```5```, another half of a thirty-second is added. Why does ```5``` represent one half? Because one half, in decimal form, is ```0.5```.
 
-### Supported Tick Notations
+One final twist exists remains. In the previous example using _halves of thirty-seconds_, the result of the tick derivation used up to three digits (e.g. ```31.5```) and the tick was represented with three digits (e.g. ```0`315```). However, in the final case, the right-most digit of the tick derivation may be excluded from the tick notation.
 
-In actual practice, there are seven common tick notation schemes:
+Consider the more exotic case of _quarters of thirty-seconds_. In this case, the trailing ```5``` may be omitted (noted in square brackets).
 
+> In other words, the result of the tick derivation may require up to four digits to represent in decimal form (e.g. ); however, only the first three digits are included in the tick notation (e.g. ).
+
+## Tick Notation (Ambiguity)
+
+Obviously, ambiguity is introduced because the denominator is not shown. It is impossible to know whether ```15`2``` represents the decimal value of ```15.50``` or ```15.25``` without also knowing the implied context — quarters or eighths. How is this ambiguity resolved?  When a price is quoted using tick notation, the asset being quoted dictates the context. For example, corn futures are always priced in eighths.
+
+> To derive a decimal value from tick notation, you must know the asset being quoted (e.g. corn, soybeans, etc).
 
 ## Unit Codes
 
 ## Formatting Functions
 
-Obviously, ambiguity is introduced because the denominator is not shown. It is impossible to know whether ```15`2``` represents the decimal value of ```15.50``` or ```15.25``` without also knowing the implied context — quarters or eighths. How is this ambiguity resolved?  When a price is quoted using tick notation, the asset being quoted dictates the context. For example, corn futures are always priced in eighths.
 
-> To derive a decimal value from tick notation, you must know the asset being quoted (e.g. corn, soybeans, etc).
 
 
 

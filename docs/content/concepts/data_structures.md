@@ -63,14 +63,13 @@ After the server acknowledges a ```SubscriptionType.MarketDepth``` subscription,
 You can access a ```Book``` as follows:
 
 ```js
-const quote = connection.getMarketState().getBook('ESM0');
+const book = connection.getMarketState().getBook('ESM0');
 
-if (quote) {
-	console.log(JSON.stringify(quote, null, 2);
+if (book) {
+	console.log(JSON.stringify(book, null, 2);
 } else {
-	console.log('A "marketUpdate" subscription has not established, or the server has not yet responded');
+	console.log('A "marketUpdate" subscription has not bee established, or the server has not yet responded');
 }
-
 ```
 
 ## Cumulative Volume
@@ -81,9 +80,9 @@ You can access a ```CumulativeVolume``` instance as follows:
 
 ```js
 connection.getMarketState().getCumulativeVolume('AAPL')
-	.then((profile) => {
-		console.log(JSON.stringify(profile, null, 2));
+	.then((cumulativeVolume) => {
+		console.log(JSON.stringify(cumulativeVolume, null, 2));
 	});
 ```
 
-Notice ```MarketState.getCumulativeVolume``` returns asynchronously. If you have recently subscribed, response will wait until the SDK receives data from the server.
+> Notice ```MarketState.getCumulativeVolume``` returns asynchronously. If you have recently subscribed, response will wait until the SDK receives data from the server.

@@ -1,18 +1,12 @@
-By default, log statements are written to the ```[console](https://developer.mozilla.org/en-US/docs/Web/API/console)``` object. However, it is possible to customize logging behavior via the [```lib/logging/LoggerFactory```](/content/sdk/lib-logging?id=loggerfactory) class. Any customization must occur before instantiating a ```Connection``` (because the SDK caches ```Logger``` instances).
+## Default Logging
 
-#### Mute Logs
+By default, log statements are written to the [```console```](https://developer.mozilla.org/en-US/docs/Web/API/console) object.
 
-```js
-LoggerFactory.configureForSilence();
+## Custom Logging
 
-const connection = new Connection();
-```
+To exert complete control over logging, implement the abstract [```lib/logging/LoggerProvider```](/content/sdk/lib-logging?id=loggerprovider) class and pass an instance to ```LoggerFactory.configure``` function. This must occur before instantiating a ```Connection``` (because the SDK caches ```Logger``` instances).
 
-#### Custom Logging
-
-To exert complete control over logging, implement the [```lib/logging/LoggerProvider```](/content/sdk/lib-logging?id=loggerprovider) class and pass it to ```LoggerFactory.configure``` function.
-
-```
+```javascript
 class MyLogger extends Logger {
 	constructor() {
 		super();
@@ -37,3 +31,11 @@ const connection = new Connection();
 You can find an example in the Node.js sample code. You'll see a ```LoggingProvider``` implemented to use [log4js](https://www.npmjs.com/package/log4js) here:
 
 > /example/node/logging/CustomLoggingProvider.js
+
+## Mute Logs
+
+```javascript
+LoggerFactory.configureForSilence();
+
+const connection = new Connection();
+```
