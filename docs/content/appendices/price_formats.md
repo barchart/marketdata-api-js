@@ -76,7 +76,7 @@ All of these cases, the implied denominator represents the number of discreet st
 
 **Tick Notation (method 1) in Eighths**
 
-For example, when pricing in eighths, there are eight discrete price points between eleven and twelve:
+For example, when pricing in _eighths_, there are eight discrete price points between eleven and twelve:
 
 | Tick Notation | Integer Value | Tick | Fraction Numerator | Fraction Denominator (implied) | Decimal Calculation |
 |---:|---:|---:|---:|---:|---:|
@@ -92,7 +92,7 @@ For example, when pricing in eighths, there are eight discrete price points betw
 
 **Tick Notation (method 1) in Sixteenths**
 
-Similarly, when pricing in sixteenths, there are sixteen discrete prices between eleven and twelve. 
+Similarly, when pricing in _sixteenths_, there are sixteen discrete prices between eleven and twelve:
 
 | Tick Notation | Integer Value | Tick | Fraction Numerator | Fraction Denominator (implied) | Decimal Calculation |
 |---|---:|---:|---:|---:|---:|
@@ -114,15 +114,15 @@ Similarly, when pricing in sixteenths, there are sixteen discrete prices between
 | ```11`15``` | ```11``` | ```15``` | 15 | 16 | 11 + (15 / 16) = 11.9375 |
 | ```12`00``` | ```12``` | ```00``` | 0 | 16 | 12 + (0 / 16) = 12.0000 |
 
-In the previous examples, the _ticks_ were sequential. For eighths the sequence was:
+In the previous examples, the tick values were sequential. For _eighths_ the sequence was:
 
 ```{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 1, 2, ... }```
 
-For sixteenths the sequence was:
+For _sixteenths_ the sequence was:
 
 ```{ 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 00, 01, 02, ... }```
 
-However, ticks are not always sequential. This is because there are two ways to derive the tick.
+However, ticks are not always sequential. This is because there is a second method to derive tick values.
 
 ### Tick Notation (Method 2)
 
@@ -135,7 +135,6 @@ However, ticks are not always sequential. This is because there are two ways to 
 
 In actual practice, there are seven common tick notation schemes:
 
-* 
 
 ## Unit Codes
 
