@@ -62,11 +62,11 @@ In some cases, it is customary to represent the decimal component of a price as 
 
 With that said, most fractional prices are formatted using _tick notation_ instead of actual fractions.
 
-### Tick Notation (Method 1)
+### Tick Notation (Basics)
 
-Tick notation (method 1) combines the whole number potion of a value with its fractional numerator, separating the components with a backtick (or a single quote or a dash). The fraction's numerator is displayed; however, the fraction's denominator is not displayed. Instead, the fraction's denominator is implied. 
+Tick notation combines the whole number potion of a value with its fractional numerator, separating the components with a backtick (or a single quote or a dash). The fraction's numerator is displayed; however, the fraction's denominator is not displayed. _Instead, the fraction's denominator is implied._
 
-For example, we could represent the decimal value of `15.50` using tick notation (method 1) in different, but equivalent, ways, depending on the denominator:
+For example, we could represent the decimal value of `15.50` using tick notation in different, but equivalent, ways, depending on the denominator:
 
 * tick notation in _eighths_ would be ```15`4``` — where a denominator of ```8``` in the fraction ```4/8``` is implied, and
 * tick notation in _sixteenths_ would be ```15`8``` — where a denominator of ```16``` in the fraction ```8/16``` is implied, and
@@ -74,7 +74,7 @@ For example, we could represent the decimal value of `15.50` using tick notation
 
 All of these cases, the implied denominator represents the number of discreet steps — or _ticks_ — in pricing that exist between two consecutive whole numbers. 
 
-**Tick Notation (method 1) in Eighths**
+**Tick Notation in Eighths**
 
 For example, when pricing in _eighths_, there are eight discrete price points between eleven and twelve:
 
@@ -90,12 +90,12 @@ For example, when pricing in _eighths_, there are eight discrete price points be
 | ```11`7``` | ```11``` | ```7``` | 7 | 8 | 11 + (7 / 8) = 11.875 |
 | ```12`0``` | ```12``` | ```0``` | 0 | 8 | 12 + (0 / 8) = 12.000 |
 
-**Tick Notation (method 1) in Sixteenths**
+**Tick Notation in Sixteenths**
 
 Similarly, when pricing in _sixteenths_, there are sixteen discrete prices between eleven and twelve:
 
 | Tick Notation | Integer Value | Tick | Fraction Numerator | Fraction Denominator (implied) | Decimal Calculation |
-|---|---:|---:|---:|---:|---:|
+|---:|---:|---:|---:|---:|---:|
 | ```11`00``` | ```11``` | ```00``` | 0 | 16 | 11 + (0 / 16) = 11.0000 |
 | ```11`01``` | ```11``` | ```01``` | 1 | 16 | 11 + (1 / 16) = 11.0625 |
 | ```11`02``` | ```11``` | ```02``` | 2 | 16 | 11 + (2 / 16) = 11.1250 |
@@ -114,7 +114,7 @@ Similarly, when pricing in _sixteenths_, there are sixteen discrete prices betwe
 | ```11`15``` | ```11``` | ```15``` | 15 | 16 | 11 + (15 / 16) = 11.9375 |
 | ```12`00``` | ```12``` | ```00``` | 0 | 16 | 12 + (0 / 16) = 12.0000 |
 
-> For _sixteenths_, notice the tick uses two digits, including a leading zero, when appropriate. For, _eighths_, only one tick digit was required.
+> For _sixteenths_, notice the tick value used two digits, including a leading zero, when appropriate. For, _eighths_, only one tick digit was required. This will become important later.
 
 In the previous examples, the tick values were sequential. For _eighths_ the sequence was:
 
@@ -124,47 +124,51 @@ For _sixteenths_ the sequence was:
 
 ```{ 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 00, 01, 02, ... }```
 
-However, ticks are not always sequential. This is because there is a second method to derive tick values.
+However, ticks are not always sequential.
 
-### Tick Notation (Method 2)
+### Tick Notation (Derivation)
 
-Tick notation (method 2) allows a tick to be further subdivided. This method is best described by example.
+Before continuing, let's examine a question that's been glossed over in the previous examples:
 
-Consider sixty-four discrete price points within a whole number. Using method 1:
+**QUESTION: Given a decimal-formatted price, how do we calculate the tick value?**
 
-* The decimal value of `0.015625` is equivalent to the fraction 1/64, where the tick would be `01`,
-* The decimal value of `0.031250` is equivalent to the fraction 2/64, where the tick would be `02`,
-* The decimal value of `0.046875` is equivalent to the fraction 3/64, where the tick would be `03`, ...
-* The decimal value of `0.968750` is equivalent to the fraction 62/64, where the tick would be `62`, 
-* The decimal value of `0.984375` is equivalent to the fraction 63/64, where the tick would be `63`
+1. Determine the fractional value of tick, dividing one by the total number of ticks.
+2. Divide the decimal component of the price by the previous result.
 
-Alternately, using method 2, we could divide sixty-four discrete price points into thirty seconds _and_ halves of thirty-seconds, as follows:
+For example, assuming a price value of `11.9375`, ticks are calculated as follows:
 
-* A decimal value of `0.015625` is equivalent to 0/32 + 1/2 of 1/32,
-* A decimal value of `0.031250` is equivalent to 1/32 + 0/2 of 1/32,
-* A decimal value of `0.046875` is equivalent to 1/32 + 1/2 of 1/32, ...
-* A decimal value of `0.968750` is equivalent to 31/32 + 0/2 of 1/32,
-* A decimal value of `0.984375` is equivalent to 31/32 + 1/2 of 1/32
+* In _sixteenths_, the tick value is ```15``` using ```0.9375 / ( 1 / 16) = 15```,
+* In _thirty-seconds_, the tick value is ```30``` using ```0.9375 / ( 1 / 32) = 30```,
+* In _sixty-fourths_, the tick value is ```60``` using ```0.9375 / ( 1 / 64) = 60```,
+* etc ...
 
-When we subdivide a tick, we represent the numerator of the fraction as a decimal value. Again, using _halves_ of _thirty-seconds_, we could represent the same values as follows:
+Using this equation, here is an abbreviated table showing derivation ticks for _sixty-fourths_:
 
-* A decimal value of `0.015625` is equivalent to 0.5/32,
-* A decimal value of `0.031250` is equivalent to 1.0/32
-* A decimal value of `0.046875` is equivalent to 1.5/32, ...
-* A decimal value of `0.968750` is equivalent to 31.0/32,
-* A decimal value of `0.984375` is equivalent to 31.5/32
+|  Price | Decimal Component | Tick Formula | Formula Result | Tick | Tick-Formatted Price |
+|---:|---:|---:|---:|---:|---:|
+| 11.000000 | 0.000000 | 0.000000 / (1 / 64) | 0 | ```00``` | ```11`00``` |
+| 11.015625 | 0.015625 | 0.015625 / (1 / 64) | 1 | ```01``` | ```11`01``` |
+| 11.031250 | 0.031250 | 0.031250 / (1 / 64) | 2 | ```02``` | ```11`02``` |
+| ... | ... | ... |  | ... | ... |
+| 11.953125 | 0.953125 | 0.953125 / (1 / 64) | 61 | ```61``` | ```11`61``` |
+| 11.968750 | 0.968750 | 0.968750 / (1 / 64) | 62 | ```62``` | ```11`62``` |
+| 11.984375 | 0.984375 | 0.984375 / (1 / 64) | 63 | ```63``` | ```11`63``` |
 
-Using method 2, we take the _decimal-formatted_ numerator and display its digits as follows:
+### Tick Notation (Fractions of Fractions)
 
-**Tick Notation (method 2) in Halves of Thirty-Seconds**
+As mentioned earlier, ticks are not always sequential. This is because we may choose to subdivide a tick.
 
+Consider sixty-four discrete price steps within a whole number. In previous examples sixty-four ticks would be used. However, instead of _sixty-fourths_, it is mathematically equivalent to use _thirty-seconds_ and _halves of thirty-seconds_.
 
-
-
-
-
-
-
+| Sixty-Fourths | Equation (64ths) | Thirty-Seconds | Halves of Thirty-Seconds | Equation (32nds and Halves) |
+|:---:|---:|:---:|:---:|---:|
+| 1 | 1/64 = 0.015625 | 0 | 1 | 0/32 + (1/2 * 1/32) = 0.015625 |
+| 2 | 2/64 = 0.031250 | 1 | 0 | 1/32 + (0/2 * 1/32) = 0.031250 |
+| 3 | 3/64 = 0.046875 | 1 | 1 | 2/32 + (1/2 * 1/32) = 0.046875 |
+| 4 | 4/64 = 0.062500 | 2 | 0 | 2/32 + (0/2 * 1/32) = 0.062500 |
+| 5 | 5/64 = 0.078125 | 2 | 1 | 2/32 + (1/2 * 1/32) = 0.078125 |
+| 6 | 6/32 = 0.093750 | 3 | 0 | 3/32 + (0/2 * 1/32) = 0.093750 |
+| 7 | ... |  |  | ... |
 
 ### Supported Tick Notations
 
