@@ -114,7 +114,7 @@ Similarly, when pricing in _sixteenths_, there are sixteen discrete prices betwe
 | ```11`15``` | ```11``` | ```15``` | 15 | 16 | 11 + (15 / 16) = 11.9375 |
 | ```12`00``` | ```12``` | ```00``` | 0 | 16 | 12 + (0 / 16) = 12.0000 |
 
-> For _sixteenths_, notice the tick value used two digits, including a leading zero, when appropriate. For, _eighths_, only one tick digit was required. This will become important later.
+> For _sixteenths_, notice the tick value uses two digits, including a leading zero, when appropriate. For, _eighths_, only one tick digit was required. This will become important later.
 
 In the previous examples, the tick values were sequential. For _eighths_ the sequence was:
 
@@ -174,15 +174,15 @@ As mentioned earlier, ticks are not always sequential. This is because we may ch
 
 Consider sixty-four discrete price steps within a whole number. In previous examples sixty-four ticks would be used. However, instead of _sixty-fourths_, it is mathematically equivalent to use _thirty-seconds_ and _halves of thirty-seconds_.
 
-| Sixty-Fourths | Equation (64ths) | Thirty-Seconds | Halves of Thirty-Seconds | Equation (32nds and Halves) |
-|:---:|---:|:---:|:---:|---:|
-| 1 | 1/64 = 0.015625 | 0 | 1 | 0/32 + (1/2 * 1/32) = 0.015625 |
-| 2 | 2/64 = 0.031250 | 1 | 0 | 1/32 + (0/2 * 1/32) = 0.031250 |
-| 3 | 3/64 = 0.046875 | 1 | 1 | 2/32 + (1/2 * 1/32) = 0.046875 |
-| 4 | 4/64 = 0.062500 | 2 | 0 | 2/32 + (0/2 * 1/32) = 0.062500 |
-| 5 | 5/64 = 0.078125 | 2 | 1 | 2/32 + (1/2 * 1/32) = 0.078125 |
-| 6 | 6/32 = 0.093750 | 3 | 0 | 3/32 + (0/2 * 1/32) = 0.093750 |
-| 7 | ... |  |  | ... |
+| Sixty-Fourths | Equation (64ths) |  | Thirty-Seconds | Halves | Equation (32nds and Halves) |
+|:---:|---:|---|:---:|:---:|---|
+| 1 | 1/64 = 0.015625 | &larr; same as &rarr; | 0 | 1 | 0/32 + (1/2 * 1/32) = 0.015625 |
+| 2 | 2/64 = 0.031250 | &larr; same as &rarr; | 1 | 0 | 1/32 + (0/2 * 1/32) = 0.031250 |
+| 3 | 3/64 = 0.046875 | &larr; same as &rarr; | 1 | 1 | 1/32 + (1/2 * 1/32) = 0.046875 |
+| 4 | 4/64 = 0.062500 | &larr; same as &rarr; | 2 | 0 | 2/32 + (0/2 * 1/32) = 0.062500 |
+| 5 | 5/64 = 0.078125 | &larr; same as &rarr; | 2 | 1 | 2/32 + (1/2 * 1/32) = 0.078125 |
+| 6 | 6/32 = 0.093750 | &larr; same as &rarr; | 3 | 0 | 3/32 + (0/2 * 1/32) = 0.093750 |
+| 7 | ... |  | ... | ... | ... |
 
 **Tick Notation in Halves of Thirty-Seconds**
 
@@ -208,6 +208,8 @@ Here, we calculate tick values in _havles of thirty-seconds_. Notice three signi
 So, for _halves of thirty-seconds_, the repeating sequence of ticks is:
 
 ```{ 000, 005, 010, 015, 020, 025, 030, 035, 040, 045, 050, 055, 060, 065, 070, 075, 080, 085, 090, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300, 305, 310, 315, 000, 005, 010, ... }```
+
+> Looking closely, we'll note the first two digits represent the number of thirty-second ticks. When the final digit is a ```5```, another half of a thirty-second is added. Why does ```5``` represent one half? Because one half, in decimal form, is ```0.5```.
 
 ### Supported Tick Notations
 
