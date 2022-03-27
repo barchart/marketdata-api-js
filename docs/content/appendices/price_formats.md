@@ -62,7 +62,7 @@ In some cases, it is customary to represent the decimal component of a price as 
 
 With that said, most fractional prices are formatted using _tick notation_ instead of actual fractions.
 
-### Tick Notation (Basics)
+## Tick Notation (Basics)
 
 Tick notation combines the whole number potion of a value with its fractional numerator, separating the components with a backtick (or a single quote or a dash). The fraction's numerator is displayed; however, the fraction's denominator is not displayed. _Instead, the fraction's denominator is implied._
 
@@ -74,7 +74,7 @@ For example, we could represent the decimal value of `15.50` using tick notation
 
 All of these cases, the implied denominator represents the number of discreet steps — or _ticks_ — in pricing that exist between two consecutive whole numbers. 
 
-**Tick Notation in Eighths**
+#### Tick Notation in Eighths
 
 For example, when pricing in _eighths_, there are eight discrete price points between eleven and twelve:
 
@@ -90,7 +90,7 @@ For example, when pricing in _eighths_, there are eight discrete price points be
 | ```11`7``` | ```11``` | &nbsp; ```7``` | 7 | 8 | &nbsp;&nbsp; 11 + (7 / 8) = 11.875 |
 | ```12`0``` | ```12``` | &nbsp; ```0``` | 0 | 8 | &nbsp;&nbsp; 12 + (0 / 8) = 12.000 |
 
-**Tick Notation in Sixteenths**
+#### Tick Notation in Sixteenths
 
 Similarly, when pricing in _sixteenths_, there are sixteen discrete prices between eleven and twelve:
 
@@ -126,7 +126,7 @@ For _sixteenths_ the sequence was:
 
 However, ticks are not always sequential.
 
-### Tick Notation (Derivation)
+## Tick Notation (Derivation)
 
 Before continuing, let's examine a question that's been glossed over in the previous examples:
 
@@ -144,7 +144,7 @@ For example, assuming a price value of `11.9375`, ticks are calculated as follow
 
 Using this equation, here is an abbreviated table showing derivation ticks for _thirty-seconds_ and _sixty-fourths_:
 
-**Tick Notation in Thirty-Seconds**
+#### Tick Notation in Thirty-Seconds
 
 | Price | Decimal Component | Tick Formula | Formula Result | Tick | Tick-Formatted Price |
 |---:|---:|---:|---:|---:|---:|
@@ -156,7 +156,7 @@ Using this equation, here is an abbreviated table showing derivation ticks for _
 | &nbsp; 11.93750 | 0.93750 | &nbsp; 0.93750 / (1 / 32) | 30 | ```30``` | ```11`30``` |
 | &nbsp; 11.96875 | 0.96875 | &nbsp; 0.96875 / (1 / 32) | 31 | ```31``` | ```11`31``` |
 
-**Tick Notation in Sixty-Fourths**
+#### Tick Notation in Sixty-Fourths
 
 |  Price | Decimal Component | Tick Formula | Formula Result | Tick | Tick-Formatted Price |
 |---:|---:|---:|---:|---:|---:|
@@ -168,11 +168,11 @@ Using this equation, here is an abbreviated table showing derivation ticks for _
 | 11.968750 | 0.968750 | 0.968750 / (1 / 64) | 62 | ```62``` | ```11`62``` |
 | 11.984375 | 0.984375 | 0.984375 / (1 / 64) | 63 | ```63``` | ```11`63``` |
 
-### Tick Notation (Fractions of Fractions)
+## Tick Notation (Fractions of Fractions)
 
 As mentioned earlier, ticks are not always sequential. This is because we may choose to subdivide a tick.
 
-Consider sixty-four discrete price steps within a whole number. In previous examples sixty-four ticks would be used. However, instead of _sixty-fourths_, it is mathematically equivalent to use _thirty-seconds_ and _halves of thirty-seconds_.
+Consider sixty-four discrete price steps within a whole number. In previous examples, sixty-four ticks would be used. However, instead of _sixty-fourths_, it is mathematically equivalent to use _thirty-seconds_ and _halves of thirty-seconds_.
 
 | Sixty-Fourths | Equation (64ths) |  | Thirty-Seconds | Halves | Equation (32nds and Halves) |
 |:---:|---:|---|:---:|:---:|---|
