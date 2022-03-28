@@ -62,7 +62,7 @@ With that said, most fractional prices are formatted using _tick notation_ inste
 
 ## Tick Notation (Basics)
 
-Tick notation combines the whole number potion of a value with its fractional numerator, separating the two components with a backtick (or a single quote or a dash). The fraction's numerator is displayed; however, the fraction's denominator is not displayed. _Instead, the fraction's denominator is implied._
+Tick notation combines the whole number portion of a value with its fractional numerator, separating the two components with a backtick (or a single quote or a dash). The fraction's numerator is displayed; however, the fraction's denominator is not displayed. _Instead, the fraction's denominator is implied._
 
 For example, we could represent the decimal value of `15.50` using tick notation in different ways, depending on the denominator:
 
