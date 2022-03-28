@@ -20,15 +20,13 @@ const handleMarketUpdate = (event) => {
 connection.on(SubscriptionType.MarketUpdate, 'AAPL', handleMarketUpdate)
 ```
 
-The same is true for [`Quote`](/content/sdk/lib-marketstate?id=quote) class.
-
-> Recall the Quote class is used to track the current state of an instrument. It mutates to reflect new information as market data messages are received. Read more in the [Key Concepts: Data Structures](/content/concepts/data_structures?id=quotes).
-
-Many instance properties of a ```Quote``` class are numbers. Here are a few examples:
+The same is true for [`Quote`](/content/sdk/lib-marketstate?id=quote) class. Many instance properties of a ```Quote``` class are numbers. Here are a few examples:
 
 * [lastPrice](/content/sdk/lib-marketstate?id=quotelastprice)
 * [bidPrice](/content/sdk/lib-marketstate?id=quotebidprice)
 * [bidSize](/content/sdk/lib-marketstate?id=quotebidsize)
+
+> Recall the Quote class is used to track the current state of an instrument. It mutates to reflect new information as market data messages are received. Read more in the [Key Concepts: Data Structures](/content/concepts/data_structures?id=quotes).
 
 ## Decimal Formatting
 
@@ -225,11 +223,4 @@ Obviously, ambiguity is introduced because the denominator is not shown. It is i
 ## Unit Codes
 
 ## Formatting Functions
-
-
-
-
-
-
-
 
