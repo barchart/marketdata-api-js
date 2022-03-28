@@ -1,8 +1,8 @@
 ## Numeric Values
 
-**All numbers received and stored by SDK use the double-precision floating point [primitive](https://developer.mozilla.org/en-US/docs/Glossary/Primitive)** which is native to JavaScript. 
+**All numbers received and stored by the SDK use the double-precision floating point [primitive](https://developer.mozilla.org/en-US/docs/Glossary/Primitive)** which is native to JavaScript. 
 
-Many of the properties of the event `Object` passed to the [MarketUpdateCallback](/content/sdk/lib-connection?id=callbacksmarketupdatecallback) are numbers. For example, look at the `tradePrice` and `tradeSize` property values in the following example:
+Many of the properties of the event `Object` passed to the [MarketUpdateCallback](/content/sdk/lib-connection?id=callbacksmarketupdatecallback) are numbers. For example, look at the `tradePrice` and `tradeSize` property values:
 
 ```javascript
 const handleMarketUpdate = (event) => {
@@ -20,7 +20,7 @@ const handleMarketUpdate = (event) => {
 connection.on(SubscriptionType.MarketUpdate, 'AAPL', handleMarketUpdate)
 ```
 
-The same is true for [`Quote`](/content/sdk/lib-marketstate?id=quote) class. Many instance properties of a ```Quote``` class are numbers. Here are a few examples:
+The same is true for the [`Quote`](/content/sdk/lib-marketstate?id=quote) class. Many instance properties of a ```Quote``` class are numbers. Here are a few examples:
 
 * [lastPrice](/content/sdk/lib-marketstate?id=quotelastprice)
 * [bidPrice](/content/sdk/lib-marketstate?id=quotebidprice)
@@ -40,19 +40,19 @@ Regardless, let's assume that the last price for an instrument was _fifteen doll
 * `15.500000000000004`
 * `15.499999999999999`
 
-Regardless of the floating point value, we want to display these values, with two decimal places, as the literal string ```"15.50"```.
+Regardless of the floating point value, we want to display anny of these values with two decimal places, as the literal string ```"15.50"```.
 
 ### Decimal Formatting Rules
 
-This SDK maintains a set of rules to determine the generally accepted method of formatting prices. 
+The SDK maintains a set of rules to determine the generally accepted method of formatting prices. 
 
 These rules differ from one asset class to another — a US equity (e.g. [AAPL](https://www.barchart.com/stocks/quotes/AAPL/overview)) is typically displayed with two decimal places and a foreign exchange quote (e.g. [^EURUSD](https://www.barchart.com/forex/quotes/%5EEURUSD/overview)) is typically displayed with five decimal places. See the [Price Formatting: Unit Codes](/content/appendices/price_formats?id=unit-codes) section below for more information.
 
-Furthermore, this SDK also contains a set of functions used to format numbers for presentation, using the aforementioned rules. See the [Price Formatting: Formatting Functions](/content/appendices/price_formats?id=formatting-functions) section below for more information.
+Furthermore, this SDK also contains a set of functions used to format numbers for presentation, using the aforementioned rules. See the [Price Formatting: Formatting Functions](/content/appendices/price_formats?id=formatting-functions) section for more information.
 
 ## Fractional Formatting
 
-In some cases, it is customary to represent the decimal component of a price as a fraction. Here are three different — and equivalent —  we could represent a decimal value:
+In some cases, it is customary to represent the decimal component of a price as a fraction. Here are three different — and equivalent —  ways the decimal value of ```15.5``` could be represented:
 
 * the decimal value of ```15.50``` could be represented as ```15 and 4/8``` or
 * the decimal value of ```15.50``` could be represented as ```15 and 8/16``` or
@@ -62,9 +62,9 @@ With that said, most fractional prices are formatted using _tick notation_ inste
 
 ## Tick Notation (Basics)
 
-Tick notation combines the whole number potion of a value with its fractional numerator, separating the components with a backtick (or a single quote or a dash). The fraction's numerator is displayed; however, the fraction's denominator is not displayed. _Instead, the fraction's denominator is implied._
+Tick notation combines the whole number potion of a value with its fractional numerator, separating the two components with a backtick (or a single quote or a dash). The fraction's numerator is displayed; however, the fraction's denominator is not displayed. _Instead, the fraction's denominator is implied._
 
-For example, we could represent the decimal value of `15.50` using tick notation in different, but equivalent, ways, depending on the denominator:
+For example, we could represent the decimal value of `15.50` using tick notation in different ways, depending on the denominator:
 
 * tick notation in _eighths_ would be ```15`4``` — where a denominator of ```8``` in the fraction ```4/8``` is implied, and
 * tick notation in _sixteenths_ would be ```15`8``` — where a denominator of ```16``` in the fraction ```8/16``` is implied, and
@@ -112,17 +112,17 @@ Similarly, when pricing in _sixteenths_, there are sixteen discrete prices betwe
 | ```11`15``` | ```11``` | ```15``` | 15 | 16 | 11 + (15 / 16) = 11.9375 |
 | ```12`00``` | ```12``` | ```00``` | 0 | 16 | 12 + (0 / 16) = 12.0000 |
 
-> For _sixteenths_, notice the tick value uses two digits, including a leading zero, when appropriate. For, _eighths_, only one tick digit was required. This will become important later.
+> For _sixteenths_, notice the tick value uses two digits, including a leading zero, when appropriate. For _eighths_, only one tick digit was required. This will become important later.
 
 In the previous examples, the tick values were sequential. For _eighths_ the sequence was:
 
-```{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 1, 2, ... }```
+```{ 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, ... }```
 
 For _sixteenths_ the sequence was:
 
 ```{ 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 00, 01, 02, ... }```
 
-However, ticks are not always sequential.
+However, ticks are not always sequential. Continue reading for an explanation.
 
 ## Tick Notation (Derivation)
 
@@ -130,7 +130,7 @@ Before continuing, let's examine a question that's been glossed over in the prev
 
 **QUESTION: Given a decimal-formatted price, how do we calculate the tick value?**
 
-1. Determine the fractional value of tick, dividing one by the total number of ticks.
+1. Determine the fractional value of the tick by dividing one by the total number of ticks.
 2. Divide the decimal component of the price by the previous result.
 
 For example, assuming a price value of `11.9375`, ticks are calculated as follows:
@@ -167,7 +167,7 @@ Using this equation, here are (abbreviated) tables showing derivation ticks in _
 
 ## Tick Notation (Fractions of Fractions)
 
-As mentioned earlier, ticks are not always sequential. This is because we may choose to subdivide a tick.
+As mentioned earlier, ticks are not always sequential. This is because we may choose to _subdivide_ a tick.
 
 Consider sixty-four discrete price steps within a whole number. In previous examples, sixty-four ticks would be used. However, instead of _sixty-fourths_, it is mathematically equivalent to use _thirty-seconds_ and _halves of thirty-seconds_.
 
@@ -210,9 +210,9 @@ So, for _halves of thirty-seconds_, the repeating sequence of ticks is:
 
 #### Tick Notation in Quarters of Thirty-Seconds
 
-One final twist exists remains. In the previous example using _halves of thirty-seconds_, the result of the tick derivation used up to three digits (e.g. ```31.5```) and the tick was represented with three digits (e.g. ```0`315```). However, in the final case, the right-most digit of the tick derivation may be excluded from the tick notation.
+One final twist exists remains. In the previous example using _halves of thirty-seconds_, the result of the tick derivation used up to three digits too (e.g. ```31.5```) and the tick was represented with three digits (e.g. ```0`315```). However, in the final case, the right-most digit of the tick derivation may be excluded from the tick notation.
 
-Consider the more exotic case of _quarters of thirty-seconds_. In this case, the trailing ```5``` may be omitted (noted in square brackets).
+Consider the more exotic case of _quarters of thirty-seconds_. In this case, the trailing ```5``` may be omitted, as noted by square brackets.
 
 | Price | Decimal Component | Tick Formula | Formula Result | Tick | Tick-Formatted Price |
 |---:|---:|---:|---:|---:|---:|
@@ -267,7 +267,7 @@ In the SDK, refer to the [UnitCode](/content/sdk/lib-utilities-data?id=unitcode)
 
 #### Base Codes (Alternative to Unit Codes)
 
-A parallel concept, called a  "base code" exists. A "base code" is a number; whereas a "unit code" is a single character string. These terms are often used interchangeably. Here is the mapping:
+A parallel concept called a  "base code" exists. A "base code" is a number; whereas a "unit code" is a single character string. These terms are often used interchangeably. Here is the mapping:
 
 | Unit Code (```String```) | Base Code (```Number```) |
 |:---:|:---:|
