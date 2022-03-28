@@ -139,7 +139,7 @@ For example, assuming a price value of `11.9375`, ticks are calculated as follow
 * In _thirty-seconds_, the tick value is ```30``` using ```0.9375 / ( 1 / 32) = 30```, or
 * In _sixty-fourths_, the tick value is ```60``` using ```0.9375 / ( 1 / 64) = 60```, etc.
 
-Using this equation, here is an abbreviated table showing derivation ticks for _thirty-seconds_ and _sixty-fourths_:
+Using this equation, here are (abbreviated) tables showing derivation ticks in _thirty-seconds_ and _sixty-fourths_:
 
 #### Tick Notation in Thirty-Seconds
 
@@ -181,7 +181,7 @@ Consider sixty-four discrete price steps within a whole number. In previous exam
 | 6 | 6/32 = 0.093750 | &larr; same as &rarr; | 3 | 0 | 3/32 + (0/2 * 1/32) = 0.093750 |
 | 7 | ... |  | ... | ... | ... |
 
-**Tick Notation in Halves of Thirty-Seconds**
+#### Tick Notation in Halves of Thirty-Seconds
 
 Here, we calculate tick values in _havles of thirty-seconds_. Notice three significant differences, when compared with the calculations for _sixty-fourths_:
 
@@ -208,19 +208,83 @@ So, for _halves of thirty-seconds_, the repeating sequence of ticks is:
 
 > Looking at the sequence closely, note the two leading digits represent the number of thirty-second ticks. When the final digit is a ```5```, another half of a thirty-second is added. Why does ```5``` represent one half? Because one half, in decimal form, is ```0.5```.
 
+#### Tick Notation in Quarters of Thirty-Seconds
+
 One final twist exists remains. In the previous example using _halves of thirty-seconds_, the result of the tick derivation used up to three digits (e.g. ```31.5```) and the tick was represented with three digits (e.g. ```0`315```). However, in the final case, the right-most digit of the tick derivation may be excluded from the tick notation.
 
 Consider the more exotic case of _quarters of thirty-seconds_. In this case, the trailing ```5``` may be omitted (noted in square brackets).
 
-> In other words, the result of the tick derivation may require up to four digits to represent in decimal form (e.g. ); however, only the first three digits are included in the tick notation (e.g. ).
+| Price | Decimal Component | Tick Formula | Formula Result | Tick | Tick-Formatted Price |
+|---:|---:|---:|---:|---:|---:|
+| 11.0000000 | 0.0000000 | 0.0000000 / (1 / 32) | 00.0[0] | ```000``` | ```11`000``` |
+| 11.0078125 | 0.0078125 | 0.0078125 / (1 / 32) | 00.2[5] | ```002``` | ```11`002``` |
+| 11.0156250 | 0.0156250 | 0.0156250 / (1 / 32) | 00.5[0] | ```005``` | ```11`005``` |
+| 11.0234375 | 0.0234375 | 0.0234375 / (1 / 32) | 00.7[5] | ```007``` | ```11`007``` |
+| 11.0312500 | 0.0312500 | 0.0312500 / (1 / 32) | 01.0[0] | ```010``` | ```11`010``` |
+| 11.0390625 | 0.0390625 | 0.0390625 / (1 / 32) | 01.2[5] | ```012``` | ```11`012``` |
+| ... | ... | ... | ... | ... | ... |
+| 11.9843750 | 0.9843750 | 0.9843750 / (1 / 32) | 31.5[0] | ```315``` | ```11`315``` |
+| 11.9921875 | 0.9921875 | 0.9921875 / (1 / 32) | 31.7[5] | ```317``` | ```11`317``` |
+
+> In other words, the result of the tick derivation may require up to four digits to represent in decimal form (e.g. ```31.75```); however, only the first three digits are included in the tick notation (e.g. ```317```).
 
 ## Tick Notation (Ambiguity)
 
-Obviously, ambiguity is introduced because the denominator is not shown. It is impossible to know whether ```15`2``` represents the decimal value of ```15.50``` or ```15.25``` without also knowing the implied context — quarters or eighths. How is this ambiguity resolved?  When a price is quoted using tick notation, the asset being quoted dictates the context. For example, corn futures are always priced in eighths.
+Obviously, ambiguity is introduced because the denominator is not shown. It is impossible to know whether ```15`02``` represents the decimal value of ```15.0625``` or ```15.03125``` without also knowing the implied context — _thirty-seconds_ or _sixty-fourths_, respectively. 
+
+How is this ambiguity resolved? When a price is quoted using tick notation, the asset being quoted dictates the context. For example, corn futures are always priced in _eighths_.
 
 > To derive a decimal value from tick notation, you must know the asset being quoted (e.g. corn, soybeans, etc).
 
 ## Unit Codes
+
+A "unit code" is a concept designed by Barchart to describe generally-accepted methods for formatting prices in decimals or ticks. Barchart assigns a unit code to every instrument. Here are some examples:
+
+* Most US equities use unit code ```"A"``` which specifies use of two decimal places (e.g. [AAPL](https://www.barchart.com/stocks/quotes/AAPL/overview)).
+* Most foreign exchange quotes use unit code ```"D"``` which specifies use of five decimal places (e.g. [^EURUSD](https://www.barchart.com/forex/quotes/%5EEURUSD/overview)).
+* Corn futures contract use unit code ```"2"``` which specifies tick notation in _eighths_ (e.g. [ZC*0](https://www.barchart.com/futures/quotes/ZC*0/overview)).
+
+There are fourteen distinct unit codes:
+
+| Unit Code | Decimal Places | Example | Tick Notation Method | Discreet Ticks | Example (maximum tick) |
+|:---:|---:|---:|:---:|---:|---:|
+| ```"2"``` | 3 | 11.000 | [_eighths_](/content/appendices/price_formats?id=tick-notation-in-eighths) | 8 | ```0`7``` |
+| ```"3"``` | 4 | 11.0000 | [_sixteenths_](/content/appendices/price_formats?id=tick-notation-in-sixteenths) | 16 | ```0`15``` |
+| ```"4"``` | 5 | 11.00000 | [_thirty-seconds_](/content/appendices/price_formats?id=tick-notation-in-thirty-seconds) | 32 | ```0-31``` |
+| ```"5"``` | 6 | 11.000000 | [_halves of thirty-seconds_](/content/appendices/price_formats?id=tick-notation-in-halves-of-thirty-seconds) | 64 | ```0`315``` |
+| ```"6"``` | 7 | 11.0000000 | [_quarters of thirty-seconds_](/content/appendices/price_formats?id=tick-notation-in-quarters-of-thirty-seconds) | 128 | ```0`317``` |
+| ```"7"``` | 8 | 11.00000000 | _eighths of thirty-seconds_ | 256 | ```0`318``` |
+| ```"8"``` | 0 | 11 | n/a | -- | -- |
+| ```"9"``` | 1 | 11.0 | n/a | -- | -- |
+| ```"A"``` | 2 | 11.00 | n/a | -- | -- |
+| ```"B"``` | 3 | 11.000 | n/a | -- | -- |
+| ```"C"``` | 4 | 11.0000 | n/a | -- | -- |
+| ```"D"``` | 5 | 11.00000 | n/a | -- | -- |
+| ```"E"``` | 6 | 11.000000 | n/a | -- | -- |
+| ```"F"``` | 7 | 11.0000000 | n/a | -- | -- |
+
+In the SDK, refer to the [UnitCode](/content/sdk/lib-utilities-data?id=unitcode) enumeration. However, the [Profile.unitcode](/content/sdk/lib-marketstate?id=profileunitcode) property is a single character string.
+
+#### Base Codes (Alternative to Unit Codes)
+
+A parallel concept, called a  "base code" exists. A "base code" is a number; whereas a "unit code" is a single character string. These terms are often used interchangeably. Here is the mapping:
+
+| Unit Code (```String```) | Base Code (```Number```) |
+|:---:|:---:|
+| ```"2"``` | ```-1``` |
+| ```"3"``` | ```-2``` |
+| ```"4"``` | ```-3``` |
+| ```"5"``` | ```-4``` |
+| ```"6"``` | ```-5``` |
+| ```"7"``` | ```-6``` |
+| ```"8"``` | ```0``` |
+| ```"9"``` | ```1``` |
+| ```"A"``` | ```2``` |
+| ```"B"``` | ```3``` |
+| ```"C"``` | ```4``` |
+| ```"D"``` | ```5``` |
+| ```"E"``` | ```6``` |
+| ```"F"``` | ```7``` |
 
 ## Formatting Functions
 

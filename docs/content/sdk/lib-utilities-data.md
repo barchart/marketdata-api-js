@@ -132,9 +132,10 @@
 * * *
 
 ## UnitCode :id=unitcode
-> An enumeration that describes different styles for pricing instruments (and
-> formatting instrument prices for display to humans). Barchart uses fourteen
-> distinct unit codes.
+> An enumeration that describes different conventions for formatting prices,
+> as decimals or fractions (using tick notation). Each instrument is assigned
+> a unit code. See the [Profile.unitcode](#profileunitcode) property.</p>
+> <p>Barchart uses fourteen distinct unit codes.
 
 **Kind**: global class  
 **Extends**: <code>Enum</code>  

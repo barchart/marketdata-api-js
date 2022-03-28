@@ -1,5 +1,11 @@
 # Release Notes
 
+## 5.17.1
+**Other**
+
+* Updated documentation, making minor corrections.
+* Added [Appendix: Price Formats](https://docs.barchart.com/marketdata-api-js/#/content/appendices/price_formats) documentation, including extensive discussion of fractional tick formatting of prices.
+
 ## 5.17.0
 **New Features**
 
