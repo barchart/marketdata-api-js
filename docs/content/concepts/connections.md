@@ -7,13 +7,13 @@ The [```lib/connection/Connection```](/content/sdk/lib-connection?id=connection)
 * Automatically track market state, and
 * Access the current market state
 
-The ```Connection``` class constructor does not accept any arguments:
+The [```Connection```](/content/sdk/lib-connection?id=connection) class constructor does not accept any arguments:
 
 ```js
 const connection = new Connection();
 ```
 
-In general, you'll want to treat the ```Connection``` as a singleton. Only one instance is needed. In fact, Barchart's servers reject simultaneous connections using the same credentials.
+In general, you'll want to treat the [```Connection```](/content/sdk/lib-connection?id=connection) as a singleton. Only one instance is needed. In fact, Barchart's servers reject simultaneous connections using the same credentials.
 
 ## Monitoring
 
@@ -29,18 +29,18 @@ connection.on(SubscriptionType.Events, eventsHandler);
 
 ## Opening
 
-Calling ```Connection.connect``` opens a network connection and attempts to authenticate the user. The function requires a hostname for Barchart's servers and credentials.
+Calling [```Connection.connect```](/content/sdk/lib-connection?id=connectionconnect) opens a network connection and attempts to authenticate the user. The function requires a hostname for Barchart's servers and credentials.
 
 **Contact Barchart at solutions@barchart.com or (866) 333-7587 to obtain the correct hostname and a free username/password.**
 
-**IMPORTANT NOTE:** Once ```Connection.connect``` is called, the SDK will repeatedly attempt to connect and authenticate — even if the credentials are incorrect. To stop repeated connection attempts, the ```Connection.disconnect``` function must be called.
+**IMPORTANT NOTE:** Once [```Connection.connect```](/content/sdk/lib-connection?id=connectionconnect) is called, the SDK will repeatedly attempt to connect and authenticate — even if the credentials are incorrect. To stop repeated connection attempts, the [```Connection.disconnect```](/content/sdk/lib-connection?id=connectiondisconnect) function must be called.
 
 You'll also need to provide a strategy for creating WebSocket connections. Depending on your environment, different strategies are used. Two implementations exist in the SDK:
 
 * [```lib/connection/adapter/WebSocketAdapterFactoryForBrowsers```](/content/sdk/lib-connection-adapter?id=websocketadapterfactoryforbrowsers) - For web browsers (default)
 * [```lib/connection/adapter/WebSocketAdapterFactoryForNode```](/content/sdk/lib-connection-adapter?id=websocketadapterfactoryfornode) - For Node.js
 
-By default, the ```Connection``` class assumes you're running in a web browser. However, there is nothing wrong with being explicit; connect as follows:
+By default, the [```Connection```](/content/sdk/lib-connection?id=connection) class assumes you're running in a web browser. However, there is nothing wrong with being explicit; connect as follows:
 
 ```js
 connection.connect(host, username, password, new WebSocketAdapterFactoryForBrowsers());
@@ -64,8 +64,8 @@ This causes the WebSocket connection to be severed. It also stops any further re
 
 ## Reconnecting
 
-Unexpected network conditions may cause the WebSocket connection to close. When this happens, a **Disconnect** event will be generated (see the [System Status](/content/concepts/subscriptions?id=system-status) subscription). The SDK will **automatically** begin attempting to reestablish the connection. To stop reconnection attempts, invoke the ```Connection.disconnect``` function.
+Unexpected network conditions may cause the WebSocket connection to close. When this happens, a **Disconnect** event will be generated (see the [System Status](/content/concepts/subscriptions?id=system-status) subscription). The SDK will **automatically** begin attempting to reestablish the connection. To stop reconnection attempts, invoke the [```Connection.disconnect```](/content/sdk/lib-connection?id=connectiondisconnect) function.
 
 Once the connection is reestablished, a **LoginSuccess** event will be generated and subscriptions will be automatically restarted. However, market state should be considered outdated until you receive the first notification for each subscription.
 
-To abort the automated reconnection process, simply call the ```Connection.disconnect``` function.
+To abort the automated reconnection process, simply call the [```Connection.disconnect```](/content/sdk/lib-connection?id=connectiondisconnect) function.
