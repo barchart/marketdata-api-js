@@ -40,7 +40,9 @@ connection.connect(server, username, password);
 
 ### From Node.js
 
-Running the SDK in Node.js is identical to running it in a web browser -- with one exception. You need to provide a *WebSocketAdapterFactory* to the *Connection.connect* function, as follows:
+Running the SDK in Node.js is identical to running it in a web browser — with one exception. You need to provide a [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) implementation to the [Connection.connect](/content/sdk/lib-connection?id=connectionconnect) function. 
+
+An implementation, called [WebSocketAdapterFactoryForNode](/content/sdk/lib-connection-adapter?id=websocketadapterfactoryfornode),  is included with the SDK that uses the [```ws```](https://www.npmjs.com/package/ws) library internally. Here is a usage example:
 
 ```js
 const Connection = require('@barchart/marketdata-api-js/lib/connection/Connection');
