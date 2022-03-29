@@ -1,4 +1,4 @@
-## Fundamentals
+## Basics
 
 Once you've connected, you're ready to subscribe to market data.
 
