@@ -1,4 +1,4 @@
-## Fundamentals
+## Basics
 
 As you establish subscriptions, market data begins streaming. The SDK processes the stream and builds an in-memory cache of state. This in-memory cache consists of:
 
