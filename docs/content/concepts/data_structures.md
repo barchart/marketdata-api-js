@@ -9,7 +9,7 @@ As you establish subscriptions, market data begins streaming. The SDK processes 
 
 #### Accessing State
 
-The [```lib/marketState/MarketState```](/content/sdk/lib-marketstate?id=marketstate) is the repository for state. The SDK maintains a single instance which can be accessed from the ```Connection``` instance, as follows:
+The [```lib/marketState/MarketState```](/content/sdk/lib-marketstate?id=marketstate) is the repository for state. The SDK maintains a single instance which can be accessed from the [```Connection```](/content/sdk/lib-connection?id=connection) instance, as follows:
 
 ```js
 const state = connection.getMarketState();
@@ -17,9 +17,9 @@ const state = connection.getMarketState();
 
 ## Profiles
 
-A [```lib/marketState/Profile```](/content/sdk/lib-marketstate?id=profile) defines an instrument and has properties like *name*, *exchange*, etc. A ```Profile``` tells us how to format prices for the instrument. A ```Profile``` tells us the expiration date for some instruments (e.g. futures contracts).
+A [```lib/marketState/Profile```](/content/sdk/lib-marketstate?id=profile) defines an instrument and has properties like *symbol*, *name*, and *exchange*. A [```Profile```](/content/sdk/lib-marketstate?id=profile) tells us how to [format prices](/content/appendices/price_formats?id=formatting-functions) for the instrument. A [```Profile```](/content/sdk/lib-marketstate?id=profile) tells us the expiration date for some instruments (e.g. futures contracts).
 
-You can access a ```Profile``` as follows:
+You can access a [```Profile```](/content/sdk/lib-marketstate?id=profile) as follows:
 
 ```js
 connection.getMarketState().getProfile('AAPL')
@@ -28,15 +28,15 @@ connection.getMarketState().getProfile('AAPL')
 	});
 ```
 
-Notice ```MarketState.getProfile``` returns asynchronously -- this allows the SDK to download information that hasn't already been cached.  No market data subscription is required.
+> Notice [```MarketState.getProfile```](/content/sdk/lib-marketstate?id=marketstategetprofile) returns asynchronously — this allows the SDK to download information that hasn't already been cached.  No market data subscription is required.
 
-**Note**: Additional out-of-band data will be downloaded if you invoke ```Connection.setExtendedProfileMode``` passing a ```true``` value immediately after your ```Connection``` has been instantiated.
+> Additional out-of-band data will be downloaded if you invoke [```Connection.setExtendedProfileMode```](/content/sdk/lib-connection?id=connectionsetextendedprofilemode) — passing a ```true``` value — immediately after your [```Connection```](/content/sdk/lib-connection?id=connection) has been instantiated.
 
 ## Quotes
 
-After the server acknowledges a ```SubscriptionType.MarketUpdate``` subscription, a [```lib/marketState/Quote```](/content/sdk/lib-marketstate?id=quote) instance is created. With each new message received, the ```Quote``` instance is updated.
+After the server acknowledges a [```SubscriptionType.MarketUpdate```](/content/sdk/lib-connection?id=enumssubscriptiontype) subscription, a [```lib/marketState/Quote```](/content/sdk/lib-marketstate?id=quote) instance is created. With each new message received, the [```Quote```](/content/sdk/lib-marketstate?id=quote) instance is updated.
 
-The ```Quote``` contains the following types of information:
+A [```Quote```](/content/sdk/lib-marketstate?id=quote) instance contains the following types of information:
 
 * Last trade price
 * Last trade size
@@ -44,7 +44,7 @@ The ```Quote``` contains the following types of information:
 * Total volume for the current session
 * More ...
 
-You can access a ```Quote``` as follows:
+You can access a [```Quote```](/content/sdk/lib-marketstate?id=quote) instance for a symbol, as follows:
 
 ```js
 const quote = connection.getMarketState().getQuote('AAPL');
@@ -58,9 +58,9 @@ if (quote) {
 
 ## Books
 
-After the server acknowledges a ```SubscriptionType.MarketDepth``` subscription, an anonymous ```Object``` conforming to the [```Schema.Book```](content/sdk/lib-marketstate?id=schemabook) contract is stored. The ```Book``` is updated as new messages are received from the server.
+After the server acknowledges a [```SubscriptionType.MarketDepth```](/content/sdk/lib-connection?id=enumssubscriptiontype) subscription, an anonymous ```Object``` conforming to the [```Schema.Book```](content/sdk/lib-marketstate?id=schemabook) contract is stored. The [```Book```](content/sdk/lib-marketstate?id=schemabook) is updated as new messages are received from the server.
 
-You can access a ```Book``` as follows:
+You can access a [```Book```](content/sdk/lib-marketstate?id=schemabook) as follows:
 
 ```js
 const book = connection.getMarketState().getBook('ESM0');
@@ -74,9 +74,9 @@ if (book) {
 
 ## Cumulative Volume
 
-After a ```SubscriptionType.CumulativeVolume``` subscription is established and the SDK receives data from the server, a [```/lib/marketState/CumulativeVolume```](/content/sdk/lib-marketstate?id=cumulativevolume) instance is created.
+After a [```SubscriptionType.CumulativeVolume```](/content/sdk/lib-connection?id=enumssubscriptiontype) subscription is established and the SDK receives data from the server, a [```/lib/marketState/CumulativeVolume```](/content/sdk/lib-marketstate?id=cumulativevolume) instance is created.
 
-You can access a ```CumulativeVolume``` instance as follows:
+You can access a [```CumulativeVolume```](/content/sdk/lib-marketstate?id=cumulativevolume) instance as follows:
 
 ```js
 connection.getMarketState().getCumulativeVolume('AAPL')
@@ -85,4 +85,4 @@ connection.getMarketState().getCumulativeVolume('AAPL')
 	});
 ```
 
-> Notice ```MarketState.getCumulativeVolume``` returns asynchronously. If you have recently subscribed, response will wait until the SDK receives data from the server.
+> Notice [```MarketState.getCumulativeVolume```](/content/sdk/lib-marketstate?id=marketstategetcumulativevolume) returns asynchronously. If you have recently subscribed, response will wait until the SDK receives data from the server.
