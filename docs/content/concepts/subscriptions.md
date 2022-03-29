@@ -4,15 +4,15 @@ Once you've connected, you're ready to subscribe to market data.
 
 ### Start/Stop
 
-The ```Connection.on``` function is used to establish new subscriptions. Conversely, the ```Connection.off``` function is used to stop existing subscriptions.
+The [```Connection.on```](/content/sdk/lib-connection?id=connectionon) function is used to establish new subscriptions. Conversely, the [```Connection.off```](/content/sdk/lib-connection?id=connectionoff) function is used to stop existing subscriptions.
 
-The ```Connection.on``` function requires a *subscription type*, a *callback*, and in some cases, and a *symbol*. Here's the function signature:
+The [```Connection.on```](/content/sdk/lib-connection?id=connectionon) function requires a *subscription type*, a *callback*, and in some cases, and a *symbol*. Here's the function signature:
 
 ```js
 connection.on(subscriptionType, handler, symbol);
 ```
 
-The signature for ```Connection.off``` is identical. The *callback* parameter must be a reference to the **same** function which was originally passed to the ```Connection.on``` function. Here's the signature:
+The signature for [```Connection.off```](/content/sdk/lib-connection?id=connectionoff) is identical. The *callback* parameter must be a reference to the **same** function which was originally passed to the [```Connection.on```](/content/sdk/lib-connection?id=connectionon) function. Here's the signature:
 
 ```js
 connection.off(subscriptionType, handler, symbol);
@@ -47,7 +47,7 @@ Apple's stock symbol is widely accepted. However, in some cases, symbols are not
 
 ## Heartbeat
 
-The ```SubscriptionType.Timestamp``` — or ```"timestamp"``` — subscription is the simple. The server sends its timestamp every second.
+The [```SubscriptionType.Timestamp```](/content/sdk/lib-connection?id=enumssubscriptiontype) — or ```"timestamp"``` — subscription is the simple. The server sends its timestamp every second.
 
 #### Callback
 
@@ -71,7 +71,7 @@ connection.off(SubscriptionType.Timestamp, timestampHandler);
 
 ## System Status
 
-The ```SubscriptionType.Events``` — or ```"events"``` — subscription notifies you when the status of your ```Connection``` changes.
+The [```SubscriptionType.Events```](/content/sdk/lib-connection?id=enumssubscriptiontype) — or ```"events"``` — subscription notifies you when the status of your ```Connection``` changes.
 
 #### Callback
 
@@ -103,7 +103,7 @@ connection.off(SubscriptionType.Events, eventsHandler);
 
 ## Level I Market Data
 
-A ```SubscriptionType.MarketUpdate``` — or ```"marketUpdate"``` — subscription notifies you of market-related events as they occur (e.g. trade, top of book changed, etc).
+A [```SubscriptionType.MarketUpdate```](/content/sdk/lib-connection?id=enumssubscriptiontype) — or ```"marketUpdate"``` — subscription notifies you of market-related events as they occur (e.g. trade, top of book changed, etc).
 
 #### Availability
 
@@ -139,7 +139,7 @@ In addition to providing your callback with market updates, the SDK independentl
 
 1. Level I market data event is received from server.
 2. Level I market data event is parsed, producing a market update ```Object```.
-3. The appropriate ```Quote``` instance is updated, based on the market update ```Object```.
+3. The appropriate [```Quote```](/content/sdk/lib-marketstate?id=quote) instance is updated, based on the market update ```Object```.
 4. Your callback is invoked and passed the market update ```Object``` (from step 2).
 
 #### Examples
@@ -147,7 +147,7 @@ In addition to providing your callback with market updates, the SDK independentl
 Here are two strategies for processing callback notifications:
 
 1. Process the market update ```Object``` (maintaining your own state), or
-2. Query the ```Quote``` instance (relying on the SDK to maintain state).
+2. Query the [```Quote```](/content/sdk/lib-marketstate?id=quote) instance (relying on the SDK to maintain state).
 
 ```js
 const handleUsingEvent = (event) => {
@@ -175,7 +175,7 @@ connection.off(SubscriptionType.MarketUpdate, 'AAPL', handleUsingQuote);
 
 ## Level II Market Data
 
-A ```SubscriptionType.MarketDepth``` — or ```"marketDepth"``` — subscription gives you a snapshot of the order book, aggregated by price level.
+A [```SubscriptionType.MarketDepth```](/content/sdk/lib-connection?id=enumssubscriptiontype) — or ```"marketDepth"``` — subscription gives you a snapshot of the order book, aggregated by price level.
 
 #### Availability
 
@@ -185,8 +185,8 @@ Level II market data is available for futures contracts.
 
 The callback receives an ```Object``` with:
 
-* An ordered ```Array``` of ```MarketDepthLevel``` objects called *bids*, and
-* An ordered ```Array``` of ```MarketDepthLevel``` objects called *asks*.
+* An ordered ```Array``` of [```MarketDepthLevel```](/content/sdk/lib-connection?id=schemamarketdepthlevel) objects called *bids*, and
+* An ordered ```Array``` of [```MarketDepthLevel```](/content/sdk/lib-connection?id=schemamarketdepthlevel) objects called *asks*.
 
 ```js
 	{
@@ -195,7 +195,7 @@ The callback receives an ```Object``` with:
 	}
 ```
 
-Each ```MarketDepthLevel``` has a *price* and a *size* property, as follows:
+Each [```MarketDepthLevel```](/content/sdk/lib-connection?id=schemamarketdepthlevel) has a *price* and a *size* property, as follows:
 
 ```js
 	{
@@ -230,7 +230,7 @@ connection.off(SubscriptionType.MarketDepth, handleMarketDepth, 'ESM0');
 
 ## Cumulative Volume
 
-A ```SubscriptionType.CumulativeVolume``` — or ```"cumulativeVolume"``` — subscription reports the total volume traded, at each price level, for the current trading session.
+A [```SubscriptionType.CumulativeVolume```](/content/sdk/lib-connection?id=enumssubscriptiontype) — or ```"cumulativeVolume"``` — subscription reports the total volume traded, at each price level, for the current trading session.
 
 #### Availability
 
