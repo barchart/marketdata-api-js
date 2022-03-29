@@ -234,7 +234,7 @@ A [```SubscriptionType.CumulativeVolume```](/content/sdk/lib-connection?id=enums
 
 #### Availability
 
-Cumulative market is available for futures contracts.
+Cumulative market volume data is only available for futures contracts.
 
 #### Callback
 
