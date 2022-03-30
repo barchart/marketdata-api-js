@@ -1,5 +1,14 @@
 # Release Notes
 
+## 5.18.0
+**New Features**
+
+* 
+
+**Other**
+
+* Completed the [Appendix: Price Formats](https://docs.barchart.com/marketdata-api-js/#/content/appendices/price_formats) section of the documentation.
+
 ## 5.17.1
 **Other**
 
