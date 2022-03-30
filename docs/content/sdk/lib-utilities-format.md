@@ -52,7 +52,7 @@
 * * *
 
 ### Functions.formatFraction(value, fractionFactor, fractionDigits, [fractionSeparator], [useParenthesis]) :id=functionsformatfraction
-> Formats a value using fractional notation.
+> Formats a value using fractional tick notation.
 
 **Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code>  

@@ -297,9 +297,9 @@ In order to generate a price-formatted string, two pieces of information are req
 
 #### Using Profiles
 
-Since [Profile](/content/concepts/data_structures?id=profiles) instances encapsulate metadata regarding an instrument, they include the instrument's unit code. Consequently, we can pass a numeric price value to the [Profile.formatPrice](/content/sdk/lib-marketstate?id=profileformatprice) function, and expect the correct formatting rules to be applied.
+Since a [```Profile```](/content/concepts/data_structures?id=profiles) instance encapsulates metadata regarding an instrument, it includes the instrument's unit code. Consequently, we can pass a numeric price value to the [```Profile.formatPrice```](/content/sdk/lib-marketstate?id=profileformatprice) function, and expect the correct formatting rules to be applied.
 
-Here, we use the [Profile](/content/concepts/data_structures?id=profiles) for ```AAPL``` to format a fictitious price of ```123.5```: 
+Here, we use the [```Profile```](/content/concepts/data_structures?id=profiles) for ```AAPL``` to format a fictitious price of ```123.5```: 
 
 ```javascript
 const symbol = 'AAPL';
@@ -324,5 +324,56 @@ If we substituted different symbols — for example  ```ZCK2```, ```ZNM2```, and
 The price of [ Corn ] is [ 123-4 ] because [ ZCK2 ] uses unit code [ 2 ]
 The price of [ 10-Year T-Note ] is [ 123-160 ] because [ ZNM2 ] uses unit code [ 5 ]
 The price of [ U.S. Dollar/Canadian Dollar ] is [ 123.50000 ] because [ ^USDCAD ] uses unit code [ D ]
+```
+
+#### Overriding Unit Code Rules
+
+#### Using Pure Functions
+
+In some cases, a [```Profile```](/content/concepts/data_structures?id=profiles) instance might not be available. In these cases, raw price formatting functions can be found here:
+
+* [```lib/utilities/format/decimal```](/content/sdk/lib-utilities-format?id=functionsformatdecimal)
+* [```lib/utilities/format/fraction```](/content/sdk/lib-utilities-format?id=functionsformatfraction)
+
+However, the rules for formatting (e.g. number of discrete ticks or number of tick digits to show) must be supplied as arguments to these functions.
+
+Here is an example of decimal formatting:
+
+```javascript
+const formatDecimal = require('@barchart/marketdata-api-js/lib/utilities/format/decimal');
+
+const price = 123.5;
+const decimals = 3;
+
+const formatted = formatDecimal(price, decimals);
+
+console.log(`Formatted [ ${price} ] as [ ${formatted} ] using [ ${decimals} ] decimal place(s)`);
+```
+
+output:
+
+```text
+Formatted [ 123.5 ] as [ 123.500 ] using [ 3 ] decimal place(s)
+```
+
+Here is an example of tick notation:
+
+```javascript
+const formatTick = require('@barchart/marketdata-api-js/lib/utilities/format/fraction');
+
+const price = 123.5;
+const tickFactor = 16;
+const tickDigits = 2;
+const tickSeparator = '`';
+
+const formatted = formatTick(price, tickFactor, tickDigits, tickSeparator);
+
+console.log(`Formatted [ ${price} ] as [ ${formatted} ] using [ ${tickFactor} ] discrete tick(s), showing [ ${tickDigits} ] digits`);
+```
+
+output:
+
+```text
+Formatted [ 123.5 ] as [ 123`08 ] using [ 16 ] discrete tick(s), showing [ 2 ] digits
 ```
 
