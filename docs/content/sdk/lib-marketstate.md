@@ -1029,7 +1029,7 @@
 | Param | Type |
 | --- | --- |
 | value | <code>Number</code> | 
-| unitcode | <code>String</code> | 
+| unitCode | <code>String</code> | 
 | profile | [<code>Profile</code>](#Profile) | 
 
 

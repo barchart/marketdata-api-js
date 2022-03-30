@@ -263,7 +263,7 @@ There are fourteen distinct unit codes:
 | ```"E"``` | 6 | 11.000000 | n/a | -- | -- |
 | ```"F"``` | 7 | 11.0000000 | n/a | -- | -- |
 
-In the SDK, refer to the [UnitCode](/content/sdk/lib-utilities-data?id=unitcode) enumeration. However, the [Profile.unitCode](/content/sdk/lib-marketstate?id=profileunitcode) property is a single character string.
+In the SDK, refer to the [```UnitCode```](/content/sdk/lib-utilities-data?id=unitcode) enumeration. However, the [```Profile.unitCode```](/content/sdk/lib-marketstate?id=profileunitcode) property is a single character string.
 
 #### Base Codes (Alternative to Unit Codes)
 
@@ -327,6 +327,16 @@ The price of [ U.S. Dollar/Canadian Dollar ] is [ 123.50000 ] because [ ^USDCAD 
 ```
 
 #### Overriding Unit Code Rules
+
+In some rare cases, it might be desirable to override the rules stored within the [```UnitCode```](/content/sdk/lib-utilities-data?id=unitcode) enumeration. To do this, implement your own [```CustomPriceFormatterCallback```](/content/sdk/lib-marketstate?id=callbackscustompriceformattercallback) function and pass it to the [```Profile.setPriceFormatterCustom```](/content/sdk/lib-marketstate?id=profilesetpriceformattercustom) function.
+
+Your custom [```CustomPriceFormatterCallback```](/content/sdk/lib-marketstate?id=callbackscustompriceformattercallback) will be used in place of the default logic when [```Profile.formatPrice```](/content/sdk/lib-marketstate?id=profileformatprice) is called. [```CustomPriceFormatterCallback```](/content/sdk/lib-marketstate?id=callbackscustompriceformattercallback) takes accepts three arguments and returns a string:
+
+1. The ```price``` to format — a number.
+2. The ```unitCode``` which would normally be used — as a string.
+3. The ```profile``` of the instrument being formatted — an instance of the [```Profile```](/content/sdk/lib-marketstate?id=profile) class.
+
+> This is useful in one unusual case. An option on a futures contract (i.e. a futures option) will always have the same unit code as the underlying future. However, the [CME](https://www.cmegroup.com/) specifies that options on treasury futures (i.e. roots ```ZB```, ```ZN```, ```ZT```, and ```ZF```) should use a different style of tick notation from their underlying future. For example, [futures on the 30-year U.S. treasury bond](https://www.cmegroup.com/markets/interest-rates/us-treasury/30-year-us-treasury-bond.contractSpecs.html) (root ```ZB```) are formatted in [_halves of thirty-seconds_](/content/appendices/price_formats?id=tick-notation-in-halves-of-thirty-seconds); however, [options on that 30-year treasury bonds](https://www.cmegroup.com/markets/interest-rates/us-treasury/30-year-us-treasury-bond.contractSpecs.options.html#optionProductId=308) are formatted in [_sixty-fourths_](/content/appendices/price_formats?id=tick-notation-in-sixty-fourths). To make matters worse, no unit code exists which defines the rules for formatting in [_sixty-fourths_](/content/appendices/price_formats?id=tick-notation-in-sixty-fourths). Consequently, a custom price must be used. The custom price formatter to address this case can be reviewed at [```/lib/utilities/format/specialized/cmdtyView.js```](https://github.com/barchart/marketdata-api-js/blob/master/lib/utilities/format/specialized/cmdtyView.js).
 
 #### Using Pure Functions
 
