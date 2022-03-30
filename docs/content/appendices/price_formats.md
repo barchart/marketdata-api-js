@@ -291,13 +291,15 @@ A parallel concept called a  "base code" exists. A "base code" is a number; wher
 In order to generate a price-formatted string, two pieces of information are required:
 
 * The numeric value of the price to be formatted (e.g. ```15.5```)
-* The formatting rules applicable to the instrument being priced, in the form of a unit code (e.g. ```A``` or ```2```)
+* The formatting rules applicable to the instrument, in the form of a unit code (e.g. ```A``` or ```2```)
 
 > See the [previous section](/content/appendices/price_formats?id=unit-codes) for a discussion of unit codes.
 
+#### Using Profiles
+
 Since [Profile](/content/concepts/data_structures?id=profiles) instances encapsulate metadata regarding an instrument, they include the instrument's unit code. Consequently, we can pass a numeric price value to the [Profile.formatPrice](/content/sdk/lib-marketstate?id=profileformatprice) function, and expect the correct formatting rules to be applied.
 
-Consider the following script:
+Here, we use the [Profile](/content/concepts/data_structures?id=profiles) for ```AAPL``` to format a fictitious price of ```123.5```: 
 
 ```javascript
 const symbol = 'AAPL';
@@ -316,13 +318,11 @@ The output would be:
 The price of [ Apple Inc ] is [ 123.50 ] because [ AAPL ] uses unit code [ A ]
 ```
 
-If we substituted different symbols, 
+If we substituted different symbols — for example  ```ZCK2```, ```ZNM2```, and```^USDCAD```  — we'd see the following output:
 
-```shell
-The price of [ Apple Inc ] is [ 123.50 ] because [ AAPL ] uses unit code [ A ]
-The price of [ U.S. Dollar/Canadian Dollar ] is [ 123.50000 ] because [ ^USDCAD ] uses unit code [ D ]
+```text
 The price of [ Corn ] is [ 123-4 ] because [ ZCK2 ] uses unit code [ 2 ]
 The price of [ 10-Year T-Note ] is [ 123-160 ] because [ ZNM2 ] uses unit code [ 5 ]
-The price of [ 2-Year T-Note ] is [ 123-160 ] because [ ZTM2 ] uses unit code [ 7 ]
+The price of [ U.S. Dollar/Canadian Dollar ] is [ 123.50000 ] because [ ^USDCAD ] uses unit code [ D ]
 ```
 
