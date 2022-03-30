@@ -250,7 +250,7 @@ There are fourteen distinct unit codes:
 |:---:|---:|---:|:---:|---:|---:|
 | ```"2"``` | 3 | 11.000 | [_eighths_](/content/appendices/price_formats?id=tick-notation-in-eighths) | 8 | ```0`7``` |
 | ```"3"``` | 4 | 11.0000 | [_sixteenths_](/content/appendices/price_formats?id=tick-notation-in-sixteenths) | 16 | ```0`15``` |
-| ```"4"``` | 5 | 11.00000 | [_thirty-seconds_](/content/appendices/price_formats?id=tick-notation-in-thirty-seconds) | 32 | ```0-31``` |
+| ```"4"``` | 5 | 11.00000 | [_thirty-seconds_](/content/appendices/price_formats?id=tick-notation-in-thirty-seconds) | 32 | ```0`31``` |
 | ```"5"``` | 6 | 11.000000 | [_halves of thirty-seconds_](/content/appendices/price_formats?id=tick-notation-in-halves-of-thirty-seconds) | 64 | ```0`315``` |
 | ```"6"``` | 7 | 11.0000000 | [_quarters of thirty-seconds_](/content/appendices/price_formats?id=tick-notation-in-quarters-of-thirty-seconds) | 128 | ```0`317``` |
 | ```"7"``` | 8 | 11.00000000 | _eighths of thirty-seconds_ | 256 | ```0`318``` |
