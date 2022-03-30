@@ -134,7 +134,7 @@
 ## UnitCode :id=unitcode
 > An enumeration that describes different conventions for formatting prices,
 > as decimals or fractions (using tick notation). Each instrument is assigned
-> a unit code. See the [Profile.unitcode](#profileunitcode) property.</p>
+> a unit code. See the [Profile.unitCode](#profileunitcode) property.</p>
 > <p>Barchart uses fourteen distinct unit codes.
 
 **Kind**: global class  

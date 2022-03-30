@@ -263,7 +263,7 @@ There are fourteen distinct unit codes:
 | ```"E"``` | 6 | 11.000000 | n/a | -- | -- |
 | ```"F"``` | 7 | 11.0000000 | n/a | -- | -- |
 
-In the SDK, refer to the [UnitCode](/content/sdk/lib-utilities-data?id=unitcode) enumeration. However, the [Profile.unitcode](/content/sdk/lib-marketstate?id=profileunitcode) property is a single character string.
+In the SDK, refer to the [UnitCode](/content/sdk/lib-utilities-data?id=unitcode) enumeration. However, the [Profile.unitCode](/content/sdk/lib-marketstate?id=profileunitcode) property is a single character string.
 
 #### Base Codes (Alternative to Unit Codes)
 
@@ -287,4 +287,42 @@ A parallel concept called a  "base code" exists. A "base code" is a number; wher
 | ```"F"``` | ```7``` |
 
 ## Formatting Functions
+
+In order to generate a price-formatted string, two pieces of information are required:
+
+* The numeric value of the price to be formatted (e.g. ```15.5```)
+* The formatting rules applicable to the instrument being priced, in the form of a unit code (e.g. ```A``` or ```2```)
+
+> See the [previous section](/content/appendices/price_formats?id=unit-codes) for a discussion of unit codes.
+
+Since [Profile](/content/concepts/data_structures?id=profiles) instances encapsulate metadata regarding an instrument, they include the instrument's unit code. Consequently, we can pass a numeric price value to the [Profile.formatPrice](/content/sdk/lib-marketstate?id=profileformatprice) function, and expect the correct formatting rules to be applied.
+
+Consider the following script:
+
+```javascript
+const symbol = 'AAPL';
+
+connection.getMarketState().getProfile(symbol)
+	.then((p) => {
+		const formatted = profile.formatPrice(123.5);
+
+		console.log(`The price of [ ${p.name} ] is [ ${formatted} ] because [ ${p.symbol} ] uses unit code [ ${p.unitCode} ]`);
+	});
+```
+
+The output would be:
+
+```text
+The price of [ Apple Inc ] is [ 123.50 ] because [ AAPL ] uses unit code [ A ]
+```
+
+If we substituted different symbols, 
+
+```shell
+The price of [ Apple Inc ] is [ 123.50 ] because [ AAPL ] uses unit code [ A ]
+The price of [ U.S. Dollar/Canadian Dollar ] is [ 123.50000 ] because [ ^USDCAD ] uses unit code [ D ]
+The price of [ Corn ] is [ 123-4 ] because [ ZCK2 ] uses unit code [ 2 ]
+The price of [ 10-Year T-Note ] is [ 123-160 ] because [ ZNM2 ] uses unit code [ 5 ]
+The price of [ 2-Year T-Note ] is [ 123-160 ] because [ ZTM2 ] uses unit code [ 7 ]
+```
 
