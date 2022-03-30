@@ -9,7 +9,7 @@ The [```lib/connection/Connection```](/content/sdk/lib-connection?id=connection)
 
 The [```Connection```](/content/sdk/lib-connection?id=connection) class constructor does not accept any arguments:
 
-```js
+```javascript
 const connection = new Connection();
 ```
 
@@ -19,7 +19,7 @@ In general, you'll want to treat the [```Connection```](/content/sdk/lib-connect
 
 After you create a connection, you'll probably want to monitor the state of the connection. Additional details can be found in [System Status](/content/concepts/subscriptions?id=system-status) subscription documentation. Here's the short version:
 
-```js
+```javascript
 const eventsHandler = (data) => {
 	// Invoked when connection state changes
 }
@@ -42,13 +42,13 @@ You'll also need to provide a strategy for creating WebSocket connections. Depen
 
 By default, the [```Connection```](/content/sdk/lib-connection?id=connection) class assumes you're running in a web browser. However, there is nothing wrong with being explicit; connect as follows:
 
-```js
+```javascript
 connection.connect(host, username, password, new WebSocketAdapterFactoryForBrowsers());
 ```
 
 Or:
 
-```js
+```javascript
 connection.connect(host, username, password, new WebSocketAdapterFactoryForNode());
 ```
 
@@ -56,7 +56,7 @@ connection.connect(host, username, password, new WebSocketAdapterFactoryForNode(
 
 Closing a connection is simple:
 
-```js
+```javascript
 connection.disconnect();
 ```
 

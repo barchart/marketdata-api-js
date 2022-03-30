@@ -8,7 +8,7 @@ By default, log statements are written to the ```Console```. However, it is poss
 
 #### Mute Logs
 
-```js
+```javascript
 LoggerFactory.configureForSilence();
 
 const connection = new Connection();

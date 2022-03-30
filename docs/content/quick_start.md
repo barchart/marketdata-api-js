@@ -18,7 +18,7 @@ Barchart does not permit anonymous connections. **Contact Barchart at solutions@
 
 By default, the SDK will assume it's running in a web browser and it will attempt to use the browser's native WebSocket support.
 
-```js
+```javascript
 const Connection = require('@barchart/marketdata-api-js/lib/connection/Connection');
 
 connection = new Connection();
@@ -44,7 +44,7 @@ Running the SDK in Node.js is identical to running it in a web browser — with 
 
 An implementation, called [WebSocketAdapterFactoryForNode](/content/sdk/lib-connection-adapter?id=websocketadapterfactoryfornode),  is included with the SDK that uses the [```ws```](https://www.npmjs.com/package/ws) library internally. Here is a usage example:
 
-```js
+```javascript
 const Connection = require('@barchart/marketdata-api-js/lib/connection/Connection');
 const WebSocketFactory = require('@barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForNode');
 
@@ -69,7 +69,7 @@ connection.connect(server, username, password, new WebSocketFactory());
 
 After a connection has been established, let's subscribe to the Level I data for Apple's stock, as follows:
 
-```js
+```javascript
 let previousPrice = null;
 
 const handleMarketUpdate = (event) => {

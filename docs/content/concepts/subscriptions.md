@@ -8,13 +8,13 @@ The [```Connection.on```](/content/sdk/lib-connection?id=connectionon) function 
 
 The [```Connection.on```](/content/sdk/lib-connection?id=connectionon) function requires a *subscription type*, a *callback*, and in some cases, and a *symbol*. Here's the function signature:
 
-```js
+```javascript
 connection.on(subscriptionType, handler, symbol);
 ```
 
 The signature for [```Connection.off```](/content/sdk/lib-connection?id=connectionoff) is identical. The *callback* parameter must be a reference to the **same** function which was originally passed to the [```Connection.on```](/content/sdk/lib-connection?id=connectionon) function. Here's the signature:
 
-```js
+```javascript
 connection.off(subscriptionType, handler, symbol);
 ```
 
@@ -55,7 +55,7 @@ The callback expects a ```Date``` argument. See [```Callbacks.TimestampCallback`
 
 #### Example
 
-```js
+```javascript
 const timestampHandler = (event) => {
 	console.log(`Server time is ${event.getHours()}:${event.getMinutes()}`);
 };
@@ -65,7 +65,7 @@ connection.on(SubscriptionType.Timestamp, timestampHandler);
 
 Remember, the *same* event handler must be used to unsubscribe:
 
-```js
+```javascript
 connection.off(SubscriptionType.Timestamp, timestampHandler);
 ```
 
@@ -77,7 +77,7 @@ The [```SubscriptionType.Events```](/content/sdk/lib-connection?id=enumssubscrip
 
 The callback should expect a JavaScript ```Object``` with a single ```String``` property, as follows:
 
-```js
+```javascript
 {
 	event: 'login success'
 }
@@ -87,7 +87,7 @@ See [```lib/connection/ConnectionEventType```](/content/sdk/lib-connection?id=en
 
 #### Example
 
-```js
+```javascript
 const eventsHandler = (event) => {
 	console.log(event.event);
 };
@@ -97,7 +97,7 @@ connection.on(SubscriptionType.Events, eventsHandler);
 
 Unsubscribe as follows:
 
-```js
+```javascript
 connection.off(SubscriptionType.Events, eventsHandler);
 ```
 
@@ -113,7 +113,7 @@ Level I market data is available for all symbols.
 
 The callback receives an ```Object``` representing a market update event. Here an example *trade* event:
 
-```js
+```javascript
 { 
 	message: '\u00012AAPL,7\u0002AQ1525517,100,O@\u0003\u0014TCYO[LÞ\u0003\n',
 	type: 'TRADE',
@@ -149,7 +149,7 @@ Here are two strategies for processing callback notifications:
 1. Process the market update ```Object``` (maintaining your own state), or
 2. Query the [```Quote```](/content/sdk/lib-marketstate?id=quote) instance (relying on the SDK to maintain state).
 
-```js
+```javascript
 const handleUsingEvent = (event) => {
 	if (event.type === 'TRADE') {
 		console.log(`${event.symbol} just traded for ${event.tradePrice}`);
@@ -168,7 +168,7 @@ connection.on(SubscriptionType.MarketUpdate, 'AAPL', handleUsingQuote);
 
 As before, unsubscribe using the original callback references:
 
-```js
+```javascript
 connection.off(SubscriptionType.MarketUpdate, 'AAPL', handleUsingEvent);
 connection.off(SubscriptionType.MarketUpdate, 'AAPL', handleUsingQuote);
 ```
@@ -188,7 +188,7 @@ The callback receives an ```Object``` with:
 * An ordered ```Array``` of [```MarketDepthLevel```](/content/sdk/lib-connection?id=schemamarketdepthlevel) objects called *bids*, and
 * An ordered ```Array``` of [```MarketDepthLevel```](/content/sdk/lib-connection?id=schemamarketdepthlevel) objects called *asks*.
 
-```js
+```javascript
 	{
 		bids: [ ],
 		asks: [ ]
@@ -197,7 +197,7 @@ The callback receives an ```Object``` with:
 
 Each [```MarketDepthLevel```](/content/sdk/lib-connection?id=schemamarketdepthlevel) has a *price* and a *size* property, as follows:
 
-```js
+```javascript
 	{
 		price: 255.17,
 		size: 1200
@@ -208,7 +208,7 @@ See [```Callbacks.MarketDepthCallback```](/content/sdk/lib-connection?id=callbac
 
 #### Examples
 
-```js
+```javascript
 const handleMarketDepth = (event) => {
 	event.asks.forEach((level) => {
 		console.log(`${level.size} unit(s) are available at ${level.price}`);
@@ -224,7 +224,7 @@ connection.on(SubscriptionType.MarketDepth, handleMarketDepth, 'ESM0');
 
 Unsubscribe as follows:
 
-```js
+```javascript
 connection.off(SubscriptionType.MarketDepth, handleMarketDepth, 'ESM0');
 ```
 
@@ -255,7 +255,7 @@ See [```Callbacks.CumulativeVolumeCallback```](/content/sdk/lib-connection?id=ca
 
 #### Examples
 
-```js
+```javascript
 const handleCumulativeVolume = (event) => {
 	if (event.event === 'update') {
 		console.log(`Volume at ${event.price} increased to ${event.volume} for ${event.container.symbol}`;
@@ -269,6 +269,6 @@ connection.on(SubscriptionType.CumulativeVolume, handleCumulativeVolume, 'ESM0')
 
 Unsubscribe as follows:
 
-```js
+```javascript
 connection.off(SubscriptionType.CumulativeVolume, handleCumulativeVolume, 'ESM0');
 ```

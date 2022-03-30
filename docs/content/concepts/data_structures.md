@@ -11,7 +11,7 @@ As you establish subscriptions, market data begins streaming. The SDK processes 
 
 The [```lib/marketState/MarketState```](/content/sdk/lib-marketstate?id=marketstate) is the repository for state. The SDK maintains a single instance which can be accessed from the [```Connection```](/content/sdk/lib-connection?id=connection) instance, as follows:
 
-```js
+```javascript
 const state = connection.getMarketState();
 ```
 
@@ -21,7 +21,7 @@ A [```lib/marketState/Profile```](/content/sdk/lib-marketstate?id=profile) defin
 
 You can access a [```Profile```](/content/sdk/lib-marketstate?id=profile) as follows:
 
-```js
+```javascript
 connection.getMarketState().getProfile('AAPL')
 	.then((profile) => {
 		console.log(JSON.stringify(profile, null, 2));
@@ -46,7 +46,7 @@ A [```Quote```](/content/sdk/lib-marketstate?id=quote) instance contains the fol
 
 You can access a [```Quote```](/content/sdk/lib-marketstate?id=quote) instance for a symbol, as follows:
 
-```js
+```javascript
 const quote = connection.getMarketState().getQuote('AAPL');
 
 if (quote) {
@@ -62,7 +62,7 @@ After the server acknowledges a [```SubscriptionType.MarketDepth```](/content/sd
 
 You can access a [```Book```](content/sdk/lib-marketstate?id=schemabook) as follows:
 
-```js
+```javascript
 const book = connection.getMarketState().getBook('ESM0');
 
 if (book) {
@@ -78,7 +78,7 @@ After a [```SubscriptionType.CumulativeVolume```](/content/sdk/lib-connection?id
 
 You can access a [```CumulativeVolume```](/content/sdk/lib-marketstate?id=cumulativevolume) instance as follows:
 
-```js
+```javascript
 connection.getMarketState().getCumulativeVolume('AAPL')
 	.then((cumulativeVolume) => {
 		console.log(JSON.stringify(cumulativeVolume, null, 2));
