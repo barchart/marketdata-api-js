@@ -225,10 +225,7 @@
 * * *
 
 ### unitCode.fractionFactorSpecial :id=unitcodefractionfactorspecial
-> Special fraction factors refer to the CME tick notation scheme (read more <a href="https://www.cmegroup.com/confluence/display/EPICSANDBOX/Fractional+Pricing+-+Tick+and+Decimal+Conversions">here</a>).</p>
-> <p>For example, the CME notation for 0.51171875 (in 1/8ths of 1/32nds) is &quot;0-163&quot;, where the
-> numerator of &quot;163&quot; means 16 thirty-seconds and 3 eighths of a thirty-second, where the
-> actual fraction is 16.3[75] / 32, which equals 0.51171875.
+> Special fraction factors refer to the CME tick notation scheme (read more <a href="https://www.cmegroup.com/confluence/display/EPICSANDBOX/Fractional+Pricing+-+Tick+and+Decimal+Conversions">here</a>).
 
 **Kind**: instance property of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Number</code> \| <code>undefined</code>  
