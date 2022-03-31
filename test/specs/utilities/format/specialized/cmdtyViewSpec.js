@@ -2,10 +2,10 @@ const cmdtyView = require('./../../../../../lib/utilities/format/specialized/cmd
 const Profile = require('./../../../../../lib/marketState/Profile');
 
 const ZBM2_1500C = new Profile('ZBM2|1500C', '30-Year T-Bond', 'CBOT', '5', 1000, 1);
-const ZNM2_1230C =  new Profile('ZNM2|1230C', '10-Year T-Note', 'CBOT', '5', 1000, 1);
+const ZNM2_1230C = new Profile('ZNM2|1230C', '10-Year T-Note', 'CBOT', '5', 1000, 1);
 
-const ZTM2_1060C =  new Profile('ZTM2|1060C', '2-Year T-Note', 'CBOT', '6', 2000, 1);
-const ZFM2_1147C =  new Profile('ZFM2|1147C', '5-Year T-Note', 'CBOT', '6', 1000, 1);
+const ZTM2_1060C = new Profile('ZTM2|1060C', '2-Year T-Note', 'CBOT', '6', 2000, 1);
+const ZFM2_1147C = new Profile('ZFM2|1147C', '5-Year T-Note', 'CBOT', '6', 1000, 1);
 
 describe('when formatting prices for a ZB options', () => {
 	it('formats 0.5 as 0-32 (using sixty-fourths)', () => {
