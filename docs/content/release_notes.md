@@ -3,7 +3,7 @@
 ## 5.18.0
 **New Features**
 
-* 
+* Updated the ```Profile``` class to use the ```cmdtyView``` price formatter, by default. This formatter uses special tick notations for options on treasury futures (```ZB```, ```ZT```, ```ZF```, ```ZN``` roots), as specified by the CME, overriding the default tick notation specified in ```UnitCode``` rules.
 
 **Other**
 
