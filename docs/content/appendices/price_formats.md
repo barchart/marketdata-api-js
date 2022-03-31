@@ -244,6 +244,8 @@ A "unit code" is a concept designed by Barchart to describe generally-accepted m
 * Most foreign exchange quotes use unit code ```"D"``` which specifies use of five decimal places (e.g. [^EURUSD](https://www.barchart.com/forex/quotes/%5EEURUSD/overview)).
 * Corn futures contract use unit code ```"2"``` which specifies tick notation in _eighths_ (e.g. [ZC*0](https://www.barchart.com/futures/quotes/ZC*0/overview)).
 
+#### Unit Code Rules
+
 There are fourteen distinct unit codes:
 
 | Unit Code | Decimal Places | Example | Tick Notation Method | Discreet Ticks | Example (maximum tick) |
@@ -332,11 +334,15 @@ In some rare cases, it might be desirable to override the rules stored within th
 
 Your custom [```CustomPriceFormatterCallback```](/content/sdk/lib-marketstate?id=callbackscustompriceformattercallback) will be used in place of the default logic when [```Profile.formatPrice```](/content/sdk/lib-marketstate?id=profileformatprice) is called. [```CustomPriceFormatterCallback```](/content/sdk/lib-marketstate?id=callbackscustompriceformattercallback) takes accepts three arguments and returns a string:
 
-1. The ```price``` to format — a number.
+1. The ```price``` to format — as a number.
 2. The ```unitCode``` which would normally be used — as a string.
 3. The ```profile``` of the instrument being formatted — an instance of the [```Profile```](/content/sdk/lib-marketstate?id=profile) class.
 
-> This is useful in one unusual case. An option on a futures contract will always have the same unit code as the underlying future. However, the [CME](https://www.cmegroup.com/) specifies that options on treasury futures (i.e. roots ```ZB```, ```ZN```, ```ZT```, and ```ZF```) should use a different style of tick notation from their underlying future. For example, [futures on the 30-year U.S. treasury bond](https://www.cmegroup.com/markets/interest-rates/us-treasury/30-year-us-treasury-bond.contractSpecs.html) (root ```ZB```) are formatted in [_halves of thirty-seconds_](/content/appendices/price_formats?id=tick-notation-in-halves-of-thirty-seconds); however, [options on futures for the 30-year U.S. treasury bond](https://www.cmegroup.com/markets/interest-rates/us-treasury/30-year-us-treasury-bond.contractSpecs.options.html#optionProductId=308) are formatted in [_sixty-fourths_](/content/appendices/price_formats?id=tick-notation-in-sixty-fourths). To make matters worse, no unit code exists which defines the rules for formatting in [_sixty-fourths_](/content/appendices/price_formats?id=tick-notation-in-sixty-fourths). Consequently, a custom price must be used. The custom price formatter for this specific case can be reviewed at [```/lib/utilities/format/specialized/cmdtyView.js```](https://github.com/barchart/marketdata-api-js/blob/master/lib/utilities/format/specialized/cmdtyView.js).
+In some rare cases, an instrument's unit code may not correspond with the desired rules formatting rules and the use of a custom formatter becomes necessary. Consider this case:
+
+Options on futures for the 2-year treasury note — root ```ZT``` — have a unit code of ```"6"``` and referencing the [chart above](/content/appendices/price_formats?id=unit-code-rules), _quarters of thirty-seconds_ is indicated. However, the [CME](https://www.cmegroup.com/) specifies that _halves of sixty-fourths_ should be used instead. This creates a potential for **serious error** because of the overlap in tick values between these two tick notation schemes. For example, using  _quarters of thirty-seconds_, the tick value of ```0`160``` equates to a decimal value of ```0.5```; however, the same tick value of ```0`160``` equates to a decimal value of ```0.25``` when using _halves of sixty-fourths_.
+
+> The custom price formatter for this specific case can be reviewed at [```/lib/utilities/format/specialized/cmdtyView.js```](https://github.com/barchart/marketdata-api-js/blob/master/lib/utilities/format/specialized/cmdtyView.js).
 
 #### Using Pure Functions
 
