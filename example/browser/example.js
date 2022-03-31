@@ -5382,11 +5382,13 @@ const SymbolParser = require('./../utilities/parsers/SymbolParser'),
 
 const AssetClass = require('./../utilities/data/AssetClass');
 
+const cmdtyViewPriceFormatter = require('./../utilities/format/specialized/cmdtyView');
+
 module.exports = (() => {
   'use strict';
 
   let profiles = {};
-  let formatter = buildPriceFormatter('-', true, ',');
+  let formatter = cmdtyViewPriceFormatter;
   /**
    * Describes an instrument (associated with a unique symbol).
    *
@@ -5572,7 +5574,7 @@ module.exports = (() => {
   return Profile;
 })();
 
-},{"../utilities/format/factories/price":30,"./../utilities/data/AssetClass":25,"./../utilities/parsers/SymbolParser":39}],19:[function(require,module,exports){
+},{"../utilities/format/factories/price":30,"./../utilities/data/AssetClass":25,"./../utilities/format/specialized/cmdtyView":34,"./../utilities/parsers/SymbolParser":39}],19:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -5832,7 +5834,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.17.1'
+    version: '5.18.0'
   };
 })();
 
@@ -6113,7 +6115,7 @@ module.exports = (() => {
   /**
    * An enumeration that describes different conventions for formatting prices,
    * as decimals or fractions (using tick notation). Each instrument is assigned
-   * a unit code. See the {@link Profile.unitcode} property.
+   * a unit code. See the {@link Profile.unitCode} property.
    *
    * Barchart uses fourteen distinct unit codes.
    *
@@ -6223,10 +6225,6 @@ module.exports = (() => {
     }
     /**
      * Special fraction factors refer to the CME tick notation scheme (read more [here](https://www.cmegroup.com/confluence/display/EPICSANDBOX/Fractional+Pricing+-+Tick+and+Decimal+Conversions)).
-     *
-     * For example, the CME notation for 0.51171875 (in 1/8ths of 1/32nds) is "0-163", where the
-     * numerator of "163" means 16 thirty-seconds and 3 eighths of a thirty-second, where the
-     * actual fraction is 16.3[75] / 32, which equals 0.51171875.
      *
      * @public
      * @returns {Number|undefined}
@@ -6487,16 +6485,16 @@ module.exports = (() => {
    */
 
   function buildPriceFormatter(fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
-    return (value, unitCode) => formatPrice(value, unitCode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis);
+    return (value, unitCode, profile) => formatPrice(value, unitCode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis);
   }
   /**
-   * Accepts a numeric value and a unit code, and returns a formatted
-   * price as a string.
+   * Accepts a numeric value and a unit code, and returns a formatted price as a string.
    *
    * @public
    * @callback PriceFormatterFactory~formatPrice
    * @param {Number} value
    * @param {String} unitCode
+   * @param {Profile} profile
    * @returns {String}
    */
 
@@ -6528,7 +6526,7 @@ module.exports = (() => {
     return ['000', Math.floor(value)].join('').substr(-1 * digits);
   }
   /**
-   * Formats a value using fractional notation.
+   * Formats a value using fractional tick notation.
    *
    * @exported
    * @function
@@ -6749,20 +6747,21 @@ module.exports = (() => {
   regex.ZN = /^BN\d$/;
   /**
    * An implementation of {@link Callbacks.CustomPriceFormatterCallback} which can be
-   * used with ${@link Profile.setPriceFormatterCustom} which uses logic specific to
-   * the [cmdtyView](https://www.barchart.com/cmdty/trading/cmdtyview) product.
+   * used with ${@link Profile.setPriceFormatterCustom}. This implementation applies
+   * logic specific to the [cmdtyView](https://www.barchart.com/cmdty/trading/cmdtyview)
+   * product.
    *
    * @function
    * @ignore
    * @param {Number} value
-   * @param {String} unitcode
+   * @param {String} unitCode
    * @param {Profile} profile
    * @returns {String}
    */
 
-  function formatForCmdtyView(value, unitcode, profile) {
+  function formatForCmdtyView(value, unitCode, profile) {
     if (profile.asset === AssetClass.FUTURE_OPTION) {
-      const root = profile.root; // 2021/07/15, BRI. Options for ZB and ZN use unitcode="5" which defines
+      const root = profile.root; // 2021/07/15, BRI. Options for ZB and ZN use unitCode="5" which defines
       // 64 price increments. The default price formatter will output fractions
       // using halves of thirty-seconds (e.g. 0-315). However, the CME specifies
       // formatting with sixty-fourths (e.g. 0-63). These notations are numerically
@@ -6772,7 +6771,7 @@ module.exports = (() => {
 
       if (root === 'ZB' || root === 'ZN' || regex.ZB.test(root) || regex.ZN.test(root)) {
         return formatFraction(value, 64, 2, '-', false);
-      } // 2021/07/15, BRI. Options for ZT and ZF use unitcode="6" which defines
+      } // 2021/07/15, BRI. Options for ZT and ZF use unitCode="6" which defines
       // 128 price increments. The default price formatter will output fractions
       // using quarters of thirty-seconds (e.g. 0-317). However, the CME specifies
       // formatting with halves of sixty-fourths (e.g. 0-635). These notations are
@@ -6786,7 +6785,7 @@ module.exports = (() => {
       }
     }
 
-    return formatPrice(value, unitcode, '-', true, ',');
+    return formatPrice(value, unitCode, '-', true, ',');
   }
 
   return formatForCmdtyView;

@@ -599,17 +599,19 @@ module.exports = (() => {
   return CumulativeVolume;
 })();
 
-},{"./../logging/LoggerFactory":2,"@barchart/common-js/lang//object":35}],5:[function(require,module,exports){
+},{"./../logging/LoggerFactory":2,"@barchart/common-js/lang//object":36}],5:[function(require,module,exports){
 const SymbolParser = require('./../utilities/parsers/SymbolParser'),
       buildPriceFormatter = require('../utilities/format/factories/price');
 
 const AssetClass = require('./../utilities/data/AssetClass');
 
+const cmdtyViewPriceFormatter = require('./../utilities/format/specialized/cmdtyView');
+
 module.exports = (() => {
   'use strict';
 
   let profiles = {};
-  let formatter = buildPriceFormatter('-', true, ',');
+  let formatter = cmdtyViewPriceFormatter;
   /**
    * Describes an instrument (associated with a unique symbol).
    *
@@ -795,7 +797,7 @@ module.exports = (() => {
   return Profile;
 })();
 
-},{"../utilities/format/factories/price":18,"./../utilities/data/AssetClass":13,"./../utilities/parsers/SymbolParser":29}],6:[function(require,module,exports){
+},{"../utilities/format/factories/price":18,"./../utilities/data/AssetClass":13,"./../utilities/format/specialized/cmdtyView":23,"./../utilities/parsers/SymbolParser":30}],6:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const UnitCode = require('./../data/UnitCode');
@@ -826,7 +828,7 @@ module.exports = (() => {
   return convertBaseCodeToUnitCode;
 })();
 
-},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":34}],7:[function(require,module,exports){
+},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":35}],7:[function(require,module,exports){
 const convertNumberToDayCode = require('./numberToDayCode');
 
 module.exports = (() => {
@@ -887,7 +889,7 @@ module.exports = (() => {
   return convertDayCodeToNumber;
 })();
 
-},{"@barchart/common-js/lang/is":34}],9:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":35}],9:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const monthCodes = require('./../data/monthCodes');
@@ -917,7 +919,7 @@ module.exports = (() => {
   return convertMonthCodeToNumber;
 })();
 
-},{"./../data/monthCodes":15,"@barchart/common-js/lang/is":34}],10:[function(require,module,exports){
+},{"./../data/monthCodes":15,"@barchart/common-js/lang/is":35}],10:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const monthCodes = require('./../data/monthCodes');
@@ -947,7 +949,7 @@ module.exports = (() => {
   return convertMonthCodeToNumber;
 })();
 
-},{"./../data/monthCodes":15,"@barchart/common-js/lang/is":34}],11:[function(require,module,exports){
+},{"./../data/monthCodes":15,"@barchart/common-js/lang/is":35}],11:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 module.exports = (() => {
@@ -984,7 +986,7 @@ module.exports = (() => {
   return convertNumberToDayCode;
 })();
 
-},{"@barchart/common-js/lang/is":34}],12:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":35}],12:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const UnitCode = require('./../data/UnitCode');
@@ -1014,7 +1016,7 @@ module.exports = (() => {
   return convertUnitCodeToBaseCode;
 })();
 
-},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":34}],13:[function(require,module,exports){
+},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":35}],13:[function(require,module,exports){
 const Enum = require('@barchart/common-js/lang/Enum');
 
 module.exports = (() => {
@@ -1151,7 +1153,7 @@ module.exports = (() => {
   return AssetClass;
 })();
 
-},{"@barchart/common-js/lang/Enum":30}],14:[function(require,module,exports){
+},{"@barchart/common-js/lang/Enum":31}],14:[function(require,module,exports){
 const Enum = require('@barchart/common-js/lang/Enum');
 
 module.exports = (() => {
@@ -1162,7 +1164,7 @@ module.exports = (() => {
   /**
    * An enumeration that describes different conventions for formatting prices,
    * as decimals or fractions (using tick notation). Each instrument is assigned
-   * a unit code. See the {@link Profile.unitcode} property.
+   * a unit code. See the {@link Profile.unitCode} property.
    *
    * Barchart uses fourteen distinct unit codes.
    *
@@ -1273,10 +1275,6 @@ module.exports = (() => {
     /**
      * Special fraction factors refer to the CME tick notation scheme (read more [here](https://www.cmegroup.com/confluence/display/EPICSANDBOX/Fractional+Pricing+-+Tick+and+Decimal+Conversions)).
      *
-     * For example, the CME notation for 0.51171875 (in 1/8ths of 1/32nds) is "0-163", where the
-     * numerator of "163" means 16 thirty-seconds and 3 eighths of a thirty-second, where the
-     * actual fraction is 16.3[75] / 32, which equals 0.51171875.
-     *
      * @public
      * @returns {Number|undefined}
      */
@@ -1373,7 +1371,7 @@ module.exports = (() => {
   return UnitCode;
 })();
 
-},{"@barchart/common-js/lang/Enum":30}],15:[function(require,module,exports){
+},{"@barchart/common-js/lang/Enum":31}],15:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1517,7 +1515,7 @@ module.exports = (() => {
   return formatDecimal;
 })();
 
-},{"@barchart/common-js/lang/is":34}],18:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":35}],18:[function(require,module,exports){
 const formatPrice = require('./../price');
 
 module.exports = (() => {
@@ -1536,16 +1534,16 @@ module.exports = (() => {
    */
 
   function buildPriceFormatter(fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
-    return (value, unitCode) => formatPrice(value, unitCode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis);
+    return (value, unitCode, profile) => formatPrice(value, unitCode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis);
   }
   /**
-   * Accepts a numeric value and a unit code, and returns a formatted
-   * price as a string.
+   * Accepts a numeric value and a unit code, and returns a formatted price as a string.
    *
    * @public
    * @callback PriceFormatterFactory~formatPrice
    * @param {Number} value
    * @param {String} unitCode
+   * @param {Profile} profile
    * @returns {String}
    */
 
@@ -1611,7 +1609,7 @@ module.exports = (() => {
     return ['000', Math.floor(value)].join('').substr(-1 * digits);
   }
   /**
-   * Formats a value using fractional notation.
+   * Formats a value using fractional tick notation.
    *
    * @exported
    * @function
@@ -1673,7 +1671,7 @@ module.exports = (() => {
   return formatFraction;
 })();
 
-},{"@barchart/common-js/lang/is":34}],21:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":35}],21:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDecimal = require('./decimal'),
@@ -1731,7 +1729,7 @@ module.exports = (() => {
   return formatPrice;
 })();
 
-},{"./../data/UnitCode":14,"./decimal":17,"./fraction":20,"@barchart/common-js/lang/is":34}],22:[function(require,module,exports){
+},{"./../data/UnitCode":14,"./decimal":17,"./fraction":20,"@barchart/common-js/lang/is":35}],22:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const formatDate = require('./date'),
@@ -1816,7 +1814,67 @@ module.exports = (() => {
   return formatQuoteDateTime;
 })();
 
-},{"./date":16,"./time":24,"@barchart/common-js/lang/Timezones":31,"@barchart/common-js/lang/is":34}],23:[function(require,module,exports){
+},{"./date":16,"./time":25,"@barchart/common-js/lang/Timezones":32,"@barchart/common-js/lang/is":35}],23:[function(require,module,exports){
+const AssetClass = require('./../../data/AssetClass');
+
+const formatFraction = require('./../fraction'),
+      formatPrice = require('./../price');
+
+module.exports = (() => {
+  'use strict';
+
+  const regex = {};
+  regex.ZB = /^BB\d$/;
+  regex.ZT = /^BT\d$/;
+  regex.ZF = /^BF\d$/;
+  regex.ZN = /^BN\d$/;
+  /**
+   * An implementation of {@link Callbacks.CustomPriceFormatterCallback} which can be
+   * used with ${@link Profile.setPriceFormatterCustom}. This implementation applies
+   * logic specific to the [cmdtyView](https://www.barchart.com/cmdty/trading/cmdtyview)
+   * product.
+   *
+   * @function
+   * @ignore
+   * @param {Number} value
+   * @param {String} unitCode
+   * @param {Profile} profile
+   * @returns {String}
+   */
+
+  function formatForCmdtyView(value, unitCode, profile) {
+    if (profile.asset === AssetClass.FUTURE_OPTION) {
+      const root = profile.root; // 2021/07/15, BRI. Options for ZB and ZN use unitCode="5" which defines
+      // 64 price increments. The default price formatter will output fractions
+      // using halves of thirty-seconds (e.g. 0-315). However, the CME specifies
+      // formatting with sixty-fourths (e.g. 0-63). These notations are numerically
+      // equivalent (i.e. 0-315 equals 0-63); however, customers will expect to see
+      // the latter. This logic includes the option "root" symbols for normal, weekly,
+      // and wednesday options (for ZB and ZN futures).
+
+      if (root === 'ZB' || root === 'ZN' || regex.ZB.test(root) || regex.ZN.test(root)) {
+        return formatFraction(value, 64, 2, '-', false);
+      } // 2021/07/15, BRI. Options for ZT and ZF use unitCode="6" which defines
+      // 128 price increments. The default price formatter will output fractions
+      // using quarters of thirty-seconds (e.g. 0-317). However, the CME specifies
+      // formatting with halves of sixty-fourths (e.g. 0-635). These notations are
+      // numerically equivalent (i.e. 0-317 equals 0-635); however, customers will
+      // expect to see the latter. This logic includes the option "root" symbols for
+      // normal, weekly,and wednesday options (for ZT and ZF futures).
+
+
+      if (root === 'ZT' || root === 'ZF' || regex.ZT.test(root) || regex.ZF.test(root)) {
+        return formatFraction(value, 640, 3, '-', false);
+      }
+    }
+
+    return formatPrice(value, unitCode, '-', true, ',');
+  }
+
+  return formatForCmdtyView;
+})();
+
+},{"./../../data/AssetClass":13,"./../fraction":20,"./../price":21}],24:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -1841,7 +1899,7 @@ module.exports = (() => {
   return formatSymbol;
 })();
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1994,7 +2052,7 @@ module.exports = (() => {
   return formatTime;
 })();
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 const xmlDom = require('@xmldom/xmldom');
 
 const parseValue = require('./value'),
@@ -2571,7 +2629,7 @@ module.exports = (() => {
   return parseMessage;
 })();
 
-},{"./timestamp":26,"./value":27,"@xmldom/xmldom":42}],26:[function(require,module,exports){
+},{"./timestamp":27,"./value":28,"@xmldom/xmldom":43}],27:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -2625,7 +2683,7 @@ module.exports = (() => {
   return parseTimestamp;
 })();
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -2725,7 +2783,7 @@ module.exports = (() => {
   return parseValue;
 })();
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 
 const UnitCode = require('./../data/UnitCode');
@@ -2857,7 +2915,7 @@ module.exports = (() => {
   return parsePrice;
 })();
 
-},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":34}],29:[function(require,module,exports){
+},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":35}],30:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is'),
       string = require('@barchart/common-js/lang/string');
 
@@ -3575,7 +3633,7 @@ module.exports = (() => {
   return SymbolParser;
 })();
 
-},{"./../data/AssetClass":13,"@barchart/common-js/lang/is":34,"@barchart/common-js/lang/string":36}],30:[function(require,module,exports){
+},{"./../data/AssetClass":13,"@barchart/common-js/lang/is":35,"@barchart/common-js/lang/string":37}],31:[function(require,module,exports){
 const assert = require('./assert');
 
 module.exports = (() => {
@@ -3695,7 +3753,7 @@ module.exports = (() => {
   return Enum;
 })();
 
-},{"./assert":33}],31:[function(require,module,exports){
+},{"./assert":34}],32:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022');
 
 const Enum = require('./Enum'),
@@ -3837,7 +3895,7 @@ module.exports = (() => {
   return Timezones;
 })();
 
-},{"./Enum":30,"./is":34,"./timezone":37,"moment-timezone/builds/moment-timezone-with-data-2012-2022":44}],32:[function(require,module,exports){
+},{"./Enum":31,"./is":35,"./timezone":38,"moment-timezone/builds/moment-timezone-with-data-2012-2022":45}],33:[function(require,module,exports){
 const assert = require('./assert'),
       is = require('./is');
 
@@ -4341,7 +4399,7 @@ module.exports = (() => {
   }
 })();
 
-},{"./assert":33,"./is":34}],33:[function(require,module,exports){
+},{"./assert":34,"./is":35}],34:[function(require,module,exports){
 const is = require('./is');
 
 module.exports = (() => {
@@ -4486,7 +4544,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./is":34}],34:[function(require,module,exports){
+},{"./is":35}],35:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
   /**
@@ -4705,7 +4763,7 @@ module.exports = (() => {
   };
 })();
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 const array = require('./array'),
       is = require('./is');
 
@@ -4867,7 +4925,7 @@ module.exports = (() => {
   return object;
 })();
 
-},{"./array":32,"./is":34}],36:[function(require,module,exports){
+},{"./array":33,"./is":35}],37:[function(require,module,exports){
 const assert = require('./assert'),
       is = require('./is');
 
@@ -4993,7 +5051,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./assert":33,"./is":34}],37:[function(require,module,exports){
+},{"./assert":34,"./is":35}],38:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022'),
       assert = require('./assert');
 
@@ -5048,7 +5106,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./assert":33,"moment-timezone/builds/moment-timezone-with-data-2012-2022":44}],38:[function(require,module,exports){
+},{"./assert":34,"moment-timezone/builds/moment-timezone-with-data-2012-2022":45}],39:[function(require,module,exports){
 'use strict'
 
 /**
@@ -5194,7 +5252,7 @@ exports.freeze = freeze;
 exports.MIME_TYPE = MIME_TYPE;
 exports.NAMESPACE = NAMESPACE;
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var conventions = require("./conventions");
 var dom = require('./dom')
 var entities = require('./entities');
@@ -5518,7 +5576,7 @@ exports.__DOMHandler = DOMHandler;
 exports.normalizeLineEndings = normalizeLineEndings;
 exports.DOMParser = DOMParser;
 
-},{"./conventions":38,"./dom":40,"./entities":41,"./sax":43}],40:[function(require,module,exports){
+},{"./conventions":39,"./dom":41,"./entities":42,"./sax":44}],41:[function(require,module,exports){
 var conventions = require("./conventions");
 
 var NAMESPACE = conventions.NAMESPACE;
@@ -7053,7 +7111,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{"./conventions":38}],41:[function(require,module,exports){
+},{"./conventions":39}],42:[function(require,module,exports){
 var freeze = require('./conventions').freeze;
 
 /**
@@ -7328,13 +7386,13 @@ exports.HTML_ENTITIES = freeze({
  */
 exports.entityMap = exports.HTML_ENTITIES
 
-},{"./conventions":38}],42:[function(require,module,exports){
+},{"./conventions":39}],43:[function(require,module,exports){
 var dom = require('./dom')
 exports.DOMImplementation = dom.DOMImplementation
 exports.XMLSerializer = dom.XMLSerializer
 exports.DOMParser = require('./dom-parser').DOMParser
 
-},{"./dom":40,"./dom-parser":39}],43:[function(require,module,exports){
+},{"./dom":41,"./dom-parser":40}],44:[function(require,module,exports){
 var NAMESPACE = require("./conventions").NAMESPACE;
 
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
@@ -7986,7 +8044,7 @@ function split(source,start){
 exports.XMLReader = XMLReader;
 exports.ParseError = ParseError;
 
-},{"./conventions":38}],44:[function(require,module,exports){
+},{"./conventions":39}],45:[function(require,module,exports){
 //! moment-timezone.js
 //! version : 0.5.34
 //! Copyright (c) JS Foundation and other contributors
@@ -9534,7 +9592,7 @@ exports.ParseError = ParseError;
 	return moment;
 }));
 
-},{"moment":45}],45:[function(require,module,exports){
+},{"moment":46}],46:[function(require,module,exports){
 //! moment.js
 //! version : 2.29.1
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -15206,7 +15264,7 @@ exports.ParseError = ParseError;
 
 })));
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 const CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
 
 describe('When a cumulative volume container is created with a tick increment of 0.25', () => {
@@ -15545,7 +15603,7 @@ describe('When a cumulative volume container is created with a tick increment of
   });
 });
 
-},{"../../../lib/marketState/CumulativeVolume":4}],47:[function(require,module,exports){
+},{"../../../lib/marketState/CumulativeVolume":4}],48:[function(require,module,exports){
 const Profile = require('../../../lib/marketState/Profile');
 
 describe('When a Profile is created (for a symbol with unitCode "2")', () => {
@@ -15559,8 +15617,36 @@ describe('When a Profile is created (for a symbol with unitCode "2")', () => {
     expect(p.formatPrice(123.5)).toEqual('123-4');
   });
 });
+describe('When a Profile is created (an option on a ZB future")', () => {
+  'use strict';
 
-},{"../../../lib/marketState/Profile":5}],48:[function(require,module,exports){
+  var p;
+  beforeEach(() => {
+    p = new Profile('ZBM2|1500C', '30-Year T-Bond', 'CBOT', '5', 1000, 1);
+  });
+  it('formats 0.5 as 0-32 (using sixty-fourths)', () => {
+    expect(p.formatPrice(0.5)).toEqual('0-32');
+  });
+  it('formats 0.984375 as 0-63 (using sixty-fourths)', () => {
+    expect(p.formatPrice(0.984375)).toEqual('0-63');
+  });
+});
+describe('When a Profile is created (an option on a ZT future")', () => {
+  'use strict';
+
+  var p;
+  beforeEach(() => {
+    p = new Profile('ZTM2|1060C', '2-Year T-Note', 'CBOT', '6', 2000, 1);
+  });
+  it('formats 0.5 as 0-320 (using sixty-fourths)', () => {
+    expect(p.formatPrice(0.5)).toEqual('0-320');
+  });
+  it('formats 0.9921875 as 0-635 (using sixty-fourths)', () => {
+    expect(p.formatPrice(0.9921875)).toEqual('0-635');
+  });
+});
+
+},{"../../../lib/marketState/Profile":5}],49:[function(require,module,exports){
 const convertBaseCodeToUnitCode = require('./../../../../lib/utilities/convert/baseCodeToUnitCode');
 
 describe('When converting a baseCode to a unitCode', () => {
@@ -15617,7 +15703,7 @@ describe('When converting a baseCode to a unitCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":6}],49:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":6}],50:[function(require,module,exports){
 const convertDateToDayCode = require('./../../../../lib/utilities/convert/dateToDayCode');
 
 describe('When converting a date instance to a day code', () => {
@@ -15722,7 +15808,7 @@ describe('When converting a date instance to a day code', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dateToDayCode":7}],50:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dateToDayCode":7}],51:[function(require,module,exports){
 const convertDayCodeToNumber = require('./../../../../lib/utilities/convert/dayCodeToNumber');
 
 describe('When converting a dayCode to number', () => {
@@ -15893,7 +15979,7 @@ describe('When converting a dayCode to number', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dayCodeToNumber":8}],51:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dayCodeToNumber":8}],52:[function(require,module,exports){
 const convertMonthCodeToName = require('./../../../../lib/utilities/convert/monthCodeToName');
 
 describe('When converting a futures month code to a month name', () => {
@@ -15908,7 +15994,7 @@ describe('When converting a futures month code to a month name', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/monthCodeToName":9}],52:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/monthCodeToName":9}],53:[function(require,module,exports){
 const convertMonthCodeToNumber = require('./../../../../lib/utilities/convert/monthCodeToNumber');
 
 describe('When converting a futures month code to a month name', () => {
@@ -15923,7 +16009,7 @@ describe('When converting a futures month code to a month name', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/monthCodeToNumber":10}],53:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/monthCodeToNumber":10}],54:[function(require,module,exports){
 const convertNumberToDayCode = require('./../../../../lib/utilities/convert/numberToDayCode');
 
 describe('When converting a number to a dayCode', () => {
@@ -16028,7 +16114,7 @@ describe('When converting a number to a dayCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/numberToDayCode":11}],54:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/numberToDayCode":11}],55:[function(require,module,exports){
 const convertUnitCodeToBaseCode = require('./../../../../lib/utilities/convert/unitCodeToBaseCode');
 
 describe('When converting a unitCode to a baseCode', () => {
@@ -16085,7 +16171,7 @@ describe('When converting a unitCode to a baseCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":12}],55:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":12}],56:[function(require,module,exports){
 const UnitCode = require('../../../../lib/utilities/data/UnitCode');
 
 describe('When parsing an invalid argument', () => {
@@ -16780,7 +16866,7 @@ describe('When parsing a valid character as a unit code', () => {
   });
 });
 
-},{"../../../../lib/utilities/data/UnitCode":14}],56:[function(require,module,exports){
+},{"../../../../lib/utilities/data/UnitCode":14}],57:[function(require,module,exports){
 const monthCodes = require('../../../../lib/utilities/data/monthCodes');
 
 describe('When looking up a month name by code', () => {
@@ -16868,7 +16954,7 @@ describe('When looking up a month number by code', () => {
   });
 });
 
-},{"../../../../lib/utilities/data/monthCodes":15}],57:[function(require,module,exports){
+},{"../../../../lib/utilities/data/monthCodes":15}],58:[function(require,module,exports){
 const string = require('@barchart/common-js/lang/string');
 
 const formatPrice = require('./../../../../lib/utilities/format/price'); // 2021/07/12, BRI. These tests are based on mapping tables (between decimal
@@ -16941,7 +17027,7 @@ const EIGHTHS_OF_THIRTY_SECONDS = [// 0/32nds + 1/8 of a 32nd = 0.125/32nd = 0-0
 // 0/32nds + 1/8 of a 32nd = 1.00/32nd = 0-011[25] = 0-011 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 1.125/32 = 0.03515625...
 [0, 0], [1, 0.00390625], [2, 0.0078125], [3, 0.01171875], [5, 0.015625], [6, 0.01953125], [7, 0.0234375], [8, 0.02734375], [10, 0.03125], [11, 0.03515625], [12, 0.0390625], [13, 0.04296875], [15, 0.046875], [16, 0.05078125], [17, 0.0546875], [18, 0.05859375], [20, 0.0625], [21, 0.06640625], [22, 0.0703125], [23, 0.07421875], [25, 0.078125], [26, 0.08203125], [27, 0.0859375], [28, 0.08984375], [30, 0.09375], [31, 0.09765625], [32, 0.1015625], [33, 0.10546875], [35, 0.109375], [36, 0.11328125], [37, 0.1171875], [38, 0.12109375], [40, 0.125], [41, 0.12890625], [42, 0.1328125], [43, 0.13671875], [45, 0.140625], [46, 0.14453125], [47, 0.1484375], [48, 0.15234375], [50, 0.15625], [51, 0.16015625], [52, 0.1640625], [53, 0.16796875], [55, 0.171875], [56, 0.17578125], [57, 0.1796875], [58, 0.18359375], [60, 0.1875], [61, 0.19140625], [62, 0.1953125], [63, 0.19921875], [65, 0.203125], [66, 0.20703125], [67, 0.2109375], [68, 0.21484375], [70, 0.21875], [71, 0.22265625], [72, 0.2265625], [73, 0.23046875], [75, 0.234375], [76, 0.23828125], [77, 0.2421875], [78, 0.24609375], [80, 0.25], [81, 0.25390625], [82, 0.2578125], [83, 0.26171875], [85, 0.265625], [86, 0.26953125], [87, 0.2734375], [88, 0.27734375], [90, 0.28125], [91, 0.28515625], [92, 0.2890625], [93, 0.29296875], [95, 0.296875], [96, 0.30078125], [97, 0.3046875], [98, 0.30859375], [100, 0.3125], [101, 0.31640625], [102, 0.3203125], [103, 0.32421875], [105, 0.328125], [106, 0.33203125], [107, 0.3359375], [108, 0.33984375], [110, 0.34375], [111, 0.34765625], [112, 0.3515625], [113, 0.35546875], [115, 0.359375], [116, 0.36328125], [117, 0.3671875], [118, 0.37109375], [120, 0.375], [121, 0.37890625], [122, 0.3828125], [123, 0.38671875], [125, 0.390625], [126, 0.39453125], [127, 0.3984375], [128, 0.40234375], [130, 0.40625], [131, 0.41015625], [132, 0.4140625], [133, 0.41796875], [135, 0.421875], [136, 0.42578125], [137, 0.4296875], [138, 0.43359375], [140, 0.4375], [141, 0.44140625], [142, 0.4453125], [143, 0.44921875], [145, 0.453125], [146, 0.45703125], [147, 0.4609375], [148, 0.46484375], [150, 0.46875], [151, 0.47265625], [152, 0.4765625], [153, 0.48046875], [155, 0.484375], [156, 0.48828125], [157, 0.4921875], [158, 0.49609375], [160, 0.5], [161, 0.50390625], [162, 0.5078125], [163, 0.51171875], [165, 0.515625], [166, 0.51953125], [167, 0.5234375], [168, 0.52734375], [170, 0.53125], [171, 0.53515625], [172, 0.5390625], [173, 0.54296875], [175, 0.546875], [176, 0.55078125], [177, 0.5546875], [178, 0.55859375], [180, 0.5625], [181, 0.56640625], [182, 0.5703125], [183, 0.57421875], [185, 0.578125], [186, 0.58203125], [187, 0.5859375], [188, 0.58984375], [190, 0.59375], [191, 0.59765625], [192, 0.6015625], [193, 0.60546875], [195, 0.609375], [196, 0.61328125], [197, 0.6171875], [198, 0.62109375], [200, 0.625], [201, 0.62890625], [202, 0.6328125], [203, 0.63671875], [205, 0.640625], [206, 0.64453125], [207, 0.6484375], [208, 0.65234375], [210, 0.65625], [211, 0.66015625], [212, 0.6640625], [213, 0.66796875], [215, 0.671875], [216, 0.67578125], [217, 0.6796875], [218, 0.68359375], [220, 0.6875], [221, 0.69140625], [222, 0.6953125], [223, 0.69921875], [225, 0.703125], [226, 0.70703125], [227, 0.7109375], [228, 0.71484375], [230, 0.71875], [231, 0.72265625], [232, 0.7265625], [233, 0.73046875], [235, 0.734375], [236, 0.73828125], [237, 0.7421875], [238, 0.74609375], [240, 0.75], [241, 0.75390625], [242, 0.7578125], [243, 0.76171875], [245, 0.765625], [246, 0.76953125], [247, 0.7734375], [248, 0.77734375], [250, 0.78125], [251, 0.78515625], [252, 0.7890625], [253, 0.79296875], [255, 0.796875], [256, 0.80078125], [257, 0.8046875], [258, 0.80859375], [260, 0.8125], [261, 0.81640625], [262, 0.8203125], [263, 0.82421875], [265, 0.828125], [266, 0.83203125], [267, 0.8359375], [268, 0.83984375], [270, 0.84375], [271, 0.84765625], [272, 0.8515625], [273, 0.85546875], [275, 0.859375], [276, 0.86328125], [277, 0.8671875], [278, 0.87109375], [280, 0.875], [281, 0.87890625], [282, 0.8828125], [283, 0.88671875], [285, 0.890625], [286, 0.89453125], [287, 0.8984375], [288, 0.90234375], [290, 0.90625], [291, 0.91015625], [292, 0.9140625], [293, 0.91796875], [295, 0.921875], [296, 0.92578125], [297, 0.9296875], [298, 0.93359375], [300, 0.9375], [301, 0.94140625], [302, 0.9453125], [303, 0.94921875], [305, 0.953125], [306, 0.95703125], [307, 0.9609375], [308, 0.96484375], [310, 0.96875], [311, 0.97265625], [312, 0.9765625], [313, 0.98046875], [315, 0.984375], [316, 0.98828125], [317, 0.9921875], [318, 0.99609375]];
 
-},{"./../../../../lib/utilities/format/price":21,"@barchart/common-js/lang/string":36}],58:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/price":21,"@barchart/common-js/lang/string":37}],59:[function(require,module,exports){
 const formatDate = require('./../../../../lib/utilities/format/date');
 
 describe('when using the date formatter', () => {
@@ -16953,7 +17039,7 @@ describe('when using the date formatter', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/date":16}],59:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/date":16}],60:[function(require,module,exports){
 const formatDecimal = require('./../../../../lib/utilities/format/decimal');
 
 describe('when formatting invalid values', () => {
@@ -17091,7 +17177,7 @@ describe('when formatting decimal values to format with parenthesis and no thous
   });
 });
 
-},{"./../../../../lib/utilities/format/decimal":17}],60:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/decimal":17}],61:[function(require,module,exports){
 const buildPriceFormatter = require('./../../../../../lib/utilities/format/factories/price');
 
 describe('When a price formatter is created', () => {
@@ -17451,7 +17537,7 @@ describe('When a price formatter is created', () => {
   });
 });
 
-},{"./../../../../../lib/utilities/format/factories/price":18}],61:[function(require,module,exports){
+},{"./../../../../../lib/utilities/format/factories/price":18}],62:[function(require,module,exports){
 const buildQuoteFormatter = require('./../../../../../lib/utilities/format/factories/quote');
 
 describe('When a time formatter is created (without specifying the clock)', () => {
@@ -17894,7 +17980,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../../lib/utilities/format/factories/quote":19}],62:[function(require,module,exports){
+},{"./../../../../../lib/utilities/format/factories/quote":19}],63:[function(require,module,exports){
 const formatFraction = require('./../../../../lib/utilities/format/fraction');
 
 describe('when formatting in halves of thirty-seconds', () => {
@@ -17918,7 +18004,7 @@ describe('when formatting in halves of sixty-fourths', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/fraction":20}],63:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/fraction":20}],64:[function(require,module,exports){
 const formatPrice = require('./../../../../lib/utilities/format/price');
 /*
 describe('benchmark', () => {
@@ -18354,7 +18440,7 @@ describe('when valid prices are formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/price":21}],64:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/price":21}],65:[function(require,module,exports){
 const formatQuote = require('./../../../../lib/utilities/format/quote');
 
 describe('When a quote formatter is used (without specifying the clock)', () => {
@@ -18777,7 +18863,49 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../lib/utilities/format/quote":22}],65:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/quote":22}],66:[function(require,module,exports){
+const cmdtyView = require('./../../../../../lib/utilities/format/specialized/cmdtyView');
+
+const Profile = require('./../../../../../lib/marketState/Profile');
+
+const ZBM2_1500C = new Profile('ZBM2|1500C', '30-Year T-Bond', 'CBOT', '5', 1000, 1);
+const ZNM2_1230C = new Profile('ZNM2|1230C', '10-Year T-Note', 'CBOT', '5', 1000, 1);
+const ZTM2_1060C = new Profile('ZTM2|1060C', '2-Year T-Note', 'CBOT', '6', 2000, 1);
+const ZFM2_1147C = new Profile('ZFM2|1147C', '5-Year T-Note', 'CBOT', '6', 1000, 1);
+describe('when formatting prices for a ZB options', () => {
+  it('formats 0.5 as 0-32 (using sixty-fourths)', () => {
+    expect(cmdtyView(0.5, ZBM2_1500C.unitCode, ZBM2_1500C)).toEqual('0-32');
+  });
+  it('formats 0.984375 as 0-63 (using sixty-fourths)', () => {
+    expect(cmdtyView(0.984375, ZBM2_1500C.unitCode, ZBM2_1500C)).toEqual('0-63');
+  });
+});
+describe('when formatting prices for a ZN option', () => {
+  it('formats 0.5 as 0-32 (using sixty-fourths)', () => {
+    expect(cmdtyView(0.5, ZNM2_1230C.unitCode, ZNM2_1230C)).toEqual('0-32');
+  });
+  it('formats 0.984375 as 0-63 (using sixty-fourths)', () => {
+    expect(cmdtyView(0.984375, ZNM2_1230C.unitCode, ZNM2_1230C)).toEqual('0-63');
+  });
+});
+describe('when formatting prices for a ZT options', () => {
+  it('formats 0.5 as 0-320 (using halves of sixty-fourths)', () => {
+    expect(cmdtyView(0.5, ZTM2_1060C.unitCode, ZTM2_1060C)).toEqual('0-320');
+  });
+  it('formats 0.9921875 as 0-635 (using halves of sixty-fourths)', () => {
+    expect(cmdtyView(0.9921875, ZTM2_1060C.unitCode, ZTM2_1060C)).toEqual('0-635');
+  });
+});
+describe('when formatting prices for a ZF options', () => {
+  it('formats 0.5 as 0-320 (using halves of sixty-fourths)', () => {
+    expect(cmdtyView(0.5, ZFM2_1147C.unitCode, ZFM2_1147C)).toEqual('0-320');
+  });
+  it('formats 0.9921875 as 0-635 (using halves of sixty-fourths)', () => {
+    expect(cmdtyView(0.9921875, ZFM2_1147C.unitCode, ZFM2_1147C)).toEqual('0-635');
+  });
+});
+
+},{"./../../../../../lib/marketState/Profile":5,"./../../../../../lib/utilities/format/specialized/cmdtyView":23}],67:[function(require,module,exports){
 const formatSymbol = require('./../../../../lib/utilities/format/symbol');
 
 describe('When a lowercase string is formatted as a symbol', () => {
@@ -18864,9 +18992,9 @@ describe('When an null value is formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/symbol":23}],66:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/symbol":24}],68:[function(require,module,exports){
 
-},{}],67:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 const parseMessage = require('../../../../../lib/utilities/parse/ddf/message');
 
 describe('when parsing an XML refresh message', () => {
@@ -19119,7 +19247,7 @@ describe('when parsing a DDF message', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/message":25}],68:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/message":26}],70:[function(require,module,exports){
 const parseValue = require('../../../../../lib/utilities/parse/ddf/value');
 
 describe('when parsing prices', () => {
@@ -19222,7 +19350,7 @@ describe('when parsing prices', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/value":27}],69:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/value":28}],71:[function(require,module,exports){
 const parsePrice = require('../../../../lib/utilities/parse/price');
 
 describe('when parsing invalid values', () => {
@@ -19603,7 +19731,7 @@ describe('when valid prices are parsed', () => {
   });
 });
 
-},{"../../../../lib/utilities/parse/price":28}],70:[function(require,module,exports){
+},{"../../../../lib/utilities/parse/price":29}],72:[function(require,module,exports){
 const SymbolParser = require('../../../../lib/utilities/parsers/SymbolParser');
 
 describe('When parsing a symbol for instrument type', () => {
@@ -21745,4 +21873,4 @@ describe('When getting an explicit futures symbol', () => {
   });
 });
 
-},{"../../../../lib/utilities/parsers/SymbolParser":29}]},{},[46,47,48,49,50,51,52,53,54,56,55,57,58,59,60,61,62,63,64,65,66,67,68,69,70]);
+},{"../../../../lib/utilities/parsers/SymbolParser":30}]},{},[47,48,49,50,51,52,53,54,55,57,56,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72]);
