@@ -340,10 +340,6 @@ Your custom [```CustomPriceFormatterCallback```](/content/sdk/lib-marketstate?id
 
 In some rare cases, an instrument's unit code may not correspond with the desired rules formatting rules and the use of a custom formatter becomes necessary. Consider this case:
 
-Options on futures for the 2-year treasury note — root ```ZT``` — have a unit code of ```"6"``` and referencing the [chart above](/content/appendices/price_formats?id=unit-code-rules), _quarters of thirty-seconds_ is indicated. However, the [CME](https://www.cmegroup.com/) specifies that _halves of sixty-fourths_ should be used instead. This creates a potential for **serious error** because of the overlap in tick values between these two tick notation schemes. For example, using  _quarters of thirty-seconds_, the tick value of ```0`160``` equates to a decimal value of ```0.5```; however, the same tick value of ```0`160``` equates to a decimal value of ```0.25``` when using _halves of sixty-fourths_.
-
-> The custom price formatter for this specific case can be reviewed at [```/lib/utilities/format/specialized/cmdtyView.js```](https://github.com/barchart/marketdata-api-js/blob/master/lib/utilities/format/specialized/cmdtyView.js).
-
 #### Using Pure Functions
 
 In some cases, a [```Profile```](/content/concepts/data_structures?id=profiles) instance might not be available. In these cases, raw price formatting functions can be found here:
