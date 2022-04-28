@@ -3289,9 +3289,7 @@ module.exports = (() => {
       }
 
       assert.argumentIsArray(symbols, 'symbols', String);
-      const symbolsForOnDemand = symbols.filter(SymbolParser.getIsC3);
-      const symbolsForExtras = symbols.filter(SymbolParser.getIsFuture);
-      return Promise.all([retrieveExtensionsFromExtras(symbolsForExtras), retrieveExtensionsFromOnDemand(symbolsForOnDemand, username, password)]).then(results => {
+      return Promise.all([retrieveExtensionsFromExtras(symbols.filter(SymbolParser.getIsFuture)), retrieveExtensionsFromOnDemand(symbols.filter(SymbolParser.getIsC3), username, password), retrieveExtensionsFromFundamentals(symbols.filter(SymbolParser.getIsCmdtyStats))]).then(results => {
         return array.flatten(results);
       });
     });
@@ -3331,6 +3329,34 @@ module.exports = (() => {
             extension.firstNotice = Day.parse(result.symbol_fnd).format();
           }
 
+          return extension;
+        });
+      });
+    });
+  }
+
+  function retrieveExtensionsFromFundamentals(symbols) {
+    return Promise.resolve().then(() => {
+      if (symbols.length === 0) {
+        return Promise.resolve([]);
+      }
+
+      const options = {
+        url: `https://instrument-extensions.aws.barchart.com/v1/cmdtyStats/meta?&symbols=${encodeURIComponent(symbols.join())}`,
+        method: 'GET'
+      };
+      return Promise.resolve(axios(options)).then(response => {
+        if (response.status !== 200) {
+          return [];
+        }
+
+        const results = (response.data || []).filter(result => {
+          return result.meta !== null;
+        });
+        return results.map(result => {
+          const extension = {};
+          extension.symbol = result.symbol;
+          extension.cmdtyStats = result.meta;
           return extension;
         });
       });
@@ -3414,6 +3440,7 @@ module.exports = (() => {
    * @property {String=} expiration
    * @property {String=} firstNotice
    * @property {Object=} c3
+   * @property {Object=} cmdtyStats
    */
 
 
@@ -4609,6 +4636,10 @@ module.exports = (() => {
       if (extension.c3) {
         profile.c3 = extension.c3;
       }
+
+      if (extension.cmdtyStats) {
+        profile.cmdtyStats = extension.cmdtyStats;
+      }
     };
 
     const _createProfile = (symbol, name, exchange, unitCode, pointValue, tickIncrement, additional) => {
@@ -5461,20 +5492,28 @@ module.exports = (() => {
         if (future) {
           /**
            * @property {string|undefined} month - Month code (futures only).
+           * @public
+           * @readonly
            */
           this.month = info.month;
           /**
            * @property {number|undefined} year - Expiration year (futures only).
+           * @public
+           * @readonly
            */
 
           this.year = info.year;
           /**
            * @property {string|undefined} expiration - Expiration date, formatted as YYYY-MM-DD (futures only).
+           * @public
+           * @readonly
            */
 
           this.expiration = null;
           /**
            * @property {string|undefined} firstNotice - First notice date, formatted as YYYY-MM-DD (futures only).
+           * @public
+           * @readonly
            */
 
           this.firstNotice = null;
@@ -5482,6 +5521,8 @@ module.exports = (() => {
       }
       /**
        * @property {AssetClass|null} asset - The instrument type (a.k.a. asset class). This will only be present when inference based on the instrument symbol is possible.
+       * @public
+       * @readonly
        */
 
 
@@ -5834,7 +5875,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.18.0'
+    version: '5.19.0'
   };
 })();
 
@@ -15384,7 +15425,7 @@ module.exports={
   "_resolved": "https://registry.npmjs.org/axios/-/axios-0.21.4.tgz",
   "_shasum": "c67b90dc0568e5c1cf2b0b858c43ba28e2eda575",
   "_spec": "axios@^0.21.1",
-  "_where": "/Users/bryan/Documents/git/marketdata-api-js",
+  "_where": "/home/bryan/Documents/git/marketdata-api-js",
   "author": {
     "name": "Matt Zabriskie"
   },

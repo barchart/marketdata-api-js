@@ -684,20 +684,28 @@ module.exports = (() => {
         if (future) {
           /**
            * @property {string|undefined} month - Month code (futures only).
+           * @public
+           * @readonly
            */
           this.month = info.month;
           /**
            * @property {number|undefined} year - Expiration year (futures only).
+           * @public
+           * @readonly
            */
 
           this.year = info.year;
           /**
            * @property {string|undefined} expiration - Expiration date, formatted as YYYY-MM-DD (futures only).
+           * @public
+           * @readonly
            */
 
           this.expiration = null;
           /**
            * @property {string|undefined} firstNotice - First notice date, formatted as YYYY-MM-DD (futures only).
+           * @public
+           * @readonly
            */
 
           this.firstNotice = null;
@@ -705,6 +713,8 @@ module.exports = (() => {
       }
       /**
        * @property {AssetClass|null} asset - The instrument type (a.k.a. asset class). This will only be present when inference based on the instrument symbol is possible.
+       * @public
+       * @readonly
        */
 
 
