@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.19.0
+**New Features**
+
+* Added extended profile attributes for [commodity statistics](https://www.barchart.com/cmdty/data/stats) (a.k.a. cmdtyStats).
+
 ## 5.18.0
 **New Features**
 

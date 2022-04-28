@@ -403,6 +403,8 @@
 
 ### profile.month :id=profilemonth
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -414,6 +416,8 @@
 
 ### profile.year :id=profileyear
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -425,6 +429,8 @@
 
 ### profile.expiration :id=profileexpiration
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -436,6 +442,8 @@
 
 ### profile.firstNotice :id=profilefirstnotice
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
@@ -447,6 +455,8 @@
 
 ### profile.asset :id=profileasset
 **Kind**: instance property of [<code>Profile</code>](#Profile)  
+**Access**: public  
+**Read only**: true  
 **Properties**
 
 | Name | Type | Description |
