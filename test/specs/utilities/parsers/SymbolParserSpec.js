@@ -2780,6 +2780,42 @@ describe('When getting a producer symbol', () => {
 				expect(producerSymbol).toEqual('ZWK465X');
 			});
 		});
+
+		describe('When testing ZCN22|800P in 2022', () => {
+			let producerSymbol;
+
+			beforeEach(() => {
+				let getFullYear = Date.prototype.getFullYear;
+
+				Date.prototype.getFullYear = () => { return 2022; };
+
+				producerSymbol = SymbolParser.getProducerSymbol('ZCN22|800P');
+
+				Date.prototype.getFullYear = getFullYear;
+			});
+
+			it('ZCN22|800P should map to ZCN800P', () =>{
+				expect(producerSymbol).toEqual('ZCN800P');
+			});
+		});
+
+		describe('When testing ZCN2|800P in 2022', () => {
+			let producerSymbol;
+
+			beforeEach(() => {
+				let getFullYear = Date.prototype.getFullYear;
+
+				Date.prototype.getFullYear = () => { return 2022; };
+
+				producerSymbol = SymbolParser.getProducerSymbol('ZCN2|800P');
+
+				Date.prototype.getFullYear = getFullYear;
+			});
+
+			it('ZCN2|800P should map to ZCN800P', () =>{
+				expect(producerSymbol).toEqual('ZCN800P');
+			});
+		});
 	});
 });
 
