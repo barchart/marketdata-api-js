@@ -854,6 +854,90 @@ describe('When parsing a symbol for instrument type', () => {
 	});
 });
 
+describe('When parsing a symbol for a futures contract', () => {
+	describe('and the year is 2022', () => {
+		let getFullYear;
+
+		beforeEach(() => {
+			getFullYear = Date.prototype.getFullYear;
+
+			Date.prototype.getFullYear = () => { return 2022; };
+		});
+
+		it('the expiration year of "ZCN19" should parse to 2019', () => {
+			expect(SymbolParser.parseInstrumentType('ZCN19').year).toEqual(2019);
+		});
+
+		it('the expiration year of "ZCN21" should parse to 2021', () => {
+			expect(SymbolParser.parseInstrumentType('ZCN21').year).toEqual(2021);
+		});
+
+		it('the expiration year of "ZCN22" should parse to 2022', () => {
+			expect(SymbolParser.parseInstrumentType('ZCN22').year).toEqual(2022);
+		});
+
+		it('the expiration year of "ZCN32" should parse to 2032', () => {
+			expect(SymbolParser.parseInstrumentType('ZCN32').year).toEqual(2032);
+		});
+
+		it('the expiration year of "ZCN42" should parse to 2042', () => {
+			expect(SymbolParser.parseInstrumentType('ZCN42').year).toEqual(2042);
+		});
+
+		it('the expiration year of "ZCN47" should parse to 2047', () => {
+			expect(SymbolParser.parseInstrumentType('ZCN47').year).toEqual(2047);
+		});
+
+		it('the expiration year of "ZCN48" should parse to 1948', () => {
+			expect(SymbolParser.parseInstrumentType('ZCN48').year).toEqual(1948);
+		});
+
+		it('the expiration year of "ZCN49" should parse to 1949', () => {
+			expect(SymbolParser.parseInstrumentType('ZCN49').year).toEqual(1949);
+		});
+
+		it('the expiration year of "ZCN99" should parse to 1999', () => {
+			expect(SymbolParser.parseInstrumentType('ZCM99').year).toEqual(1999);
+		});
+
+		afterEach(() => {
+			Date.prototype.getFullYear = getFullYear;
+		});
+	});
+});
+
+describe('When parsing a symbol for a futures option', () => {
+	describe('and the year is 2022', () => {
+		let getFullYear;
+
+		beforeEach(() => {
+			getFullYear = Date.prototype.getFullYear;
+
+			Date.prototype.getFullYear = () => { return 2022; };
+		});
+
+		it('the expiration year of "ZWK18465C" should parse to 2018', () => {
+			expect(SymbolParser.parseInstrumentType('ZWK18465C').year).toEqual(2018);
+		});
+
+		it('the expiration year of "ZWK22465C" should parse to 2022', () => {
+			expect(SymbolParser.parseInstrumentType('ZWK22465C').year).toEqual(2022);
+		});
+
+		it('the expiration year of "ZWK47465C" should parse to 2047', () => {
+			expect(SymbolParser.parseInstrumentType('ZWK47465C').year).toEqual(2047);
+		});
+
+		it('the expiration year of "ZWK48465C" should parse to 2048', () => {
+			expect(SymbolParser.parseInstrumentType('ZWK48465C').year).toEqual(1948);
+		});
+
+		afterEach(() => {
+			Date.prototype.getFullYear = getFullYear;
+		});
+	});
+});
+
 describe('When checking to see if a symbol is a future', () => {
 	it('the symbol "ES*1" should return true', () => {
 		expect(SymbolParser.getIsFuture('ES*1')).toEqual(true);
@@ -1332,7 +1416,6 @@ describe('When checking to see if a symbol is forex', () => {
 	});
 });
 
-
 describe('When checking to see if a symbol is crypto', () => {
 	it('the symbol "ES*1" should return false', () => {
 		expect(SymbolParser.getIsCrypto('ES*1')).toEqual(false);
@@ -1479,7 +1562,7 @@ describe('When checking to see if a symbol is crypto', () => {
 	});
 });
 
-describe('When checking to see if a symbol is a future spread', () => {
+describe('When checking to see if a symbol is a futures spread', () => {
 	it('the symbol "ES*1" should return false', () => {
 		expect(SymbolParser.getIsFutureSpread('ES*1')).toEqual(false);
 	});
@@ -1625,7 +1708,7 @@ describe('When checking to see if a symbol is a future spread', () => {
 	});
 });
 
-describe('When checking to see if a symbol is a future option', () => {
+describe('When checking to see if a symbol is a futures option', () => {
 	it('the symbol "ES*1" should return false', () => {
 		expect(SymbolParser.getIsFutureOption('ES*1')).toEqual(false);
 	});
