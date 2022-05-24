@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.19.1
+**Breaking Changes**
+
+* Adjusted the logic used by the `SymbolParser.parseInstrumentType` function to infer the expiration year of futures contracts and futures options based solely on a symbol (e.g. ZCZ19). In previous versions, given a two-digit number (e.g. 19), a year in the current century or the next century would be returned (e.g. 2019 or 2119). In this version, a 100-year window is used, interpreting a two-digit number as a year up to 25 years in the future, or alternatively up to 75 years in the past. Assuming the current year is 2022, the 100-year window will range from 1948 to 2047. 
+
 ## 5.19.0
 **New Features**
 
