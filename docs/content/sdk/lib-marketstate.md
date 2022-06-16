@@ -467,7 +467,7 @@
 * * *
 
 ### profile.formatPrice(price) :id=profileformatprice
-> Given a price, returns a the human-readable string representation.
+> Given a price, returns the human-readable representation.
 
 **Kind**: instance method of [<code>Profile</code>](#Profile)  
 **Returns**: <code>string</code>  

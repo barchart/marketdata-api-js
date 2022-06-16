@@ -1,5 +1,14 @@
 # Release Notes
 
+## 5.20.0
+**New Features**
+
+* Added additional attributes to profile "extension" for C3 instruments.
+
+**Other**
+
+* Switched to a new remote API for C3 profile "extension" data.
+
 ## 5.19.1
 **Bug Fixes**
 
