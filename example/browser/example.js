@@ -3289,13 +3289,13 @@ module.exports = (() => {
       }
 
       assert.argumentIsArray(symbols, 'symbols', String);
-      return Promise.all([retrieveExtensionsFromExtras(symbols.filter(SymbolParser.getIsFuture)), retrieveExtensionsFromOnDemand(symbols.filter(SymbolParser.getIsC3), username, password), retrieveExtensionsFromFundamentals(symbols.filter(SymbolParser.getIsCmdtyStats))]).then(results => {
+      return Promise.all([retrieveExtensionsForC3(symbols.filter(SymbolParser.getIsC3)), retrieveExtensionsForCmdtyStats(symbols.filter(SymbolParser.getIsCmdtyStats)), retrieveExtensionsForFutures(symbols.filter(SymbolParser.getIsFuture))]).then(results => {
         return array.flatten(results);
       });
     });
   }
 
-  function retrieveExtensionsFromExtras(symbols) {
+  function retrieveExtensionsForFutures(symbols) {
     return Promise.resolve().then(() => {
       if (symbols.length === 0) {
         return Promise.resolve([]);
@@ -3335,7 +3335,7 @@ module.exports = (() => {
     });
   }
 
-  function retrieveExtensionsFromFundamentals(symbols) {
+  function retrieveExtensionsForCmdtyStats(symbols) {
     return Promise.resolve().then(() => {
       if (symbols.length === 0) {
         return Promise.resolve([]);
@@ -3363,34 +3363,70 @@ module.exports = (() => {
     });
   }
 
-  function retrieveExtensionsFromOnDemand(symbols, username, password) {
+  function retrieveExtensionsForC3(symbols) {
     return Promise.resolve().then(() => {
       if (symbols.length === 0) {
         return Promise.resolve([]);
       }
 
       const options = {
-        url: `https://webapp-proxy.aws.barchart.com/v1/proxies/ondemand/getQuote.json?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&symbols=${encodeURIComponent(symbols.join())}`,
+        url: `https://instrument-extensions.aws.barchart.com/v1/c3/meta?symbols=${encodeURIComponent(symbols.join())}`,
         method: 'GET'
       };
       return Promise.resolve(axios(options)).then(response => {
-        const results = response.data.results || [];
+        const results = response.data || [];
         return results.reduce((accumulator, result) => {
           try {
             const extension = {};
             extension.symbol = result.symbol.toUpperCase();
 
-            if (SymbolParser.getIsC3(extension.symbol)) {
+            if (SymbolParser.getIsC3(extension.symbol) && is.object(result.meta)) {
               const c3 = {};
+              c3.area = null;
+              c3.basis = null;
               c3.currency = null;
               c3.delivery = null;
+              c3.description = null;
+              c3.lot = null;
+              c3.market = null;
+              c3.product = null;
+              c3.terms = null;
+              const meta = result.meta;
 
-              if (result.commodityDataCurrency) {
-                c3.currency = getC3Currency(result.commodityDataCurrency);
+              if (meta.area) {
+                c3.area = meta.area;
               }
 
-              if (result.commodityDataDelivery) {
-                c3.delivery = result.commodityDataDelivery;
+              if (meta.basis) {
+                c3.basis = meta.basis;
+              }
+
+              if (meta.lot) {
+                c3.currency = getC3Currency(meta.lot);
+              }
+
+              if (meta.delivery) {
+                c3.delivery = meta.delivery;
+              }
+
+              if (meta.description) {
+                c3.description = meta.description;
+              }
+
+              if (meta.lot) {
+                c3.lot = meta.lot;
+              }
+
+              if (meta.market) {
+                c3.market = meta.market;
+              }
+
+              if (meta.product) {
+                c3.product = meta.product;
+              }
+
+              if (meta.terms) {
+                c3.terms = meta.terms;
               }
 
               extension.c3 = c3;
@@ -3398,7 +3434,7 @@ module.exports = (() => {
 
             accumulator.push(extension);
           } catch (e) {
-            logger.warn(`Snapshot: Failed to process symbol [ ${JSON.stringify(result)} ]`);
+            logger.warn(`Extensions: Failed to process extension [ ${symbols.join()} ]`);
           }
 
           return accumulator;
@@ -3757,7 +3793,7 @@ module.exports = (() => {
 
             accumulator.push(message);
           } catch (e) {
-            logger.warn(`Snapshot: Failed to process symbol`);
+            logger.warn(`Snapshot: Failed to process snapshot [ ${symbols.join()} ]`);
           }
 
           return accumulator;
@@ -5541,7 +5577,7 @@ module.exports = (() => {
       profiles[symbol] = this;
     }
     /**
-     * Given a price, returns a the human-readable string representation.
+     * Given a price, returns the human-readable representation.
      *
      * @public
      * @param {number} price
@@ -5875,7 +5911,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.19.1'
+    version: '5.20.0'
   };
 })();
 

@@ -733,7 +733,7 @@ module.exports = (() => {
       profiles[symbol] = this;
     }
     /**
-     * Given a price, returns a the human-readable string representation.
+     * Given a price, returns the human-readable representation.
      *
      * @public
      * @param {number} price
