@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.21.0
+**New Features**
+
+* Added additional profile "extension" attributes for futures options (e.g. strike, underlying, etc).
+
 ## 5.20.0
 **New Features**
 
