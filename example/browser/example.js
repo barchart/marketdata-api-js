@@ -2272,7 +2272,7 @@ module.exports = (() => {
 
 
     function getIsExtendedProfileSymbol(symbol) {
-      return SymbolParser.getIsFuture(symbol) || SymbolParser.getIsC3(symbol) || SymbolParser.getIsCmdty(symbol);
+      return SymbolParser.getIsFuture(symbol) || SymbolParser.getIsC3(symbol) || SymbolParser.getIsCmdty(symbol) || SymbolParser.getIsFutureOption(symbol);
     }
     /**
      * Indicates if some quote information cannot be extracted from JERQ via
@@ -3289,7 +3289,7 @@ module.exports = (() => {
       }
 
       assert.argumentIsArray(symbols, 'symbols', String);
-      return Promise.all([retrieveExtensionsForC3(symbols.filter(SymbolParser.getIsC3)), retrieveExtensionsForCmdtyStats(symbols.filter(SymbolParser.getIsCmdtyStats)), retrieveExtensionsForFutures(symbols.filter(SymbolParser.getIsFuture))]).then(results => {
+      return Promise.all([retrieveExtensionsForC3(symbols.filter(SymbolParser.getIsC3)), retrieveExtensionsForCmdtyStats(symbols.filter(SymbolParser.getIsCmdtyStats)), retrieveExtensionsForFutures(symbols.filter(SymbolParser.getIsFuture)), retrieveExtensionsForFuturesOptions(symbols.filter(SymbolParser.getIsFutureOption))]).then(results => {
         return array.flatten(results);
       });
     });
@@ -3439,6 +3439,55 @@ module.exports = (() => {
 
           return accumulator;
         }, []);
+      });
+    });
+  }
+
+  function retrieveExtensionsForFuturesOptions(symbols) {
+    return Promise.resolve().then(() => {
+      if (symbols.length === 0) {
+        return Promise.resolve([]);
+      }
+
+      const options = {
+        url: `https://extras.ddfplus.com/json/instruments/?lookup=${encodeURIComponent(symbols.join())}`,
+        method: 'GET'
+      };
+      return Promise.resolve(axios(options)).then(response => {
+        if (response.status !== 200) {
+          return [];
+        }
+
+        const results = (response.data.instruments || []).filter(result => {
+          return result.status === 200;
+        });
+        return results.map(result => {
+          const extension = {};
+          extension.symbol = result.lookup;
+
+          if (is.string(result.symbol_expire)) {
+            const matches = result.symbol_expire.match(regex.dates.expire);
+
+            if (matches !== null) {
+              extension.expiration = Day.parse(matches[1]).format();
+            }
+          }
+
+          extension.option = {};
+
+          if (result.underlier) {
+            extension.option.underlying = result.underlier;
+          }
+
+          const parsed = SymbolParser.parseInstrumentType(result.lookup);
+
+          if (parsed !== null) {
+            extension.option.strike = parsed.strike;
+            extension.option.putCall = parsed.option_type;
+          }
+
+          return extension;
+        });
       });
     });
   }
@@ -4676,6 +4725,10 @@ module.exports = (() => {
       if (extension.cmdtyStats) {
         profile.cmdtyStats = extension.cmdtyStats;
       }
+
+      if (extension.option) {
+        profile.option = extension.option;
+      }
     };
 
     const _createProfile = (symbol, name, exchange, unitCode, pointValue, tickIncrement, additional) => {
@@ -5911,7 +5964,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.20.0'
+    version: '5.21.0'
   };
 })();
 
