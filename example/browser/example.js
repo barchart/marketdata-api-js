@@ -1524,7 +1524,7 @@ module.exports = (() => {
     }
     /**
      * The third and final stage of message processing. The message is used to update
-     * market state and any interested consumers are notified.
+     * market state. Afterwards, any interested consumers are notified.
      *
      * @private
      * @param {Object} message
@@ -1539,7 +1539,7 @@ module.exports = (() => {
           broadcastEvent('marketDepth', message);
         } else if (message.type === 'TIMESTAMP') {
           broadcastEvent('timestamp', __marketState.getTimestamp());
-        } else {
+        } else if (message.type !== 'REFRESH_CUMULATIVE_VOLUME') {
           broadcastEvent('marketUpdate', message);
         }
       } catch (e) {
@@ -1973,7 +1973,7 @@ module.exports = (() => {
 
     /**
      * Makes requests for "extended" profile data for a batch of symbols to an out-of-band
-     * web service (i.e. extras).
+     * web service (e.g. extras).
      *
      * @private
      * @param {String[]} symbols
@@ -5421,7 +5421,7 @@ module.exports = (() => {
       return this._internal.getBook(symbol);
     }
     /**
-     * Returns a promise for the {@link CumulativeVolume} volume instance matching the symbol
+     * Returns a promise for the {@link CumulativeVolume} instance matching the symbol
      * provided. The promise will not be fulfilled until a **CumulativeVolume** subscription
      * has been established (see {@link Enums.SubscriptionType}).
      *
@@ -5964,7 +5964,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.21.0'
+    version: '5.21.1'
   };
 })();
 
