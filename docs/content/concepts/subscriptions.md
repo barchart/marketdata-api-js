@@ -127,7 +127,7 @@ The callback receives an ```Object``` representing a market update event. Here a
 	tradeSize: 100,
 	day: 'O',
 	session: '@',
-	time: 2020-03-25T20:27:12.990Z
+	time: '2020-03-25T20:27:12.990Z'
 }
 ```
 
