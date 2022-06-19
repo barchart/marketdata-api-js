@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.21.1
+**Bug Fixes**
+
+* Fixed issue which caused triggered the callback for a level one market data subscription to be triggered by a cumulative volume update. In other words, the [`MarketUpdateCallabck`](https://docs.barchart.com/marketdata-api-js/#/content/sdk/lib-connection?id=callbacksmarktupdatecallback) subscription handler (passed to the [`Connection.on`](https://docs.barchart.com/marketdata-api-js/#/content/sdk/lib-connection?id=connectionon) function) will no longer receive `REFRESH_CUMULATIVE_VOLUME` messages. 
+
 ## 5.21.0
 **New Features**
 

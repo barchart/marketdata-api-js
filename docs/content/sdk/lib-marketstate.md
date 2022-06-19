@@ -241,7 +241,7 @@
 * * *
 
 ### marketState.getCumulativeVolume(symbol, [callback]) :id=marketstategetcumulativevolume
-> Returns a promise for the [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) volume instance matching the symbol
+> Returns a promise for the [CumulativeVolume](/content/sdk/lib-marketstate?id=cumulativevolume) instance matching the symbol
 > provided. The promise will not be fulfilled until a <strong>CumulativeVolume</strong> subscription
 > has been established (see [Enums.SubscriptionType](/content/sdk/lib-connection?id=enumssubscriptiontype)).
 
