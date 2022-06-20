@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.22.0
+**New Features**
+
+* Enhanced `Profile` extension data for futures options, adding the underlying's `root`, `month`, and `year` attributes.
+
 ## 5.21.1
 **Bug Fixes**
 

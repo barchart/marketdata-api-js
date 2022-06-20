@@ -461,7 +461,7 @@
 
 | Name | Type | Description |
 | --- | --- | --- |
-| asset | [<code>AssetClass</code>](/content/sdk/lib-utilities-data?id=assetclass) \| <code>null</code> | <p>The instrument type (a.k.a. asset class). This will only be present when inference based on the instrument symbol is possible.</p> |
+| asset | [<code>AssetClass</code>](/content/sdk/lib-utilities-data?id=assetclass) \| <code>null</code> | <p>The instrument type. This will only be present when inference based on the instrument symbol is possible.</p> |
 
 
 * * *
