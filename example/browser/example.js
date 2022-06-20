@@ -3476,14 +3476,28 @@ module.exports = (() => {
           extension.option = {};
 
           if (result.underlier) {
-            extension.option.underlying = result.underlier;
-          }
+            const u = SymbolParser.parseInstrumentType(result.underlier);
+            const o = SymbolParser.parseInstrumentType(result.lookup);
 
-          const parsed = SymbolParser.parseInstrumentType(result.lookup);
+            if (o !== null) {
+              if (extension.expiration) {
+                extension.option.expiration = extension.expiration;
+              }
 
-          if (parsed !== null) {
-            extension.option.strike = parsed.strike;
-            extension.option.putCall = parsed.option_type;
+              extension.option.putCall = o.option_type;
+              extension.option.strike = o.strike;
+            }
+
+            const underlying = {};
+            underlying.symbol = result.underlier;
+
+            if (u !== null) {
+              underlying.root = u.root;
+              underlying.month = u.month;
+              underlying.year = u.year;
+            }
+
+            extension.option.underlying = underlying;
           }
 
           return extension;
@@ -3526,6 +3540,7 @@ module.exports = (() => {
    * @property {String=} firstNotice
    * @property {Object=} c3
    * @property {Object=} cmdtyStats
+   * @property {Object=} option
    */
 
 
@@ -5609,7 +5624,7 @@ module.exports = (() => {
         }
       }
       /**
-       * @property {AssetClass|null} asset - The instrument type (a.k.a. asset class). This will only be present when inference based on the instrument symbol is possible.
+       * @property {AssetClass|null} asset - The instrument type. This will only be present when inference based on the instrument symbol is possible.
        * @public
        * @readonly
        */
@@ -5964,7 +5979,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.21.1'
+    version: '5.22.0'
   };
 })();
 

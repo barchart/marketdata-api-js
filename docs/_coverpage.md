@@ -1,4 +1,4 @@
-# Barchart Market Data SDK <small>JavaScript 5.21.1</small>
+# Barchart Market Data SDK <small>JavaScript 5.22.0</small>
 
 > Inject real-time market data into your JavaScript applications
 
