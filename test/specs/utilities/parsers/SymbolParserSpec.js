@@ -2942,3 +2942,85 @@ describe('When getting an explicit futures symbol', () => {
 	});
 });
 
+
+
+
+
+
+
+describe('When parsing the expiration year for a futures contract', () => {
+	describe('and the current year is 2022', () => {
+		let getFullYear = null;
+
+		beforeEach(() => {
+			getFullYear = Date.prototype.getFullYear;
+			Date.prototype.getFullYear = () => {
+				return 2022;
+			};
+		});
+
+		it('The string "2" should resolve to 2022 (in month "Z")', () => {
+			expect(SymbolParser.getFuturesYear('2', 'Z')).toEqual(2022);
+		});
+
+		it('The string "22" should resolve to 2022 (in month "Z")', () => {
+			expect(SymbolParser.getFuturesYear('22', 'Z')).toEqual(2022);
+		});
+
+		it('The string "2022" should resolve to 2022 (in month "Z")', () => {
+			expect(SymbolParser.getFuturesYear('2022', 'Z')).toEqual(2022);
+		});
+
+		it('The string "3" should resolve to 2023 (in month "Z")', () => {
+			expect(SymbolParser.getFuturesYear('3', 'Z')).toEqual(2023);
+		});
+
+		it('The string "23" should resolve to 2023 (in month "Z")', () => {
+			expect(SymbolParser.getFuturesYear('23', 'Z')).toEqual(2023);
+		});
+
+		it('The string "2023" should resolve to 2023 (in month "Z")', () => {
+			expect(SymbolParser.getFuturesYear('2023', 'Z')).toEqual(2023);
+		});
+
+		it('The string "1" should resolve to 2031 (in month "Z")', () => {
+			expect(SymbolParser.getFuturesYear('1', 'Z')).toEqual(2031);
+		});
+
+		it('The string "21" should resolve to 2021 (in month "Z")', () => {
+			expect(SymbolParser.getFuturesYear('21', 'Z')).toEqual(2021);
+		});
+
+		it('The string "31" should resolve to 2031 (in month "Z")', () => {
+			expect(SymbolParser.getFuturesYear('31', 'Z')).toEqual(2031);
+		});
+
+		it('The string "2031" should resolve to 2031 (in month "Z")', () => {
+			expect(SymbolParser.getFuturesYear('2031', 'Z')).toEqual(2031);
+		});
+
+		it('The string "46" should resolve to 2046 (in month "Z")', () => {
+			expect(SymbolParser.getFuturesYear('46', 'Z')).toEqual(2046);
+		});
+
+		it('The string "47" should resolve to 2047 (in month "Z")', () => {
+			expect(SymbolParser.getFuturesYear('47', 'Z')).toEqual(2047);
+		});
+
+		it('The string "48" should resolve to 1948 (in month "Z")', () => {
+			expect(SymbolParser.getFuturesYear('48', 'Z')).toEqual(1948);
+		});
+
+		it('The string "49" should resolve to 1949 (in month "Z")', () => {
+			expect(SymbolParser.getFuturesYear('49', 'Z')).toEqual(1949);
+		});
+
+		afterEach(() => {
+			Date.prototype.getFullYear = getFullYear;
+			getFullYear = null;
+		});
+	});
+});
+
+
+
