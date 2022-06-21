@@ -1,5 +1,11 @@
 # Release Notes
 
+## 5.23.0
+**New Features**
+
+* Enhanced `Profile` extension data for futures options, adding expiration `month` and `year` attributes.
+* Exposed `SymbolParser.getFuturesYear` as a publicly-accessible (static) function.
+
 ## 5.22.0
 **New Features**
 
