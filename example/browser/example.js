@@ -3481,7 +3481,11 @@ module.exports = (() => {
 
             if (o !== null) {
               if (extension.expiration) {
-                extension.option.expiration = extension.expiration;
+                const expiration = {};
+                expiration.date = extension.expiration;
+                expiration.month = result.symbol_ddf_expire_month;
+                expiration.year = SymbolParser.getFuturesYear(result.symbol_ddf_expire_year, result.symbol_ddf_expire_month);
+                extension.option.expiration = expiration;
               }
 
               extension.option.putCall = o.option_type;
@@ -5979,7 +5983,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.22.0'
+    version: '5.23.0'
   };
 })();
 
@@ -8197,6 +8201,21 @@ module.exports = (() => {
       }
 
       return explicit;
+    }
+    /**
+     * Determine (or guess) the expiration year (for a futures contract), given
+     * the string representation of the expiration year and the expiration month
+     * code.
+     *
+     * @static
+     * @public
+     * @param {String} yearString
+     * @param {String} monthCode
+     */
+
+
+    static getFuturesYear(yearString, monthCode) {
+      return getFuturesYear(yearString, monthCode);
     }
     /**
      * Returns true if prices for the symbol should be represented as a percentage; false
