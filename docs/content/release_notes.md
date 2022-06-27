@@ -1,10 +1,15 @@
 # Release Notes
 
+## 5.24.0
+**New Features**
+
+* Updated quote "extension" logic to add `Quote.currentDate` and `Quote.previousDate` attributes for cmdtyStats instruments. See the [`setExtendedQuoteMode`](https://docs.barchart.com/marketdata-api-js/#/content/sdk/lib-connection?id=connectionsetextendedquotemode) function.
+
 ## 5.23.0
 **New Features**
 
 * Enhanced `Profile` extension data for futures options, adding expiration `month` and `year` attributes.
-* Exposed `SymbolParser.getFuturesYear` as a publicly-accessible (static) function.
+* Exposed `SymbolParser.getFuturesYear` as a public function.
 
 ## 5.22.0
 **New Features**
