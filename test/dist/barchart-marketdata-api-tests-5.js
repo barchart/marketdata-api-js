@@ -3092,7 +3092,7 @@ module.exports = (() => {
       return is.string(symbol) && (types.cmdty.stats.test(symbol) || types.cmdty.internal.test(symbol) || types.cmdty.external.test(symbol));
     }
     /**
-     * Returns true if the symbol represents cmdtyStats symbol.
+     * Returns true if the symbol represents a cmdtyStats instrument.
      *
      * @public
      * @static

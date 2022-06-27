@@ -2286,7 +2286,7 @@ module.exports = (() => {
 
 
     function getIsExtendedQuoteSymbol(symbol) {
-      return SymbolParser.getIsFuture(symbol);
+      return SymbolParser.getIsFuture(symbol) || SymbolParser.getIsCmdtyStats(symbol);
     }
     /**
      * Breaks an array of symbols into multiple array, each containing no more
@@ -3622,7 +3622,7 @@ module.exports = (() => {
       const futuresSymbols = array.unique(symbolsToUse.filter(s => SymbolParser.getIsFuture(s) && SymbolParser.getIsConcrete(s)).sort());
 
       if (futuresSymbols.length !== 0) {
-        promises.push(retrieveFuturesHiLo(futuresSymbols, username, password).then(results => {
+        promises.push(retrieveFuturesHiLo(futuresSymbols).then(results => {
           results.forEach(result => {
             if (result.hilo) {
               const extension = getOrCreateExtension(result.symbol);
@@ -3632,6 +3632,29 @@ module.exports = (() => {
               hilo.lowPrice = result.hilo.lowPrice;
               hilo.lowDate = result.hilo.lowDate ? Day.parse(result.hilo.lowDate) : null;
               extension.hilo = hilo;
+            }
+          });
+        }));
+      }
+
+      const cmdtyStatsSymbols = array.unique(symbolsToUse.filter(s => SymbolParser.getIsCmdtyStats(s)).sort());
+
+      if (cmdtyStatsSymbols.length !== 0) {
+        promises.push(retrieveCmdtyStatsDates(cmdtyStatsSymbols).then(results => {
+          results.forEach(result => {
+            if (result.quote) {
+              const extension = getOrCreateExtension(result.symbol);
+              const cmdtyStats = {};
+
+              if (result.quote.current) {
+                cmdtyStats.currentDate = result.quote.current.date;
+              }
+
+              if (result.quote.previous) {
+                cmdtyStats.previousDate = result.quote.previous.date;
+              }
+
+              extension.cmdtyStats = cmdtyStats;
             }
           });
         }));
@@ -3650,17 +3673,35 @@ module.exports = (() => {
    * Retrieves all-time highs and lows for specific futures contracts.
    *
    * @private
-   * @param symbols
-   * @param username
-   * @param password
+   * @param {String[]} symbols
    * @returns {Promise<Object[]>}
    */
 
 
-  function retrieveFuturesHiLo(symbols, username, password) {
+  function retrieveFuturesHiLo(symbols) {
     return Promise.resolve().then(() => {
       const options = {
         url: `https://instrument-extensions.aws.barchart.com/v1/futures/hilo?&symbols=${encodeURIComponent(symbols.join())}`,
+        method: 'GET'
+      };
+      return Promise.resolve(axios(options)).then(response => {
+        return response.data || [];
+      });
+    });
+  }
+  /**
+   * Retrieves current and previous quote dates for cmdtyStats instruments.
+   *
+   * @private
+   * @param {String[]} symbols
+   * @returns {Promise<Object[]>}
+   */
+
+
+  function retrieveCmdtyStatsDates(symbols) {
+    return Promise.resolve().then(() => {
+      const options = {
+        url: `https://instrument-extensions.aws.barchart.com/v1/cmdtyStats/quote?&symbols=${encodeURIComponent(symbols.join())}`,
         method: 'GET'
       };
       return Promise.resolve(axios(options)).then(response => {
@@ -3676,6 +3717,7 @@ module.exports = (() => {
    * @ignore
    * @property {String} symbol
    * @property {QuoteExtensionHiLo=} hilo
+   * @property {QuoteExtensionCmdtyStatus=} cmdtyStats
    */
 
   /**
@@ -3688,6 +3730,16 @@ module.exports = (() => {
    * @property {Day=} highDate
    * @property {Number=} lowPrice
    * @property {Day=} lowDate
+   */
+
+  /**
+   * Extended quote information (for cmdtyStats instruments).
+   *
+   * @typedef QuoteExtensionCmdtyStats
+   * @type {Object}
+   * @ignore
+   * @property {Day=} currentDate
+   * @property {Day=} previousDate
    */
 
 
@@ -4671,15 +4723,27 @@ module.exports = (() => {
     };
 
     const _processQuoteExtension = (quote, extension) => {
-      if (extension.hilo) {
-        const hilo = extension.hilo;
+      const hilo = extension.hilo;
 
+      if (hilo) {
         if (is.number(hilo.highPrice)) {
           quote.recordHighPrice = Math.max(hilo.highPrice, is.number(quote.highPrice) ? quote.highPrice : Number.MIN_SAFE_INTEGER);
         }
 
         if (is.number(hilo.lowPrice)) {
           quote.recordLowPrice = Math.min(hilo.lowPrice, is.number(quote.lowPrice) ? quote.lowPrice : Number.MAX_SAFE_INTEGER);
+        }
+      }
+
+      const cmdtyStats = extension.cmdtyStats;
+
+      if (cmdtyStats) {
+        if (cmdtyStats.currentDate) {
+          quote.currentDate = cmdtyStats.currentDate;
+        }
+
+        if (cmdtyStats.previousDate) {
+          quote.previousDate = cmdtyStats.previousDate;
         }
       }
     };
@@ -5983,7 +6047,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.23.0'
+    version: '5.24.0'
   };
 })();
 
@@ -7991,7 +8055,7 @@ module.exports = (() => {
       return is.string(symbol) && (types.cmdty.stats.test(symbol) || types.cmdty.internal.test(symbol) || types.cmdty.external.test(symbol));
     }
     /**
-     * Returns true if the symbol represents cmdtyStats symbol.
+     * Returns true if the symbol represents a cmdtyStats instrument.
      *
      * @public
      * @static
