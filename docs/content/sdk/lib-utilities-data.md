@@ -29,6 +29,7 @@
         * [.FUTURE](#AssetClassFUTURE) ⇒ [<code>AssetClass</code>](#AssetClass)
         * [.FUTURE_OPTION](#AssetClassFUTURE_OPTION) ⇒ [<code>AssetClass</code>](#AssetClass)
         * [.FOREX](#AssetClassFOREX) ⇒ [<code>AssetClass</code>](#AssetClass)
+        * [.CMDTY_STATS](#AssetClassCMDTY_STATS) ⇒ [<code>AssetClass</code>](#AssetClass)
         * [.parse(code)](#AssetClassparse) ⇒ [<code>AssetClass</code>](#AssetClass) \| <code>null</code>
         * [.fromId(id)](#AssetClassfromId) ⇒ [<code>AssetClass</code>](#AssetClass) \| <code>null</code>
     * _constructor_
@@ -84,6 +85,15 @@
 
 ### AssetClass.FOREX :id=assetclassforex
 > A foreign exchange instrument.
+
+**Kind**: static property of [<code>AssetClass</code>](#AssetClass)  
+**Returns**: [<code>AssetClass</code>](#AssetClass)  
+**Access**: public  
+
+* * *
+
+### AssetClass.CMDTY\_STATS :id=assetclasscmdty_stats
+> A cmdtyStats instrument.
 
 **Kind**: static property of [<code>AssetClass</code>](#AssetClass)  
 **Returns**: [<code>AssetClass</code>](#AssetClass)  

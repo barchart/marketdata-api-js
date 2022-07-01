@@ -1,5 +1,15 @@
 # Release Notes
 
+## 5.25.0
+**New Features**
+
+* Updated logic to explicitly assign the `Profile.asset` property for `AssetClass.CMDTY_STATS` instruments. 
+
+**Bug Fixes**
+
+* Fixed `utilities/format/quote` function, preventing an error from being thrown when (a) the output `timezone` is specified, however (b) the `quote` does not have a `timeUtc` attribute.
+* Fixed `AssetClass.parse` function.
+
 ## 5.24.0
 **New Features**
 
