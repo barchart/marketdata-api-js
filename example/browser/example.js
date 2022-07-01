@@ -6047,7 +6047,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.24.0'
+    version: '5.25.0'
   };
 })();
 
@@ -6227,7 +6227,7 @@ module.exports = (() => {
 
 
     static parse(code) {
-      return Enum.fromCode(UnitCode, code);
+      return Enum.fromCode(AssetClass, code);
     }
     /**
      * Converts the numeric identifier into an enumeration item.
@@ -6302,6 +6302,18 @@ module.exports = (() => {
     static get FOREX() {
       return FOREX;
     }
+    /**
+     * A cmdtyStats instrument.
+     *
+     * @public
+     * @static
+     * @returns {AssetClass}
+     */
+
+
+    static get CMDTY_STATS() {
+      return CMDTY_STATS;
+    }
 
     toString() {
       return `[AssetClass (id=${this.id}, code=${this.code})]`;
@@ -6314,6 +6326,7 @@ module.exports = (() => {
   const FUTURE = new AssetClass('FUT', 'Future', 2);
   const FUTURE_OPTION = new AssetClass('FUTOPT', 'Future Option', 12);
   const FOREX = new AssetClass('FOREX', 'FOREX', 10);
+  const CMDTY_STATS = new AssetClass('CMDTY', 'cmdtyStats', 24);
   return AssetClass;
 })();
 
@@ -6894,7 +6907,7 @@ module.exports = (() => {
     let t;
     let utc;
 
-    if (quote.timeUtc !== null && (is.string(timezone) || quote.profile && quote.profile.exchangeRef && quote.profile.exchangeRef && quote.profile.exchangeRef.timezoneExchange)) {
+    if (quote.timeUtc && (is.string(timezone) || quote.profile && quote.profile.exchangeRef && quote.profile.exchangeRef && quote.profile.exchangeRef.timezoneExchange)) {
       utc = true;
       let tz;
 
@@ -8508,6 +8521,19 @@ module.exports = (() => {
       definition.root = match[1];
       definition.month = getFuturesMonth(match[2]);
       definition.year = getFuturesYear(match[3]);
+    }
+
+    return definition;
+  });
+  parsers.push(symbol => {
+    let definition = null;
+    const match = symbol.match(types.cmdty.stats);
+
+    if (match !== null) {
+      definition = {};
+      definition.symbol = symbol;
+      definition.type = 'cmdtyStats';
+      definition.asset = AssetClass.CMDTY_STATS;
     }
 
     return definition;
