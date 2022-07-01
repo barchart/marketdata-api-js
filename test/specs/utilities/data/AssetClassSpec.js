@@ -20,6 +20,10 @@ describe('When parsing asset class codes', () => {
 	it('"FOREX" should parse as "AssetClass.FOREX"', () => {
 		expect(AssetClass.parse('FOREX')).toEqual(AssetClass.FOREX);
 	});
+
+	it('"CMDTY" should parse as "AssetClass.CMDTY_STATS"', () => {
+		expect(AssetClass.parse('CMDTY')).toEqual(AssetClass.CMDTY_STATS);
+	});
 });
 
 describe('When retrieving identifier from asset classes', () => {
@@ -41,5 +45,9 @@ describe('When retrieving identifier from asset classes', () => {
 
 	it('AssetClass.FOREX.id should return 10', () => {
 		expect(AssetClass.FOREX.id).toEqual(10);
+	});
+
+	it('AssetClass.CMDTY_STATS.id should return 24', () => {
+		expect(AssetClass.CMDTY_STATS.id).toEqual(24);
 	});
 });
