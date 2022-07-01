@@ -60,6 +60,46 @@ describe('When a quote formatter is used (without specifying the clock)', () => 
 				expect(formatQuote(quote)).toEqual('13:08:09 CST');
 			});
 		});
+
+		describe('and the quote time is 1:08:09 PM, the quote timeUtc is undefined, and exchangeRef is present', () => {
+			beforeEach(() => {
+				quote.time = new Date(2016, 4, 3, 13, 8, 9);
+				quote.timeUtc = undefined;
+			});
+
+			it('the formatter outputs "13:08:09" (when output timezone is not specified)', () => {
+				expect(formatQuote(quote)).toEqual('13:08:09');
+			});
+
+			it('the formatter outputs does not throw an error when output timezone is specified', () => {
+				expect(() => formatQuote(quote, false, false, "America/New_York")).not.toThrow();
+			});
+
+			it('the formatter outputs "13:08:09" (when output timezone is "America/New_York")', () => {
+				expect(formatQuote(quote)).toEqual('13:08:09', false, false, "America/New_York");
+			});
+
+			it('the formatter outputs "13:08:09" (when output timezone is "America/Denver")', () => {
+				expect(formatQuote(quote)).toEqual('13:08:09', false, false, "America/Denver");
+			});
+		});
+
+		describe('and the quote timeUtc is 2:00:01 AM UTC (and exchangeRef is present)', () => {
+			beforeEach(() => {
+				const milliseconds = Date.UTC(2022, 6, 1, 2, 0, 1);
+
+				quote.time = new Date(1, 2, 3, 4, 5, 6); //ignored
+				quote.timeUtc = new Date(milliseconds);
+			});
+
+			it('the formatter outputs "22:00:01" (when asked to display time in the "America/New_York" timezone)', () => {
+				expect(formatQuote(quote, false, false, "America/New_York")).toEqual('22:00:01');
+			});
+
+			it('the formatter outputs "20:00:01" (when asked to display time in the "America/Denver" timezone)', () => {
+				expect(formatQuote(quote, false, false, "America/Denver")).toEqual('20:00:01');
+			});
+		});
 	});
 
 	describe('and a quote is formatted (with with a "flag" and a "lastPrice" value)', () => {
