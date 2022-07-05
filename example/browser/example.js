@@ -5177,8 +5177,10 @@ module.exports = (() => {
               }
 
               if (message.subrecord === '1') {
-                q.lastUpdate = message.time;
-                q.lastUpdateUtc = _getUtcTimestamp(symbol, message.time);
+                if (message.time) {
+                  q.lastUpdate = message.time;
+                  q.lastUpdateUtc = _getUtcTimestamp(symbol, message.time);
+                }
               }
 
               _derivePriceChange(q);
@@ -6047,7 +6049,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.25.0'
+    version: '5.25.1'
   };
 })();
 
