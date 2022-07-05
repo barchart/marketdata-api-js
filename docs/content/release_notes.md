@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.25.1
+**Bug Fixes**
+
+* Corrected failure to update `Quote` object when the timestamp of a refresh message cannot be parsed (DDF `2/1`, `2/2`, `2/3` and `2/4` messages).
+
 ## 5.25.0
 **New Features**
 
@@ -7,8 +12,9 @@
 
 **Bug Fixes**
 
-* Fixed `utilities/format/quote` function, preventing an error from being thrown when (a) the output `timezone` is specified, however (b) the `quote` does not have a `timeUtc` attribute.
 * Fixed `AssetClass.parse` function.
+* Fixed `utilities/format/quote.js`, preventing an error from being thrown when (a) the `timezone` argument is specified, and (b) the `quote` argument's `timeUtc` attribute is missing.
+
 
 ## 5.24.0
 **New Features**
