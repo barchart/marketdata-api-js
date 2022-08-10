@@ -4905,19 +4905,19 @@ module.exports = (() => {
 
       const previousPrice = quote.days[0].lastPrice;
       const previousPreviousPrice = quote.days[0].previousPrice;
-      let priceChange = null;
-      let priceChangePercent = null;
+      let previousPriceChange = null;
+      let previousPriceChangePercent = null;
 
       if (is.number(previousPrice) && is.number(previousPreviousPrice)) {
-        priceChange = previousPrice - previousPreviousPrice;
+        previousPriceChange = previousPrice - previousPreviousPrice;
 
         if (previousPreviousPrice !== 0) {
-          priceChangePercent = priceChange / Math.abs(previousPreviousPrice);
+          previousPriceChangePercent = previousPriceChange / Math.abs(previousPreviousPrice);
         }
       }
 
-      quote.previousPriceChange = priceChange;
-      quote.previousPriceChangePercent = priceChangePercent;
+      quote.previousPriceChange = previousPriceChange;
+      quote.previousPriceChangePercent = previousPriceChangePercent;
     };
 
     const _processMessage = (message, options) => {
@@ -6109,7 +6109,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.25.1'
+    version: '5.26.0'
   };
 })();
 

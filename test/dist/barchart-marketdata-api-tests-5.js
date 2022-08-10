@@ -2316,6 +2316,8 @@ module.exports = (() => {
                   if (sessions.combined.day) message.day = session.day;
                   if (premarket && typeof message.flag === 'undefined') message.flag = 'p';
                   const p = sessions.previous;
+                  message.previousDay = p.day;
+                  message.previousLastPrice = p.lastPrice;
                   message.previousPreviousPrice = p.previousPrice;
                   message.previousSettlementPrice = p.settlementPrice;
                   message.previousOpenPrice = p.openPrice;
