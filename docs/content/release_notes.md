@@ -3,7 +3,7 @@
 ## 5.26.0
 **New Features**
 
-* Added `previousPriceChange` and `previousPriceChangePercent` attributes to `Quote` object.
+* Added `previousPriceChange` and `previousPriceChangePercent` attributes to the `Quote` object.
 
 ## 5.25.1
 **Bug Fixes**
