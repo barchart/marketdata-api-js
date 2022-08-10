@@ -554,6 +554,10 @@
         * [.previousPrice](#QuotepreviousPrice)
         * [.time](#Quotetime)
         * [.timeUtc](#QuotetimeUtc)
+        * [.priceChange](#QuotepriceChange)
+        * [.priceChangePercent](#QuotepriceChangePercent)
+        * [.previousPriceChange](#QuotepreviousPriceChange)
+        * [.previousPriceChangePercent](#QuotepreviousPriceChangePercent)
 
 
 * * *
@@ -957,6 +961,58 @@
 | Name | Type | Description |
 | --- | --- | --- |
 | timeUtc | <code>Date</code> \| <code>null</code> | <p>A timezone-aware version of [time](#quotetime). This property will only have a value when both (a) the exchange timezone is known; and (b) the client computer's timezone is known.</p> |
+
+
+* * *
+
+### quote.priceChange :id=quotepricechange
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Type |
+| --- |
+| <code>Number</code> \| <code>null</code> | 
+
+
+* * *
+
+### quote.priceChangePercent :id=quotepricechangepercent
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Type |
+| --- |
+| <code>Number</code> \| <code>null</code> | 
+
+
+* * *
+
+### quote.previousPriceChange :id=quotepreviouspricechange
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Type |
+| --- |
+| <code>Number</code> \| <code>null</code> | 
+
+
+* * *
+
+### quote.previousPriceChangePercent :id=quotepreviouspricechangepercent
+**Kind**: instance property of [<code>Quote</code>](#Quote)  
+**Access**: public  
+**Read only**: true  
+**Properties**
+
+| Type |
+| --- |
+| <code>Number</code> \| <code>null</code> | 
 
 
 * * *
