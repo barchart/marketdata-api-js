@@ -4898,6 +4898,28 @@ module.exports = (() => {
       quote.priceChangePercent = priceChangePercent;
     };
 
+    const _derivePreviousPriceChange = quote => {
+      if (quote.days.length < 1) {
+        return;
+      }
+
+      const previousPrice = quote.days[0].lastPrice;
+      const previousPreviousPrice = quote.days[0].previousPrice;
+      let priceChange = null;
+      let priceChangePercent = null;
+
+      if (is.number(previousPrice) && is.number(previousPreviousPrice)) {
+        priceChange = previousPrice - previousPreviousPrice;
+
+        if (previousPreviousPrice !== 0) {
+          priceChangePercent = priceChange / Math.abs(previousPreviousPrice);
+        }
+      }
+
+      quote.previousPriceChange = priceChange;
+      quote.previousPriceChangePercent = priceChangePercent;
+    };
+
     const _processMessage = (message, options) => {
       const symbol = message.symbol;
 
@@ -5017,6 +5039,8 @@ module.exports = (() => {
           q.settlementPrice = undefined;
 
           _derivePriceChange(q);
+
+          _derivePreviousPriceChange(q);
         } else if (q.dayNum > dayNum) {
           return;
         }
@@ -5227,7 +5251,17 @@ module.exports = (() => {
           q.highPrice = message.highPrice;
           q.lowPrice = message.lowPrice;
 
+          if (is.string(message.previousDay) && is.number(message.previousPreviousPrice) && is.number(message.previousLastPrice)) {
+            q.days.unshift({
+              day: message.previousDay,
+              previousPrice: message.previousPreviousPrice,
+              lastPrice: message.previousLastPrice
+            });
+          }
+
           _derivePriceChange(q);
+
+          _derivePreviousPriceChange(q);
 
           _deriveRecordHighPrice(q);
 
@@ -6023,8 +6057,34 @@ module.exports = (() => {
        */
 
       this.timeUtc = null;
+      /**
+       * @property {Number|null}
+       * @public
+       * @readonly
+       */
+
       this.priceChange = null;
+      /**
+       * @property {Number|null}
+       * @public
+       * @readonly
+       */
+
       this.priceChangePercent = null;
+      /**
+       * @property {Number|null}
+       * @public
+       * @readonly
+       */
+
+      this.previousPriceChange = null;
+      /**
+       * @property {Number|null}
+       * @public
+       * @readonly
+       */
+
+      this.previousPriceChangePercent = null;
       this.days = [];
       this.ticks = [];
     }
@@ -7413,6 +7473,8 @@ module.exports = (() => {
                   if (sessions.combined.day) message.day = session.day;
                   if (premarket && typeof message.flag === 'undefined') message.flag = 'p';
                   const p = sessions.previous;
+                  message.previousDay = p.day;
+                  message.previousLastPrice = p.lastPrice;
                   message.previousPreviousPrice = p.previousPrice;
                   message.previousSettlementPrice = p.settlementPrice;
                   message.previousOpenPrice = p.openPrice;
