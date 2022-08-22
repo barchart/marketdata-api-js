@@ -1,5 +1,12 @@
 # Release Notes
 
+## 5.27.0
+**New Features**
+
+* Added `SymbolParser.getIsGrainBid` function.
+* Added out-of-band profile extension data for grain bid instruments.
+
+
 ## 5.26.0
 **New Features**
 
