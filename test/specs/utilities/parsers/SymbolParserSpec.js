@@ -2724,6 +2724,16 @@ describe('When checking to see if a symbol is a BATS listing', () => {
 	});
 });
 
+describe('When checking to see if a symbol is a grain bids instrument', () => {
+	it('the symbol "IBM" should return false', () => {
+		expect(SymbolParser.getIsGrainBid('IBM')).toEqual(false);
+	});
+
+	it('the symbol "ZCPN22-4574-5387.CM" should return true', () => {
+		expect(SymbolParser.getIsGrainBid('ZCPN22-4574-5387.CM')).toEqual(true);
+	});
+});
+
 describe('When checking to see if a symbol is pit-traded', () => {
 	it('the symbol "IBM" (with the name "International Business Machines") should return false', () => {
 		expect(SymbolParser.getIsPit('IBM', 'International Business Machines')).toEqual(false);
@@ -2941,12 +2951,6 @@ describe('When getting an explicit futures symbol', () => {
 		expect(SymbolParser.getFuturesExplicitFormat('ZCZ6')).toEqual('ZCZ26');
 	});
 });
-
-
-
-
-
-
 
 describe('When parsing the expiration year for a futures contract', () => {
 	describe('and the current year is 2022', () => {
