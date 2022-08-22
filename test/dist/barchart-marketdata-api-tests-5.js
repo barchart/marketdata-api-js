@@ -3066,7 +3066,7 @@ module.exports = (() => {
       return is.string(symbol) && types.indicies.external.test(symbol);
     }
     /**
-     * Returns true if the symbol represents an Barchart sector (i.e. a type
+     * Returns true if the symbol represents a Barchart sector (i.e. a type
      * of index calculated by Barchart).
      *
      * @public
@@ -3218,6 +3218,19 @@ module.exports = (() => {
 
     static getIsPit(symbol, name) {
       return is.string(symbol) && is.string(name) && predicates.pit.test(name);
+    }
+    /**
+     * Returns true if the symbol represents a grain bid instrument.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsGrainBid(symbol) {
+      return is.string(symbol) && types.bids.test(symbol);
     }
     /**
      * Returns a simple instrument definition containing information which
@@ -3387,6 +3400,7 @@ module.exports = (() => {
   predicates.percent = /(\.RT)$/;
   predicates.pit = /\(P(it)?\)/;
   const types = {};
+  types.bids = /^([A-Z]{2})([B|P])([A-Z\d]{3,4})-(\d+)-(\d+)(\.CM)$/i;
   types.c3 = {};
   types.c3.alias = /^(C3:)(.*)$/i;
   types.c3.concrete = /(\.C3)$/i;
@@ -21934,6 +21948,14 @@ describe('When checking to see if a symbol is a BATS listing', () => {
   });
   it('the symbol "IBM.BZ" should return true', () => {
     expect(SymbolParser.getIsBats('IBM.BZ')).toEqual(true);
+  });
+});
+describe('When checking to see if a symbol is a grain bids instrument', () => {
+  it('the symbol "IBM" should return false', () => {
+    expect(SymbolParser.getIsGrainBid('IBM')).toEqual(false);
+  });
+  it('the symbol "ZCPN22-4574-5387.CM" should return true', () => {
+    expect(SymbolParser.getIsGrainBid('ZCPN22-4574-5387.CM')).toEqual(true);
   });
 });
 describe('When checking to see if a symbol is pit-traded', () => {

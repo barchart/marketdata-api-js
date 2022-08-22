@@ -1985,7 +1985,7 @@ module.exports = (() => {
         return;
       }
 
-      retrieveProfileExtensions(array.difference(symbols, __completedProfileExtensions), __loginInfo.username, __loginInfo.password).then(extensions => {
+      retrieveProfileExtensions(array.difference(symbols, __completedProfileExtensions)).then(extensions => {
         if (__connectionState !== state.authenticated) {
           return;
         }
@@ -3282,14 +3282,14 @@ module.exports = (() => {
    * @returns {Promise<ProfileExtension[]>}
    */
 
-  function retrieveExtensions(symbols, username, password) {
+  function retrieveExtensions(symbols) {
     return Promise.resolve().then(() => {
       if (logger === null) {
         logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
       }
 
       assert.argumentIsArray(symbols, 'symbols', String);
-      return Promise.all([retrieveExtensionsForC3(symbols.filter(SymbolParser.getIsC3)), retrieveExtensionsForCmdtyStats(symbols.filter(SymbolParser.getIsCmdtyStats)), retrieveExtensionsForFutures(symbols.filter(SymbolParser.getIsFuture)), retrieveExtensionsForFuturesOptions(symbols.filter(SymbolParser.getIsFutureOption))]).then(results => {
+      return Promise.all([retrieveExtensionsForC3(symbols.filter(SymbolParser.getIsC3)), retrieveExtensionsForCmdtyStats(symbols.filter(SymbolParser.getIsCmdtyStats)), retrieveExtensionsForFutures(symbols.filter(SymbolParser.getIsFuture)), retrieveExtensionsForFuturesOptions(symbols.filter(SymbolParser.getIsFutureOption)), retrieveExtensionsForGrainBids(symbols.filter(SymbolParser.getIsGrainBid))]).then(results => {
         return array.flatten(results);
       });
     });
@@ -3510,6 +3510,34 @@ module.exports = (() => {
     });
   }
 
+  function retrieveExtensionsForGrainBids(symbols) {
+    return Promise.resolve().then(() => {
+      if (symbols.length === 0) {
+        return Promise.resolve([]);
+      }
+
+      const options = {
+        url: `https://instrument-extensions.aws.barchart.com/v1/grains/meta?&symbols=${encodeURIComponent(symbols.join())}`,
+        method: 'GET'
+      };
+      return Promise.resolve(axios(options)).then(response => {
+        if (response.status !== 200) {
+          return [];
+        }
+
+        const results = (response.data || []).filter(result => {
+          return result.meta !== null;
+        });
+        return results.map(result => {
+          const extension = {};
+          extension.symbol = result.symbol;
+          extension.grainBid = result.meta;
+          return extension;
+        });
+      });
+    });
+  }
+
   const regex = {};
   regex.dates = {};
   regex.dates.expire = /^([0-9]{4}-[0-9]{2}-[0-9]{2})T/;
@@ -3541,9 +3569,10 @@ module.exports = (() => {
    * @ignore
    * @property {String} symbol
    * @property {String=} expiration
-   * @property {String=} firstNotice
    * @property {Object=} c3
    * @property {Object=} cmdtyStats
+   * @property {String=} firstNotice
+   * @property {Object=} grainBid
    * @property {Object=} option
    */
 
@@ -4807,6 +4836,10 @@ module.exports = (() => {
 
       if (extension.cmdtyStats) {
         profile.cmdtyStats = extension.cmdtyStats;
+      }
+
+      if (extension.grainBid) {
+        profile.grainBid = extension.grainBid;
       }
 
       if (extension.option) {
@@ -6109,7 +6142,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '5.26.0'
+    version: '5.27.0'
   };
 })();
 
@@ -8091,7 +8124,7 @@ module.exports = (() => {
       return is.string(symbol) && types.indicies.external.test(symbol);
     }
     /**
-     * Returns true if the symbol represents an Barchart sector (i.e. a type
+     * Returns true if the symbol represents a Barchart sector (i.e. a type
      * of index calculated by Barchart).
      *
      * @public
@@ -8243,6 +8276,19 @@ module.exports = (() => {
 
     static getIsPit(symbol, name) {
       return is.string(symbol) && is.string(name) && predicates.pit.test(name);
+    }
+    /**
+     * Returns true if the symbol represents a grain bid instrument.
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+
+
+    static getIsGrainBid(symbol) {
+      return is.string(symbol) && types.bids.test(symbol);
     }
     /**
      * Returns a simple instrument definition containing information which
@@ -8412,6 +8458,7 @@ module.exports = (() => {
   predicates.percent = /(\.RT)$/;
   predicates.pit = /\(P(it)?\)/;
   const types = {};
+  types.bids = /^([A-Z]{2})([B|P])([A-Z\d]{3,4})-(\d+)-(\d+)(\.CM)$/i;
   types.c3 = {};
   types.c3.alias = /^(C3:)(.*)$/i;
   types.c3.concrete = /(\.C3)$/i;
