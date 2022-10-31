@@ -1,6 +1,7 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
+
   /**
    * An interface for writing log messages. An implementation of this
    * class is returned by {@link LoggerProvider.getLogger}.
@@ -9,9 +10,9 @@ module.exports = (() => {
    * @exported
    * @abstract
    */
-
   class Logger {
     constructor() {}
+
     /**
      * Writes a log message.
      *
@@ -19,11 +20,10 @@ module.exports = (() => {
      * @abstract
      * @param {...Schema.Loggable}
      */
-
-
     log() {
       return;
     }
+
     /**
      * Writes a log message at "trace" level.
      *
@@ -31,11 +31,10 @@ module.exports = (() => {
      * @abstract
      * @param {...Schema.Loggable}
      */
-
-
     trace() {
       return;
     }
+
     /**
      * Writes a log message at "debug" level.
      *
@@ -43,11 +42,10 @@ module.exports = (() => {
      * @abstract
      * @param {...Schema.Loggable}
      */
-
-
     debug() {
       return;
     }
+
     /**
      * Writes a log message at "info" level.
      *
@@ -55,11 +53,10 @@ module.exports = (() => {
      * @abstract
      * @param {...Schema.Loggable}
      */
-
-
     info() {
       return;
     }
+
     /**
      * Writes a log message at "warn" level.
      *
@@ -67,11 +64,10 @@ module.exports = (() => {
      * @abstract
      * @param {...Schema.Loggable}
      */
-
-
     warn() {
       return;
     }
+
     /**
      * Writes a log message at "error" level.
      *
@@ -79,60 +75,53 @@ module.exports = (() => {
      * @abstract
      * @param {...Schema.Loggable}
      */
-
-
     error() {
       return;
     }
-
     toString() {
       return '[Logger]';
     }
-
   }
-
   return Logger;
 })();
 
 },{}],2:[function(require,module,exports){
 const Logger = require('./Logger'),
-      LoggerProvider = require('./LoggerProvider');
-
+  LoggerProvider = require('./LoggerProvider');
 module.exports = (() => {
   'use strict';
 
   let __provider = null;
+
   /**
    * Container for static functions which control logging within the SDK.
    *
    * @public
    * @exported
    */
-
   class LoggerFactory {
     constructor() {}
+
     /**
      * Configures the SDK to write log messages to the console.
      *
      * @public
      * @static
      */
-
-
     static configureForConsole() {
       LoggerFactory.configure(new ConsoleLoggerProvider());
     }
+
     /**
      * Configures the SDK to mute all log messages.
      *
      * @public
      * @static
      */
-
-
     static configureForSilence() {
       LoggerFactory.configure(new EmptyLoggerProvider());
     }
+
     /**
      * Configures the library to delegate any log messages to a custom
      * implementation of the {@link LoggerProvider} class.
@@ -141,13 +130,12 @@ module.exports = (() => {
      * @static
      * @param {LoggerProvider} provider
      */
-
-
     static configure(provider) {
       if (__provider === null && provider instanceof LoggerProvider) {
         __provider = provider;
       }
     }
+
     /**
      * Returns an instance of {@link Logger} for a specific category.
      *
@@ -156,152 +144,117 @@ module.exports = (() => {
      * @param {String} category
      * @returns {Logger}
      */
-
-
     static getLogger(category) {
       if (__provider === null) {
         LoggerFactory.configureForConsole();
       }
-
       return __provider.getLogger(category);
     }
-
     toString() {
       return '[LoggerFactory]';
     }
-
   }
-
   let __consoleLogger = null;
-
   class ConsoleLoggerProvider extends LoggerProvider {
     constructor() {
       super();
     }
-
     getLogger(category) {
       if (__consoleLogger === null) {
         __consoleLogger = new ConsoleLogger();
       }
-
       return __consoleLogger;
     }
-
     toString() {
       return '[ConsoleLoggerProvider]';
     }
-
   }
-
   class ConsoleLogger extends Logger {
     constructor() {
       super();
     }
-
     log() {
       try {
         console.log.apply(console, arguments);
       } catch (e) {}
     }
-
     trace() {
       try {
         console.trace.apply(console, arguments);
       } catch (e) {}
     }
-
     debug() {
       try {
         console.debug.apply(console, arguments);
       } catch (e) {}
     }
-
     info() {
       try {
         console.info.apply(console, arguments);
       } catch (e) {}
     }
-
     warn() {
       try {
         console.warn.apply(console, arguments);
       } catch (e) {}
     }
-
     error() {
       try {
         console.error.apply(console, arguments);
       } catch (e) {}
     }
-
     toString() {
       return '[ConsoleLogger]';
     }
-
   }
-
   let __emptyLogger = null;
-
   class EmptyLoggerProvider extends LoggerProvider {
     constructor() {
       super();
     }
-
     getLogger(category) {
       if (__emptyLogger === null) {
         __emptyLogger = new EmptyLogger();
       }
-
       return __emptyLogger;
     }
-
     toString() {
       return '[EmptyLoggerProvider]';
     }
-
   }
-
   class EmptyLogger extends Logger {
     constructor() {
       super();
     }
-
     log() {
       return;
     }
-
     trace() {
       return;
     }
-
     debug() {
       return;
     }
-
     info() {
       return;
     }
-
     warn() {
       return;
     }
-
     error() {
       return;
     }
-
     toString() {
       return '[ConsoleLogger]';
     }
-
   }
-
   return LoggerFactory;
 })();
 
 },{"./Logger":1,"./LoggerProvider":3}],3:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
+
   /**
    * A contract for generating {@link Logger} instances. For custom logging
    * the SDK consumer should implement this class and pass it to the
@@ -311,9 +264,9 @@ module.exports = (() => {
    * @exported
    * @abstract
    */
-
   class LoggerProvider {
     constructor() {}
+
     /**
      * Returns an instance of {@link Logger}.
      *
@@ -321,26 +274,19 @@ module.exports = (() => {
      * @param {String} category
      * @returns {Logger}
      */
-
-
     getLogger(category) {
       return null;
     }
-
     toString() {
       return '[LoggerProvider]';
     }
-
   }
-
   return LoggerProvider;
 })();
 
 },{}],4:[function(require,module,exports){
 const object = require('@barchart/common-js/lang//object');
-
 const LoggerFactory = require('./../logging/LoggerFactory');
-
 module.exports = (() => {
   'use strict';
 
@@ -349,6 +295,7 @@ module.exports = (() => {
     update: 'update',
     reset: 'reset'
   };
+
   /**
    * An aggregation of the total volume traded at each price level for a
    * single instrument, mutates as **CumulativeVolume** subscription updates
@@ -357,7 +304,6 @@ module.exports = (() => {
    * @public
    * @exported
    */
-
   class CumulativeVolume {
     constructor(symbol, tickIncrement) {
       /**
@@ -371,11 +317,11 @@ module.exports = (() => {
       this._priceLevels = {};
       this._highPrice = null;
       this._lowPrice = null;
-
       if (__logger === null) {
         __logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
       }
     }
+
     /**
      * Registers an event handler for a given event. The following events are
      * supported:
@@ -387,18 +333,13 @@ module.exports = (() => {
      * @param {string} eventType
      * @param {function} handler - callback notified each time the event occurs
      */
-
-
     on(eventType, handler) {
       if (eventType !== 'events') {
         return;
       }
-
       const i = this._handlers.indexOf(handler);
-
       if (i < 0) {
         const copy = this._handlers.slice(0);
-
         copy.push(handler);
         this._handlers = copy;
         this.toArray().forEach(priceLevel => {
@@ -406,6 +347,7 @@ module.exports = (() => {
         });
       }
     }
+
     /**
      * Unregisters an event handler for a given event. See {@link CumulativeVolume#on}.
      *
@@ -413,30 +355,25 @@ module.exports = (() => {
      * @param {string} eventType - the event which was passed to {@link CumulativeVolume#on}
      * @param {function} handler - the callback which was passed to {@link CumulativeVolume#on}
      */
-
-
     off(eventType, handler) {
       if (eventType !== 'events') {
         return;
       }
-
       const i = this._handlers.indexOf(handler);
-
       if (!(i < 0)) {
         const copy = this._handlers.slice(0);
-
         copy.splice(i, 1);
         this._handlers = copy;
       }
     }
+
     /**
      * @ignore
      */
-
-
     getTickIncrement() {
       return this._tickIncrement;
     }
+
     /**
      * Given a numeric price, returns the volume traded at that price level.
      *
@@ -444,18 +381,16 @@ module.exports = (() => {
      * @param {number} price
      * @returns {number}
      */
-
-
     getVolume(price) {
       const priceString = price.toString();
       const priceLevel = this._priceLevels[priceString];
-
       if (priceLevel) {
         return priceLevel.volume;
       } else {
         return 0;
       }
     }
+
     /**
      * Increments the volume at a given price level. Used primarily
      * when a trade occurs.
@@ -464,50 +399,41 @@ module.exports = (() => {
      * @param {number} price
      * @param {number} volume - amount to add to existing cumulative volume
      */
-
-
     incrementVolume(price, volume) {
       if (this._highPrice && this._lowPrice) {
         if (price > this._highPrice) {
           for (let p = this._highPrice + this._tickIncrement; p < price; p += this._tickIncrement) {
             broadcastPriceVolumeUpdate(this, this._handlers, addPriceVolume(this._priceLevels, p.toString(), p));
           }
-
           this._highPrice = price;
         } else if (price < this._lowPrice) {
           for (let p = this._lowPrice - this._tickIncrement; p > price; p -= this._tickIncrement) {
             broadcastPriceVolumeUpdate(this, this._handlers, addPriceVolume(this._priceLevels, p.toString(), p));
           }
-
           this._lowPrice = price;
         }
       } else {
         this._lowPrice = this._highPrice = price;
       }
-
       let priceString = price.toString();
       let priceLevel = this._priceLevels[priceString];
-
       if (!priceLevel) {
         priceLevel = addPriceVolume(this._priceLevels, priceString, price);
       }
-
       priceLevel.volume += volume;
       broadcastPriceVolumeUpdate(this, this._handlers, priceLevel);
     }
+
     /**
      * Clears the data structure. Used primarily when a "reset" message
      * is received.
      *
      * @ignore
      */
-
-
     reset() {
       this._priceLevels = {};
       this._highPrice = null;
       this._lowPrice = null;
-
       this._handlers.forEach(handler => {
         handler({
           container: this,
@@ -515,14 +441,13 @@ module.exports = (() => {
         });
       });
     }
+
     /**
      * Returns an array of all price levels. This is an expensive operation. Observing
      * an ongoing subscription is preferred (see {@link Connection#on}).
      *
      * @returns {Schema.VolumeLevel[]}
      */
-
-
     toArray() {
       const array = object.keys(this._priceLevels).map(p => {
         const priceLevel = this._priceLevels[p];
@@ -536,13 +461,13 @@ module.exports = (() => {
       });
       return array;
     }
-
     dispose() {
       this._priceLevels = {};
       this._highPrice = null;
       this._lowPrice = null;
       this._handlers = [];
     }
+
     /**
      * Copies the price levels from one {@link CumulativeVolume} instance to
      * a newly {@link CumulativeVolume} created instance.
@@ -552,8 +477,6 @@ module.exports = (() => {
      * @param {CumulativeVolume} source - The instance to copy.
      * @returns {CumulativeVolume}
      */
-
-
     static clone(symbol, source) {
       const clone = new CumulativeVolume(symbol, source.getTickIncrement());
       source.toArray().forEach(priceLevel => {
@@ -561,13 +484,10 @@ module.exports = (() => {
       });
       return clone;
     }
-
     toString() {
       return `[CumulativeVolume (symbol=${this.symbol})]`;
     }
-
   }
-
   const sendPriceVolumeUpdate = (container, handler, priceLevel) => {
     try {
       handler({
@@ -580,13 +500,11 @@ module.exports = (() => {
       __logger.error('An error was thrown by a cumulative volume observer.', e);
     }
   };
-
   const broadcastPriceVolumeUpdate = (container, handlers, priceLevel) => {
     handlers.forEach(handler => {
       sendPriceVolumeUpdate(container, handler, priceLevel);
     });
   };
-
   const addPriceVolume = (priceLevels, priceString, price) => {
     const priceLevel = {
       price: price,
@@ -595,30 +513,26 @@ module.exports = (() => {
     priceLevels[priceString] = priceLevel;
     return priceLevel;
   };
-
   return CumulativeVolume;
 })();
 
 },{"./../logging/LoggerFactory":2,"@barchart/common-js/lang//object":36}],5:[function(require,module,exports){
 const SymbolParser = require('./../utilities/parsers/SymbolParser'),
-      buildPriceFormatter = require('../utilities/format/factories/price');
-
+  buildPriceFormatter = require('../utilities/format/factories/price');
 const AssetClass = require('./../utilities/data/AssetClass');
-
 const cmdtyViewPriceFormatter = require('./../utilities/format/specialized/cmdtyView');
-
 module.exports = (() => {
   'use strict';
 
   let profiles = {};
   let formatter = cmdtyViewPriceFormatter;
+
   /**
    * Describes an instrument (associated with a unique symbol).
    *
    * @public
    * @exported
    */
-
   class Profile {
     constructor(symbol, name, exchangeId, unitCode, pointValue, tickIncrement, exchange, additional) {
       /**
@@ -627,52 +541,51 @@ module.exports = (() => {
        * @readonly
        */
       this.symbol = symbol;
+
       /**
        * @property {string} name - Name of the instrument.
        * @public
        * @readonly
        */
-
       this.name = name;
+
       /**
        * @property {string} exchange - Code for the listing exchange.
        * @public
        * @readonly
        */
-
       this.exchange = exchangeId;
+
       /**
        * @property {Exchange|null} exchangeRef - The {@link Exchange}.
        * @public
        * @readonly
        */
-
       this.exchangeRef = exchange || null;
+
       /**
        * @property {string} unitCode - Code indicating how a prices should be formatted.
        * @public
        * @readonly
        */
-
       this.unitCode = unitCode;
+
       /**
        * @property {string} pointValue - The change in value for a one point change in price.
        * @public
        * @readonly
        */
-
       this.pointValue = pointValue;
+
       /**
        * @property {number} tickIncrement - The minimum price movement.
        * @public
        * @readonly
        */
-
       this.tickIncrement = tickIncrement;
       const info = SymbolParser.parseInstrumentType(this.symbol);
       const future = info !== null && info.asset === AssetClass.FUTURE;
       const option = info !== null && info.asset === AssetClass.FUTURE_OPTION;
-
       if (future || option) {
         /**
          * @property {string|undefined} root - Root symbol (futures and futures options only).
@@ -680,7 +593,6 @@ module.exports = (() => {
          * @readonly
          */
         this.root = info.root;
-
         if (future) {
           /**
            * @property {string|undefined} month - Month code (futures only).
@@ -688,50 +600,47 @@ module.exports = (() => {
            * @readonly
            */
           this.month = info.month;
+
           /**
            * @property {number|undefined} year - Expiration year (futures only).
            * @public
            * @readonly
            */
-
           this.year = info.year;
+
           /**
            * @property {string|undefined} expiration - Expiration date, formatted as YYYY-MM-DD (futures only).
            * @public
            * @readonly
            */
-
           this.expiration = null;
+
           /**
            * @property {string|undefined} firstNotice - First notice date, formatted as YYYY-MM-DD (futures only).
            * @public
            * @readonly
            */
-
           this.firstNotice = null;
         }
       }
+
       /**
        * @property {AssetClass|null} asset - The instrument type. This will only be present when inference based on the instrument symbol is possible.
        * @public
        * @readonly
        */
-
-
       this.asset = null;
-
       if (info && info.asset) {
         this.asset = info.asset;
       }
-
       if (typeof additional === 'object' && additional !== null) {
         for (let p in additional) {
           this[p] = additional[p];
         }
       }
-
       profiles[symbol] = this;
     }
+
     /**
      * Given a price, returns the human-readable representation.
      *
@@ -739,11 +648,10 @@ module.exports = (() => {
      * @param {number} price
      * @returns {string}
      */
-
-
     formatPrice(price) {
       return formatter(price, this.unitCode, this);
     }
+
     /**
      * Configures the logic used to format all prices using the {@link Profile#formatPrice} instance function.
      * Alternately, the {@link Profile.setPriceFormatterCustom} function can be used for complete control over
@@ -755,11 +663,10 @@ module.exports = (() => {
      * @param {boolean} specialFractions - usually true
      * @param {string=} thousandsSeparator - usually a comma
      */
-
-
     static setPriceFormatter(fractionSeparator, specialFractions, thousandsSeparator) {
       formatter = buildPriceFormatter(fractionSeparator, specialFractions, thousandsSeparator);
     }
+
     /**
      * An alternative to {@link Profile.setPriceFormatter} which allows the consumer to specify
      * a function to format prices. Use of this function overrides the rules set using the
@@ -769,11 +676,10 @@ module.exports = (() => {
      * @static
      * @param {Callbacks.CustomPriceFormatterCallback} fn - The function to use for price formatting (which replaces the default logic).
      */
-
-
     static setPriceFormatterCustom(fn) {
       formatter = fn;
     }
+
     /**
      * Alias for the {@link Profile.setPriceFormatter} function.
      *
@@ -783,37 +689,30 @@ module.exports = (() => {
      * @deprecated
      * @see {@link Profile.setPriceFormatter}
      */
-
-
     static PriceFormatter(fractionSeparator, specialFractions, thousandsSeparator) {
       Profile.setPriceFormatter(fractionSeparator, specialFractions, thousandsSeparator);
     }
+
     /**
      * @protected
      * @ignore
      */
-
-
     static get Profiles() {
       return profiles;
     }
-
     toString() {
       return `[Profile (symbol=${this.symbol})]`;
     }
-
   }
-
   return Profile;
 })();
 
 },{"../utilities/format/factories/price":18,"./../utilities/data/AssetClass":13,"./../utilities/format/specialized/cmdtyView":23,"./../utilities/parsers/SymbolParser":30}],6:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
-
 const UnitCode = require('./../data/UnitCode');
-
 module.exports = (() => {
   'use strict';
+
   /**
    * Converts a Barchart "base" code into a Barchart "unit" code. If the "base"
    * code provided is invalid, the character '0' will be returned -- which is
@@ -825,24 +724,21 @@ module.exports = (() => {
    * @param {Number} baseCode
    * @returns {String}
    */
-
   function convertBaseCodeToUnitCode(baseCode) {
     if (!is.number(baseCode)) {
       return '0';
     }
-
     const unitCodeItem = UnitCode.fromBaseCode(baseCode);
     return unitCodeItem === null ? '0' : unitCodeItem.unitCode;
   }
-
   return convertBaseCodeToUnitCode;
 })();
 
 },{"./../data/UnitCode":14,"@barchart/common-js/lang/is":35}],7:[function(require,module,exports){
 const convertNumberToDayCode = require('./numberToDayCode');
-
 module.exports = (() => {
   'use strict';
+
   /**
    * Extracts the day of the month from a {@link Date} instance
    * and returns the day code for the day of the month.
@@ -853,23 +749,20 @@ module.exports = (() => {
    * @param {Date} date
    * @returns {String|null}
    */
-
   function convertDateToDayCode(date) {
     if (date === null || date === undefined) {
       return null;
     }
-
     return convertNumberToDayCode(date.getDate());
   }
-
   return convertDateToDayCode;
 })();
 
 },{"./numberToDayCode":11}],8:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
-
 module.exports = (() => {
   'use strict';
+
   /**
    * Converts a day code (e.g. "A" ) to a day number (e.g. 11).
    *
@@ -879,35 +772,29 @@ module.exports = (() => {
    * @param {String} dayCode
    * @returns {Number|null}
    */
-
   function convertDayCodeToNumber(dayCode) {
     if (!is.string(dayCode) || dayCode === '') {
       return null;
     }
-
     let d = parseInt(dayCode, 31);
-
     if (d > 9) {
       d++;
     } else if (d === 0) {
       d = 10;
     }
-
     return d;
   }
-
   return convertDayCodeToNumber;
 })();
 
 },{"@barchart/common-js/lang/is":35}],9:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
-
 const monthCodes = require('./../data/monthCodes');
-
 module.exports = (() => {
   'use strict';
 
   const map = monthCodes.getCodeToNameMap();
+
   /**
    * Converts a futures month code to the month number (e.g. "F" to "January", or "N" to "July").
    *
@@ -917,27 +804,23 @@ module.exports = (() => {
    * @param {String} monthCode
    * @returns {String|null}
    */
-
   function convertMonthCodeToNumber(monthCode) {
     if (!is.string(monthCode)) {
       return null;
     }
-
     return map[monthCode] || null;
   }
-
   return convertMonthCodeToNumber;
 })();
 
 },{"./../data/monthCodes":15,"@barchart/common-js/lang/is":35}],10:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
-
 const monthCodes = require('./../data/monthCodes');
-
 module.exports = (() => {
   'use strict';
 
   const map = monthCodes.getCodeToNumberMap();
+
   /**
    * Converts a futures month code to the month number (e.g. "F" to 1, or "N" to 7).
    *
@@ -947,26 +830,23 @@ module.exports = (() => {
    * @param {String} monthCode
    * @returns {Number|null}
    */
-
   function convertMonthCodeToNumber(monthCode) {
     if (!is.string(monthCode)) {
       return null;
     }
-
     return map[monthCode] || null;
   }
-
   return convertMonthCodeToNumber;
 })();
 
 },{"./../data/monthCodes":15,"@barchart/common-js/lang/is":35}],11:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
-
 module.exports = (() => {
   'use strict';
 
   const ASCII_ONE = '1'.charCodeAt(0);
   const ASCII_A = 'A'.charCodeAt(0);
+
   /**
    * Converts a day number to a single character day code (e.g. 1 is
    * converted to "1", and 10 is converted to "0", and 11 is converted
@@ -978,12 +858,10 @@ module.exports = (() => {
    * @param {Number} d
    * @returns {String}
    */
-
   function convertNumberToDayCode(d) {
     if (!is.integer(d)) {
       return null;
     }
-
     if (d >= 1 && d <= 9) {
       return String.fromCharCode(ASCII_ONE + d - 1);
     } else if (d === 10) {
@@ -992,17 +870,15 @@ module.exports = (() => {
       return String.fromCharCode(ASCII_A + d - 11);
     }
   }
-
   return convertNumberToDayCode;
 })();
 
 },{"@barchart/common-js/lang/is":35}],12:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
-
 const UnitCode = require('./../data/UnitCode');
-
 module.exports = (() => {
   'use strict';
+
   /**
    * Converts a Barchart "unit" code into a Barchart "base" code. If the "unit"
    * code provided is invalid, a base code of zero will be returned.
@@ -1013,24 +889,21 @@ module.exports = (() => {
    * @param {String} unitCode
    * @returns {Number}
    */
-
   function convertUnitCodeToBaseCode(unitCode) {
     if (!is.string(unitCode) || unitCode.length !== 1) {
       return 0;
     }
-
     const unitCodeItem = UnitCode.parse(unitCode);
     return unitCodeItem === null ? 0 : unitCodeItem.baseCode;
   }
-
   return convertUnitCodeToBaseCode;
 })();
 
 },{"./../data/UnitCode":14,"@barchart/common-js/lang/is":35}],13:[function(require,module,exports){
 const Enum = require('@barchart/common-js/lang/Enum');
-
 module.exports = (() => {
   'use strict';
+
   /**
    * An enumeration for instrument types (e.g. stock, future, etc).
    *
@@ -1041,27 +914,25 @@ module.exports = (() => {
    * @param {String} description
    * @param {Number} id
    */
-
   class AssetClass extends Enum {
     constructor(code, description, id) {
       super(code, description);
       this._id = id;
     }
+
     /**
      * A unique numeric identifier assigned by Barchart.
      *
      * @public
      * @returns {Number}
      */
-
-
     get id() {
       return this._id;
     }
-
     toJSON() {
       return this._id;
     }
+
     /**
      * Converts the string-based identifier into an enumeration item.
      *
@@ -1070,11 +941,10 @@ module.exports = (() => {
      * @param {String} code
      * @returns {AssetClass|null}
      */
-
-
     static parse(code) {
       return Enum.fromCode(AssetClass, code);
     }
+
     /**
      * Converts the numeric identifier into an enumeration item.
      *
@@ -1083,11 +953,10 @@ module.exports = (() => {
      * @param {Number} id
      * @returns {AssetClass|null}
      */
-
-
     static fromId(id) {
       return Enum.getItems(AssetClass).find(x => x.id === id) || null;
     }
+
     /**
      * A stock.
      *
@@ -1095,11 +964,10 @@ module.exports = (() => {
      * @static
      * @returns {AssetClass}
      */
-
-
     static get STOCK() {
       return STOCK;
     }
+
     /**
      * A stock option.
      *
@@ -1107,11 +975,10 @@ module.exports = (() => {
      * @static
      * @returns {AssetClass}
      */
-
-
     static get STOCK_OPTION() {
       return STOCK_OPTION;
     }
+
     /**
      * A future.
      *
@@ -1119,11 +986,10 @@ module.exports = (() => {
      * @static
      * @returns {AssetClass}
      */
-
-
     static get FUTURE() {
       return FUTURE;
     }
+
     /**
      * A future option.
      *
@@ -1131,11 +997,10 @@ module.exports = (() => {
      * @static
      * @returns {AssetClass}
      */
-
-
     static get FUTURE_OPTION() {
       return FUTURE_OPTION;
     }
+
     /**
      * A foreign exchange instrument.
      *
@@ -1143,11 +1008,10 @@ module.exports = (() => {
      * @static
      * @returns {AssetClass}
      */
-
-
     static get FOREX() {
       return FOREX;
     }
+
     /**
      * A cmdtyStats instrument.
      *
@@ -1155,18 +1019,13 @@ module.exports = (() => {
      * @static
      * @returns {AssetClass}
      */
-
-
     static get CMDTY_STATS() {
       return CMDTY_STATS;
     }
-
     toString() {
       return `[AssetClass (id=${this.id}, code=${this.code})]`;
     }
-
   }
-
   const STOCK = new AssetClass('STK', 'U.S. Equity', 1);
   const STOCK_OPTION = new AssetClass('STKOPT', 'Equity Option', 34);
   const FUTURE = new AssetClass('FUT', 'Future', 2);
@@ -1178,9 +1037,10 @@ module.exports = (() => {
 
 },{"@barchart/common-js/lang/Enum":31}],14:[function(require,module,exports){
 const Enum = require('@barchart/common-js/lang/Enum');
-
 module.exports = (() => {
-  'use strict'; // 2021/07/14, For a more detailed on the "special" fractional formatting (i.e. CME
+  'use strict';
+
+  // 2021/07/14, For a more detailed on the "special" fractional formatting (i.e. CME
   // tick notation), please refer to the detailed unit test suite written for CME
   // notation (see the cmeSpec.js file).
 
@@ -1203,14 +1063,12 @@ module.exports = (() => {
    * @param {Number=} fractionFactorSpecial - Special fraction factors refer to the CME tick notation scheme (read more [here](https://www.cmegroup.com/confluence/display/EPICSANDBOX/Fractional+Pricing+-+Tick+and+Decimal+Conversions)). For example, the CME notation for 0.51171875 (in 1/8ths of 1/32nds) is "0-163", where the numerator of "163" means 16 thirty-seconds and 3 eighths of a thirty-second, where the actual fraction is 16.3[75] / 32, which equals 0.51171875.
    * @param {Number=} fractionDigitsSpecial - The number of digits of the fraction's numerator to display, when formatting in CME tick notation. For example, the notation "0-163" (in 1/8ths of 1/32nds) equates to the fraction of 16.375/32. This notation is limited to three digits (163) and omits the trailing two digits (75).
    */
-
   class UnitCode extends Enum {
     constructor(code, baseCode, decimalDigits, supportsFractions, fractionFactor, fractionDigits, fractionFactorSpecial, fractionDigitsSpecial) {
       super(code, code);
       this._baseCode = baseCode;
       this._decimalDigits = decimalDigits;
       this._supportsFractions = supportsFractions;
-
       if (supportsFractions) {
         this._fractionFactor = fractionFactor;
         this._fractionDigits = fractionDigits;
@@ -1223,28 +1081,27 @@ module.exports = (() => {
         this._fractionDigitsSpecial = undefined;
       }
     }
+
     /**
      * The numeric counterpart of a "unit" code.
      *
      * @public
      * @returns {Number}
      */
-
-
     get baseCode() {
       return this._baseCode;
     }
+
     /**
      * The single character "unit" code.
      *
      * @public
      * @returns {String}
      */
-
-
     get unitCode() {
       return this._code;
     }
+
     /**
      * When formatting in decimal mode, the number of digits to show after the
      * decimal point.
@@ -1252,11 +1109,10 @@ module.exports = (() => {
      * @public
      * @returns {Number}
      */
-
-
     get decimalDigits() {
       return this._decimalDigits;
     }
+
     /**
      * Indicates if formatting can use the alternative to decimal notation -- that
      * is, fractional notation.
@@ -1264,11 +1120,10 @@ module.exports = (() => {
      * @public
      * @returns {Boolean}
      */
-
-
     get supportsFractions() {
       return this._supportsFractions;
     }
+
     /**
      * The count of discrete prices which a unit can be divided into (e.g. a US dollar can be divided
      * into 100 cents). By default, this is also the implied denominator in fractional notation (e.g. 3.6875
@@ -1278,11 +1133,10 @@ module.exports = (() => {
      * @public
      * @returns {Number|undefined}
      */
-
-
     get fractionFactor() {
       return this._fractionFactor;
     }
+
     /**
      * The number of digits of the fraction's numerator to display (e.g. using two digits, the fraction 22/32 is
      * shown as "0-22"; using three digits, the fraction 22.375/32 is shown as "0-223").
@@ -1290,33 +1144,30 @@ module.exports = (() => {
      * @public
      * @returns {Number|undefined}
      */
-
-
     get fractionDigits() {
       return this._fractionDigits;
     }
+
     /**
      * Special fraction factors refer to the CME tick notation scheme (read more [here](https://www.cmegroup.com/confluence/display/EPICSANDBOX/Fractional+Pricing+-+Tick+and+Decimal+Conversions)).
      *
      * @public
      * @returns {Number|undefined}
      */
-
-
     get fractionFactorSpecial() {
       return this._fractionFactorSpecial;
     }
+
     /**
      * Same as {@link UnitCode#fractionDigits} for "special" fractions.
      *
      * @public
      * @returns {Number|undefined}
      */
-
-
     get fractionDigitsSpecial() {
       return this._fractionDigitsSpecial;
     }
+
     /**
      * The number of digits of the fraction's numerator to display, when formatting
      * in CME tick notation. For example, the notation "0-163" (in 1/8ths of 1/32nds) equates
@@ -1327,11 +1178,10 @@ module.exports = (() => {
      * @param {Boolean=} special
      * @returns {Number|undefined}
      */
-
-
     getFractionFactor(special) {
       return special === true ? this._fractionFactorSpecial : this._fractionFactor;
     }
+
     /**
      * Returns the {@link UnitCode#fractionDigits} or {@link UnitCode#fractionDigitsSpecial} value.
      *
@@ -1339,15 +1189,13 @@ module.exports = (() => {
      * @param {Boolean=} special
      * @returns {Number|undefined}
      */
-
-
     getFractionDigits(special) {
       return special === true ? this._fractionDigitsSpecial : this._fractionDigits;
     }
-
     toString() {
       return `[UnitCode (code=${this.code})]`;
     }
+
     /**
      * Converts a unit code character into a {@link UnitCode} enumeration item.
      *
@@ -1356,11 +1204,10 @@ module.exports = (() => {
      * @param {String} code
      * @returns {UnitCode|null}
      */
-
-
     static parse(code) {
       return Enum.fromCode(UnitCode, code);
     }
+
     /**
      * Converts a numeric "base" code into a {@link UnitCode} item.
      *
@@ -1369,14 +1216,10 @@ module.exports = (() => {
      * @param {Number} code
      * @returns {UnitCode|null}
      */
-
-
     static fromBaseCode(code) {
       return Enum.getItems(UnitCode).find(x => x.baseCode === code) || null;
     }
-
   }
-
   const TWO = new UnitCode('2', -1, 3, true, 8, 1);
   const THREE = new UnitCode('3', -2, 4, true, 16, 2);
   const FOUR = new UnitCode('4', -3, 5, true, 32, 2);
@@ -1400,12 +1243,10 @@ module.exports = (() => {
 
   const monthMap = {};
   const numberMap = {};
-
   function addMonth(code, name, number) {
     monthMap[code] = name;
     numberMap[code] = number;
   }
-
   addMonth("F", "January", 1);
   addMonth("G", "February", 2);
   addMonth("H", "March", 3);
@@ -1436,6 +1277,7 @@ module.exports = (() => {
   function leftPad(value) {
     return ('00' + value).substr(-2);
   }
+
   /**
    * Formats a {@link Date} instance as a string (using a MM/DD/YY pattern).
    *
@@ -1446,28 +1288,24 @@ module.exports = (() => {
    * @param {Boolean=} utc
    * @returns {String}
    */
-
-
   function formatDate(date, utc) {
     if (!date) {
       return '';
     }
-
     if (utc) {
       return `${leftPad(date.getUTCMonth() + 1)}/${leftPad(date.getUTCDate())}/${leftPad(date.getUTCFullYear())}`;
     } else {
       return `${leftPad(date.getMonth() + 1)}/${leftPad(date.getDate())}/${leftPad(date.getFullYear())}`;
     }
   }
-
   return formatDate;
 })();
 
 },{}],17:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
-
 module.exports = (() => {
   'use strict';
+
   /**
    * Formats a number as decimal value (with a given number of digits after the decimal place,
    * thousands separator(s), and options for displaying negative values).
@@ -1481,68 +1319,55 @@ module.exports = (() => {
    * @param {Boolean=} useParenthesis
    * @returns {String}
    */
-
   function formatDecimal(value, digits, thousandsSeparator, useParenthesis) {
     if (!is.number(value)) {
       return '';
     }
-
     if (!is.string(thousandsSeparator) || thousandsSeparator.length > 1) {
       thousandsSeparator = '';
     }
-
     const applyParenthesis = value < 0 && useParenthesis === true;
-
     if (applyParenthesis) {
       value = 0 - value;
     }
-
     let formatted = value.toFixed(digits);
-
     if (thousandsSeparator && (value < -999 || value > 999)) {
       const length = formatted.length;
       const negative = value < 0;
       let found = digits === 0;
       let counter = 0;
       const buffer = [];
-
       for (let i = length - 1; !(i < 0); i--) {
         if (counter === 3 && !(negative && i === 0)) {
           buffer.unshift(thousandsSeparator);
           counter = 0;
         }
-
         const character = formatted.charAt(i);
         buffer.unshift(character);
-
         if (found) {
           counter = counter + 1;
         } else if (character === '.') {
           found = true;
         }
       }
-
       if (applyParenthesis) {
         buffer.unshift('(');
         buffer.push(')');
       }
-
       formatted = buffer.join('');
     } else if (applyParenthesis) {
       formatted = '(' + formatted + ')';
     }
-
     return formatted;
   }
-
   return formatDecimal;
 })();
 
 },{"@barchart/common-js/lang/is":35}],18:[function(require,module,exports){
 const formatPrice = require('./../price');
-
 module.exports = (() => {
   'use strict';
+
   /**
    * Returns a {@link PriceFormatterFactory~formatPrice} which uses
    * the configuration supplied to this function as parameters.
@@ -1555,10 +1380,10 @@ module.exports = (() => {
    * @param {Boolean=} useParenthesis
    * @returns {PriceFormatterFactory~formatPrice}
    */
-
   function buildPriceFormatter(fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
     return (value, unitCode, profile) => formatPrice(value, unitCode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis);
   }
+
   /**
    * Accepts a numeric value and a unit code, and returns a formatted price as a string.
    *
@@ -1570,15 +1395,14 @@ module.exports = (() => {
    * @returns {String}
    */
 
-
   return buildPriceFormatter;
 })();
 
 },{"./../price":21}],19:[function(require,module,exports){
 const formatQuote = require('./../quote');
-
 module.exports = (() => {
   'use strict';
+
   /**
    * Returns a {@link QuoteFormatterFactory~formatQuote} which uses
    * the configuration supplied to this function as parameters.
@@ -1590,10 +1414,10 @@ module.exports = (() => {
    * @param {String=} timezone - A name from the tz database (see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
    * @returns {QuoteFormatterFactory~formatQuote}
    */
-
   function buildQuoteFormatter(useTwelveHourClock, short, timezone) {
     return quote => formatQuote(quote, useTwelveHourClock, short, timezone);
   }
+
   /**
    * Accepts a {@link Quote} instance and returns the appropriate human-readable
    * date (or time) as a string.
@@ -1604,33 +1428,29 @@ module.exports = (() => {
    * @returns {String}
    */
 
-
   return buildQuoteFormatter;
 })();
 
 },{"./../quote":22}],20:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
-
 module.exports = (() => {
   'use strict';
 
   function getIntegerPart(value, fractionSeparator) {
     const floor = Math.floor(value);
-
     if (floor === 0 && fractionSeparator === '') {
       return '';
     } else {
       return floor;
     }
   }
-
   function getDecimalPart(absoluteValue) {
     return absoluteValue - Math.floor(absoluteValue);
   }
-
   function frontPad(value, digits) {
     return ['000', Math.floor(value)].join('').substr(-1 * digits);
   }
+
   /**
    * Formats a value using fractional tick notation.
    *
@@ -1644,25 +1464,19 @@ module.exports = (() => {
    * @param {Boolean=} useParenthesis - If true, negative values will be wrapped in parenthesis.
    * @returns {String}
    */
-
-
   function formatFraction(value, fractionFactor, fractionDigits, fractionSeparator, useParenthesis) {
     if (!is.number(value)) {
       return '';
     }
-
     if (!is.number(fractionFactor)) {
       return '';
     }
-
     if (!is.number(fractionDigits)) {
       return '';
     }
-
     if (!is.string(fractionSeparator) || fractionSeparator.length > 1) {
       fractionSeparator = '.';
     }
-
     const absoluteValue = Math.abs(value);
     const integerPart = getIntegerPart(absoluteValue, fractionSeparator);
     const decimalPart = getDecimalPart(absoluteValue);
@@ -1672,10 +1486,8 @@ module.exports = (() => {
     const formattedNumerator = frontPad(roundedNumerator, fractionDigits);
     let prefix;
     let suffix;
-
     if (value < 0) {
       useParenthesis = is.boolean(useParenthesis) && useParenthesis;
-
       if (useParenthesis) {
         prefix = '(';
         suffix = ')';
@@ -1687,23 +1499,19 @@ module.exports = (() => {
       prefix = '';
       suffix = '';
     }
-
     return [prefix, integerPart, fractionSeparator, formattedNumerator, suffix].join('');
   }
-
   return formatFraction;
 })();
 
 },{"@barchart/common-js/lang/is":35}],21:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
-
 const formatDecimal = require('./decimal'),
-      formatFraction = require('./fraction');
-
+  formatFraction = require('./fraction');
 const UnitCode = require('./../data/UnitCode');
-
 module.exports = (() => {
   'use strict';
+
   /**
    * Converts a numeric price into a human-readable string. One of two modes
    * may be used, depending on the unit code and fraction separator. For example,
@@ -1721,25 +1529,19 @@ module.exports = (() => {
    * @param {Boolean=} useParenthesis - If true, negative values will be represented with parenthesis (instead of a leading minus sign).
    * @returns {String}
    */
-
   function formatPrice(value, unitCode, fractionSeparator, specialFractions, thousandsSeparator, useParenthesis) {
     if (!is.number(value)) {
       return '';
     }
-
     const unitCodeItem = UnitCode.parse(unitCode);
-
     if (unitCodeItem === null) {
       return '';
     }
-
     if (!is.string(fractionSeparator) || fractionSeparator.length > 1) {
       fractionSeparator = '.';
     }
-
     specialFractions = is.boolean(specialFractions) && specialFractions;
     useParenthesis = is.boolean(useParenthesis) && useParenthesis;
-
     if (!unitCodeItem.supportsFractions || fractionSeparator === '.') {
       return formatDecimal(value, unitCodeItem.decimalDigits, thousandsSeparator, useParenthesis);
     } else {
@@ -1748,22 +1550,19 @@ module.exports = (() => {
       return formatFraction(value, fractionFactor, fractionDigits, fractionSeparator, useParenthesis);
     }
   }
-
   return formatPrice;
 })();
 
 },{"./../data/UnitCode":14,"./decimal":17,"./fraction":20,"@barchart/common-js/lang/is":35}],22:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
-
 const formatDate = require('./date'),
-      formatTime = require('./time');
-
+  formatTime = require('./time');
 const Timezone = require('@barchart/common-js/lang/Timezones');
-
 module.exports = (() => {
   'use strict';
 
   let offsets = {};
+
   /**
    * Returns a string-formatted date (or time), based on a {@link Quote} instance's
    * state. If the market is open, and a trade has occurred, then the formatted time
@@ -1778,43 +1577,33 @@ module.exports = (() => {
    * @param {String=} timezone - A name from the tz database (see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) or "EXCHANGE"
    * @returns {String}
    */
-
   function formatQuoteDateTime(quote, useTwelveHourClock, short, timezone) {
     if (!quote || !quote.time) {
       return '';
     }
-
     let t;
     let utc;
-
     if (quote.timeUtc && (is.string(timezone) || quote.profile && quote.profile.exchangeRef && quote.profile.exchangeRef && quote.profile.exchangeRef.timezoneExchange)) {
       utc = true;
       let tz;
-
       if (is.string(timezone)) {
         tz = timezone;
       } else {
         tz = quote.profile.exchangeRef.timezoneExchange;
       }
-
       let epoch = quote.timeUtc.getTime();
-
       if (!offsets.hasOwnProperty(tz)) {
         const offset = {};
         offset.latest = epoch;
         offset.timezone = Timezone.parse(tz);
-
         if (offset.timezone !== null) {
           offset.milliseconds = offset.timezone.getUtcOffset(null, true);
         } else {
           offset.milliseconds = null;
         }
-
         offsets[tz] = offset;
       }
-
       const o = offsets[tz];
-
       if (o.milliseconds !== null) {
         t = new Date(epoch + o.milliseconds);
       } else {
@@ -1824,7 +1613,6 @@ module.exports = (() => {
       utc = false;
       t = quote.time;
     }
-
     if (t === null) {
       return '';
     } else if (!quote.lastPrice || quote.flag || quote.sessionT) {
@@ -1833,16 +1621,13 @@ module.exports = (() => {
       return formatTime(t, quote.timezone, useTwelveHourClock, short, utc);
     }
   }
-
   return formatQuoteDateTime;
 })();
 
 },{"./date":16,"./time":25,"@barchart/common-js/lang/Timezones":32,"@barchart/common-js/lang/is":35}],23:[function(require,module,exports){
 const AssetClass = require('./../../data/AssetClass');
-
 const formatFraction = require('./../fraction'),
-      formatPrice = require('./../price');
-
+  formatPrice = require('./../price');
 module.exports = (() => {
   'use strict';
 
@@ -1851,6 +1636,7 @@ module.exports = (() => {
   regex.ZT = /^BT\d$/;
   regex.ZF = /^BF\d$/;
   regex.ZN = /^BN\d$/;
+
   /**
    * An implementation of {@link Callbacks.CustomPriceFormatterCallback} which can be
    * used with ${@link Profile.setPriceFormatterCustom}. This implementation applies
@@ -1864,10 +1650,11 @@ module.exports = (() => {
    * @param {Profile} profile
    * @returns {String}
    */
-
   function formatForCmdtyView(value, unitCode, profile) {
     if (profile.asset === AssetClass.FUTURE_OPTION) {
-      const root = profile.root; // 2021/07/15, BRI. Options for ZB and ZN use unitCode="5" which defines
+      const root = profile.root;
+
+      // 2021/07/15, BRI. Options for ZB and ZN use unitCode="5" which defines
       // 64 price increments. The default price formatter will output fractions
       // using halves of thirty-seconds (e.g. 0-315). However, the CME specifies
       // formatting with sixty-fourths (e.g. 0-63). These notations are numerically
@@ -1877,7 +1664,9 @@ module.exports = (() => {
 
       if (root === 'ZB' || root === 'ZN' || regex.ZB.test(root) || regex.ZN.test(root)) {
         return formatFraction(value, 64, 2, '-', false);
-      } // 2021/07/15, BRI. Options for ZT and ZF use unitCode="6" which defines
+      }
+
+      // 2021/07/15, BRI. Options for ZT and ZF use unitCode="6" which defines
       // 128 price increments. The default price formatter will output fractions
       // using quarters of thirty-seconds (e.g. 0-317). However, the CME specifies
       // formatting with halves of sixty-fourths (e.g. 0-635). These notations are
@@ -1885,21 +1674,19 @@ module.exports = (() => {
       // expect to see the latter. This logic includes the option "root" symbols for
       // normal, weekly,and wednesday options (for ZT and ZF futures).
 
-
       if (root === 'ZT' || root === 'ZF' || regex.ZT.test(root) || regex.ZF.test(root)) {
         return formatFraction(value, 640, 3, '-', false);
       }
     }
-
     return formatPrice(value, unitCode, '-', true, ',');
   }
-
   return formatForCmdtyView;
 })();
 
 },{"./../../data/AssetClass":13,"./../fraction":20,"./../price":21}],24:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
+
   /**
    * Formats a string (by capitalizing it). If anything other than a string
    * is passed, the argument is returned without modification.
@@ -1910,7 +1697,6 @@ module.exports = (() => {
    * @param {String|*} symbol
    * @returns {String|*}
    */
-
   function formatSymbol(symbol) {
     if (symbol !== null && typeof symbol === 'string') {
       return symbol.toUpperCase();
@@ -1918,7 +1704,6 @@ module.exports = (() => {
       return symbol;
     }
   }
-
   return formatSymbol;
 })();
 
@@ -1929,12 +1714,10 @@ module.exports = (() => {
   function leftPad(value) {
     return ('00' + value).substr(-2);
   }
-
   function formatTwelveHourTime(t, utc) {
     let hours;
     let minutes;
     let seconds;
-
     if (utc) {
       hours = t.getUTCHours();
       minutes = t.getUTCMinutes();
@@ -1944,9 +1727,7 @@ module.exports = (() => {
       minutes = t.getMinutes();
       seconds = t.getSeconds();
     }
-
     let period;
-
     if (hours === 0) {
       hours = 12;
       period = 'AM';
@@ -1960,14 +1741,11 @@ module.exports = (() => {
       hours = hours;
       period = 'AM';
     }
-
     return `${leftPad(hours)}:${leftPad(minutes)}:${leftPad(seconds)} ${period}`;
   }
-
   function formatTwelveHourTimeShort(t, utc) {
     let hours;
     let minutes;
-
     if (utc) {
       hours = t.getUTCHours();
       minutes = t.getUTCMinutes();
@@ -1975,9 +1753,7 @@ module.exports = (() => {
       hours = t.getHours();
       minutes = t.getMinutes();
     }
-
     let period;
-
     if (hours === 0) {
       hours = 12;
       period = 'A';
@@ -1991,15 +1767,12 @@ module.exports = (() => {
       hours = hours;
       period = 'A';
     }
-
     return `${leftPad(hours)}:${leftPad(minutes)}${period}`;
   }
-
   function formatTwentyFourHourTime(t, utc) {
     let hours;
     let minutes;
     let seconds;
-
     if (utc) {
       hours = t.getUTCHours();
       minutes = t.getUTCMinutes();
@@ -2009,14 +1782,11 @@ module.exports = (() => {
       minutes = t.getMinutes();
       seconds = t.getSeconds();
     }
-
     return `${leftPad(hours)}:${leftPad(minutes)}:${leftPad(seconds)}`;
   }
-
   function formatTwentyFourHourTimeShort(t, utc) {
     let hours;
     let minutes;
-
     if (utc) {
       hours = t.getUTCHours();
       minutes = t.getUTCMinutes();
@@ -2024,9 +1794,9 @@ module.exports = (() => {
       hours = t.getHours();
       minutes = t.getMinutes();
     }
-
     return `${leftPad(hours)}:${leftPad(minutes)}`;
   }
+
   /**
    * Formats a {@link Date} instance's time component as a string.
    *
@@ -2040,15 +1810,11 @@ module.exports = (() => {
    * @param {Boolean=} utc
    * @returns {String}
    */
-
-
   function formatTime(date, timezone, useTwelveHourClock, short, utc) {
     if (!date) {
       return '';
     }
-
     let ft;
-
     if (useTwelveHourClock) {
       if (short) {
         ft = formatTwelveHourTimeShort;
@@ -2062,25 +1828,19 @@ module.exports = (() => {
         ft = formatTwentyFourHourTime;
       }
     }
-
     let formatted = ft(date, utc);
-
     if (timezone) {
       formatted = `${formatted} ${timezone}`;
     }
-
     return formatted;
   }
-
   return formatTime;
 })();
 
 },{}],26:[function(require,module,exports){
 const xmlDom = require('@xmldom/xmldom');
-
 const parseValue = require('./value'),
-      parseTimestamp = require('./timestamp');
-
+  parseTimestamp = require('./timestamp');
 module.exports = (() => {
   'use strict';
 
@@ -2088,6 +1848,7 @@ module.exports = (() => {
     constructor() {
       this._xmlDomParser = new xmlDom.DOMParser();
     }
+
     /**
      * Parses an XML document.
      *
@@ -2095,21 +1856,17 @@ module.exports = (() => {
      * @param {String} textDocument
      * @returns {Object}
      */
-
-
     parse(textDocument) {
       if (typeof textDocument !== 'string') {
         throw new Error('The "textDocument" argument must be a string.');
       }
-
       return this._xmlDomParser.parseFromString(textDocument, 'text/xml');
     }
-
     toString() {
       return '[XmlDomParser]';
     }
-
   }
+
   /**
    * Parses a DDF message, returning a JavaScript object representing the
    * content of the message.
@@ -2120,29 +1877,23 @@ module.exports = (() => {
    * @param {Object=} options
    * @returns {Object}
    */
-
-
   function parseMessage(msg, options) {
     const message = {
       message: msg,
       type: null
     };
-
     switch (msg.substr(0, 1)) {
       case '%':
         {
           let xmlDocument;
-
           try {
             const xmlDomParser = new XmlDomParser();
             xmlDocument = xmlDomParser.parse(msg.substring(1));
           } catch (e) {
             xmlDocument = undefined;
           }
-
           if (xmlDocument) {
             const node = xmlDocument.firstChild;
-
             switch (node.nodeName) {
               case 'BOOK':
                 {
@@ -2153,11 +1904,9 @@ module.exports = (() => {
                   message.asks = [];
                   message.bids = [];
                   let ary1, ary2;
-
                   if (node.attributes.getNamedItem('askprices') && node.attributes.getNamedItem('asksizes')) {
                     ary1 = node.attributes.getNamedItem('askprices').value.split(',');
                     ary2 = node.attributes.getNamedItem('asksizes').value.split(',');
-
                     for (let i = 0; i < ary1.length; i++) {
                       message.asks.push({
                         "price": parseValue(ary1[i], message.unitcode),
@@ -2165,11 +1914,9 @@ module.exports = (() => {
                       });
                     }
                   }
-
                   if (node.attributes.getNamedItem('bidprices') && node.attributes.getNamedItem('bidsizes')) {
                     ary1 = node.attributes.getNamedItem('bidprices').value.split(',');
                     ary2 = node.attributes.getNamedItem('bidsizes').value.split(',');
-
                     for (let i = 0; i < ary1.length; i++) {
                       message.bids.push({
                         "price": parseValue(ary1[i], message.unitcode),
@@ -2177,11 +1924,9 @@ module.exports = (() => {
                       });
                     }
                   }
-
                   message.type = 'BOOK';
                   break;
                 }
-
               case 'QUOTE':
                 {
                   for (let i = 0; i < node.attributes.length; i++) {
@@ -2189,62 +1934,48 @@ module.exports = (() => {
                       case 'symbol':
                         message.symbol = node.attributes[i].value;
                         break;
-
                       case 'name':
                         message.name = node.attributes[i].value;
                         break;
-
                       case 'exchange':
                         message.exchange = node.attributes[i].value;
                         break;
-
                       case 'basecode':
                         message.unitcode = node.attributes[i].value;
                         break;
-
                       case 'pointvalue':
                         message.pointValue = parseFloat(node.attributes[i].value);
                         break;
-
                       case 'tickincrement':
                         message.tickIncrement = parseInt(node.attributes[i].value);
                         break;
-
                       case 'flag':
                         message.flag = node.attributes[i].value;
                         break;
-
                       case 'lastupdate':
                         {
                           const v = node.attributes[i].value;
                           message.lastUpdate = new Date(parseInt(v.substr(0, 4)), parseInt(v.substr(4, 2)) - 1, parseInt(v.substr(6, 2)), parseInt(v.substr(8, 2)), parseInt(v.substr(10, 2)), parseInt(v.substr(12, 2)));
                           break;
                         }
-
                       case 'bid':
                         message.bidPrice = parseValue(node.attributes[i].value, message.unitcode);
                         break;
-
                       case 'bidsize':
                         message.bidSize = parseInt(node.attributes[i].value);
                         break;
-
                       case 'ask':
                         message.askPrice = parseValue(node.attributes[i].value, message.unitcode);
                         break;
-
                       case 'asksize':
                         message.askSize = parseInt(node.attributes[i].value);
                         break;
-
                       case 'mode':
                         message.mode = node.attributes[i].value;
                         break;
                     }
                   }
-
                   const sessions = {};
-
                   for (let j = 0; j < node.childNodes.length; j++) {
                     if (node.childNodes[j].nodeName === 'SESSION') {
                       const s = {};
@@ -2261,25 +1992,23 @@ module.exports = (() => {
                       if (attributes.getNamedItem('settlement')) s.settlementPrice = parseValue(attributes.getNamedItem('settlement').value, message.unitcode);
                       if (attributes.getNamedItem('volume')) s.volume = parseInt(attributes.getNamedItem('volume').value);
                       if (attributes.getNamedItem('openinterest')) s.openInterest = parseInt(attributes.getNamedItem('openinterest').value);
-
                       if (attributes.getNamedItem('timestamp')) {
                         const v = attributes.getNamedItem('timestamp').value;
                         s.timeStamp = new Date(parseInt(v.substr(0, 4)), parseInt(v.substr(4, 2)) - 1, parseInt(v.substr(6, 2)), parseInt(v.substr(8, 2)), parseInt(v.substr(10, 2)), parseInt(v.substr(12, 2)));
                       }
-
                       if (attributes.getNamedItem('tradetime')) {
                         const v = attributes.getNamedItem('tradetime').value;
                         s.tradeTime = new Date(parseInt(v.substr(0, 4)), parseInt(v.substr(4, 2)) - 1, parseInt(v.substr(6, 2)), parseInt(v.substr(8, 2)), parseInt(v.substr(10, 2)), parseInt(v.substr(12, 2)));
                       }
-
                       if (attributes.getNamedItem('blocktrade')) s.blockTrade = parseValue(attributes.getNamedItem('blocktrade').value, message.unitcode);
                       if (s.id) sessions[s.id] = s;
                     }
                   }
-
                   const premarket = typeof sessions.combined.lastPrice === 'undefined';
                   const postmarket = !premarket && typeof sessions.combined.settlementPrice !== 'undefined';
-                  const session = premarket ? sessions.previous : sessions.combined; // 2021/06/30, This seems wrong. We may be selecting most values
+                  const session = premarket ? sessions.previous : sessions.combined;
+
+                  // 2021/06/30, This seems wrong. We may be selecting most values
                   // from the "combined" session ... but, the "previousPrice" value
                   // from the "previous" session ... This can give us the same "previousPrice"
                   // and "lastPrice" values (e.g. ZCN1 right after 4:45 PM, when the
@@ -2292,7 +2021,6 @@ module.exports = (() => {
                   } else {
                     message.previousPrice = sessions.previous.previousPrice;
                   }
-
                   if (session.lastPrice) message.lastPrice = session.lastPrice;
                   if (session.openPrice) message.openPrice = session.openPrice;
                   if (session.highPrice) message.highPrice = session.highPrice;
@@ -2305,7 +2033,9 @@ module.exports = (() => {
                   if (session.blockTrade) message.blockTrade = session.blockTrade;
                   if (session.id === 'combined' && sessions.previous.openInterest) message.openInterest = sessions.previous.openInterest;
                   if (session.timeStamp) message.timeStamp = session.timeStamp;
-                  if (session.tradeTime) message.tradeTime = session.tradeTime; // 2016/10/29, BRI. We have a problem where we don't "roll" quotes
+                  if (session.tradeTime) message.tradeTime = session.tradeTime;
+
+                  // 2016/10/29, BRI. We have a problem where we don't "roll" quotes
                   // for futures. For example, LEZ16 doesn't "roll" the settlementPrice
                   // to the previous price -- so, we did this on the open message (2,0A).
                   // Eero has another idea. Perhaps we are setting the "day" improperly
@@ -2324,51 +2054,40 @@ module.exports = (() => {
                   message.previousHighPrice = p.highPrice;
                   message.previousLowPrice = p.lowPrice;
                   message.previousTimeStamp = p.timeStamp;
-
                   if (sessions.combined.day) {
                     const sessionFormT = 'session_' + sessions.combined.day + '_T';
-
                     if (sessions.hasOwnProperty(sessionFormT)) {
                       const t = sessions[sessionFormT];
                       const lastPriceT = t.lastPrice;
-
                       if (lastPriceT) {
                         const tradeTimeT = t.tradeTime;
                         const tradeSizeT = t.tradeSize;
                         let sessionIsEvening;
-
                         if (tradeTimeT) {
                           const noon = new Date(tradeTimeT.getFullYear(), tradeTimeT.getMonth(), tradeTimeT.getDate(), 12, 0, 0, 0);
                           sessionIsEvening = tradeTimeT.getTime() > noon.getTime();
                         } else {
                           sessionIsEvening = false;
                         }
-
                         message.sessionT = sessionIsEvening;
                         const sessionIsCurrent = premarket || sessionIsEvening;
-
                         if (sessionIsCurrent) {
                           message.lastPriceT = lastPriceT;
                         }
-
                         if (premarket || postmarket) {
                           message.session = 'T';
-
                           if (sessionIsCurrent) {
                             if (tradeTimeT) {
                               message.tradeTime = tradeTimeT;
                             }
-
                             if (tradeSizeT) {
                               message.tradeSize = tradeSizeT;
                             }
                           }
-
                           if (premarket) {
                             if (t.volume) {
                               message.volume = t.volume;
                             }
-
                             if (t.previousPrice) {
                               message.previousPrice = t.previousPrice;
                             }
@@ -2377,11 +2096,9 @@ module.exports = (() => {
                       }
                     }
                   }
-
                   message.type = 'REFRESH_QUOTE';
                   break;
                 }
-
               case 'CV':
                 {
                   message.type = 'REFRESH_CUMULATIVE_VOLUME';
@@ -2389,11 +2106,9 @@ module.exports = (() => {
                   message.unitCode = node.attributes.getNamedItem('basecode').value;
                   message.tickIncrement = parseValue(node.attributes.getNamedItem('tickincrement').value, message.unitCode);
                   const dataAttribute = node.attributes.getNamedItem('data');
-
                   if (dataAttribute) {
                     const priceLevelsRaw = dataAttribute.value || '';
                     const priceLevels = priceLevelsRaw.split(':');
-
                     for (let i = 0; i < priceLevels.length; i++) {
                       const priceLevelRaw = priceLevels[i];
                       const priceLevelData = priceLevelRaw.split(',');
@@ -2402,7 +2117,6 @@ module.exports = (() => {
                         volume: parseInt(priceLevelData[1])
                       };
                     }
-
                     priceLevels.sort(function (a, b) {
                       return a.price - b.price;
                     });
@@ -2410,19 +2124,15 @@ module.exports = (() => {
                   } else {
                     message.priceLevels = [];
                   }
-
                   break;
                 }
-
               default:
                 console.log(msg);
                 break;
             }
           }
-
           break;
         }
-
       case '\x01':
         {
           // DDF Messages
@@ -2434,7 +2144,6 @@ module.exports = (() => {
                 message.timestamp = new Date(parseInt(msg.substr(2, 4)), parseInt(msg.substr(6, 2)) - 1, parseInt(msg.substr(8, 2)), parseInt(msg.substr(10, 2)), parseInt(msg.substr(12, 2)), parseInt(msg.substr(14, 2)));
                 break;
               }
-
             case 'C':
             case '2':
               {
@@ -2445,7 +2154,6 @@ module.exports = (() => {
                 message.unitcode = msg.substr(pos + 3, 1);
                 message.exchange = msg.substr(pos + 4, 1);
                 message.delay = parseInt(msg.substr(pos + 5, 2));
-
                 switch (message.subrecord) {
                   case '0':
                     {
@@ -2454,56 +2162,45 @@ module.exports = (() => {
                       message.value = parseValue(msg.substring(pos + 7, pos2), message.unitcode);
                       message.element = msg.substr(pos2 + 1, 1);
                       message.modifier = msg.substr(pos2 + 2, 1);
-
                       switch (message.element) {
                         case 'A':
                           message.type = 'OPEN';
                           break;
-
                         case 'C':
                           if (message.modifier === '1') message.type = 'OPEN_INTEREST';
                           break;
-
                         case 'D':
                         case 'd':
                           if (message.modifier === '0') message.type = 'SETTLEMENT';
                           break;
-
                         case 'V':
                           if (message.modifier === '0') message.type = 'VWAP';
                           break;
-
                         case '0':
                           {
                             if (message.modifier === '0') {
                               message.tradePrice = message.value;
                               message.type = 'TRADE';
                             }
-
                             break;
                           }
-
                         case '5':
                           message.type = 'HIGH';
                           break;
-
                         case '6':
                           message.type = 'LOW';
                           break;
-
                         case '7':
                           {
                             if (message.modifier === '1') message.type = 'VOLUME_YESTERDAY';else if (message.modifier === '6') message.type = 'VOLUME';
                             break;
                           }
                       }
-
                       message.day = msg.substr(pos2 + 3, 1);
                       message.session = msg.substr(pos2 + 4, 1);
                       message.time = parseTimestamp(msg.substr(msg.indexOf('\x03') + 1, 9));
                       break;
                     }
-
                   case '1':
                   case '2':
                   case '3':
@@ -2526,7 +2223,6 @@ module.exports = (() => {
                       message.type = 'REFRESH_DDF';
                       break;
                     }
-
                   case '6':
                     {
                       if (msg.substr(1, 1) === '2') {
@@ -2540,10 +2236,8 @@ module.exports = (() => {
                         message.session = ary[14].substr(1, 1);
                         message.type = 'OHLC';
                       }
-
                       break;
                     }
-
                   case '7':
                     {
                       let pos2 = msg.indexOf(',', pos + 7);
@@ -2558,7 +2252,6 @@ module.exports = (() => {
                       message.type = 'TRADE';
                       break;
                     }
-
                   case '8':
                     {
                       let pos2 = msg.indexOf(',', pos + 7);
@@ -2579,7 +2272,6 @@ module.exports = (() => {
                       message.type = 'TOB';
                       break;
                     }
-
                   case 'Z':
                     {
                       let pos2 = msg.indexOf(',', pos + 7);
@@ -2595,16 +2287,13 @@ module.exports = (() => {
                       break;
                     }
                 }
-
                 break;
               }
-
             case '3':
               {
                 const pos = msg.indexOf(',', 0);
                 message.symbol = msg.substring(2, pos);
                 message.subrecord = msg.substr(pos + 1, 1);
-
                 switch (message.subrecord) {
                   case 'B':
                     {
@@ -2615,7 +2304,6 @@ module.exports = (() => {
                       message.bids = [];
                       message.asks = [];
                       const ary = msg.substring(pos + 8).split(',');
-
                       for (let i = 0; i < ary.length; i++) {
                         const ary2 = ary[i].split(/[A-Z]/);
                         const c = ary[i].substr(ary2[0].length, 1);
@@ -2627,18 +2315,14 @@ module.exports = (() => {
                           "size": parseInt(ary2[1])
                         });
                       }
-
                       message.type = 'BOOK';
                       break;
                     }
-
                   default:
                     break;
                 }
-
                 break;
               }
-
             default:
               {
                 message.type = 'UNKNOWN';
@@ -2647,16 +2331,15 @@ module.exports = (() => {
           }
         }
     }
-
     return message;
   }
-
   return parseMessage;
 })();
 
 },{"./timestamp":27,"./value":28,"@xmldom/xmldom":43}],27:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
+
   /**
    * Parses a DDF timestamp.
    *
@@ -2676,19 +2359,19 @@ module.exports = (() => {
    * @param {String} bytes
    * @returns {Date}
    */
-
   function parseTimestamp(bytes) {
     if (bytes.length !== 9) {
       return null;
     }
-
     const year = bytes.charCodeAt(0) * 100 + bytes.charCodeAt(1) - 64;
     const month = bytes.charCodeAt(2) - 64 - 1;
     const day = bytes.charCodeAt(3) - 64;
     const hour = bytes.charCodeAt(4) - 64;
     const minute = bytes.charCodeAt(5) - 64;
     const second = bytes.charCodeAt(6) - 64;
-    const ms = (0xFF & bytes.charCodeAt(7)) + ((0xFF & bytes.charCodeAt(8)) << 8); // 2016/02/17. JERQ is providing us with date and time values that
+    const ms = (0xFF & bytes.charCodeAt(7)) + ((0xFF & bytes.charCodeAt(8)) << 8);
+
+    // 2016/02/17. JERQ is providing us with date and time values that
     // are meant to be interpreted in the exchange's local timezone.
     //
     // This is interesting because different time values (e.g. 14:30 and
@@ -2704,7 +2387,6 @@ module.exports = (() => {
 
     return new Date(year, month, day, hour, minute, second, ms);
   }
-
   return parseTimestamp;
 })();
 
@@ -2713,14 +2395,13 @@ module.exports = (() => {
   'use strict';
 
   const replaceExpressions = {};
-
   function getReplaceExpression(thousandsSeparator) {
     if (!replaceExpressions.hasOwnProperty(thousandsSeparator)) {
       replaceExpressions[thousandsSeparator] = new RegExp(thousandsSeparator, 'g');
     }
-
     return replaceExpressions[thousandsSeparator];
   }
+
   /**
    * Parses DDF price.
    *
@@ -2731,98 +2412,75 @@ module.exports = (() => {
    * @param {String=} thousandsSeparator
    * @returns {Number|undefined|null}
    */
-
-
   function parseValue(str, unitCode, thousandsSeparator) {
     if (str.length < 1) {
       return undefined;
     } else if (str === '-') {
       return null;
     }
-
     if (thousandsSeparator) {
       str = str.replace(getReplaceExpression(thousandsSeparator), '');
     }
-
     if (!(str.indexOf('.') < 0)) {
       return parseFloat(str);
     }
-
     const sign = str.substr(0, 1) === '-' ? -1 : 1;
-
     if (sign === -1) {
       str = str.substr(1);
     }
-
     switch (unitCode) {
       case '2':
         // 8ths
         return sign * ((str.length > 1 ? parseInt(str.substr(0, str.length - 1)) : 0) + parseInt(str.substr(-1)) / 8);
-
       case '3':
         // 16ths
         return sign * ((str.length > 2 ? parseInt(str.substr(0, str.length - 2)) : 0) + parseInt(str.substr(-2)) / 16);
-
       case '4':
         // 32ths
         return sign * ((str.length > 2 ? parseInt(str.substr(0, str.length - 2)) : 0) + parseInt(str.substr(-2)) / 32);
-
       case '5':
         // 64ths
         return sign * ((str.length > 2 ? parseInt(str.substr(0, str.length - 2)) : 0) + parseInt(str.substr(-2)) / 64);
-
       case '6':
         // 128ths
         return sign * ((str.length > 3 ? parseInt(str.substr(0, str.length - 3)) : 0) + parseInt(str.substr(-3)) / 128);
-
       case '7':
         // 256ths
         return sign * ((str.length > 3 ? parseInt(str.substr(0, str.length - 3)) : 0) + parseInt(str.substr(-3)) / 256);
-
       case '8':
         return sign * parseInt(str);
-
       case '9':
         return sign * (parseInt(str) / 10);
-
       case 'A':
         return sign * (parseInt(str) / 100);
-
       case 'B':
         return sign * (parseInt(str) / 1000);
-
       case 'C':
         return sign * (parseInt(str) / 10000);
-
       case 'D':
         return sign * (parseInt(str) / 100000);
-
       case 'E':
         return sign * (parseInt(str) / 1000000);
-
       default:
         return sign * parseInt(str);
     }
   }
-
   return parseValue;
 })();
 
 },{}],29:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
-
 const UnitCode = require('./../data/UnitCode');
-
 module.exports = (() => {
   'use strict';
 
   const regex = {};
   regex.fractions = {};
   regex.fractions.separators = /([0-9]+)([\-'])([0-9]{1,3}$)/;
-
   function coerce(text) {
     return text * 1;
   }
+
   /**
    * Converts a string-formatted price into a number. If the value cannot be parsed,
    * the {@link Number.NaN} value is returned.
@@ -2837,25 +2495,18 @@ module.exports = (() => {
    * @param {String=} thousandsSeparator - Can be zero or one character in length. If invalid or omitted, the parameter will be ignored.
    * @returns {Number}
    */
-
-
   function parsePrice(value, unitCode, fractionSeparator, specialFractions, thousandsSeparator) {
     if (is.number(value)) {
       return value;
     }
-
     if (!is.string(value) || value.length === 0) {
       return Number.NaN;
     }
-
     const unitCodeItem = UnitCode.parse(unitCode);
-
     if (unitCodeItem === null) {
       return Number.NaN;
     }
-
     let negative;
-
     if (value.startsWith('(') && value.endsWith(')')) {
       negative = true;
       value = value.slice(1, -1);
@@ -2865,7 +2516,6 @@ module.exports = (() => {
     } else {
       negative = false;
     }
-
     if (is.string(fractionSeparator) && fractionSeparator.length < 2) {
       fractionSeparator = fractionSeparator;
     } else if (unitCodeItem.supportsFractions && regex.fractions.separators.test(value)) {
@@ -2873,32 +2523,25 @@ module.exports = (() => {
     } else {
       fractionSeparator = '.';
     }
-
     if (!is.string(thousandsSeparator) || thousandsSeparator.length > 1) {
       thousandsSeparator = '';
     }
-
     if (thousandsSeparator.length !== 0) {
       const digitGroups = value.split(thousandsSeparator);
       const assumeFractionSeparator = thousandsSeparator === fractionSeparator && digitGroups.length > 1;
-
       if (assumeFractionSeparator) {
         const fractionGroup = digitGroups.pop();
         digitGroups.push(fractionSeparator);
         digitGroups.push(fractionGroup);
       }
-
       value = digitGroups.join('');
     }
-
     let absoluteValue;
-
     if (unitCodeItem.supportsFractions && fractionSeparator !== '.') {
       specialFractions = is.boolean(specialFractions) && specialFractions;
       const fractionDigits = unitCodeItem.getFractionDigits(specialFractions);
       let integerCharacters;
       let fractionCharacters;
-
       if (fractionSeparator.length === 1) {
         const characterGroups = value.split(fractionSeparator);
         integerCharacters = characterGroups[0];
@@ -2907,56 +2550,48 @@ module.exports = (() => {
         integerCharacters = value.substring(0, value.length - fractionDigits - fractionSeparator.length);
         fractionCharacters = value.slice(-fractionDigits);
       }
-
       if (fractionCharacters.length !== fractionDigits) {
         return Number.NaN;
       }
-
       if (integerCharacters === '') {
         integerCharacters = '0';
       }
-
       const integerPart = parseInt(integerCharacters);
       const fractionPart = parseInt(fractionCharacters);
-
       if (is.nan(integerPart) || is.nan(fractionPart)) {
         return Number.NaN;
       }
-
       const denominator = unitCodeItem.getFractionFactor(specialFractions);
       absoluteValue = integerPart + fractionPart / denominator;
     } else {
       const roundingFactor = Math.pow(10, unitCodeItem.decimalDigits);
       absoluteValue = Math.round(coerce(value) * roundingFactor) / roundingFactor;
     }
-
     if (negative) {
       return -absoluteValue;
     } else {
       return absoluteValue;
     }
   }
-
   return parsePrice;
 })();
 
 },{"./../data/UnitCode":14,"@barchart/common-js/lang/is":35}],30:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is'),
-      string = require('@barchart/common-js/lang/string');
-
+  string = require('@barchart/common-js/lang/string');
 const AssetClass = require('./../data/AssetClass');
-
 module.exports = (() => {
   'use strict';
+
   /**
    * Static utilities for parsing symbols.
    *
    * @public
    * @ignore
    */
-
   class SymbolParser {
     constructor() {}
+
     /**
      * Returns true when a symbol is not an alias.
      *
@@ -2965,11 +2600,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsConcrete(symbol) {
       return is.string(symbol) && !this.getIsReference(symbol);
     }
+
     /**
      * Returns true when a symbol is an alias.
      *
@@ -2978,11 +2612,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsReference(symbol) {
       return is.string(symbol) && types.futures.alias.test(symbol);
     }
+
     /**
      * Returns true when a symbol represents futures contract.
      *
@@ -2991,11 +2624,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsFuture(symbol) {
       return is.string(symbol) && (types.futures.concrete.test(symbol) || types.futures.alias.test(symbol));
     }
+
     /**
      * Returns true when a symbol represents futures spread.
      *
@@ -3004,11 +2636,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsFutureSpread(symbol) {
       return is.string(symbol) && types.futures.spread.test(symbol);
     }
+
     /**
      * Returns true when a symbol represents an option on a futures contract.
      *
@@ -3017,11 +2648,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsFutureOption(symbol) {
       return is.string(symbol) && (types.futures.options.short.test(symbol) || types.futures.options.long.test(symbol) || types.futures.options.historical.test(symbol));
     }
+
     /**
      * Returns true when a symbol represents a foreign exchange currency pair. However,
      * this function can return false positives (cyptocurrency symbols can use the same
@@ -3032,11 +2662,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsForex(symbol) {
       return is.string(symbol) && types.forex.test(symbol);
     }
+
     /**
      * Returns true when a symbol represents a cryptocurrency. However, this function can
      * return false positives (forex symbols can use the same pattern).
@@ -3046,11 +2675,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsCrypto(symbol) {
       return is.string(symbol) && types.crypto.test(symbol);
     }
+
     /**
      * Returns true if the symbol represents an external index (i.e. an index
      * which is not generated by Barchart, e.g. the S&P 500).
@@ -3060,11 +2688,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsIndex(symbol) {
       return is.string(symbol) && types.indicies.external.test(symbol);
     }
+
     /**
      * Returns true if the symbol represents a Barchart sector (i.e. a type
      * of index calculated by Barchart).
@@ -3074,11 +2701,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsSector(symbol) {
       return is.string(symbol) && types.indicies.sector.test(symbol);
     }
+
     /**
      * Returns true if the symbol represents a Canadian mutual fund.
      *
@@ -3087,11 +2713,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsCanadianFund(symbol) {
       return is.string(symbol) && types.funds.canadian.test(symbol);
     }
+
     /**
      * Returns true if the symbol represents an instrument which falls under the
      * cmdty brand.
@@ -3101,11 +2726,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsCmdty(symbol) {
       return is.string(symbol) && (types.cmdty.stats.test(symbol) || types.cmdty.internal.test(symbol) || types.cmdty.external.test(symbol));
     }
+
     /**
      * Returns true if the symbol represents a cmdtyStats instrument.
      *
@@ -3114,11 +2738,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsCmdtyStats(symbol) {
       return is.string(symbol) && types.cmdty.stats.test(symbol);
     }
+
     /**
      * Returns true if the symbol is listed on the BATS exchange.
      *
@@ -3127,11 +2750,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsBats(symbol) {
       return is.string(symbol) && predicates.bats.test(symbol);
     }
+
     /**
      * Returns true if the symbol represents an option on an equity or index; false
      * otherwise.
@@ -3141,11 +2763,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsEquityOption(symbol) {
       return is.string(symbol) && types.equities.options.test(symbol);
     }
+
     /**
      * Returns true if the symbol has an expiration and the symbol appears
      * to be expired (e.g. a future for a past year).
@@ -3155,29 +2776,24 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsExpired(symbol) {
       const definition = SymbolParser.parseInstrumentType(symbol);
       let returnVal = false;
-
       if (definition !== null && definition.year && definition.month) {
         const currentYear = getCurrentYear();
-
         if (definition.year < currentYear) {
           returnVal = true;
         } else if (definition.year === currentYear && futuresMonthNumbers.hasOwnProperty(definition.month)) {
           const currentMonth = getCurrentMonth();
           const futuresMonth = futuresMonthNumbers[definition.month];
-
           if (currentMonth > futuresMonth) {
             returnVal = true;
           }
         }
       }
-
       return returnVal;
     }
+
     /**
      * Returns true if the symbol represents a Commodity3 instrument.
      *
@@ -3186,11 +2802,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsC3(symbol) {
       return is.string(symbol) && (types.c3.concrete.test(symbol) || types.c3.alias.test(symbol));
     }
+
     /**
      * Returns true if the symbol represents a Platts instrument.
      *
@@ -3199,11 +2814,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsPlatts(symbol) {
       return is.string(symbol) && (types.platts.concrete.test(symbol) || types.platts.alias.test(symbol));
     }
+
     /**
      * Returns true if the symbol represents a pit-traded instrument. The
      * name must also be included.
@@ -3214,11 +2828,10 @@ module.exports = (() => {
      * @param {String} name
      * @returns {Boolean}
      */
-
-
     static getIsPit(symbol, name) {
       return is.string(symbol) && is.string(name) && predicates.pit.test(name);
     }
+
     /**
      * Returns true if the symbol represents a grain bid instrument.
      *
@@ -3227,11 +2840,10 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static getIsGrainBid(symbol) {
       return is.string(symbol) && types.bids.test(symbol);
     }
+
     /**
      * Returns a simple instrument definition containing information which
      * can be inferred from the symbol. A null value is returned if nothing
@@ -3242,22 +2854,18 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Object|null}
      */
-
-
     static parseInstrumentType(symbol) {
       if (!is.string(symbol)) {
         return null;
       }
-
       let definition = null;
-
       for (let i = 0; i < parsers.length && definition === null; i++) {
         const parser = parsers[i];
         definition = parser(symbol);
       }
-
       return definition;
     }
+
     /**
      * In some cases, multiple symbols can be used to refer to the same instrument
      * (e.g. ZCZ1 and ZCZ21 may refer to the same futures contract). That said,
@@ -3271,22 +2879,18 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {String|null}
      */
-
-
     static getProducerSymbol(symbol) {
       if (!is.string(symbol)) {
         return null;
       }
-
       let converted = null;
-
       for (let i = 0; i < converters.length && converted === null; i++) {
         const converter = converters[i];
         converted = converter(symbol);
       }
-
       return converted;
     }
+
     /**
      * Converts a futures option symbol in "database" format to "pipeline" format
      * (e.g. ZLF320Q -> ZLF9|320C).
@@ -3296,19 +2900,16 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {String|null}
      */
-
-
     static getFuturesOptionPipelineFormat(symbol) {
       const definition = SymbolParser.parseInstrumentType(symbol);
       let formatted = null;
-
       if (definition.type === 'future_option') {
         const putCallCharacter = getPutCallCharacter(definition.option_type);
         formatted = `${definition.root}${definition.month}${getYearDigits(definition.year, 1)}|${definition.strike}${putCallCharacter}`;
       }
-
       return formatted;
     }
+
     /**
      * Converts an abbreviated futures symbol (with a single digit year) into
      * a futures symbol with a two digit year. If the symbol is not a futures
@@ -3319,18 +2920,15 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {String|null}
      */
-
-
     static getFuturesExplicitFormat(symbol) {
       let explicit = null;
-
       if (SymbolParser.getIsFuture(symbol) && SymbolParser.getIsConcrete(symbol)) {
         const parsed = SymbolParser.parseInstrumentType(symbol);
         explicit = `${parsed.root}${parsed.month}${string.padLeft(Math.floor(parsed.year % 100).toString(), 2, '0')}`;
       }
-
       return explicit;
     }
+
     /**
      * Determine (or guess) the expiration year (for a futures contract), given
      * the string representation of the expiration year and the expiration month
@@ -3341,11 +2939,10 @@ module.exports = (() => {
      * @param {String} yearString
      * @param {String} monthCode
      */
-
-
     static getFuturesYear(yearString, monthCode) {
       return getFuturesYear(yearString, monthCode);
     }
+
     /**
      * Returns true if prices for the symbol should be represented as a percentage; false
      * otherwise.
@@ -3355,18 +2952,13 @@ module.exports = (() => {
      * @param {String} symbol
      * @returns {Boolean}
      */
-
-
     static displayUsingPercent(symbol) {
       return is.string(symbol) && predicates.percent.test(symbol);
     }
-
     toString() {
       return '[SymbolParser]';
     }
-
   }
-
   const alternateFuturesMonths = {
     A: 'F',
     B: 'G',
@@ -3431,19 +3023,16 @@ module.exports = (() => {
   const parsers = [];
   parsers.push(symbol => {
     let definition = null;
-
     if (types.futures.spread.test(symbol)) {
       definition = {};
       definition.symbol = symbol;
       definition.type = 'future_spread';
     }
-
     return definition;
   });
   parsers.push(symbol => {
     let definition = null;
     const match = symbol.match(types.futures.concrete);
-
     if (match !== null) {
       definition = {};
       definition.symbol = symbol;
@@ -3454,13 +3043,11 @@ module.exports = (() => {
       definition.month = match[2];
       definition.year = getFuturesYear(match[3], match[2]);
     }
-
     return definition;
   });
   parsers.push(symbol => {
     let definition = null;
     const match = symbol.match(types.futures.alias);
-
     if (match !== null) {
       definition = {};
       definition.symbol = symbol;
@@ -3470,25 +3057,21 @@ module.exports = (() => {
       definition.root = match[1];
       definition.dynamicCode = match[3];
     }
-
     return definition;
   });
   parsers.push(symbol => {
     let definition = null;
-
     if (types.forex.test(symbol)) {
       definition = {};
       definition.symbol = symbol;
       definition.type = 'forex';
       definition.asset = AssetClass.FOREX;
     }
-
     return definition;
   });
   parsers.push(symbol => {
     let definition = null;
     const match = symbol.match(types.equities.options);
-
     if (match !== null) {
       const suffix = typeof match[4] !== 'undefined' ? match[4] : '';
       definition = {};
@@ -3503,35 +3086,29 @@ module.exports = (() => {
       definition.year = parseInt(match[5]);
       definition.adjusted = match[3] !== '';
     }
-
     return definition;
   });
   parsers.push(symbol => {
     let definition = null;
-
     if (types.indicies.external.test(symbol)) {
       definition = {};
       definition.symbol = symbol;
       definition.type = 'index';
     }
-
     return definition;
   });
   parsers.push(symbol => {
     let definition = null;
-
     if (types.indicies.sector.test(symbol)) {
       definition = {};
       definition.symbol = symbol;
       definition.type = 'sector';
     }
-
     return definition;
   });
   parsers.push(symbol => {
     let definition = null;
     const match = symbol.match(types.futures.options.short);
-
     if (match !== null) {
       definition = {};
       const putCallCharacterCode = match[4].charCodeAt(0);
@@ -3539,7 +3116,6 @@ module.exports = (() => {
       const callCharacterCode = 67;
       let optionType;
       let optionYearDelta;
-
       if (putCallCharacterCode < putCharacterCode) {
         optionType = 'call';
         optionYearDelta = putCallCharacterCode - callCharacterCode;
@@ -3547,7 +3123,6 @@ module.exports = (() => {
         optionType = 'put';
         optionYearDelta = putCallCharacterCode - putCharacterCode;
       }
-
       definition.symbol = symbol;
       definition.type = 'future_option';
       definition.asset = AssetClass.FUTURE_OPTION;
@@ -3557,13 +3132,11 @@ module.exports = (() => {
       definition.month = match[2];
       definition.year = getCurrentYear() + optionYearDelta;
     }
-
     return definition;
   });
   parsers.push(symbol => {
     let definition = null;
     const match = symbol.match(types.futures.options.long) || symbol.match(types.futures.options.historical);
-
     if (match !== null) {
       definition = {};
       definition.symbol = symbol;
@@ -3575,41 +3148,36 @@ module.exports = (() => {
       definition.month = getFuturesMonth(match[2]);
       definition.year = getFuturesYear(match[3]);
     }
-
     return definition;
   });
   parsers.push(symbol => {
     let definition = null;
     const match = symbol.match(types.cmdty.stats);
-
     if (match !== null) {
       definition = {};
       definition.symbol = symbol;
       definition.type = 'cmdtyStats';
       definition.asset = AssetClass.CMDTY_STATS;
     }
-
     return definition;
   });
   const converters = [];
   converters.push(symbol => {
     let converted = null;
-
     if (SymbolParser.getIsFuture(symbol) && SymbolParser.getIsConcrete(symbol)) {
       converted = symbol.replace(/(.{1,3})([A-Z]{1})([0-9]{3}|[0-9]{1})?([0-9]{1})$/i, '$1$2$4') || null;
     }
-
     return converted;
   });
   converters.push(symbol => {
     let converted = null;
-
     if (SymbolParser.getIsFutureOption(symbol)) {
       const definition = SymbolParser.parseInstrumentType(symbol);
       const putCallCharacter = getPutCallCharacter(definition.option_type);
-
       if (definition.root.length < 3) {
-        const putCallCharacterCode = putCallCharacter.charCodeAt(0); // 2021/01/02, BRI. Per Tom, symbols (for the same instrument) change each year.
+        const putCallCharacterCode = putCallCharacter.charCodeAt(0);
+
+        // 2021/01/02, BRI. Per Tom, symbols (for the same instrument) change each year.
         // For calls that expire this year, the letter is "C" ... For calls that expire next
         // year, the letter is "D" ... For calls that expire two years from now, the letter
         // is "E" ... etc ...
@@ -3619,54 +3187,43 @@ module.exports = (() => {
         converted = `${definition.root}${definition.month}${getYearDigits(definition.year, 1)}|${definition.strike}${putCallCharacter}`;
       }
     }
-
     return converted;
   });
   converters.push(symbol => {
     let converted = null;
-
     if (types.c3.alias.test(symbol)) {
       converted = symbol.replace(types.c3.alias, '$2.C3');
     }
-
     return converted;
   });
   converters.push(symbol => {
     let converted = null;
-
     if (types.platts.alias.test(symbol)) {
       converted = symbol.replace(types.platts.alias, '$2.PT');
     }
-
     return converted;
   });
   converters.push(symbol => {
     return symbol;
   });
-
   function getCurrentMonth() {
     const now = new Date();
     return now.getMonth() + 1;
   }
-
   function getCurrentYear() {
     const now = new Date();
     return now.getFullYear();
   }
-
   function getYearDigits(year, digits) {
     const yearString = year.toString();
     return yearString.substring(yearString.length - digits, yearString.length);
   }
-
   function getFuturesMonth(monthString) {
     return alternateFuturesMonths[monthString] || monthString;
   }
-
   function getFuturesYear(yearString, monthCode) {
     const currentYear = getCurrentYear();
     let year = parseInt(yearString);
-
     if (year === 0 && monthCode === 'Y') {
       year = Math.floor(currentYear / 100) * 100 + 100;
     } else if (year < 10 && yearString.length === 1) {
@@ -3674,15 +3231,12 @@ module.exports = (() => {
       year = Math.floor(currentYear / 10) * 10 + year + bump * 10;
     } else if (year < 100) {
       year = Math.floor(currentYear / 100) * 100 + year;
-
       if (currentYear + 25 < year) {
         year = year - 100;
       }
     }
-
     return year;
   }
-
   function getPutCallCharacter(optionType) {
     if (optionType === 'call') {
       return 'C';
@@ -3692,17 +3246,16 @@ module.exports = (() => {
       return null;
     }
   }
-
   return SymbolParser;
 })();
 
 },{"./../data/AssetClass":13,"@barchart/common-js/lang/is":35,"@barchart/common-js/lang/string":37}],31:[function(require,module,exports){
 const assert = require('./assert');
-
 module.exports = (() => {
   'use strict';
 
   const types = new Map();
+
   /**
    * An enumeration. Must be inherited. Do not instantiate directly.
    * Also, this class uses the ES6 Map, therefore a polyfill must
@@ -3713,7 +3266,6 @@ module.exports = (() => {
    * @param {String} code - The unique code of the enumeration item.
    * @param {String} description - A description of the enumeration item.
    */
-
   class Enum {
     constructor(code, description) {
       assert.argumentIsRequired(code, 'code', String);
@@ -3721,39 +3273,35 @@ module.exports = (() => {
       this._code = code;
       this._description = description;
       const c = this.constructor;
-
       if (!types.has(c)) {
         types.set(c, []);
       }
-
       const existing = Enum.fromCode(c, code);
-
       if (existing === null) {
         types.get(c).push(this);
       }
     }
+
     /**
      * The unique code.
      *
      * @public
      * @returns {String}
      */
-
-
     get code() {
       return this._code;
     }
+
     /**
      * The description.
      *
      * @public
      * @returns {String}
      */
-
-
     get description() {
       return this._description;
     }
+
     /**
      * Returns true if the provided {@link Enum} argument is equal
      * to the instance.
@@ -3762,22 +3310,20 @@ module.exports = (() => {
      * @param {Enum} other
      * @returns {boolean}
      */
-
-
     equals(other) {
       return other === this || other instanceof Enum && other.constructor === this.constructor && other.code === this.code;
     }
+
     /**
      * Returns the JSON representation.
      *
      * @public
      * @returns {String}
      */
-
-
     toJSON() {
       return this.code;
     }
+
     /**
      * Looks up a enumeration item; given the enumeration type and the enumeration
      * item's value. If no matching item can be found, a null value is returned.
@@ -3788,11 +3334,10 @@ module.exports = (() => {
      * @param {String} code - The enumeration item's code.
      * @returns {*|null}
      */
-
-
     static fromCode(type, code) {
       return Enum.getItems(type).find(x => x.code === code) || null;
     }
+
     /**
      * Returns all of the enumeration's items (given an enumeration type).
      *
@@ -3801,30 +3346,24 @@ module.exports = (() => {
      * @param {Function} type - The enumeration to list.
      * @returns {Array}
      */
-
-
     static getItems(type) {
       return types.get(type) || [];
     }
-
     toString() {
       return '[Enum]';
     }
-
   }
-
   return Enum;
 })();
 
 },{"./assert":34}],32:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022');
-
 const Enum = require('./Enum'),
-      is = require('./is'),
-      timezone = require('./timezone');
-
+  is = require('./is'),
+  timezone = require('./timezone');
 module.exports = (() => {
   'use strict';
+
   /**
    * An enumeration item that lists timezones, according to the common names
    * used in the tz database (see https://en.wikipedia.org/wiki/Tz_database).
@@ -3835,11 +3374,11 @@ module.exports = (() => {
    * @param {String} code - The timezone name
    * @extends {Enum}
    */
-
   class Timezones extends Enum {
     constructor(code) {
       super(code, code);
     }
+
     /**
      * Attempts to determine if daylight savings time is in effect.
      *
@@ -3847,19 +3386,16 @@ module.exports = (() => {
      * @param {Number=} timestamp - The moment at which the daylight savings time is checked, otherwise now.
      * @returns {Number}
      */
-
-
     getIsDaylightSavingsTime(timestamp) {
       let m;
-
       if (is.number(timestamp)) {
         m = moment(timestamp);
       } else {
         m = moment();
       }
-
       return m.tz(this.code).isDST();
     }
+
     /**
      * Calculates and returns the timezone's offset from UTC.
      *
@@ -3868,33 +3404,27 @@ module.exports = (() => {
      * @param {Boolean=} milliseconds - If true, the offset is returned in milliseconds; otherwise minutes.
      * @returns {Number}
      */
-
-
     getUtcOffset(timestamp, milliseconds) {
       let timestampToUse;
-
       if (is.number(timestamp)) {
         timestampToUse = timestamp;
       } else {
         timestampToUse = new Date().getTime();
       }
-
       let multiplier;
-
       if (is.boolean(milliseconds) && milliseconds) {
         multiplier = 60 * 1000;
       } else {
         multiplier = 1;
       }
-
       const offset = moment.tz.zone(this.code).utcOffset(timestampToUse) * multiplier;
-
       if (offset !== 0) {
         return offset * -1;
       } else {
         return 0;
       }
     }
+
     /**
      *
      * Given a code, returns the enumeration item.
@@ -3903,11 +3433,10 @@ module.exports = (() => {
      * @param {String} code
      * @returns {Timezones|null}
      */
-
-
     static parse(code) {
       return Enum.fromCode(Timezones, code);
     }
+
     /**
      * UTC
      *
@@ -3915,11 +3444,10 @@ module.exports = (() => {
      * @static
      * @returns {Timezones}
      */
-
-
     static get UTC() {
       return utc;
     }
+
     /**
      * America/Chicago
      *
@@ -3927,11 +3455,10 @@ module.exports = (() => {
      * @static
      * @returns {Timezones}
      */
-
-
     static get AMERICA_CHICAGO() {
       return america_chicago;
     }
+
     /**
      * America/New_York
      *
@@ -3939,18 +3466,13 @@ module.exports = (() => {
      * @static
      * @returns {Timezones}
      */
-
-
     static get AMERICA_NEW_YORK() {
       return america_new_york;
     }
-
     toString() {
       return `[Timezone (name=${this.code})]`;
     }
-
   }
-
   timezone.getTimezones().forEach(name => new Timezones(name));
   const utc = Enum.fromCode(Timezones, 'UTC');
   const america_chicago = Enum.fromCode(Timezones, 'America/Chicago');
@@ -3960,17 +3482,16 @@ module.exports = (() => {
 
 },{"./Enum":31,"./is":35,"./timezone":38,"moment-timezone/builds/moment-timezone-with-data-2012-2022":45}],33:[function(require,module,exports){
 const assert = require('./assert'),
-      is = require('./is');
-
+  is = require('./is');
 module.exports = (() => {
   'use strict';
+
   /**
    * Utilities for working with arrays.
    *
    * @public
    * @module lang/array
    */
-
   return {
     /**
      * Returns the unique items from an array, where the unique
@@ -3984,7 +3505,6 @@ module.exports = (() => {
       assert.argumentIsArray(a, 'a');
       return this.uniqueBy(a, item => item);
     },
-
     /**
      * Returns the unique items from an array, where the unique
      * key is determined by a delegate.
@@ -4001,7 +3521,6 @@ module.exports = (() => {
         return array.findIndex(candidate => key === keySelector(candidate)) === index;
       });
     },
-
     /**
      * Splits array into groups and returns an object (where the properties have
      * arrays). Unlike the indexBy function, there can be many items which share
@@ -4017,16 +3536,13 @@ module.exports = (() => {
       assert.argumentIsRequired(keySelector, 'keySelector', Function);
       return a.reduce((groups, item) => {
         const key = keySelector(item);
-
         if (!groups.hasOwnProperty(key)) {
           groups[key] = [];
         }
-
         groups[key].push(item);
         return groups;
       }, {});
     },
-
     /**
      * Splits array into groups and returns an array of arrays where the items of each
      * nested array share a common key.
@@ -4043,18 +3559,15 @@ module.exports = (() => {
       let currentBatch = null;
       return a.reduce((batches, item) => {
         const key = keySelector(item);
-
         if (currentBatch === null || currentKey !== key) {
           currentKey = key;
           currentBatch = [];
           batches.push(currentBatch);
         }
-
         currentBatch.push(item);
         return batches;
       }, []);
     },
-
     /**
      * Splits array into groups and returns an object (where the properties are items from the
      * original array). Unlike the groupBy, only one item can have a given key value.
@@ -4069,16 +3582,13 @@ module.exports = (() => {
       assert.argumentIsRequired(keySelector, 'keySelector', Function);
       return a.reduce((map, item) => {
         const key = keySelector(item);
-
         if (map.hasOwnProperty(key)) {
           throw new Error('Unable to index array. A duplicate key exists.');
         }
-
         map[key] = item;
         return map;
       }, {});
     },
-
     /**
      * Returns a new array containing all but the first item.
      *
@@ -4089,14 +3599,11 @@ module.exports = (() => {
     dropLeft(a) {
       assert.argumentIsArray(a, 'a');
       let returnRef = Array.from(a);
-
       if (returnRef.length !== 0) {
         returnRef.shift();
       }
-
       return returnRef;
     },
-
     /**
      * Returns a new array containing all but the last item.
      *
@@ -4107,14 +3614,11 @@ module.exports = (() => {
     dropRight(a) {
       assert.argumentIsArray(a, 'a');
       let returnRef = Array.from(a);
-
       if (returnRef.length !== 0) {
         returnRef.pop();
       }
-
       return returnRef;
     },
-
     /**
      * Returns the first item from an array, or an undefined value, if the
      * array is empty.
@@ -4126,16 +3630,13 @@ module.exports = (() => {
     first(a) {
       assert.argumentIsArray(a, 'a');
       let returnRef;
-
       if (a.length !== 0) {
         returnRef = a[0];
       } else {
         returnRef = undefined;
       }
-
       return returnRef;
     },
-
     /**
      * Returns the last item from an array, or an undefined value, if the
      * array is empty.
@@ -4147,16 +3648,13 @@ module.exports = (() => {
     last(a) {
       assert.argumentIsArray(a, 'a');
       let returnRef;
-
       if (a.length !== 0) {
         returnRef = a[a.length - 1];
       } else {
         returnRef = undefined;
       }
-
       return returnRef;
     },
-
     /**
      * Returns a copy of an array, replacing any item that is itself an array
      * with the item's items.
@@ -4171,14 +3669,11 @@ module.exports = (() => {
       assert.argumentIsOptional(recursive, 'recursive', Boolean);
       const empty = [];
       let flat = empty.concat.apply(empty, a);
-
       if (recursive && flat.some(x => is.array(x))) {
         flat = this.flatten(flat, true);
       }
-
       return flat;
     },
-
     /**
      * Breaks an array into smaller arrays, returning an array of arrays.
      *
@@ -4192,14 +3687,11 @@ module.exports = (() => {
       assert.argumentIsOptional(size, 'size', Number);
       const copy = a.slice(0);
       const partitions = [];
-
       while (copy.length !== 0) {
         partitions.push(copy.splice(0, size));
       }
-
       return partitions;
     },
-
     /**
      * Set difference operation, returning any item in "a" that is not
      * contained in "b" (using strict equality).
@@ -4212,7 +3704,6 @@ module.exports = (() => {
     difference(a, b) {
       return this.differenceBy(a, b, item => item);
     },
-
     /**
      * Set difference operation, returning any item in "a" that is not
      * contained in "b" (where the uniqueness is determined by a delegate).
@@ -4231,14 +3722,12 @@ module.exports = (() => {
       a.forEach(candidate => {
         const candidateKey = keySelector(candidate);
         const exclude = b.some(comparison => candidateKey === keySelector(comparison));
-
         if (!exclude) {
           returnRef.push(candidate);
         }
       });
       return returnRef;
     },
-
     /**
      * Set symmetric difference operation (using strict equality). In
      * other words, this is the union of the differences between the
@@ -4252,7 +3741,6 @@ module.exports = (() => {
     differenceSymmetric(a, b) {
       return this.differenceSymmetricBy(a, b, item => item);
     },
-
     /**
      * Set symmetric difference operation, where the uniqueness is determined by a delegate.
      *
@@ -4265,7 +3753,6 @@ module.exports = (() => {
     differenceSymmetricBy(a, b, keySelector) {
       return this.unionBy(this.differenceBy(a, b, keySelector), this.differenceBy(b, a, keySelector), keySelector);
     },
-
     /**
      * Set union operation (using strict equality).
      *
@@ -4277,7 +3764,6 @@ module.exports = (() => {
     union(a, b) {
       return this.unionBy(a, b, item => item);
     },
-
     /**
      * Set union operation, where the uniqueness is determined by a delegate.
      *
@@ -4295,14 +3781,12 @@ module.exports = (() => {
       b.forEach(candidate => {
         const candidateKey = keySelector(candidate);
         const exclude = returnRef.some(comparison => candidateKey === keySelector(comparison));
-
         if (!exclude) {
           returnRef.push(candidate);
         }
       });
       return returnRef;
     },
-
     /**
      * Set intersection operation (using strict equality).
      *
@@ -4314,7 +3798,6 @@ module.exports = (() => {
     intersection(a, b) {
       return this.intersectionBy(a, b, item => item);
     },
-
     /**
      * Set intersection operation, where the uniqueness is determined by a delegate.
      *
@@ -4331,14 +3814,12 @@ module.exports = (() => {
       a.forEach(candidate => {
         const candidateKey = keySelector(candidate);
         const include = b.some(comparison => candidateKey === keySelector(comparison));
-
         if (include) {
           returnRef.push(candidate);
         }
       });
       return returnRef;
     },
-
     /**
      * Removes the first item from an array which matches a predicate.
      *
@@ -4353,14 +3834,11 @@ module.exports = (() => {
       assert.argumentIsRequired(predicate, 'predicate', Function);
       const index = a.findIndex(predicate);
       const found = !(index < 0);
-
       if (found) {
         a.splice(index, 1);
       }
-
       return found;
     },
-
     /**
      * Inserts an item into an array using a binary search is used to determine the
      * proper point for insertion and returns the same array.
@@ -4375,7 +3853,6 @@ module.exports = (() => {
     insert(a, item, comparator) {
       assert.argumentIsArray(a, 'a');
       assert.argumentIsRequired(comparator, 'comparator', Function);
-
       if (a.length === 0 || !(comparator(item, a[a.length - 1]) < 0)) {
         a.push(item);
       } else if (comparator(item, a[0]) < 0) {
@@ -4383,10 +3860,8 @@ module.exports = (() => {
       } else {
         a.splice(binarySearchForInsert(a, item, comparator, 0, a.length - 1), 0, item);
       }
-
       return a;
     },
-
     /**
      * Performs a binary search to locate an item within an array.
      *
@@ -4402,28 +3877,22 @@ module.exports = (() => {
       assert.argumentIsRequired(comparator, 'comparator', Function);
       assert.argumentIsOptional(start, 'start', Number);
       assert.argumentIsOptional(end, 'end', Number);
-
       if (a.length === 0) {
         return null;
       }
-
       return binarySearchForMatch(a, key, comparator, start || 0, end || a.length - 1);
     }
-
   };
-
   function binarySearchForMatch(a, key, comparator, start, end) {
     const size = end - start;
     const midpointIndex = start + Math.floor(size / 2);
     const midpointItem = a[midpointIndex];
     const comparison = comparator(key, midpointItem);
-
     if (comparison === 0) {
       return midpointItem;
     } else if (size < 2) {
       const finalIndex = a.length - 1;
       const finalItem = a[finalIndex];
-
       if (end === finalIndex && comparator(key, finalItem) === 0) {
         return finalItem;
       } else {
@@ -4435,17 +3904,14 @@ module.exports = (() => {
       return binarySearchForMatch(a, key, comparator, start, midpointIndex);
     }
   }
-
   function binarySearchForInsert(a, item, comparator, start, end) {
     const size = end - start;
     const midpointIndex = start + Math.floor(size / 2);
     const midpointItem = a[midpointIndex];
     const comparison = comparator(item, midpointItem) > 0;
-
     if (size < 2) {
       if (comparison > 0) {
         const finalIndex = a.length - 1;
-
         if (end === finalIndex && comparator(item, a[finalIndex]) > 0) {
           return end + 1;
         } else {
@@ -4464,7 +3930,6 @@ module.exports = (() => {
 
 },{"./assert":34,"./is":35}],34:[function(require,module,exports){
 const is = require('./is');
-
 module.exports = (() => {
   'use strict';
 
@@ -4497,30 +3962,25 @@ module.exports = (() => {
       throwInvalidTypeError(variableName, typeDescription, index);
     }
   }
-
   function throwInvalidTypeError(variableName, typeDescription, index) {
     let message;
-
     if (typeof index === 'number') {
       message = `The argument [ ${variableName || 'unspecified'} ], at index [ ${index.toString()} ] must be a [ ${typeDescription || 'unknown'} ]`;
     } else {
       message = `The argument [ ${variableName || 'unspecified'} ] must be a [ ${typeDescription || 'Object'} ]`;
     }
-
     throw new Error(message);
   }
-
   function throwCustomValidationError(variableName, predicateDescription) {
     throw new Error(`The argument [ ${variableName || 'unspecified'} ] failed a validation check [ ${predicateDescription || 'No description available'} ]`);
   }
+
   /**
    * Utilities checking arguments.
    *
    * @public
    * @module lang/assert
    */
-
-
   return {
     /**
      * Throws an error if an argument doesn't conform to the desired specification (as
@@ -4535,7 +3995,6 @@ module.exports = (() => {
     argumentIsRequired(variable, variableName, type, typeDescription) {
       checkArgumentType(variable, variableName, type, typeDescription);
     },
-
     /**
      * A relaxed version of the "argumentIsRequired" function that will not throw if
      * the value is undefined or null.
@@ -4550,32 +4009,25 @@ module.exports = (() => {
       if (variable === null || variable === undefined) {
         return;
       }
-
       checkArgumentType(variable, variableName, type, typeDescription);
-
       if (is.fn(predicate) && !predicate(variable)) {
         throwCustomValidationError(variableName, predicateDescription);
       }
     },
-
     argumentIsArray(variable, variableName, itemConstraint, itemConstraintDescription) {
       this.argumentIsRequired(variable, variableName, Array);
-
       if (itemConstraint) {
         let itemValidator;
-
         if (typeof itemConstraint === 'function' && itemConstraint !== Function) {
           itemValidator = (value, index) => itemConstraint.prototype !== undefined && value instanceof itemConstraint || itemConstraint(value, `${variableName}[${index}]`);
         } else {
           itemValidator = (value, index) => checkArgumentType(value, variableName, itemConstraint, itemConstraintDescription, index);
         }
-
         variable.forEach((v, i) => {
           itemValidator(v, i);
         });
       }
     },
-
     /**
      * Throws an error if an argument doesn't conform to the desired specification
      * (as determined by a predicate).
@@ -4591,32 +4043,29 @@ module.exports = (() => {
         throwCustomValidationError(variableName, predicateDescription);
       }
     },
-
     areEqual(a, b, descriptionA, descriptionB) {
       if (a !== b) {
         throw new Error(`The objects must be equal [${descriptionA || a.toString()}] and [${descriptionB || b.toString()}]`);
       }
     },
-
     areNotEqual(a, b, descriptionA, descriptionB) {
       if (a === b) {
         throw new Error(`The objects cannot be equal [${descriptionA || a.toString()}] and [${descriptionB || b.toString()}]`);
       }
     }
-
   };
 })();
 
 },{"./is":35}],35:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
+
   /**
    * Utilities for interrogating variables (e.g. checking data types).
    *
    * @public
    * @module lang/is
    */
-
   return {
     /**
      * Returns true if the argument is a number. NaN will return false.
@@ -4629,7 +4078,6 @@ module.exports = (() => {
     number(candidate) {
       return typeof candidate === 'number' && !isNaN(candidate);
     },
-
     /**
      * Returns true if the argument is NaN.
      *
@@ -4641,7 +4089,6 @@ module.exports = (() => {
     nan(candidate) {
       return typeof candidate === 'number' && isNaN(candidate);
     },
-
     /**
      * Returns true if the argument is a valid 32-bit integer.
      *
@@ -4653,7 +4100,6 @@ module.exports = (() => {
     integer(candidate) {
       return typeof candidate === 'number' && !isNaN(candidate) && (candidate | 0) === candidate;
     },
-
     /**
      * Returns true if the argument is a valid integer (which can exceed 32 bits); however,
      * the check can fail above the value of Number.MAX_SAFE_INTEGER.
@@ -4666,7 +4112,6 @@ module.exports = (() => {
     large(candidate) {
       return typeof candidate === 'number' && !isNaN(candidate) && isFinite(candidate) && Math.floor(candidate) === candidate;
     },
-
     /**
      * Returns true if the argument is a number that is positive.
      *
@@ -4678,7 +4123,6 @@ module.exports = (() => {
     positive(candidate) {
       return this.number(candidate) && candidate > 0;
     },
-
     /**
      * Returns true if the argument is a number that is negative.
      *
@@ -4690,7 +4134,6 @@ module.exports = (() => {
     negative(candidate) {
       return this.number(candidate) && candidate < 0;
     },
-
     /**
      * Returns true if the argument is iterable.
      *
@@ -4702,7 +4145,6 @@ module.exports = (() => {
     iterable(candidate) {
       return !this.null(candidate) && !this.undefined(candidate) && this.fn(candidate[Symbol.iterator]);
     },
-
     /**
      * Returns true if the argument is a string.
      *
@@ -4714,7 +4156,6 @@ module.exports = (() => {
     string(candidate) {
       return typeof candidate === 'string';
     },
-
     /**
      * Returns true if the argument is a JavaScript Date instance.
      *
@@ -4726,7 +4167,6 @@ module.exports = (() => {
     date(candidate) {
       return candidate instanceof Date;
     },
-
     /**
      * Returns true if the argument is a function.
      *
@@ -4738,7 +4178,6 @@ module.exports = (() => {
     fn(candidate) {
       return typeof candidate === 'function';
     },
-
     /**
      * Returns true if the argument is an array.
      *
@@ -4750,7 +4189,6 @@ module.exports = (() => {
     array(candidate) {
       return Array.isArray(candidate);
     },
-
     /**
      * Returns true if the argument is a Boolean value.
      *
@@ -4762,7 +4200,6 @@ module.exports = (() => {
     boolean(candidate) {
       return typeof candidate === 'boolean';
     },
-
     /**
      * Returns true if the argument is an object.
      *
@@ -4774,7 +4211,6 @@ module.exports = (() => {
     object(candidate) {
       return typeof candidate === 'object' && candidate !== null;
     },
-
     /**
      * Returns true if the argument is a null value.
      *
@@ -4786,7 +4222,6 @@ module.exports = (() => {
     null(candidate) {
       return candidate === null;
     },
-
     /**
      * Returns true if the argument is an undefined value.
      *
@@ -4798,7 +4233,6 @@ module.exports = (() => {
     undefined(candidate) {
       return candidate === undefined;
     },
-
     /**
      * Returns true if the argument is a zero-length string.
      *
@@ -4810,7 +4244,6 @@ module.exports = (() => {
     zeroLengthString(candidate) {
       return this.string(candidate) && candidate.length === 0;
     },
-
     /**
      * Given two classes, determines if the "child" class extends
      * the "parent" class (without instantiation).
@@ -4822,23 +4255,21 @@ module.exports = (() => {
     extension(parent, child) {
       return this.fn(parent) && this.fn(child) && child.prototype instanceof parent;
     }
-
   };
 })();
 
 },{}],36:[function(require,module,exports){
 const array = require('./array'),
-      is = require('./is');
-
+  is = require('./is');
 module.exports = (() => {
   'use strict';
+
   /**
    * Utilities for working with objects.
    *
    * @public
    * @module lang/object
    */
-
   const object = {
     /**
      * Performs "deep" equality check on two objects.
@@ -4853,7 +4284,6 @@ module.exports = (() => {
      */
     equals(a, b) {
       let returnVal;
-
       if (a === b) {
         returnVal = true;
       } else if (is.array(a) && is.array(b)) {
@@ -4877,10 +4307,8 @@ module.exports = (() => {
       } else {
         returnVal = false;
       }
-
       return returnVal;
     },
-
     /**
      * Performs a "deep" copy.
      *
@@ -4892,7 +4320,6 @@ module.exports = (() => {
      */
     clone(source, canExtract, extractor) {
       let c;
-
       if (is.fn(canExtract) && canExtract(source)) {
         c = extractor(source);
       } else if (is.date(source)) {
@@ -4909,10 +4336,8 @@ module.exports = (() => {
       } else {
         c = source;
       }
-
       return c;
     },
-
     /**
      * Creates a new object (or array) by performing a deep copy
      * of the properties from each object. If the same property
@@ -4928,7 +4353,6 @@ module.exports = (() => {
       let m;
       const mergeTarget = is.object(a) && !is.array(a);
       const mergeSource = is.object(b) && !is.array(b);
-
       if (mergeTarget && mergeSource) {
         const properties = array.unique(object.keys(a).concat(object.keys(b)));
         m = properties.reduce((accumulator, property) => {
@@ -4940,10 +4364,8 @@ module.exports = (() => {
       } else {
         m = object.clone(b);
       }
-
       return m;
     },
-
     /**
      * Given an object, returns an array of "own" properties.
      *
@@ -4953,16 +4375,13 @@ module.exports = (() => {
      */
     keys(target) {
       const keys = [];
-
       for (let k in target) {
         if (target.hasOwnProperty(k)) {
           keys.push(k);
         }
       }
-
       return keys;
     },
-
     /**
      * Given an object, returns a Boolean value, indicating if the
      * object has any "own" properties.
@@ -4973,38 +4392,34 @@ module.exports = (() => {
      */
     empty(target) {
       let empty = true;
-
       for (let k in target) {
         if (target.hasOwnProperty(k)) {
           empty = false;
           break;
         }
       }
-
       return empty;
     }
-
   };
   return object;
 })();
 
 },{"./array":33,"./is":35}],37:[function(require,module,exports){
 const assert = require('./assert'),
-      is = require('./is');
-
+  is = require('./is');
 module.exports = (() => {
   'use strict';
 
   const regex = {};
   regex.camel = {};
   regex.camel.violations = /\b[A-Z]/g;
+
   /**
    * Utility functions for strings.
    *
    * @public
    * @module lang/string
    */
-
   return {
     /**
      * Adjusts a string, replacing the first character of each word with an uppercase
@@ -5020,11 +4435,9 @@ module.exports = (() => {
         if (word.length !== 0) {
           phrase.push(word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
         }
-
         return phrase;
       }, []).join(' ');
     },
-
     /**
      * Adjust a string to use camel case, where the first letter of each word is replaced
      * with a lower case character.
@@ -5038,7 +4451,6 @@ module.exports = (() => {
       assert.argumentIsRequired(s, 's', String);
       return s.replace(regex.camel.violations, m => m.toLocaleLowerCase());
     },
-
     /**
      * If a string exceeds a desired length, it is truncated and a poor man's
      * ellipsis (i.e. three periods) is appended. Otherwise, the original
@@ -5057,7 +4469,6 @@ module.exports = (() => {
         return s;
       }
     },
-
     /**
      * Adds leading characters to a string, until the string length is a desired size.
      *
@@ -5072,14 +4483,11 @@ module.exports = (() => {
       assert.argumentIsRequired(s, 's', String);
       assert.argumentIsRequired(length, 'length', Number);
       assert.argumentIsRequired(character, 'character', String);
-
       if (character.length !== 1) {
         throw new Error('The "character" argument must be one character in length.');
       }
-
       return character.repeat(length - s.length) + s;
     },
-
     /**
      * Performs a simple token replacement on a string; where the tokens
      * are braced numbers (e.g. {0}, {1}, {2}).
@@ -5094,10 +4502,8 @@ module.exports = (() => {
       assert.argumentIsRequired(s, 's', String);
       return s.replace(/{(\d+)}/g, (match, i) => {
         let replacement;
-
         if (i < data.length) {
           const item = data[i];
-
           if (!is.undefined(item) && !is.null(item)) {
             replacement = item.toString();
           } else {
@@ -5106,27 +4512,24 @@ module.exports = (() => {
         } else {
           replacement = match;
         }
-
         return replacement;
       });
     }
-
   };
 })();
 
 },{"./assert":34,"./is":35}],38:[function(require,module,exports){
 const moment = require('moment-timezone/builds/moment-timezone-with-data-2012-2022'),
-      assert = require('./assert');
-
+  assert = require('./assert');
 module.exports = (() => {
   'use strict';
+
   /**
    * Utilities for working with timezones.
    *
    * @public
    * @module lang/timezone
    */
-
   return {
     /**
      * Gets a list of names in the tz database (see https://en.wikipedia.org/wiki/Tz_database
@@ -5139,7 +4542,6 @@ module.exports = (() => {
     getTimezones() {
       return moment.tz.names();
     },
-
     /**
      * Indicates if a timezone name exists.
      *
@@ -5154,7 +4556,6 @@ module.exports = (() => {
         return candidate === name;
       });
     },
-
     /**
      * Attempts to guess the timezone of the current computer.
      *
@@ -5165,7 +4566,6 @@ module.exports = (() => {
     guessTimezone() {
       return moment.tz.guess() || null;
     }
-
   };
 })();
 
@@ -5192,6 +4592,31 @@ function freeze(object, oc) {
 		oc = Object
 	}
 	return oc && typeof oc.freeze === 'function' ? oc.freeze(object) : object
+}
+
+/**
+ * Since we can not rely on `Object.assign` we provide a simplified version
+ * that is sufficient for our needs.
+ *
+ * @param {Object} target
+ * @param {Object | null | undefined} source
+ *
+ * @returns {Object} target
+ * @throws TypeError if target is not an object
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+ * @see https://tc39.es/ecma262/multipage/fundamental-objects.html#sec-object.assign
+ */
+function assign(target, source) {
+	if (target === null || typeof target !== 'object') {
+		throw new TypeError('target is not an object')
+	}
+	for (var key in source) {
+		if (Object.prototype.hasOwnProperty.call(source, key)) {
+			target[key] = source[key]
+		}
+	}
+	return target
 }
 
 /**
@@ -5311,6 +4736,7 @@ var NAMESPACE = freeze({
 	XMLNS: 'http://www.w3.org/2000/xmlns/',
 })
 
+exports.assign = assign;
 exports.freeze = freeze;
 exports.MIME_TYPE = MIME_TYPE;
 exports.NAMESPACE = NAMESPACE;
@@ -5704,7 +5130,9 @@ function arrayIncludes (list) {
 
 function copy(src,dest){
 	for(var p in src){
-		dest[p] = src[p];
+		if (Object.prototype.hasOwnProperty.call(src, p)) {
+			dest[p] = src[p];
+		}
 	}
 }
 
@@ -5798,14 +5226,14 @@ NodeList.prototype = {
 	 * The number of nodes in the list. The range of valid child node indices is 0 to length-1 inclusive.
 	 * @standard level1
 	 */
-	length:0, 
+	length:0,
 	/**
 	 * Returns the indexth item in the collection. If index is greater than or equal to the number of nodes in the list, this returns null.
 	 * @standard level1
-	 * @param index  unsigned long 
+	 * @param index  unsigned long
 	 *   Index into the collection.
 	 * @return Node
-	 * 	The node at the indexth position in the NodeList, or null if that is not a valid index. 
+	 * 	The node at the indexth position in the NodeList, or null if that is not a valid index.
 	 */
 	item: function(index) {
 		return this[index] || null;
@@ -5815,7 +5243,31 @@ NodeList.prototype = {
 			serializeToString(this[i],buf,isHTML,nodeFilter);
 		}
 		return buf.join('');
-	}
+	},
+	/**
+	 * @private
+	 * @param {function (Node):boolean} predicate
+	 * @returns {Node | undefined}
+	 */
+	find: function (predicate) {
+		return Array.prototype.find.call(this, predicate);
+	},
+	/**
+	 * @private
+	 * @param {function (Node):boolean} predicate
+	 * @returns {Node[]}
+	 */
+	filter: function (predicate) {
+		return Array.prototype.filter.call(this, predicate);
+	},
+	/**
+	 * @private
+	 * @param {Node} item
+	 * @returns {number}
+	 */
+	indexOf: function (item) {
+		return Array.prototype.indexOf.call(this, item);
+	},
 };
 
 function LiveNodeList(node,refresh){
@@ -5849,7 +5301,7 @@ _extends(LiveNodeList,NodeList);
  * but this is simply to allow convenient enumeration of the contents of a NamedNodeMap,
  * and does not imply that the DOM specifies an order to these Nodes.
  * NamedNodeMap objects in the DOM are live.
- * used for attributes or DocumentType entities 
+ * used for attributes or DocumentType entities
  */
 function NamedNodeMap() {
 };
@@ -5893,7 +5345,7 @@ function _removeNamedNode(el,list,attr){
 			}
 		}
 	}else{
-		throw DOMException(NOT_FOUND_ERR,new Error(el.tagName+'@'+attr))
+		throw new DOMException(NOT_FOUND_ERR,new Error(el.tagName+'@'+attr))
 	}
 }
 NamedNodeMap.prototype = {
@@ -5938,10 +5390,10 @@ NamedNodeMap.prototype = {
 		var attr = this.getNamedItem(key);
 		_removeNamedNode(this._ownerElement,this,attr);
 		return attr;
-		
-		
+
+
 	},// raises: NOT_FOUND_ERR,NO_MODIFICATION_ALLOWED_ERR
-	
+
 	//for level2
 	removeNamedItemNS:function(namespaceURI,localName){
 		var attr = this.getNamedItemNS(namespaceURI,localName);
@@ -6087,10 +5539,10 @@ Node.prototype = {
 	prefix : null,
 	localName : null,
 	// Modified in DOM Level 2:
-	insertBefore:function(newChild, refChild){//raises 
+	insertBefore:function(newChild, refChild){//raises
 		return _insertBefore(this,newChild,refChild);
 	},
-	replaceChild:function(newChild, oldChild){//raises 
+	replaceChild:function(newChild, oldChild){//raises
 		this.insertBefore(newChild,oldChild);
 		if(oldChild){
 			this.removeChild(oldChild);
@@ -6151,9 +5603,9 @@ Node.prototype = {
     		//console.dir(map)
     		if(map){
     			for(var n in map){
-    				if(map[n] == namespaceURI){
-    					return n;
-    				}
+						if (Object.prototype.hasOwnProperty.call(map, n) && map[n] === namespaceURI) {
+							return n;
+						}
     			}
     		}
     		el = el.nodeType == ATTRIBUTE_NODE?el.ownerDocument : el.parentNode;
@@ -6167,7 +5619,7 @@ Node.prototype = {
     		var map = el._nsMap;
     		//console.dir(map)
     		if(map){
-    			if(prefix in map){
+    			if(Object.prototype.hasOwnProperty.call(map, prefix)){
     				return map[prefix] ;
     			}
     		}
@@ -6296,48 +5748,177 @@ function _removeChild (parentNode, child) {
 	_onUpdateChild(parentNode.ownerDocument, parentNode);
 	return child;
 }
+
 /**
- * preformance key(refChild == null)
+ * Returns `true` if `node` can be a parent for insertion.
+ * @param {Node} node
+ * @returns {boolean}
  */
-function _insertBefore(parentNode,newChild,nextChild){
-	var cp = newChild.parentNode;
-	if(cp){
-		cp.removeChild(newChild);//remove and update
+function hasValidParentNodeType(node) {
+	return (
+		node &&
+		(node.nodeType === Node.DOCUMENT_NODE || node.nodeType === Node.DOCUMENT_FRAGMENT_NODE || node.nodeType === Node.ELEMENT_NODE)
+	);
+}
+
+/**
+ * Returns `true` if `node` can be inserted according to it's `nodeType`.
+ * @param {Node} node
+ * @returns {boolean}
+ */
+function hasInsertableNodeType(node) {
+	return (
+		node &&
+		(isElementNode(node) ||
+			isTextNode(node) ||
+			isDocTypeNode(node) ||
+			node.nodeType === Node.DOCUMENT_FRAGMENT_NODE ||
+			node.nodeType === Node.COMMENT_NODE ||
+			node.nodeType === Node.PROCESSING_INSTRUCTION_NODE)
+	);
+}
+
+/**
+ * Returns true if `node` is a DOCTYPE node
+ * @param {Node} node
+ * @returns {boolean}
+ */
+function isDocTypeNode(node) {
+	return node && node.nodeType === Node.DOCUMENT_TYPE_NODE;
+}
+
+/**
+ * Returns true if the node is an element
+ * @param {Node} node
+ * @returns {boolean}
+ */
+function isElementNode(node) {
+	return node && node.nodeType === Node.ELEMENT_NODE;
+}
+/**
+ * Returns true if `node` is a text node
+ * @param {Node} node
+ * @returns {boolean}
+ */
+function isTextNode(node) {
+	return node && node.nodeType === Node.TEXT_NODE;
+}
+
+/**
+ * Check if en element node can be inserted before `child`, or at the end if child is falsy,
+ * according to the presence and position of a doctype node on the same level.
+ *
+ * @param {Document} doc The document node
+ * @param {Node} child the node that would become the nextSibling if the element would be inserted
+ * @returns {boolean} `true` if an element can be inserted before child
+ * @private
+ * https://dom.spec.whatwg.org/#concept-node-ensure-pre-insertion-validity
+ */
+function isElementInsertionPossible(doc, child) {
+	var parentChildNodes = doc.childNodes || [];
+	if (parentChildNodes.find(isElementNode) || isDocTypeNode(child)) {
+		return false;
 	}
-	if(newChild.nodeType === DOCUMENT_FRAGMENT_NODE){
-		var newFirst = newChild.firstChild;
-		if (newFirst == null) {
-			return newChild;
+	var docTypeNode = parentChildNodes.find(isDocTypeNode);
+	return !(child && docTypeNode && parentChildNodes.indexOf(docTypeNode) > parentChildNodes.indexOf(child));
+}
+/**
+ * @private
+ * @param {Node} parent the parent node to insert `node` into
+ * @param {Node} node the node to insert
+ * @param {Node=} child the node that should become the `nextSibling` of `node`
+ * @returns {Node}
+ * @throws DOMException for several node combinations that would create a DOM that is not well-formed.
+ * @throws DOMException if `child` is provided but is not a child of `parent`.
+ * @see https://dom.spec.whatwg.org/#concept-node-ensure-pre-insertion-validity
+ */
+function _insertBefore(parent, node, child) {
+	if (!hasValidParentNodeType(parent)) {
+		throw new DOMException(HIERARCHY_REQUEST_ERR, 'Unexpected parent node type ' + parent.nodeType);
+	}
+	if (child && child.parentNode !== parent) {
+		throw new DOMException(NOT_FOUND_ERR, 'child not in parent');
+	}
+	if (
+		!hasInsertableNodeType(node) ||
+		// the sax parser currently adds top level text nodes, this will be fixed in 0.9.0
+		// || (node.nodeType === Node.TEXT_NODE && parent.nodeType === Node.DOCUMENT_NODE)
+		(isDocTypeNode(node) && parent.nodeType !== Node.DOCUMENT_NODE)
+	) {
+		throw new DOMException(
+			HIERARCHY_REQUEST_ERR,
+			'Unexpected node type ' + node.nodeType + ' for parent node type ' + parent.nodeType
+		);
+	}
+	var parentChildNodes = parent.childNodes || [];
+	var nodeChildNodes = node.childNodes || [];
+	if (parent.nodeType === Node.DOCUMENT_NODE) {
+		if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+			let nodeChildElements = nodeChildNodes.filter(isElementNode);
+			if (nodeChildElements.length > 1 || nodeChildNodes.find(isTextNode)) {
+				throw new DOMException(HIERARCHY_REQUEST_ERR, 'More than one element or text in fragment');
+			}
+			if (nodeChildElements.length === 1 && !isElementInsertionPossible(parent, child)) {
+				throw new DOMException(HIERARCHY_REQUEST_ERR, 'Element in fragment can not be inserted before doctype');
+			}
 		}
-		var newLast = newChild.lastChild;
-	}else{
-		newFirst = newLast = newChild;
+		if (isElementNode(node)) {
+			if (parentChildNodes.find(isElementNode) || !isElementInsertionPossible(parent, child)) {
+				throw new DOMException(HIERARCHY_REQUEST_ERR, 'Only one element can be added and only after doctype');
+			}
+		}
+		if (isDocTypeNode(node)) {
+			if (parentChildNodes.find(isDocTypeNode)) {
+				throw new DOMException(HIERARCHY_REQUEST_ERR, 'Only one doctype is allowed');
+			}
+			let parentElementChild = parentChildNodes.find(isElementNode);
+			if (child && parentChildNodes.indexOf(parentElementChild) < parentChildNodes.indexOf(child)) {
+				throw new DOMException(HIERARCHY_REQUEST_ERR, 'Doctype can only be inserted before an element');
+			}
+			if (!child && parentElementChild) {
+				throw new DOMException(HIERARCHY_REQUEST_ERR, 'Doctype can not be appended since element is present');
+			}
+		}
 	}
-	var pre = nextChild ? nextChild.previousSibling : parentNode.lastChild;
+
+	var cp = node.parentNode;
+	if(cp){
+		cp.removeChild(node);//remove and update
+	}
+	if(node.nodeType === DOCUMENT_FRAGMENT_NODE){
+		var newFirst = node.firstChild;
+		if (newFirst == null) {
+			return node;
+		}
+		var newLast = node.lastChild;
+	}else{
+		newFirst = newLast = node;
+	}
+	var pre = child ? child.previousSibling : parent.lastChild;
 
 	newFirst.previousSibling = pre;
-	newLast.nextSibling = nextChild;
-	
-	
+	newLast.nextSibling = child;
+
+
 	if(pre){
 		pre.nextSibling = newFirst;
 	}else{
-		parentNode.firstChild = newFirst;
+		parent.firstChild = newFirst;
 	}
-	if(nextChild == null){
-		parentNode.lastChild = newLast;
+	if(child == null){
+		parent.lastChild = newLast;
 	}else{
-		nextChild.previousSibling = newLast;
+		child.previousSibling = newLast;
 	}
 	do{
-		newFirst.parentNode = parentNode;
+		newFirst.parentNode = parent;
 	}while(newFirst !== newLast && (newFirst= newFirst.nextSibling))
-	_onUpdateChild(parentNode.ownerDocument||parentNode,parentNode);
-	//console.log(parentNode.lastChild.nextSibling == null)
-	if (newChild.nodeType == DOCUMENT_FRAGMENT_NODE) {
-		newChild.firstChild = newChild.lastChild = null;
+	_onUpdateChild(parent.ownerDocument||parent, parent);
+	//console.log(parent.lastChild.nextSibling == null)
+	if (node.nodeType == DOCUMENT_FRAGMENT_NODE) {
+		node.firstChild = node.lastChild = null;
 	}
-	return newChild;
+	return node;
 }
 
 /**
@@ -6392,11 +5973,13 @@ Document.prototype = {
 			}
 			return newChild;
 		}
-		if(this.documentElement == null && newChild.nodeType == ELEMENT_NODE){
+		_insertBefore(this, newChild, refChild);
+		newChild.ownerDocument = this;
+		if (this.documentElement === null && newChild.nodeType === ELEMENT_NODE) {
 			this.documentElement = newChild;
 		}
 
-		return _insertBefore(this,newChild,refChild),(newChild.ownerDocument = this),newChild;
+		return newChild;
 	},
 	removeChild :  function(oldChild){
 		if(this.documentElement == oldChild){
@@ -6590,7 +6173,7 @@ Element.prototype = {
 		var attr = this.getAttributeNode(name)
 		attr && this.removeAttributeNode(attr);
 	},
-	
+
 	//four real opeartion method
 	appendChild:function(newChild){
 		if(newChild.nodeType === DOCUMENT_FRAGMENT_NODE){
@@ -6614,7 +6197,7 @@ Element.prototype = {
 		var old = this.getAttributeNodeNS(namespaceURI, localName);
 		old && this.removeAttributeNode(old);
 	},
-	
+
 	hasAttributeNS : function(namespaceURI, localName){
 		return this.getAttributeNodeNS(namespaceURI, localName)!=null;
 	},
@@ -6630,7 +6213,7 @@ Element.prototype = {
 	getAttributeNodeNS : function(namespaceURI, localName){
 		return this.attributes.getNamedItemNS(namespaceURI, localName);
 	},
-	
+
 	getElementsByTagName : function(tagName){
 		return new LiveNodeList(this,function(base){
 			var ls = [];
@@ -6651,7 +6234,7 @@ Element.prototype = {
 				}
 			});
 			return ls;
-			
+
 		});
 	}
 };
@@ -6680,7 +6263,7 @@ CharacterData.prototype = {
 	},
 	insertData: function(offset,text) {
 		this.replaceData(offset,0,text);
-	
+
 	},
 	appendChild:function(newChild){
 		throw new Error(ExceptionMessage[HIERARCHY_REQUEST_ERR])
@@ -6774,7 +6357,7 @@ function nodeSerializeToString(isHtml,nodeFilter){
 	var refNode = this.nodeType == 9 && this.documentElement || this;
 	var prefix = refNode.prefix;
 	var uri = refNode.namespaceURI;
-	
+
 	if(uri && prefix == null){
 		//console.log(prefix)
 		var prefix = refNode.lookupPrefix(uri);
@@ -6807,8 +6390,8 @@ function needNamespaceDefine(node, isHTML, visibleNamespaces) {
 	if (prefix === "xml" && uri === NAMESPACE.XML || uri === NAMESPACE.XMLNS) {
 		return false;
 	}
-	
-	var i = visibleNamespaces.length 
+
+	var i = visibleNamespaces.length
 	while (i--) {
 		var ns = visibleNamespaces[i];
 		// get namespace prefix
@@ -6829,9 +6412,10 @@ function needNamespaceDefine(node, isHTML, visibleNamespaces) {
  * are serialized as their entity references, so they will be preserved.
  * (In contrast to whitespace literals in the input which are normalized to spaces)
  * @see https://www.w3.org/TR/xml11/#AVNormalize
+ * @see https://w3c.github.io/DOM-Parsing/#serializing-an-element-s-attributes
  */
 function addSerializedAttribute(buf, qualifiedName, value) {
-	buf.push(' ', qualifiedName, '="', value.replace(/[<&"\t\n\r]/g, _xmlEncoder), '"')
+	buf.push(' ', qualifiedName, '="', value.replace(/[<>&"\t\n\r]/g, _xmlEncoder), '"')
 }
 
 function serializeToString(node,buf,isHTML,nodeFilter,visibleNamespaces){
@@ -6858,7 +6442,7 @@ function serializeToString(node,buf,isHTML,nodeFilter,visibleNamespaces){
 		var len = attrs.length;
 		var child = node.firstChild;
 		var nodeName = node.tagName;
-		
+
 		isHTML = NAMESPACE.isHTML(node.namespaceURI) || isHTML
 
 		var prefixedNodeName = nodeName
@@ -6917,14 +6501,14 @@ function serializeToString(node,buf,isHTML,nodeFilter,visibleNamespaces){
 			serializeToString(attr,buf,isHTML,nodeFilter,visibleNamespaces);
 		}
 
-		// add namespace for current node		
+		// add namespace for current node
 		if (nodeName === prefixedNodeName && needNamespaceDefine(node, isHTML, visibleNamespaces)) {
 			var prefix = node.prefix||'';
 			var uri = node.namespaceURI;
 			addSerializedAttribute(buf, prefix ? 'xmlns:' + prefix : "xmlns", uri);
 			visibleNamespaces.push({ prefix: prefix, namespace:uri });
 		}
-		
+
 		if(child || isHTML && !/^(?:meta|link|img|br|hr|input)$/i.test(nodeName)){
 			buf.push('>');
 			//if is cdata child node
@@ -6976,10 +6560,10 @@ function serializeToString(node,buf,isHTML,nodeFilter,visibleNamespaces){
 		 * and does not include the CDATA-section-close delimiter, `]]>`.
 		 *
 		 * @see https://www.w3.org/TR/xml/#NT-CharData
+		 * @see https://w3c.github.io/DOM-Parsing/#xml-serializing-a-text-node
 		 */
 		return buf.push(node.data
-			.replace(/[<&]/g,_xmlEncoder)
-			.replace(/]]>/g, ']]&gt;')
+			.replace(/[<&>]/g,_xmlEncoder)
 		);
 	case CDATA_SECTION_NODE:
 		return buf.push( '<![CDATA[',node.data,']]>');
@@ -7065,11 +6649,13 @@ function importNode(doc,node,deep){
 //					attributes:1,childNodes:1,parentNode:1,documentElement:1,doctype,};
 function cloneNode(doc,node,deep){
 	var node2 = new node.constructor();
-	for(var n in node){
-		var v = node[n];
-		if(typeof v != 'object' ){
-			if(v != node2[n]){
-				node2[n] = v;
+	for (var n in node) {
+		if (Object.prototype.hasOwnProperty.call(node, n)) {
+			var v = node[n];
+			if (typeof v != "object") {
+				if (v != node2[n]) {
+					node2[n] = v;
+				}
 			}
 		}
 	}
@@ -7137,7 +6723,7 @@ try{
 				}
 			}
 		})
-		
+
 		function getTextContent(node){
 			switch(node.nodeType){
 			case ELEMENT_NODE:
@@ -7470,7 +7056,7 @@ var tagNamePattern = new RegExp('^'+nameStartChar.source+nameChar.source+'*(?:\:
 //S_TAG,	S_ATTR,	S_EQ,	S_ATTR_NOQUOT_VALUE
 //S_ATTR_SPACE,	S_ATTR_END,	S_TAG_SPACE, S_TAG_CLOSE
 var S_TAG = 0;//tag name offerring
-var S_ATTR = 1;//attr name offerring 
+var S_ATTR = 1;//attr name offerring
 var S_ATTR_SPACE=2;//attr name end and space offer
 var S_EQ = 3;//=space?
 var S_ATTR_NOQUOT_VALUE = 4;//attr value(no quot value only)
@@ -7494,7 +7080,7 @@ ParseError.prototype = new Error();
 ParseError.prototype.name = ParseError.name
 
 function XMLReader(){
-	
+
 }
 
 XMLReader.prototype = {
@@ -7523,8 +7109,8 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 	}
 	function entityReplacer(a){
 		var k = a.slice(1,-1);
-		if(k in entityMap){
-			return entityMap[k]; 
+		if (Object.hasOwnProperty.call(entityMap, k)) {
+			return entityMap[k];
 		}else if(k.charAt(0) === '#'){
 			return fixedFromCharCode(parseInt(k.substr(1).replace('x','0x')))
 		}else{
@@ -7553,7 +7139,7 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 	var lineEnd = 0;
 	var linePattern = /.*(?:\r\n?|\n)|.*$/g
 	var locator = domBuilder.locator;
-	
+
 	var parseStack = [{currentNSMap:defaultNSMapCopy}]
 	var closeMap = {};
 	var start = 0;
@@ -7578,7 +7164,7 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 				var tagName = source.substring(tagStart + 2, end).replace(/[ \t\n\r]+$/g, '');
 				var config = parseStack.pop();
 				if(end<0){
-					
+
 	        		tagName = source.substring(tagStart+2).replace(/[\s<].*/,'');
 	        		errorHandler.error("end tag name: "+tagName+' is not complete:'+config.tagName);
 	        		end = tagStart+1+tagName.length;
@@ -7593,8 +7179,10 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 		        if(endIgnoreCaseMach){
 		        	domBuilder.endElement(config.uri,config.localName,tagName);
 					if(localNSMap){
-						for(var prefix in localNSMap){
-							domBuilder.endPrefixMapping(prefix) ;
+						for (var prefix in localNSMap) {
+							if (Object.prototype.hasOwnProperty.call(localNSMap, prefix)) {
+								domBuilder.endPrefixMapping(prefix);
+							}
 						}
 					}
 					if(!endMatch){
@@ -7603,7 +7191,7 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 		        }else{
 		        	parseStack.push(config)
 		        }
-				
+
 				end++;
 				break;
 				// end elment
@@ -7622,8 +7210,8 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 				//elStartEnd
 				var end = parseElementStartPart(source,tagStart,el,currentNSMap,entityReplacer,errorHandler);
 				var len = el.length;
-				
-				
+
+
 				if(!el.closed && fixSelfClosed(source,end,el.tagName,closeMap)){
 					el.closed = true;
 					if(!entityMap.nbsp){
@@ -7893,7 +7481,7 @@ function appendElement(el,domBuilder,currentNSMap){
 		}
 		//can not set prefix,because prefix !== ''
 		a.localName = localName ;
-		//prefix == null for no ns prefix attribute 
+		//prefix == null for no ns prefix attribute
 		if(nsPrefix !== false){//hack!!
 			if(localNSMap == null){
 				localNSMap = {}
@@ -7903,7 +7491,7 @@ function appendElement(el,domBuilder,currentNSMap){
 			}
 			currentNSMap[nsPrefix] = localNSMap[nsPrefix] = value;
 			a.uri = NAMESPACE.XMLNS
-			domBuilder.startPrefixMapping(nsPrefix, value) 
+			domBuilder.startPrefixMapping(nsPrefix, value)
 		}
 	}
 	var i = el.length;
@@ -7915,7 +7503,7 @@ function appendElement(el,domBuilder,currentNSMap){
 				a.uri = NAMESPACE.XML;
 			}if(prefix !== 'xmlns'){
 				a.uri = currentNSMap[prefix || '']
-				
+
 				//{console.log('###'+a.qName,domBuilder.locator.systemId+'',currentNSMap,a.uri)}
 			}
 		}
@@ -7936,8 +7524,10 @@ function appendElement(el,domBuilder,currentNSMap){
 	if(el.closed){
 		domBuilder.endElement(ns,localName,tagName);
 		if(localNSMap){
-			for(prefix in localNSMap){
-				domBuilder.endPrefixMapping(prefix) 
+			for (prefix in localNSMap) {
+				if (Object.prototype.hasOwnProperty.call(localNSMap, prefix)) {
+					domBuilder.endPrefixMapping(prefix);
+				}
 			}
 		}
 	}else{
@@ -7964,7 +7554,7 @@ function parseHtmlSpecialContent(source,elStartEnd,tagName,entityReplacer,domBui
 				domBuilder.characters(text,0,text.length);
 				return elEndStart;
 			//}
-			
+
 		}
 	}
 	return elStartEnd+1;
@@ -7981,11 +7571,17 @@ function fixSelfClosed(source,elStartEnd,tagName,closeMap){
 		closeMap[tagName] =pos
 	}
 	return pos<elStartEnd;
-	//} 
+	//}
 }
-function _copy(source,target){
-	for(var n in source){target[n] = source[n]}
+
+function _copy (source, target) {
+	for (var n in source) {
+		if (Object.prototype.hasOwnProperty.call(source, n)) {
+			target[n] = source[n];
+		}
+	}
 }
+
 function parseDCC(source,start,domBuilder,errorHandler){//sure start with '<!'
 	var next= source.charAt(start+2)
 	switch(next){
@@ -8009,11 +7605,11 @@ function parseDCC(source,start,domBuilder,errorHandler){//sure start with '<!'
 			var end = source.indexOf(']]>',start+9);
 			domBuilder.startCDATA();
 			domBuilder.characters(source,start+9,end-start-9);
-			domBuilder.endCDATA() 
+			domBuilder.endCDATA()
 			return end+3;
 		}
 		//<!DOCTYPE
-		//startDTD(java.lang.String name, java.lang.String publicId, java.lang.String systemId) 
+		//startDTD(java.lang.String name, java.lang.String publicId, java.lang.String systemId)
 		var matchs = split(source,start);
 		var len = matchs.length;
 		if(len>1 && /!doctype/i.test(matchs[0][0])){
@@ -8031,7 +7627,7 @@ function parseDCC(source,start,domBuilder,errorHandler){//sure start with '<!'
 			var lastMatch = matchs[len-1]
 			domBuilder.startDTD(name, pubid, sysid);
 			domBuilder.endDTD();
-			
+
 			return lastMatch.index+lastMatch[0].length
 		}
 	}
@@ -8080,7 +7676,7 @@ ElementAttributes.prototype = {
 	getValue:function(i){return this[i].value}
 //	,getIndex:function(uri, localName)){
 //		if(localName){
-//			
+//
 //		}else{
 //			var qName = uri
 //		}
@@ -8109,7 +7705,7 @@ exports.ParseError = ParseError;
 
 },{"./conventions":39}],45:[function(require,module,exports){
 //! moment-timezone.js
-//! version : 0.5.34
+//! version : 0.5.38
 //! Copyright (c) JS Foundation and other contributors
 //! license : MIT
 //! github.com/moment/moment-timezone
@@ -8139,7 +7735,7 @@ exports.ParseError = ParseError;
 	// 	return moment;
 	// }
 
-	var VERSION = "0.5.34",
+	var VERSION = "0.5.38",
 		zones = {},
 		links = {},
 		countries = {},
@@ -8801,7 +8397,7 @@ exports.ParseError = ParseError;
 	}
 
 	loadData({
-		"version": "2021e",
+		"version": "2022e",
 		"zones": [
 			"Africa/Abidjan|GMT|0|0||48e5",
 			"Africa/Nairobi|EAT|-30|0||47e5",
@@ -8851,7 +8447,7 @@ exports.ParseError = ParseError;
 			"America/Noronha|-02|20|0||30e2",
 			"America/Port-au-Prince|EST EDT|50 40|010101010101010101010|1GI70 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 3iN0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0|23e5",
 			"Antarctica/Palmer|-03 -04|30 40|010101010|1H3D0 Op0 1zb0 Rd0 1wn0 Rd0 46n0 Ap0|40",
-			"America/Santiago|-03 -04|30 40|010101010101010101010|1H3D0 Op0 1zb0 Rd0 1wn0 Rd0 46n0 Ap0 1Nb0 Ap0 1Nb0 Ap0 1zb0 11B0 1nX0 11B0 1nX0 11B0 1nX0 11B0|62e5",
+			"America/Santiago|-03 -04|30 40|010101010101010101010|1H3D0 Op0 1zb0 Rd0 1wn0 Rd0 46n0 Ap0 1Nb0 Ap0 1Nb0 Ap0 1zb0 11B0 1nX0 11B0 1nX0 11B0 1nX0 14p0|62e5",
 			"America/Sao_Paulo|-02 -03|20 30|0101010101010101|1GCq0 1zd0 Lz0 1C10 Lz0 1C10 On0 1zd0 On0 1zd0 On0 1zd0 On0 1HB0 FX0|20e6",
 			"Atlantic/Azores|-01 +00|10 0|01010101010101010101010|1GNB0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0|25e4",
 			"America/St_Johns|NST NDT|3u 2u|01010101010101010101010|1GI5u 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0|11e4",
@@ -8864,7 +8460,7 @@ exports.ParseError = ParseError;
 			"Asia/Baghdad|+03|-30|0||66e5",
 			"Antarctica/Troll|+00 +02|0 -20|01010101010101010101010|1GNB0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0|40",
 			"Asia/Dhaka|+06|-60|0||16e6",
-			"Asia/Amman|EET EEST|-20 -30|010101010101010101010|1GPy0 4bX0 Dd0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 LA0 1C00|25e5",
+			"Asia/Amman|EET EEST +03|-20 -30 -30|010101010101010101012|1GPy0 4bX0 Dd0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 LA0 1C00|25e5",
 			"Asia/Kamchatka|+12|-c0|0||18e4",
 			"Asia/Baku|+04 +05|-40 -50|010101010|1GNA0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00|27e5",
 			"Asia/Bangkok|+07|-70|0||15e6",
@@ -8876,11 +8472,11 @@ exports.ParseError = ParseError;
 			"Asia/Ulaanbaatar|+08 +09|-80 -90|01010|1O8G0 1cJ0 1cP0 1cJ0|12e5",
 			"Asia/Shanghai|CST|-80|0||23e6",
 			"Asia/Colombo|+0530|-5u|0||22e5",
-			"Asia/Damascus|EET EEST|-20 -30|01010101010101010101010|1GPy0 1nX0 11B0 1nX0 11B0 1qL0 WN0 1qL0 WN0 1qL0 11B0 1nX0 11B0 1nX0 11B0 1nX0 11B0 1qL0 WN0 1qL0 WN0 1qL0|26e5",
+			"Asia/Damascus|EET EEST +03|-20 -30 -30|01010101010101010101012|1GPy0 1nX0 11B0 1nX0 11B0 1qL0 WN0 1qL0 WN0 1qL0 11B0 1nX0 11B0 1nX0 11B0 1nX0 11B0 1qL0 WN0 1qL0 WN0 1qL0|26e5",
 			"Asia/Dili|+09|-90|0||19e4",
 			"Asia/Dubai|+04|-40|0||39e5",
 			"Asia/Famagusta|EET EEST +03|-20 -30 -30|0101010101201010101010|1GNB0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 15U0 2Ks0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0|",
-			"Asia/Gaza|EET EEST|-20 -30|01010101010101010101010|1GPy0 1a00 1fA0 1cL0 1cN0 1nX0 1210 1nA0 1210 1qL0 WN0 1qL0 WN0 1qL0 11c0 1on0 11B0 1o00 11A0 1qo0 Xc0 1qo0|18e5",
+			"Asia/Gaza|EET EEST|-20 -30|01010101010101010101010|1GPy0 1a00 1fA0 1cL0 1cN0 1nX0 1210 1nA0 1210 1qL0 WN0 1qL0 WN0 1qL0 11c0 1on0 11B0 1o00 11A0 1qo0 XA0 1qp0|18e5",
 			"Asia/Hong_Kong|HKT|-80|0||73e5",
 			"Asia/Hovd|+07 +08|-70 -80|01010|1O8H0 1cJ0 1cP0 1cJ0|81e3",
 			"Asia/Irkutsk|+09 +08|-90 -80|01|1N7t0|60e4",
@@ -8918,7 +8514,7 @@ exports.ParseError = ParseError;
 			"Australia/Eucla|+0845|-8J|0||368",
 			"Australia/Lord_Howe|+11 +1030|-b0 -au|01010101010101010101010|1GQf0 1fAu 1cLu 1cMu 1cLu 1cMu 1cLu 1cMu 1cLu 1cMu 1cLu 1cMu 1cLu 1fAu 1cLu 1cMu 1cLu 1cMu 1cLu 1cMu 1cLu 1cMu|347",
 			"Australia/Perth|AWST|-80|0||18e5",
-			"Pacific/Easter|-05 -06|50 60|010101010101010101010|1H3D0 Op0 1zb0 Rd0 1wn0 Rd0 46n0 Ap0 1Nb0 Ap0 1Nb0 Ap0 1zb0 11B0 1nX0 11B0 1nX0 11B0 1nX0 11B0|30e2",
+			"Pacific/Easter|-05 -06|50 60|010101010101010101010|1H3D0 Op0 1zb0 Rd0 1wn0 Rd0 46n0 Ap0 1Nb0 Ap0 1Nb0 Ap0 1zb0 11B0 1nX0 11B0 1nX0 11B0 1nX0 14p0|30e2",
 			"Europe/Dublin|GMT IST|0 -10|01010101010101010101010|1GNB0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0|12e5",
 			"Etc/GMT-1|+01|-10|0||",
 			"Pacific/Guadalcanal|+11|-b0|0||11e4",
@@ -9305,6 +8901,7 @@ exports.ParseError = ParseError;
 			"Europe/Athens|Europe/Bucharest",
 			"Europe/Athens|Europe/Helsinki",
 			"Europe/Athens|Europe/Kiev",
+			"Europe/Athens|Europe/Kyiv",
 			"Europe/Athens|Europe/Mariehamn",
 			"Europe/Athens|Europe/Nicosia",
 			"Europe/Athens|Europe/Riga",
@@ -9404,17 +9001,17 @@ exports.ParseError = ParseError;
 			"AD|Europe/Andorra",
 			"AE|Asia/Dubai",
 			"AF|Asia/Kabul",
-			"AG|America/Port_of_Spain America/Antigua",
-			"AI|America/Port_of_Spain America/Anguilla",
+			"AG|America/Puerto_Rico America/Antigua",
+			"AI|America/Puerto_Rico America/Anguilla",
 			"AL|Europe/Tirane",
 			"AM|Asia/Yerevan",
 			"AO|Africa/Lagos Africa/Luanda",
-			"AQ|Antarctica/Casey Antarctica/Davis Antarctica/DumontDUrville Antarctica/Mawson Antarctica/Palmer Antarctica/Rothera Antarctica/Syowa Antarctica/Troll Antarctica/Vostok Pacific/Auckland Antarctica/McMurdo",
+			"AQ|Antarctica/Casey Antarctica/Davis Antarctica/Mawson Antarctica/Palmer Antarctica/Rothera Antarctica/Troll Asia/Urumqi Pacific/Auckland Pacific/Port_Moresby Asia/Riyadh Antarctica/McMurdo Antarctica/DumontDUrville Antarctica/Syowa Antarctica/Vostok",
 			"AR|America/Argentina/Buenos_Aires America/Argentina/Cordoba America/Argentina/Salta America/Argentina/Jujuy America/Argentina/Tucuman America/Argentina/Catamarca America/Argentina/La_Rioja America/Argentina/San_Juan America/Argentina/Mendoza America/Argentina/San_Luis America/Argentina/Rio_Gallegos America/Argentina/Ushuaia",
 			"AS|Pacific/Pago_Pago",
 			"AT|Europe/Vienna",
 			"AU|Australia/Lord_Howe Antarctica/Macquarie Australia/Hobart Australia/Melbourne Australia/Sydney Australia/Broken_Hill Australia/Brisbane Australia/Lindeman Australia/Adelaide Australia/Darwin Australia/Perth Australia/Eucla",
-			"AW|America/Curacao America/Aruba",
+			"AW|America/Puerto_Rico America/Aruba",
 			"AX|Europe/Helsinki Europe/Mariehamn",
 			"AZ|Asia/Baku",
 			"BA|Europe/Belgrade Europe/Sarajevo",
@@ -9426,19 +9023,19 @@ exports.ParseError = ParseError;
 			"BH|Asia/Qatar Asia/Bahrain",
 			"BI|Africa/Maputo Africa/Bujumbura",
 			"BJ|Africa/Lagos Africa/Porto-Novo",
-			"BL|America/Port_of_Spain America/St_Barthelemy",
+			"BL|America/Puerto_Rico America/St_Barthelemy",
 			"BM|Atlantic/Bermuda",
-			"BN|Asia/Brunei",
+			"BN|Asia/Kuching Asia/Brunei",
 			"BO|America/La_Paz",
-			"BQ|America/Curacao America/Kralendijk",
+			"BQ|America/Puerto_Rico America/Kralendijk",
 			"BR|America/Noronha America/Belem America/Fortaleza America/Recife America/Araguaina America/Maceio America/Bahia America/Sao_Paulo America/Campo_Grande America/Cuiaba America/Santarem America/Porto_Velho America/Boa_Vista America/Manaus America/Eirunepe America/Rio_Branco",
-			"BS|America/Nassau",
+			"BS|America/Toronto America/Nassau",
 			"BT|Asia/Thimphu",
 			"BW|Africa/Maputo Africa/Gaborone",
 			"BY|Europe/Minsk",
 			"BZ|America/Belize",
-			"CA|America/St_Johns America/Halifax America/Glace_Bay America/Moncton America/Goose_Bay America/Blanc-Sablon America/Toronto America/Nipigon America/Thunder_Bay America/Iqaluit America/Pangnirtung America/Atikokan America/Winnipeg America/Rainy_River America/Resolute America/Rankin_Inlet America/Regina America/Swift_Current America/Edmonton America/Cambridge_Bay America/Yellowknife America/Inuvik America/Creston America/Dawson_Creek America/Fort_Nelson America/Whitehorse America/Dawson America/Vancouver",
-			"CC|Indian/Cocos",
+			"CA|America/St_Johns America/Halifax America/Glace_Bay America/Moncton America/Goose_Bay America/Toronto America/Nipigon America/Thunder_Bay America/Iqaluit America/Pangnirtung America/Winnipeg America/Rainy_River America/Resolute America/Rankin_Inlet America/Regina America/Swift_Current America/Edmonton America/Cambridge_Bay America/Yellowknife America/Inuvik America/Dawson_Creek America/Fort_Nelson America/Whitehorse America/Dawson America/Vancouver America/Panama America/Puerto_Rico America/Phoenix America/Blanc-Sablon America/Atikokan America/Creston",
+			"CC|Asia/Yangon Indian/Cocos",
 			"CD|Africa/Maputo Africa/Lagos Africa/Kinshasa Africa/Lubumbashi",
 			"CF|Africa/Lagos Africa/Bangui",
 			"CG|Africa/Lagos Africa/Brazzaville",
@@ -9452,14 +9049,14 @@ exports.ParseError = ParseError;
 			"CR|America/Costa_Rica",
 			"CU|America/Havana",
 			"CV|Atlantic/Cape_Verde",
-			"CW|America/Curacao",
-			"CX|Indian/Christmas",
+			"CW|America/Puerto_Rico America/Curacao",
+			"CX|Asia/Bangkok Indian/Christmas",
 			"CY|Asia/Nicosia Asia/Famagusta",
 			"CZ|Europe/Prague",
 			"DE|Europe/Zurich Europe/Berlin Europe/Busingen",
 			"DJ|Africa/Nairobi Africa/Djibouti",
-			"DK|Europe/Copenhagen",
-			"DM|America/Port_of_Spain America/Dominica",
+			"DK|Europe/Berlin Europe/Copenhagen",
+			"DM|America/Puerto_Rico America/Dominica",
 			"DO|America/Santo_Domingo",
 			"DZ|Africa/Algiers",
 			"EC|America/Guayaquil Pacific/Galapagos",
@@ -9472,21 +9069,21 @@ exports.ParseError = ParseError;
 			"FI|Europe/Helsinki",
 			"FJ|Pacific/Fiji",
 			"FK|Atlantic/Stanley",
-			"FM|Pacific/Chuuk Pacific/Pohnpei Pacific/Kosrae",
+			"FM|Pacific/Kosrae Pacific/Port_Moresby Pacific/Guadalcanal Pacific/Chuuk Pacific/Pohnpei",
 			"FO|Atlantic/Faroe",
 			"FR|Europe/Paris",
 			"GA|Africa/Lagos Africa/Libreville",
 			"GB|Europe/London",
-			"GD|America/Port_of_Spain America/Grenada",
+			"GD|America/Puerto_Rico America/Grenada",
 			"GE|Asia/Tbilisi",
 			"GF|America/Cayenne",
 			"GG|Europe/London Europe/Guernsey",
-			"GH|Africa/Accra",
+			"GH|Africa/Abidjan Africa/Accra",
 			"GI|Europe/Gibraltar",
 			"GL|America/Nuuk America/Danmarkshavn America/Scoresbysund America/Thule",
 			"GM|Africa/Abidjan Africa/Banjul",
 			"GN|Africa/Abidjan Africa/Conakry",
-			"GP|America/Port_of_Spain America/Guadeloupe",
+			"GP|America/Puerto_Rico America/Guadeloupe",
 			"GQ|Africa/Lagos Africa/Malabo",
 			"GR|Europe/Athens",
 			"GS|Atlantic/South_Georgia",
@@ -9507,7 +9104,7 @@ exports.ParseError = ParseError;
 			"IO|Indian/Chagos",
 			"IQ|Asia/Baghdad",
 			"IR|Asia/Tehran",
-			"IS|Atlantic/Reykjavik",
+			"IS|Africa/Abidjan Atlantic/Reykjavik",
 			"IT|Europe/Rome",
 			"JE|Europe/London Europe/Jersey",
 			"JM|America/Jamaica",
@@ -9516,9 +9113,9 @@ exports.ParseError = ParseError;
 			"KE|Africa/Nairobi",
 			"KG|Asia/Bishkek",
 			"KH|Asia/Bangkok Asia/Phnom_Penh",
-			"KI|Pacific/Tarawa Pacific/Enderbury Pacific/Kiritimati",
+			"KI|Pacific/Tarawa Pacific/Kanton Pacific/Kiritimati",
 			"KM|Africa/Nairobi Indian/Comoro",
-			"KN|America/Port_of_Spain America/St_Kitts",
+			"KN|America/Puerto_Rico America/St_Kitts",
 			"KP|Asia/Pyongyang",
 			"KR|Asia/Seoul",
 			"KW|Asia/Riyadh Asia/Kuwait",
@@ -9526,22 +9123,22 @@ exports.ParseError = ParseError;
 			"KZ|Asia/Almaty Asia/Qyzylorda Asia/Qostanay Asia/Aqtobe Asia/Aqtau Asia/Atyrau Asia/Oral",
 			"LA|Asia/Bangkok Asia/Vientiane",
 			"LB|Asia/Beirut",
-			"LC|America/Port_of_Spain America/St_Lucia",
+			"LC|America/Puerto_Rico America/St_Lucia",
 			"LI|Europe/Zurich Europe/Vaduz",
 			"LK|Asia/Colombo",
 			"LR|Africa/Monrovia",
 			"LS|Africa/Johannesburg Africa/Maseru",
 			"LT|Europe/Vilnius",
-			"LU|Europe/Luxembourg",
+			"LU|Europe/Brussels Europe/Luxembourg",
 			"LV|Europe/Riga",
 			"LY|Africa/Tripoli",
 			"MA|Africa/Casablanca",
-			"MC|Europe/Monaco",
+			"MC|Europe/Paris Europe/Monaco",
 			"MD|Europe/Chisinau",
 			"ME|Europe/Belgrade Europe/Podgorica",
-			"MF|America/Port_of_Spain America/Marigot",
+			"MF|America/Puerto_Rico America/Marigot",
 			"MG|Africa/Nairobi Indian/Antananarivo",
-			"MH|Pacific/Majuro Pacific/Kwajalein",
+			"MH|Pacific/Tarawa Pacific/Kwajalein Pacific/Majuro",
 			"MK|Europe/Belgrade Europe/Skopje",
 			"ML|Africa/Abidjan Africa/Bamako",
 			"MM|Asia/Yangon",
@@ -9550,13 +9147,13 @@ exports.ParseError = ParseError;
 			"MP|Pacific/Guam Pacific/Saipan",
 			"MQ|America/Martinique",
 			"MR|Africa/Abidjan Africa/Nouakchott",
-			"MS|America/Port_of_Spain America/Montserrat",
+			"MS|America/Puerto_Rico America/Montserrat",
 			"MT|Europe/Malta",
 			"MU|Indian/Mauritius",
 			"MV|Indian/Maldives",
 			"MW|Africa/Maputo Africa/Blantyre",
 			"MX|America/Mexico_City America/Cancun America/Merida America/Monterrey America/Matamoros America/Mazatlan America/Chihuahua America/Ojinaga America/Hermosillo America/Tijuana America/Bahia_Banderas",
-			"MY|Asia/Kuala_Lumpur Asia/Kuching",
+			"MY|Asia/Kuching Asia/Singapore Asia/Kuala_Lumpur",
 			"MZ|Africa/Maputo",
 			"NA|Africa/Windhoek",
 			"NC|Pacific/Noumea",
@@ -9564,8 +9161,8 @@ exports.ParseError = ParseError;
 			"NF|Pacific/Norfolk",
 			"NG|Africa/Lagos",
 			"NI|America/Managua",
-			"NL|Europe/Amsterdam",
-			"NO|Europe/Oslo",
+			"NL|Europe/Brussels Europe/Amsterdam",
+			"NO|Europe/Berlin Europe/Oslo",
 			"NP|Asia/Kathmandu",
 			"NR|Pacific/Nauru",
 			"NU|Pacific/Niue",
@@ -9586,20 +9183,20 @@ exports.ParseError = ParseError;
 			"PW|Pacific/Palau",
 			"PY|America/Asuncion",
 			"QA|Asia/Qatar",
-			"RE|Indian/Reunion",
+			"RE|Asia/Dubai Indian/Reunion",
 			"RO|Europe/Bucharest",
 			"RS|Europe/Belgrade",
 			"RU|Europe/Kaliningrad Europe/Moscow Europe/Simferopol Europe/Kirov Europe/Volgograd Europe/Astrakhan Europe/Saratov Europe/Ulyanovsk Europe/Samara Asia/Yekaterinburg Asia/Omsk Asia/Novosibirsk Asia/Barnaul Asia/Tomsk Asia/Novokuznetsk Asia/Krasnoyarsk Asia/Irkutsk Asia/Chita Asia/Yakutsk Asia/Khandyga Asia/Vladivostok Asia/Ust-Nera Asia/Magadan Asia/Sakhalin Asia/Srednekolymsk Asia/Kamchatka Asia/Anadyr",
 			"RW|Africa/Maputo Africa/Kigali",
 			"SA|Asia/Riyadh",
 			"SB|Pacific/Guadalcanal",
-			"SC|Indian/Mahe",
+			"SC|Asia/Dubai Indian/Mahe",
 			"SD|Africa/Khartoum",
-			"SE|Europe/Stockholm",
+			"SE|Europe/Berlin Europe/Stockholm",
 			"SG|Asia/Singapore",
 			"SH|Africa/Abidjan Atlantic/St_Helena",
 			"SI|Europe/Belgrade Europe/Ljubljana",
-			"SJ|Europe/Oslo Arctic/Longyearbyen",
+			"SJ|Europe/Berlin Arctic/Longyearbyen",
 			"SK|Europe/Prague Europe/Bratislava",
 			"SL|Africa/Abidjan Africa/Freetown",
 			"SM|Europe/Rome Europe/San_Marino",
@@ -9609,12 +9206,12 @@ exports.ParseError = ParseError;
 			"SS|Africa/Juba",
 			"ST|Africa/Sao_Tome",
 			"SV|America/El_Salvador",
-			"SX|America/Curacao America/Lower_Princes",
+			"SX|America/Puerto_Rico America/Lower_Princes",
 			"SY|Asia/Damascus",
 			"SZ|Africa/Johannesburg Africa/Mbabane",
 			"TC|America/Grand_Turk",
 			"TD|Africa/Ndjamena",
-			"TF|Indian/Reunion Indian/Kerguelen",
+			"TF|Asia/Dubai Indian/Maldives Indian/Kerguelen",
 			"TG|Africa/Abidjan Africa/Lome",
 			"TH|Asia/Bangkok",
 			"TJ|Asia/Dushanbe",
@@ -9624,24 +9221,24 @@ exports.ParseError = ParseError;
 			"TN|Africa/Tunis",
 			"TO|Pacific/Tongatapu",
 			"TR|Europe/Istanbul",
-			"TT|America/Port_of_Spain",
-			"TV|Pacific/Funafuti",
+			"TT|America/Puerto_Rico America/Port_of_Spain",
+			"TV|Pacific/Tarawa Pacific/Funafuti",
 			"TW|Asia/Taipei",
 			"TZ|Africa/Nairobi Africa/Dar_es_Salaam",
-			"UA|Europe/Simferopol Europe/Kiev Europe/Uzhgorod Europe/Zaporozhye",
+			"UA|Europe/Simferopol Europe/Kyiv",
 			"UG|Africa/Nairobi Africa/Kampala",
-			"UM|Pacific/Pago_Pago Pacific/Wake Pacific/Honolulu Pacific/Midway",
+			"UM|Pacific/Pago_Pago Pacific/Tarawa Pacific/Honolulu Pacific/Midway Pacific/Wake",
 			"US|America/New_York America/Detroit America/Kentucky/Louisville America/Kentucky/Monticello America/Indiana/Indianapolis America/Indiana/Vincennes America/Indiana/Winamac America/Indiana/Marengo America/Indiana/Petersburg America/Indiana/Vevay America/Chicago America/Indiana/Tell_City America/Indiana/Knox America/Menominee America/North_Dakota/Center America/North_Dakota/New_Salem America/North_Dakota/Beulah America/Denver America/Boise America/Phoenix America/Los_Angeles America/Anchorage America/Juneau America/Sitka America/Metlakatla America/Yakutat America/Nome America/Adak Pacific/Honolulu",
 			"UY|America/Montevideo",
 			"UZ|Asia/Samarkand Asia/Tashkent",
 			"VA|Europe/Rome Europe/Vatican",
-			"VC|America/Port_of_Spain America/St_Vincent",
+			"VC|America/Puerto_Rico America/St_Vincent",
 			"VE|America/Caracas",
-			"VG|America/Port_of_Spain America/Tortola",
-			"VI|America/Port_of_Spain America/St_Thomas",
+			"VG|America/Puerto_Rico America/Tortola",
+			"VI|America/Puerto_Rico America/St_Thomas",
 			"VN|Asia/Bangkok Asia/Ho_Chi_Minh",
 			"VU|Pacific/Efate",
-			"WF|Pacific/Wallis",
+			"WF|Pacific/Tarawa Pacific/Wallis",
 			"WS|Pacific/Apia",
 			"YE|Asia/Riyadh Asia/Aden",
 			"YT|Africa/Nairobi Indian/Mayotte",
@@ -9657,7 +9254,7 @@ exports.ParseError = ParseError;
 
 },{"moment":46}],46:[function(require,module,exports){
 //! moment.js
-//! version : 2.29.3
+//! version : 2.29.4
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT
 //! momentjs.com
@@ -12112,7 +11709,7 @@ exports.ParseError = ParseError;
     function preprocessRFC2822(s) {
         // Remove comments and folding whitespace and replace multiple-spaces with a single space
         return s
-            .replace(/\([^)]*\)|[\n\t]/g, ' ')
+            .replace(/\([^()]*\)|[\n\t]/g, ' ')
             .replace(/(\s\s+)/g, ' ')
             .replace(/^\s\s*/, '')
             .replace(/\s\s*$/, '');
@@ -15293,7 +14890,7 @@ exports.ParseError = ParseError;
 
     //! moment.js
 
-    hooks.version = '2.29.3';
+    hooks.version = '2.29.4';
 
     setHookCallback(createLocal);
 
@@ -15344,7 +14941,6 @@ exports.ParseError = ParseError;
 
 },{}],47:[function(require,module,exports){
 const CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
-
 describe('When a cumulative volume container is created with a tick increment of 0.25', () => {
   'use strict';
 
@@ -15683,7 +15279,6 @@ describe('When a cumulative volume container is created with a tick increment of
 
 },{"../../../lib/marketState/CumulativeVolume":4}],48:[function(require,module,exports){
 const Profile = require('../../../lib/marketState/Profile');
-
 describe('When a Profile is created (for a symbol with unitCode "2")', () => {
   'use strict';
 
@@ -15726,7 +15321,6 @@ describe('When a Profile is created (an option on a ZT future")', () => {
 
 },{"../../../lib/marketState/Profile":5}],49:[function(require,module,exports){
 const convertBaseCodeToUnitCode = require('./../../../../lib/utilities/convert/baseCodeToUnitCode');
-
 describe('When converting a baseCode to a unitCode', () => {
   it('-1 should translate to "2"', () => {
     expect(convertBaseCodeToUnitCode(-1)).toEqual('2');
@@ -15783,7 +15377,6 @@ describe('When converting a baseCode to a unitCode', () => {
 
 },{"./../../../../lib/utilities/convert/baseCodeToUnitCode":6}],50:[function(require,module,exports){
 const convertDateToDayCode = require('./../../../../lib/utilities/convert/dateToDayCode');
-
 describe('When converting a date instance to a day code', () => {
   it('"Jan 1, 2016" should translate to 1', () => {
     expect(convertDateToDayCode(new Date(2016, 0, 1))).toEqual('1');
@@ -15888,7 +15481,6 @@ describe('When converting a date instance to a day code', () => {
 
 },{"./../../../../lib/utilities/convert/dateToDayCode":7}],51:[function(require,module,exports){
 const convertDayCodeToNumber = require('./../../../../lib/utilities/convert/dayCodeToNumber');
-
 describe('When converting a dayCode to number', () => {
   it('"1" should translate to 1', () => {
     expect(convertDayCodeToNumber("1")).toEqual(1);
@@ -16059,7 +15651,6 @@ describe('When converting a dayCode to number', () => {
 
 },{"./../../../../lib/utilities/convert/dayCodeToNumber":8}],52:[function(require,module,exports){
 const convertMonthCodeToName = require('./../../../../lib/utilities/convert/monthCodeToName');
-
 describe('When converting a futures month code to a month name', () => {
   it('The character "F" should translate to "January"', () => {
     expect(convertMonthCodeToName('F')).toEqual('January');
@@ -16074,7 +15665,6 @@ describe('When converting a futures month code to a month name', () => {
 
 },{"./../../../../lib/utilities/convert/monthCodeToName":9}],53:[function(require,module,exports){
 const convertMonthCodeToNumber = require('./../../../../lib/utilities/convert/monthCodeToNumber');
-
 describe('When converting a futures month code to a month name', () => {
   it('The character "F" should translate to the number 1', () => {
     expect(convertMonthCodeToNumber('F')).toEqual(1);
@@ -16089,7 +15679,6 @@ describe('When converting a futures month code to a month name', () => {
 
 },{"./../../../../lib/utilities/convert/monthCodeToNumber":10}],54:[function(require,module,exports){
 const convertNumberToDayCode = require('./../../../../lib/utilities/convert/numberToDayCode');
-
 describe('When converting a number to a dayCode', () => {
   it('1 should translate to "1"', () => {
     expect(convertNumberToDayCode(1)).toEqual("1");
@@ -16194,7 +15783,6 @@ describe('When converting a number to a dayCode', () => {
 
 },{"./../../../../lib/utilities/convert/numberToDayCode":11}],55:[function(require,module,exports){
 const convertUnitCodeToBaseCode = require('./../../../../lib/utilities/convert/unitCodeToBaseCode');
-
 describe('When converting a unitCode to a baseCode', () => {
   it('"2" should translate to -1', () => {
     expect(convertUnitCodeToBaseCode("2")).toEqual(-1);
@@ -16251,7 +15839,6 @@ describe('When converting a unitCode to a baseCode', () => {
 
 },{"./../../../../lib/utilities/convert/unitCodeToBaseCode":12}],56:[function(require,module,exports){
 const AssetClass = require('../../../../lib/utilities/data/AssetClass');
-
 describe('When parsing asset class codes', () => {
   it('"STK" should parse as "AssetClass.STOCK"', () => {
     expect(AssetClass.parse('STK')).toEqual(AssetClass.STOCK);
@@ -16295,7 +15882,6 @@ describe('When retrieving identifier from asset classes', () => {
 
 },{"../../../../lib/utilities/data/AssetClass":13}],57:[function(require,module,exports){
 const UnitCode = require('../../../../lib/utilities/data/UnitCode');
-
 describe('When parsing an invalid argument', () => {
   it('should parse "1" as null', () => {
     expect(UnitCode.parse('1')).toEqual(null);
@@ -16990,7 +16576,6 @@ describe('When parsing a valid character as a unit code', () => {
 
 },{"../../../../lib/utilities/data/UnitCode":14}],58:[function(require,module,exports){
 const monthCodes = require('../../../../lib/utilities/data/monthCodes');
-
 describe('When looking up a month name by code', () => {
   let map;
   beforeEach(() => {
@@ -17078,14 +16663,14 @@ describe('When looking up a month number by code', () => {
 
 },{"../../../../lib/utilities/data/monthCodes":15}],59:[function(require,module,exports){
 const string = require('@barchart/common-js/lang/string');
+const formatPrice = require('./../../../../lib/utilities/format/price');
 
-const formatPrice = require('./../../../../lib/utilities/format/price'); // 2021/07/12, BRI. These tests are based on mapping tables (between decimal
+// 2021/07/12, BRI. These tests are based on mapping tables (between decimal
 // values and expected fractional representations) published by the CME:
 //
 // https://www.cmegroup.com/confluence/display/EPICSANDBOX/Fractional+Pricing+-+Tick+and+Decimal+Conversions
 //
 // See maps (with explanations) below ...
-
 
 describe('when formatting decimals as ticks', () => {
   it('should be formatted correctly (each tick = 1/32, e.g. root=ZB)', () => {
@@ -17125,20 +16710,27 @@ describe('when formatting decimals as ticks', () => {
     });
   });
 });
-const THIRTY_SECONDS = [// 1/32nd = 0-01 (numerator shown, denominator implied) = 1/32 = 0.3125,
+const THIRTY_SECONDS = [
+// 1/32nd = 0-01 (numerator shown, denominator implied) = 1/32 = 0.3125,
 // 2/32nd = 0-02 (numerator shown, denominator implied) = 2/32 = 0.0625...
+
 [0, 0], [1, 0.03125], [2, 0.0625], [3, 0.09375], [4, 0.125], [5, 0.15625], [6, 0.1875], [7, 0.21875], [8, 0.25], [9, 0.28125], [10, 0.3125], [11, 0.34375], [12, 0.375], [13, 0.40625], [14, 0.4375], [15, 0.46875], [16, 0.5], [17, 0.53125], [18, 0.5625], [19, 0.59375], [20, 0.625], [21, 0.65625], [22, 0.6875], [23, 0.71875], [24, 0.75], [25, 0.78125], [26, 0.8125], [27, 0.84375], [28, 0.875], [29, 0.90625], [30, 0.9375], [31, 0.96875]];
-const HALVES_OF_THIRTY_SECONDS = [// 0/32nds + 1/2 of a 32nd = 0.5/32nd = 0-005 (numerator shown without decimal point, denominator implied) = 0.5/32 = 0.015625,
+const HALVES_OF_THIRTY_SECONDS = [
+// 0/32nds + 1/2 of a 32nd = 0.5/32nd = 0-005 (numerator shown without decimal point, denominator implied) = 0.5/32 = 0.015625,
 // 1/32nds + 0/2 of a 32nd = 1.0/32nd = 0-010 (numerator shown without decimal point, denominator implied) = 1/32 = 0.32125,
 // 1/32nds + 1/2 of a 32nd = 1.5/32nd = 0-015 (numerator shown without decimal point, denominator implied) = 1.5/32 = 0.046875...
+
 [0, 0], [5, 0.015625], [10, 0.03125], [15, 0.046875], [20, 0.0625], [25, 0.078125], [30, 0.09375], [35, 0.109375], [40, 0.125], [45, 0.140625], [50, 0.15625], [55, 0.171875], [60, 0.1875], [65, 0.203125], [70, 0.21875], [75, 0.234375], [80, 0.25], [85, 0.265625], [90, 0.28125], [95, 0.296875], [100, 0.3125], [105, 0.328125], [110, 0.34375], [115, 0.359375], [120, 0.375], [125, 0.390625], [130, 0.40625], [135, 0.421875], [140, 0.4375], [145, 0.453125], [150, 0.46875], [155, 0.484375], [160, 0.5], [165, 0.515625], [170, 0.53125], [175, 0.546875], [180, 0.5625], [185, 0.578125], [190, 0.59375], [195, 0.609375], [200, 0.625], [205, 0.640625], [210, 0.65625], [215, 0.671875], [220, 0.6875], [225, 0.703125], [230, 0.71875], [235, 0.734375], [240, 0.75], [245, 0.765625], [250, 0.78125], [255, 0.796875], [260, 0.8125], [265, 0.828125], [270, 0.84375], [275, 0.859375], [280, 0.875], [285, 0.890625], [290, 0.90625], [295, 0.921875], [300, 0.9375], [305, 0.953125], [310, 0.96875], [315, 0.984375]];
-const QUARTERS_OF_THIRTY_SECONDS = [// 0/32nds + 1/4 of a 32nd = 0.25/32nd = 0-002[5] = 0-002 (numerator shown without decimal point and omitting last digit, denominator implied) = 0.25/32 = 0.0078125,
+const QUARTERS_OF_THIRTY_SECONDS = [
+// 0/32nds + 1/4 of a 32nd = 0.25/32nd = 0-002[5] = 0-002 (numerator shown without decimal point and omitting last digit, denominator implied) = 0.25/32 = 0.0078125,
 // 0/32nds + 2/4 of a 32nd = 0.50/32nd = 0-005[0] = 0-005 (numerator shown without decimal point and omitting last digit, denominator implied) = 0.50/32 = 0.015625,
 // 0/32nds + 3/4 of a 32nd = 0.75/32nd = 0-007[5] = 0-007 (numerator shown without decimal point and omitting last digit, denominator implied) = 0.75/32 = 0.0234375,
 // 1/32nds + 0/4 of a 32nd = 1.00/32nd = 0-010[0] = 0-010 (numerator shown without decimal point and omitting last digit, denominator implied) = 1/32 = 0.03125,
 // 1/32nds + 1/4 of a 32nd = 1.25/32nd = 0-012[5] = 0-012 (numerator shown without decimal point and omitting last digit, denominator implied) = 1.25/32 = 0.0390625 ...
+
 [0, 0], [2, 0.0078125], [5, 0.015625], [7, 0.0234375], [10, 0.03125], [12, 0.0390625], [15, 0.046875], [17, 0.0546875], [20, 0.0625], [22, 0.0703125], [25, 0.078125], [27, 0.0859375], [30, 0.09375], [32, 0.1015625], [35, 0.109375], [37, 0.1171875], [40, 0.125], [42, 0.1328125], [45, 0.140625], [47, 0.1484375], [50, 0.15625], [52, 0.1640625], [55, 0.171875], [57, 0.1796875], [60, 0.1875], [62, 0.1953125], [65, 0.203125], [67, 0.2109375], [70, 0.21875], [72, 0.2265625], [75, 0.234375], [77, 0.2421875], [80, 0.25], [82, 0.2578125], [85, 0.265625], [87, 0.2734375], [90, 0.28125], [92, 0.2890625], [95, 0.296875], [97, 0.3046875], [100, 0.3125], [102, 0.3203125], [105, 0.328125], [107, 0.3359375], [110, 0.34375], [112, 0.3515625], [115, 0.359375], [117, 0.3671875], [120, 0.375], [122, 0.3828125], [125, 0.390625], [127, 0.3984375], [130, 0.40625], [132, 0.4140625], [135, 0.421875], [137, 0.4296875], [140, 0.4375], [142, 0.4453125], [145, 0.453125], [147, 0.4609375], [150, 0.46875], [152, 0.4765625], [155, 0.484375], [157, 0.4921875], [160, 0.5], [162, 0.5078125], [165, 0.515625], [167, 0.5234375], [170, 0.53125], [172, 0.5390625], [175, 0.546875], [177, 0.5546875], [180, 0.5625], [182, 0.5703125], [185, 0.578125], [187, 0.5859375], [190, 0.59375], [192, 0.6015625], [195, 0.609375], [197, 0.6171875], [200, 0.625], [202, 0.6328125], [205, 0.640625], [207, 0.6484375], [210, 0.65625], [212, 0.6640625], [215, 0.671875], [217, 0.6796875], [220, 0.6875], [222, 0.6953125], [225, 0.703125], [227, 0.7109375], [230, 0.71875], [232, 0.7265625], [235, 0.734375], [237, 0.7421875], [240, 0.75], [242, 0.7578125], [245, 0.765625], [247, 0.7734375], [250, 0.78125], [252, 0.7890625], [255, 0.796875], [257, 0.8046875], [260, 0.8125], [262, 0.8203125], [265, 0.828125], [267, 0.8359375], [270, 0.84375], [272, 0.8515625], [275, 0.859375], [277, 0.8671875], [280, 0.875], [282, 0.8828125], [285, 0.890625], [287, 0.8984375], [290, 0.90625], [292, 0.9140625], [295, 0.921875], [297, 0.9296875], [300, 0.9375], [302, 0.9453125], [305, 0.953125], [307, 0.9609375], [310, 0.96875], [312, 0.9765625], [315, 0.984375], [317, 0.9921875]];
-const EIGHTHS_OF_THIRTY_SECONDS = [// 0/32nds + 1/8 of a 32nd = 0.125/32nd = 0-001[25] = 0-001 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 0.125/32 = 0.00390625,
+const EIGHTHS_OF_THIRTY_SECONDS = [
+// 0/32nds + 1/8 of a 32nd = 0.125/32nd = 0-001[25] = 0-001 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 0.125/32 = 0.00390625,
 // 0/32nds + 2/8 of a 32nd = 0.250/32nd = 0-002[50] = 0-002 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 0.250/32 = 0.0078125,
 // 0/32nds + 3/8 of a 32nd = 0.75/32nd = 0-003[75] = 0-003 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 0.375/32 = 0.01171875,
 // 0/32nds + 4/8 of a 32nd = 1.00/32nd = 0-005[00] = 0-005 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 0.500/32 = 0.015625,
@@ -17147,11 +16739,11 @@ const EIGHTHS_OF_THIRTY_SECONDS = [// 0/32nds + 1/8 of a 32nd = 0.125/32nd = 0-0
 // 0/32nds + 7/8 of a 32nd = 0.50/32nd = 0-008[75] = 0-008 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 0.875/32 = 0.02734375,
 // 0/32nds + 0/8 of a 32nd = 0.75/32nd = 0-010[00] = 0-010 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 1.000/32 = 0.03125,
 // 0/32nds + 1/8 of a 32nd = 1.00/32nd = 0-011[25] = 0-011 (numerator shown without decimal point and omitting last digit(s), denominator implied) = 1.125/32 = 0.03515625...
+
 [0, 0], [1, 0.00390625], [2, 0.0078125], [3, 0.01171875], [5, 0.015625], [6, 0.01953125], [7, 0.0234375], [8, 0.02734375], [10, 0.03125], [11, 0.03515625], [12, 0.0390625], [13, 0.04296875], [15, 0.046875], [16, 0.05078125], [17, 0.0546875], [18, 0.05859375], [20, 0.0625], [21, 0.06640625], [22, 0.0703125], [23, 0.07421875], [25, 0.078125], [26, 0.08203125], [27, 0.0859375], [28, 0.08984375], [30, 0.09375], [31, 0.09765625], [32, 0.1015625], [33, 0.10546875], [35, 0.109375], [36, 0.11328125], [37, 0.1171875], [38, 0.12109375], [40, 0.125], [41, 0.12890625], [42, 0.1328125], [43, 0.13671875], [45, 0.140625], [46, 0.14453125], [47, 0.1484375], [48, 0.15234375], [50, 0.15625], [51, 0.16015625], [52, 0.1640625], [53, 0.16796875], [55, 0.171875], [56, 0.17578125], [57, 0.1796875], [58, 0.18359375], [60, 0.1875], [61, 0.19140625], [62, 0.1953125], [63, 0.19921875], [65, 0.203125], [66, 0.20703125], [67, 0.2109375], [68, 0.21484375], [70, 0.21875], [71, 0.22265625], [72, 0.2265625], [73, 0.23046875], [75, 0.234375], [76, 0.23828125], [77, 0.2421875], [78, 0.24609375], [80, 0.25], [81, 0.25390625], [82, 0.2578125], [83, 0.26171875], [85, 0.265625], [86, 0.26953125], [87, 0.2734375], [88, 0.27734375], [90, 0.28125], [91, 0.28515625], [92, 0.2890625], [93, 0.29296875], [95, 0.296875], [96, 0.30078125], [97, 0.3046875], [98, 0.30859375], [100, 0.3125], [101, 0.31640625], [102, 0.3203125], [103, 0.32421875], [105, 0.328125], [106, 0.33203125], [107, 0.3359375], [108, 0.33984375], [110, 0.34375], [111, 0.34765625], [112, 0.3515625], [113, 0.35546875], [115, 0.359375], [116, 0.36328125], [117, 0.3671875], [118, 0.37109375], [120, 0.375], [121, 0.37890625], [122, 0.3828125], [123, 0.38671875], [125, 0.390625], [126, 0.39453125], [127, 0.3984375], [128, 0.40234375], [130, 0.40625], [131, 0.41015625], [132, 0.4140625], [133, 0.41796875], [135, 0.421875], [136, 0.42578125], [137, 0.4296875], [138, 0.43359375], [140, 0.4375], [141, 0.44140625], [142, 0.4453125], [143, 0.44921875], [145, 0.453125], [146, 0.45703125], [147, 0.4609375], [148, 0.46484375], [150, 0.46875], [151, 0.47265625], [152, 0.4765625], [153, 0.48046875], [155, 0.484375], [156, 0.48828125], [157, 0.4921875], [158, 0.49609375], [160, 0.5], [161, 0.50390625], [162, 0.5078125], [163, 0.51171875], [165, 0.515625], [166, 0.51953125], [167, 0.5234375], [168, 0.52734375], [170, 0.53125], [171, 0.53515625], [172, 0.5390625], [173, 0.54296875], [175, 0.546875], [176, 0.55078125], [177, 0.5546875], [178, 0.55859375], [180, 0.5625], [181, 0.56640625], [182, 0.5703125], [183, 0.57421875], [185, 0.578125], [186, 0.58203125], [187, 0.5859375], [188, 0.58984375], [190, 0.59375], [191, 0.59765625], [192, 0.6015625], [193, 0.60546875], [195, 0.609375], [196, 0.61328125], [197, 0.6171875], [198, 0.62109375], [200, 0.625], [201, 0.62890625], [202, 0.6328125], [203, 0.63671875], [205, 0.640625], [206, 0.64453125], [207, 0.6484375], [208, 0.65234375], [210, 0.65625], [211, 0.66015625], [212, 0.6640625], [213, 0.66796875], [215, 0.671875], [216, 0.67578125], [217, 0.6796875], [218, 0.68359375], [220, 0.6875], [221, 0.69140625], [222, 0.6953125], [223, 0.69921875], [225, 0.703125], [226, 0.70703125], [227, 0.7109375], [228, 0.71484375], [230, 0.71875], [231, 0.72265625], [232, 0.7265625], [233, 0.73046875], [235, 0.734375], [236, 0.73828125], [237, 0.7421875], [238, 0.74609375], [240, 0.75], [241, 0.75390625], [242, 0.7578125], [243, 0.76171875], [245, 0.765625], [246, 0.76953125], [247, 0.7734375], [248, 0.77734375], [250, 0.78125], [251, 0.78515625], [252, 0.7890625], [253, 0.79296875], [255, 0.796875], [256, 0.80078125], [257, 0.8046875], [258, 0.80859375], [260, 0.8125], [261, 0.81640625], [262, 0.8203125], [263, 0.82421875], [265, 0.828125], [266, 0.83203125], [267, 0.8359375], [268, 0.83984375], [270, 0.84375], [271, 0.84765625], [272, 0.8515625], [273, 0.85546875], [275, 0.859375], [276, 0.86328125], [277, 0.8671875], [278, 0.87109375], [280, 0.875], [281, 0.87890625], [282, 0.8828125], [283, 0.88671875], [285, 0.890625], [286, 0.89453125], [287, 0.8984375], [288, 0.90234375], [290, 0.90625], [291, 0.91015625], [292, 0.9140625], [293, 0.91796875], [295, 0.921875], [296, 0.92578125], [297, 0.9296875], [298, 0.93359375], [300, 0.9375], [301, 0.94140625], [302, 0.9453125], [303, 0.94921875], [305, 0.953125], [306, 0.95703125], [307, 0.9609375], [308, 0.96484375], [310, 0.96875], [311, 0.97265625], [312, 0.9765625], [313, 0.98046875], [315, 0.984375], [316, 0.98828125], [317, 0.9921875], [318, 0.99609375]];
 
 },{"./../../../../lib/utilities/format/price":21,"@barchart/common-js/lang/string":37}],60:[function(require,module,exports){
 const formatDate = require('./../../../../lib/utilities/format/date');
-
 describe('when using the date formatter', () => {
   it('A date set to 2019-09-30 23:59:59 should return "09/30/19"', () => {
     expect(formatDate(new Date(2019, 8, 30, 23, 59, 59))).toEqual('09/30/19');
@@ -17163,7 +16755,6 @@ describe('when using the date formatter', () => {
 
 },{"./../../../../lib/utilities/format/date":16}],61:[function(require,module,exports){
 const formatDecimal = require('./../../../../lib/utilities/format/decimal');
-
 describe('when formatting invalid values', () => {
   it('formats a null value as a zero-length string', () => {
     expect(formatDecimal(null, 0, ',')).toEqual('');
@@ -17301,7 +16892,6 @@ describe('when formatting decimal values to format with parenthesis and no thous
 
 },{"./../../../../lib/utilities/format/decimal":17}],62:[function(require,module,exports){
 const buildPriceFormatter = require('./../../../../../lib/utilities/format/factories/price');
-
 describe('When a price formatter is created', () => {
   let formatPrice;
   describe('with a decimal separator', () => {
@@ -17661,7 +17251,6 @@ describe('When a price formatter is created', () => {
 
 },{"./../../../../../lib/utilities/format/factories/price":18}],63:[function(require,module,exports){
 const buildQuoteFormatter = require('./../../../../../lib/utilities/format/factories/quote');
-
 describe('When a time formatter is created (without specifying the clock)', () => {
   let qf;
   beforeEach(() => {
@@ -18104,7 +17693,6 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 
 },{"./../../../../../lib/utilities/format/factories/quote":19}],64:[function(require,module,exports){
 const formatFraction = require('./../../../../lib/utilities/format/fraction');
-
 describe('when formatting in halves of thirty-seconds', () => {
   it('formats 0.984375 as 0-315', () => {
     expect(formatFraction(0.984375, 320, 3, '-')).toEqual('0-315');
@@ -18128,6 +17716,7 @@ describe('when formatting in halves of sixty-fourths', () => {
 
 },{"./../../../../lib/utilities/format/fraction":20}],65:[function(require,module,exports){
 const formatPrice = require('./../../../../lib/utilities/format/price');
+
 /*
 describe('benchmark', () => {
 	it('run a million times', () => {
@@ -18142,7 +17731,6 @@ describe('benchmark', () => {
 	});
 });
 */
-
 
 describe('when invalid prices are formatted (regardless of other settings)', () => {
   it('formats an undefined value as a zero-length string', () => {
@@ -18564,7 +18152,6 @@ describe('when valid prices are formatted', () => {
 
 },{"./../../../../lib/utilities/format/price":21}],66:[function(require,module,exports){
 const formatQuote = require('./../../../../lib/utilities/format/quote');
-
 describe('When a quote formatter is used (without specifying the clock)', () => {
   describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
     let quote;
@@ -18636,7 +18223,6 @@ describe('When a quote formatter is used (without specifying the clock)', () => 
       beforeEach(() => {
         const milliseconds = Date.UTC(2022, 6, 1, 2, 0, 1);
         quote.time = new Date(1, 2, 3, 4, 5, 6); //ignored
-
         quote.timeUtc = new Date(milliseconds);
       });
       it('the formatter outputs "22:00:01" (when asked to display time in the "America/New_York" timezone)', () => {
@@ -19019,9 +18605,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
 
 },{"./../../../../lib/utilities/format/quote":22}],67:[function(require,module,exports){
 const cmdtyView = require('./../../../../../lib/utilities/format/specialized/cmdtyView');
-
 const Profile = require('./../../../../../lib/marketState/Profile');
-
 const ZBM2_1500C = new Profile('ZBM2|1500C', '30-Year T-Bond', 'CBOT', '5', 1000, 1);
 const ZNM2_1230C = new Profile('ZNM2|1230C', '10-Year T-Note', 'CBOT', '5', 1000, 1);
 const ZTM2_1060C = new Profile('ZTM2|1060C', '2-Year T-Note', 'CBOT', '6', 2000, 1);
@@ -19061,7 +18645,6 @@ describe('when formatting prices for a ZF options', () => {
 
 },{"./../../../../../lib/marketState/Profile":5,"./../../../../../lib/utilities/format/specialized/cmdtyView":23}],68:[function(require,module,exports){
 const formatSymbol = require('./../../../../lib/utilities/format/symbol');
-
 describe('When a lowercase string is formatted as a symbol', () => {
   let originalSymbol;
   let formattedSymbol;
@@ -19150,7 +18733,6 @@ describe('When an null value is formatted', () => {
 
 },{}],70:[function(require,module,exports){
 const parseMessage = require('../../../../../lib/utilities/parse/ddf/message');
-
 describe('when parsing an XML refresh message', () => {
   'use strict';
 
@@ -19248,7 +18830,9 @@ describe('when parsing an XML refresh message', () => {
 					<SESSION day="J" session="R" timestamp="20160920160021" open="1574" high="1576" low="1551" previous="1559" tradesize="1483737" volume="67399368" numtrades="96903" pricevolume="1041029293.48" tradetime="20160920160021" ticks=".." id="combined"/>
 					<SESSION day="I" timestamp="20160919000000" open="1555" high="1578" low="1555" last="1559" previous="1549" settlement="1559" volume="66174800" ticks=".." id="previous"/>
 					</QUOTE>`);
-    }); // 2021/08/05, BRI. We are now reading from the previous session (instead of the combined session).
+    });
+
+    // 2021/08/05, BRI. We are now reading from the previous session (instead of the combined session).
 
     /*
     it('the "previousPrice" should come from the "combined" session', () => {
@@ -19403,7 +18987,6 @@ describe('when parsing a DDF message', () => {
 
 },{"../../../../../lib/utilities/parse/ddf/message":26}],71:[function(require,module,exports){
 const parseValue = require('../../../../../lib/utilities/parse/ddf/value');
-
 describe('when parsing prices', () => {
   'use strict';
 
@@ -19506,7 +19089,6 @@ describe('when parsing prices', () => {
 
 },{"../../../../../lib/utilities/parse/ddf/value":28}],72:[function(require,module,exports){
 const parsePrice = require('../../../../lib/utilities/parse/price');
-
 describe('when parsing invalid values', () => {
   'use strict';
 
@@ -19887,7 +19469,6 @@ describe('when valid prices are parsed', () => {
 
 },{"../../../../lib/utilities/parse/price":29}],73:[function(require,module,exports){
 const SymbolParser = require('../../../../lib/utilities/parsers/SymbolParser');
-
 describe('When parsing a symbol for instrument type', () => {
   describe('and the symbol is IBM', () => {
     let instrumentType;
@@ -20118,11 +19699,9 @@ describe('When parsing a symbol for instrument type', () => {
     let instrumentType;
     beforeEach(() => {
       let getFullYear = Date.prototype.getFullYear;
-
       Date.prototype.getFullYear = () => {
         return 2019;
       };
-
       instrumentType = SymbolParser.parseInstrumentType('CLF1');
       Date.prototype.getFullYear = getFullYear;
     });
@@ -20134,11 +19713,9 @@ describe('When parsing a symbol for instrument type', () => {
     let instrumentType;
     beforeEach(() => {
       let getFullYear = Date.prototype.getFullYear;
-
       Date.prototype.getFullYear = () => {
         return 2019;
       };
-
       instrumentType = SymbolParser.parseInstrumentType('CLF9');
       Date.prototype.getFullYear = getFullYear;
     });
@@ -20539,7 +20116,6 @@ describe('When parsing a symbol for a futures contract', () => {
     let getFullYear;
     beforeEach(() => {
       getFullYear = Date.prototype.getFullYear;
-
       Date.prototype.getFullYear = () => {
         return 2022;
       };
@@ -20581,7 +20157,6 @@ describe('When parsing a symbol for a futures option', () => {
     let getFullYear;
     beforeEach(() => {
       getFullYear = Date.prototype.getFullYear;
-
       Date.prototype.getFullYear = () => {
         return 2022;
       };
@@ -20998,6 +20573,7 @@ describe('When checking to see if a symbol is crypto', () => {
   it('the symbol "^EURUSD" should return true', () => {
     expect(SymbolParser.getIsCrypto('^EURUSD')).toEqual(true); // should return false ...
   });
+
   it('the symbol "^BTCUSDT" should return true', () => {
     expect(SymbolParser.getIsCrypto('^BTCUSDT')).toEqual(true);
   });
@@ -22042,11 +21618,9 @@ describe('When getting a producer symbol', () => {
       let producerSymbol;
       beforeEach(() => {
         let getFullYear = Date.prototype.getFullYear;
-
         Date.prototype.getFullYear = () => {
           return 2021;
         };
-
         producerSymbol = SymbolParser.getProducerSymbol('ZWK29465C');
         Date.prototype.getFullYear = getFullYear;
       });
@@ -22058,11 +21632,9 @@ describe('When getting a producer symbol', () => {
       let producerSymbol;
       beforeEach(() => {
         let getFullYear = Date.prototype.getFullYear;
-
         Date.prototype.getFullYear = () => {
           return 2021;
         };
-
         producerSymbol = SymbolParser.getProducerSymbol('ZWK9|465P');
         Date.prototype.getFullYear = getFullYear;
       });
@@ -22074,11 +21646,9 @@ describe('When getting a producer symbol', () => {
       let producerSymbol;
       beforeEach(() => {
         let getFullYear = Date.prototype.getFullYear;
-
         Date.prototype.getFullYear = () => {
           return 2022;
         };
-
         producerSymbol = SymbolParser.getProducerSymbol('ZCN22|800P');
         Date.prototype.getFullYear = getFullYear;
       });
@@ -22090,11 +21660,9 @@ describe('When getting a producer symbol', () => {
       let producerSymbol;
       beforeEach(() => {
         let getFullYear = Date.prototype.getFullYear;
-
         Date.prototype.getFullYear = () => {
           return 2022;
         };
-
         producerSymbol = SymbolParser.getProducerSymbol('ZCN2|800P');
         Date.prototype.getFullYear = getFullYear;
       });
@@ -22140,7 +21708,6 @@ describe('When parsing the expiration year for a futures contract', () => {
     let getFullYear = null;
     beforeEach(() => {
       getFullYear = Date.prototype.getFullYear;
-
       Date.prototype.getFullYear = () => {
         return 2022;
       };
