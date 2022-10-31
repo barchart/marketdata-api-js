@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.27.1
+**Bug Fixes**
+
+* Updated the [`@xmldom/xmldom`](https://github.com/xmldom/xmldom) library, addressing [security vulnerability](https://github.com/xmldom/xmldom/issues/436).
+
 ## 5.27.0
 **New Features**
 
