@@ -1,5 +1,13 @@
 const parseMessage = require('../../../../../lib/utilities/parse/ddf/message');
 
+function translateCaretControlCharacters(message) {
+	return message.replace(/\^A/g, '\x01')
+		.replace(/\^B/g, '\x02')
+		.replace(/\^C/g, '\x03')
+		.replace(/\^D/g, '\x04')
+		.replace(/\^T/g, '\x20');
+}
+
 describe('when parsing an XML refresh message', () => {
 	'use strict';
 
