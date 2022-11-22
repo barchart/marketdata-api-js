@@ -8,6 +8,23 @@ function translateCaretControlCharacters(message) {
 		.replace(/\^T/g, '\x20');
 }
 
+/*
+describe('when parsing ad hoc DDF messages', () => {
+	'use strict';
+
+	let x;
+
+	beforeEach(() => {
+		x = parseMessage(translateCaretControlCharacters(`^A2NIO,7^BAN151027,100,KT^C^TVKUD@@^X^@`));
+		//x = parseMessage(translateCaretControlCharacters(`^A2NIO,7^BAN151000,100,9@^C^TVKII^@�^B`));
+	});
+
+	it('the message should be an object', () => {
+		console.log(x);
+	});
+});
+*/
+
 describe('when parsing an XML refresh message', () => {
 	'use strict';
 
