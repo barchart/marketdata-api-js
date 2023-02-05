@@ -40,15 +40,20 @@ connection.connect(server, username, password);
 
 ### From Node.js
 
-Running the SDK in Node.js is identical to running it in a web browser — with one exception. You need to provide a [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) implementation to the [Connection.connect](/content/sdk/lib-connection?id=connectionconnect) function. 
+Running the SDK in Node.js presents a few challenges.
 
-An implementation, called [WebSocketAdapterFactoryForNode](/content/sdk/lib-connection-adapter?id=websocketadapterfactoryfornode),  is included with the SDK that uses the [```ws```](https://www.npmjs.com/package/ws) library internally. Here is a usage example:
+* Node.js does not have native support for WebSocket connections.
+* Node.js does not have native support for XML parsing.
+
+The SDK contains implementations for these requirements. However, they are not automatically included (allowing the SDK to retain a smaller footprint when operating in a web browser).
+
+To remedy this inconvenience, pass an instance fo the  [`EnvironmentForNode`](/content/sdk/lib-environment?id=environmentfornode) class to the [`Connection`](http://localhost:3000/#/content/sdk/lib-connection?id=new_connection_new) constructor, as follows:
 
 ```javascript
 const Connection = require('@barchart/marketdata-api-js/lib/connection/Connection');
-const WebSocketFactory = require('@barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForNode');
+const EnvironmentForNode = require('@barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForNode');
 
-connection = new Connection();
+connection = new Connection(new EnvironmentForNode());
 
 connection.on('events', (event) => {
 	if (event.event === 'login success') {
@@ -62,7 +67,7 @@ const server = 'wsqs-cf.aws.barchart.com';
 const username = 'contact solutions@barchart.com for your free username and password';
 const password = 'contact solutions@barchart.com for your free username and password';
 
-connection.connect(server, username, password, new WebSocketFactory());
+connection.connect(server, username, password);
 ```
 
 ## Subscribing

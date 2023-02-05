@@ -3,8 +3,9 @@ const process = require('process');
 const version = require('./../../lib/meta').version;
 
 const Connection = require('./../../lib/connection/Connection'),
-	SubscriptionType = require('./../../lib/connection/SubscriptionType'),
-	WebSocketAdapterFactoryForNode = require('./../../lib/connection/adapter/WebSocketAdapterFactoryForNode');
+	SubscriptionType = require('./../../lib/connection/SubscriptionType');
+
+const EnvironmentForNode = require('./../../lib/environment/EnvironmentForNode');
 
 const CustomLoggingProvider = require('./logging/CustomLoggingProvider');
 
@@ -23,7 +24,6 @@ const LoggerFactory = require('./../../lib/logging/LoggerFactory');
 	__logger.log(`Example: Node.js example script started, SDK version [ ${version} ]`);
 
 	let connection = null;
-	let adapterFactory = null;
 
 	process.on('SIGINT', () => {
 		__logger.log('Example: Processing SIGINT');
@@ -54,10 +54,9 @@ const LoggerFactory = require('./../../lib/logging/LoggerFactory');
 
 	__logger.log(`Example: Instantiating Connection (using Node.js adapter) for [ ${username}/${password} ] @ [ ${host} ]`);
 
-	connection = new Connection();
-	adapterFactory = new WebSocketAdapterFactoryForNode();
+	connection = new Connection(new EnvironmentForNode());
 
-	connection.connect(host, username, password, adapterFactory);
+	connection.connect(host, username, password);
 
 	if (typeof symbols === 'string') {
 		symbols.split(',').forEach((s) => {

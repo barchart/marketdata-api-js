@@ -22,7 +22,7 @@
 	"scripts": {
 		"test": "gulp test",
 		"watch": "gulp watch",
-		"docs": "barchart-documentation serve"
+		"docs": "documentation serve"
 	},
 	"repository": {
 		"type": "git",

@@ -49,8 +49,9 @@
 * * *
 
 ## WebSocketAdapterFactoryForBrowsers :id=websocketadapterfactoryforbrowsers
-> An implementation of [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) for use with web browsers. By default,
-> this strategy is used by the [Connection](/content/sdk/lib-connection?id=connection) class.
+> An implementation of [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) for use with web browsers. Pass
+> an instance of this class to the [Connection.connect](#connectionconnect) function when operating in
+> a web browser.
 
 **Kind**: global class  
 **Extends**: [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  
@@ -78,8 +79,8 @@
 
 ## WebSocketAdapterFactoryForNode :id=websocketadapterfactoryfornode
 > An implementation of [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) for use by Node.js servers. Pass
-> an instance of this class to [Connection.connect](#connectionconnect) when operating in a Node.js
-> environment.
+> an instance of this class to the [Connection.connect](#connectionconnect) function when operating in
+> Node.js.
 
 **Kind**: global class  
 **Extends**: [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  

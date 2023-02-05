@@ -1,5 +1,7 @@
 const parseMessage = require('../../../../../lib/utilities/parse/ddf/message');
 
+const XmlParserFactoryForNode = require('./../../../../../lib/utilities/xml/XmlParserFactoryForNode');
+
 function translateCaretControlCharacters(message) {
 	return message.replace(/\^A/g, '\x01')
 		.replace(/\^B/g, '\x02')
@@ -28,16 +30,24 @@ describe('when parsing ad hoc DDF messages', () => {
 describe('when parsing an XML refresh message', () => {
 	'use strict';
 
+	let xmlParser;
+
+	beforeEach(() => {
+		const factory = new XmlParserFactoryForNode();
+
+		xmlParser = factory.build();
+	});
+
 	describe('for an instrument that has settled and has a postmarket (form-T) trade', () => {
 		let x;
 
 		beforeEach(() => {
 			x = parseMessage(`%<QUOTE symbol="AAPL" name="Apple Inc" exchange="NASDAQ" basecode="A" pointvalue="1.0" tickincrement="1" ddfexchange="Q" flag="s" lastupdate="20160920163525" bid="11345" bidsize="10" ask="11352" asksize="1" mode="I">
-					<SESSION day="J" session="R" timestamp="20160920171959" open="11305" high="11412" low="11251" last="11357" previous="11358" settlement="11357" tradesize="1382944" volume="36258067" numtrades="143218" pricevolume="3548806897.06" tradetime="20160920160000" ticks=".." id="combined"/>
-					<SESSION day="I" timestamp="20160919000000" open="11519" high="11618" low="11325" last="11358" previous="11492" settlement="11358" volume="47010000" ticks=".." id="previous"/>
-					<SESSION day="J" session="R" previous="11358" volume="13198" id="session_J_R"/>
-					<SESSION day="J" session="T" timestamp="20160920172007" last="11355" previous="11358" tradesize="500" volume="656171" numtrades="1118" pricevolume="74390050.90" tradetime="20160920172007" ticks="+-" id="session_J_T"/>
-					</QUOTE>`);
+				<SESSION day="J" session="R" timestamp="20160920171959" open="11305" high="11412" low="11251" last="11357" previous="11358" settlement="11357" tradesize="1382944" volume="36258067" numtrades="143218" pricevolume="3548806897.06" tradetime="20160920160000" ticks=".." id="combined"/>
+				<SESSION day="I" timestamp="20160919000000" open="11519" high="11618" low="11325" last="11358" previous="11492" settlement="11358" volume="47010000" ticks=".." id="previous"/>
+				<SESSION day="J" session="R" previous="11358" volume="13198" id="session_J_R"/>
+				<SESSION day="J" session="T" timestamp="20160920172007" last="11355" previous="11358" tradesize="500" volume="656171" numtrades="1118" pricevolume="74390050.90" tradetime="20160920172007" ticks="+-" id="session_J_T"/>
+				</QUOTE>`, xmlParser);
 		});
 
 		it('the "flag" should be "s"', () => {
@@ -74,7 +84,7 @@ describe('when parsing an XML refresh message', () => {
 					<SESSION day="I" timestamp="20160919000000" open="1555" high="1578" low="1555" last="1559" previous="1549" settlement="1559" volume="66174800" ticks=".." id="previous"/>
 					<SESSION day="J" session="R" previous="1559" volume="1772" id="session_J_R"/>
 					<SESSION day="J" session="T" timestamp="20160920160527" last="1559" previous="1559" tradesize="1175" volume="296998" numtrades="356" pricevolume="4652652.89" tradetime="20160920160527" ticks=".." id="session_J_T"/>
-					</QUOTE>`);
+					</QUOTE>`, xmlParser);
 		});
 
 		it('the "flag" should not be "s"', () => {
@@ -111,7 +121,7 @@ describe('when parsing an XML refresh message', () => {
 				<SESSION day="K" timestamp="20170221000000" open="10921" high="11021" low="10889" last="10993" previous="10798" settlement="10993" volume="387500" ticks=".." id="previous"/>
 				<SESSION day="L" session="R" previous="10993" id="session_L_R"/>
 				<SESSION day="L" session="T" timestamp="20170222080456" last="10987" previous="10993" tradesize="200" volume="400" numtrades="3" pricevolume="43949.00" tradetime="20170222080456" ticks=".-" id="session_L_T"/>
-				</QUOTE>`);
+				</QUOTE>`, xmlParser);
 		});
 
 		it('the "flag" should be "s"', () => {
@@ -146,7 +156,7 @@ describe('when parsing an XML refresh message', () => {
 			x = parseMessage(`%<QUOTE symbol="BAC" name="Bank of America Corp" exchange="NYSE" basecode="A" pointvalue="1.0" tickincrement="1" ddfexchange="N" lastupdate="20160920152208" bid="1558" bidsize="20" ask="1559" asksize="1" mode="I">
 					<SESSION day="J" session="R" timestamp="20160920160021" open="1574" high="1576" low="1551" previous="1559" tradesize="1483737" volume="67399368" numtrades="96903" pricevolume="1041029293.48" tradetime="20160920160021" ticks=".." id="combined"/>
 					<SESSION day="I" timestamp="20160919000000" open="1555" high="1578" low="1555" last="1559" previous="1549" settlement="1559" volume="66174800" ticks=".." id="previous"/>
-					</QUOTE>`);
+					</QUOTE>`, xmlParser);
 		});
 
 		// 2021/08/05, BRI. We are now reading from the previous session (instead of the combined session).
