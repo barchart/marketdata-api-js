@@ -955,6 +955,10 @@ describe('When checking to see if a symbol is a future', () => {
 		expect(SymbolParser.getIsFuture('ESZ2016')).toEqual(true);
 	});
 
+	it('the symbol "ESY00" should return true', () => {
+		expect(SymbolParser.getIsFuture('ESY00')).toEqual(true);
+	});
+
 	it('the symbol "ESZ016" should return false', () => {
 		expect(SymbolParser.getIsFuture('ESZ016')).toEqual(false);
 	});
@@ -1125,6 +1129,36 @@ describe('When checking to see if a symbol is a "reference" future', () => {
 
 	it('the symbol "NG*13" should return true', () => {
 		expect(SymbolParser.getIsReference('NG*13')).toEqual(true);
+	});
+});
+
+describe('When checking to see if a symbol is a "cash" future', () => {
+	it('the symbol "ESY00" should return false', () => {
+		expect(SymbolParser.getIsCash('ESY00')).toEqual(true);
+	});
+
+	it('the symbol "ESZ6" should return false', () => {
+		expect(SymbolParser.getIsCash('ESZ6')).toEqual(false);
+	});
+
+	it('the symbol "ESZ16" should return false', () => {
+		expect(SymbolParser.getIsCash('ESZ16')).toEqual(false);
+	});
+
+	it('the symbol "ESZ2016" should return false', () => {
+		expect(SymbolParser.getIsCash('ESZ2016')).toEqual(false);
+	});
+
+	it('the symbol "ES*0" should return false', () => {
+		expect(SymbolParser.getIsCash('ES*0')).toEqual(false);
+	});
+
+	it('the symbol "ES*1" should return false', () => {
+		expect(SymbolParser.getIsCash('ES*1')).toEqual(false);
+	});
+
+	it('the symbol "NG*13" should return false', () => {
+		expect(SymbolParser.getIsCash('NG*13')).toEqual(false);
 	});
 });
 

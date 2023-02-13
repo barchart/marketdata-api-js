@@ -2605,6 +2605,19 @@ module.exports = (() => {
     }
 
     /**
+     * Indicates if a symbol represents a "cash" futures contract (a
+     * proprietary Barchart concept).
+     *
+     * @public
+     * @static
+     * @param {String} symbol
+     * @returns {Boolean}
+     */
+    static getIsCash(symbol) {
+      return SymbolParser.getIsFuture(symbol) && types.futures.cash.test(symbol);
+    }
+
+    /**
      * Returns true when a symbol represents futures spread.
      *
      * @public
@@ -2986,6 +2999,7 @@ module.exports = (() => {
   types.futures.alias = /^([A-Z][A-Z0-9\$\-!\.]{0,2})(\*{1})([0-9]{1,2})$/i;
   types.futures.concrete = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z]{1})([0-9]{4}|[0-9]{1,2})$/i;
   types.futures.spread = /^_S_/i;
+  types.futures.cash = /(.*)(Y00)$/;
   types.futures.options = {};
   types.futures.options.historical = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{2})([0-9]{1,5})(C|P)$/i;
   types.futures.options.long = /^([A-Z][A-Z0-9\$\-!\.]{0,2})([A-Z])([0-9]{1,4})\|(\-?[0-9]{1,5})(C|P)$/i;
@@ -13424,6 +13438,9 @@ describe('When checking to see if a symbol is a future', () => {
   it('the symbol "ESZ2016" should return true', () => {
     expect(SymbolParser.getIsFuture('ESZ2016')).toEqual(true);
   });
+  it('the symbol "ESY00" should return true', () => {
+    expect(SymbolParser.getIsFuture('ESY00')).toEqual(true);
+  });
   it('the symbol "ESZ016" should return false', () => {
     expect(SymbolParser.getIsFuture('ESZ016')).toEqual(false);
   });
@@ -13553,6 +13570,29 @@ describe('When checking to see if a symbol is a "reference" future', () => {
   });
   it('the symbol "NG*13" should return true', () => {
     expect(SymbolParser.getIsReference('NG*13')).toEqual(true);
+  });
+});
+describe('When checking to see if a symbol is a "cash" future', () => {
+  it('the symbol "ESY00" should return false', () => {
+    expect(SymbolParser.getIsCash('ESY00')).toEqual(true);
+  });
+  it('the symbol "ESZ6" should return false', () => {
+    expect(SymbolParser.getIsCash('ESZ6')).toEqual(false);
+  });
+  it('the symbol "ESZ16" should return false', () => {
+    expect(SymbolParser.getIsCash('ESZ16')).toEqual(false);
+  });
+  it('the symbol "ESZ2016" should return false', () => {
+    expect(SymbolParser.getIsCash('ESZ2016')).toEqual(false);
+  });
+  it('the symbol "ES*0" should return false', () => {
+    expect(SymbolParser.getIsCash('ES*0')).toEqual(false);
+  });
+  it('the symbol "ES*1" should return false', () => {
+    expect(SymbolParser.getIsCash('ES*1')).toEqual(false);
+  });
+  it('the symbol "NG*13" should return false', () => {
+    expect(SymbolParser.getIsCash('NG*13')).toEqual(false);
   });
 });
 describe('When checking to see if a symbol is sector', () => {

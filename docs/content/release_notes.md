@@ -1,5 +1,10 @@
 # Release Notes
 
+## 6.0.1
+**New Features**
+
+* Added `SymbolParser.getIsCash` function.
+
 ## 5.27.1
 **Bug Fixes**
 
