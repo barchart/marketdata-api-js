@@ -94,7 +94,6 @@ describe('when valid prices are formatted', () => {
 				expect(formatPrice(0.007312, 'F', '.')).toEqual('0.0073120');
 			});
 		});
-
 	});
 
 	describe('with a unit code of "2"', () => {
