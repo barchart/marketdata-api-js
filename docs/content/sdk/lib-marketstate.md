@@ -24,8 +24,8 @@
 
 **Kind**: global class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/marketState/CumulativeVolume  
-**File**: /lib/marketState/CumulativeVolume.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/marketState/CumulativeVolume  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/marketState/CumulativeVolume.js  
 
 * [CumulativeVolume](#CumulativeVolume)
     * _instance_
@@ -77,8 +77,8 @@
 
 **Kind**: global class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/marketState/Exchange  
-**File**: /lib/marketState/Exchange.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/marketState/Exchange  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/marketState/Exchange.js  
 
 * [Exchange](#Exchange)
     * _instance_
@@ -179,8 +179,8 @@
 
 **Kind**: global class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/marketState/MarketState  
-**File**: /lib/marketState/MarketState.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/marketState/MarketState  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/marketState/MarketState.js  
 
 * [MarketState](#MarketState)
     * _instance_
@@ -271,8 +271,8 @@
 
 **Kind**: global class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/marketState/Profile  
-**File**: /lib/marketState/Profile.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/marketState/Profile  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/marketState/Profile.js  
 
 * [Profile](#Profile)
     * _instance_
@@ -518,8 +518,8 @@
 
 **Kind**: global class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/marketState/Quote  
-**File**: /lib/marketState/Quote.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/marketState/Quote  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/marketState/Quote.js  
 
 * [Quote](#Quote)
     * _instance_

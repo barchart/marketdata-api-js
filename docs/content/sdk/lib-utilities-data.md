@@ -17,8 +17,8 @@
 **Kind**: global class  
 **Extends**: <code>Enum</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/utilities/data/AssetClass  
-**File**: /lib/utilities/data/AssetClass.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/data/AssetClass  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/data/AssetClass.js  
 
 * [AssetClass](#AssetClass) ⇐ <code>Enum</code>
     * _instance_
@@ -150,8 +150,8 @@
 **Kind**: global class  
 **Extends**: <code>Enum</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/utilities/data/UnitCode  
-**File**: /lib/utilities/data/UnitCode.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/data/UnitCode  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/data/UnitCode.js  
 
 * [UnitCode](#UnitCode) ⇐ <code>Enum</code>
     * _instance_
@@ -335,8 +335,8 @@
 **Kind**: global function  
 **Returns**: <code>Array.&lt;String&gt;</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/utilities/data/timezones  
-**File**: /lib/utilities/data/timezones.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/data/timezones  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/data/timezones.js  
 
 * * *
 
@@ -346,8 +346,8 @@
 **Kind**: global function  
 **Returns**: <code>String</code> \| <code>null</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/utilities/data/timezones  
-**File**: /lib/utilities/data/timezones.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/data/timezones  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/data/timezones.js  
 
 * * *
 

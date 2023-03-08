@@ -18,8 +18,8 @@
 
 **Kind**: global abstract class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapter  
-**File**: /lib/connection/adapter/WebSocketAdapter.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/connection/adapter/WebSocketAdapter  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/connection/adapter/WebSocketAdapter.js  
 
 * * *
 
@@ -29,8 +29,8 @@
 
 **Kind**: global abstract class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactory  
-**File**: /lib/connection/adapter/WebSocketAdapterFactory.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactory  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactory.js  
 
 * * *
 
@@ -49,15 +49,14 @@
 * * *
 
 ## WebSocketAdapterFactoryForBrowsers :id=websocketadapterfactoryforbrowsers
-> An implementation of [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) for use with web browsers. Pass
-> an instance of this class to the [Connection.connect](#connectionconnect) function when operating in
-> a web browser.
+> An implementation of [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) for use with web browsers. By default,
+> this strategy is used by the [Connection](/content/sdk/lib-connection?id=connection) class.
 
 **Kind**: global class  
 **Extends**: [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForBrowsers  
-**File**: /lib/connection/adapter/WebSocketAdapterFactoryForBrowsers.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForBrowsers  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForBrowsers.js  
 
 * * *
 
@@ -79,14 +78,14 @@
 
 ## WebSocketAdapterFactoryForNode :id=websocketadapterfactoryfornode
 > An implementation of [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) for use by Node.js servers. Pass
-> an instance of this class to the [Connection.connect](#connectionconnect) function when operating in
-> Node.js.
+> an instance of this class to [Connection.connect](#connectionconnect) when operating in a Node.js
+> environment.
 
 **Kind**: global class  
 **Extends**: [<code>WebSocketAdapterFactory</code>](#WebSocketAdapterFactory)  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForNode  
-**File**: /lib/connection/adapter/WebSocketAdapterFactoryForNode.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForNode  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/connection/adapter/WebSocketAdapterFactoryForNode.js  
 
 * * *
 

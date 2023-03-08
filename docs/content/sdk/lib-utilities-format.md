@@ -21,8 +21,8 @@
 
 **Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code>  
-**Import**: @barchart/marketdata-api-js/lib/utilities/format/date  
-**File**: /lib/utilities/format/date.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/format/date  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/format/date.js  
 
 | Param | Type |
 | --- | --- |
@@ -38,8 +38,8 @@
 
 **Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code>  
-**Import**: @barchart/marketdata-api-js/lib/utilities/format/decimal  
-**File**: /lib/utilities/format/decimal.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/format/decimal  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/format/decimal.js  
 
 | Param | Type |
 | --- | --- |
@@ -56,8 +56,8 @@
 
 **Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code>  
-**Import**: @barchart/marketdata-api-js/lib/utilities/format/fraction  
-**File**: /lib/utilities/format/fraction.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/format/fraction  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/format/fraction.js  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -78,8 +78,8 @@
 
 **Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code>  
-**Import**: @barchart/marketdata-api-js/lib/utilities/format/price  
-**File**: /lib/utilities/format/price.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/format/price  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/format/price.js  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -100,8 +100,8 @@
 
 **Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code>  
-**Import**: @barchart/marketdata-api-js/lib/utilities/format/quote  
-**File**: /lib/utilities/format/quote.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/format/quote  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/format/quote.js  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -119,8 +119,8 @@
 
 **Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code> \| <code>\*</code>  
-**Import**: @barchart/marketdata-api-js/lib/utilities/format/symbol  
-**File**: /lib/utilities/format/symbol.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/format/symbol  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/format/symbol.js  
 
 | Param | Type |
 | --- | --- |
@@ -134,8 +134,8 @@
 
 **Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>String</code>  
-**Import**: @barchart/marketdata-api-js/lib/utilities/format/time  
-**File**: /lib/utilities/format/time.js  
+**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/format/time  
+**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/format/time.js  
 
 | Param | Type |
 | --- | --- |
