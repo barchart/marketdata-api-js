@@ -2437,6 +2437,8 @@ module.exports = (() => {
         return sign * (parseInt(str) / 100000);
       case 'E':
         return sign * (parseInt(str) / 1000000);
+      case 'F':
+        return sign * (parseInt(str) / 10000000);
       default:
         return sign * parseInt(str);
     }
@@ -3484,11 +3486,13 @@ module.exports = (() => {
 })();
 
 },{"./assert":37}],35:[function(require,module,exports){
-const getTimezoneOffset = require('date-fns-tz/getTimezoneOffset');
 const assert = require('./assert'),
   Enum = require('./Enum'),
   is = require('./is'),
   timezone = require('./timezone');
+const getTimezoneOffsetA = require('date-fns-tz/getTimezoneOffset'),
+  getTimezoneOffsetB = require('date-fns-tz/getTimezoneOffset').default;
+const getTimezoneOffset = is.fn(getTimezoneOffsetB) ? getTimezoneOffsetB : getTimezoneOffsetA;
 module.exports = (() => {
   'use strict';
 
@@ -11006,6 +11010,16 @@ describe('when valid prices are formatted', () => {
       });
     });
   });
+  describe('with a unit code of "F"', () => {
+    describe('with a decimal fraction separator', () => {
+      it('formats 0 as "0"', () => {
+        expect(formatPrice(0, 'F', '.')).toEqual('0.0000000');
+      });
+      it('formats 0.007312 as "0.0073120"', () => {
+        expect(formatPrice(0.007312, 'F', '.')).toEqual('0.0073120');
+      });
+    });
+  });
   describe('with a unit code of "2"', () => {
     describe('with default arguments', () => {
       it('formats 0 as "0.000"', () => {
@@ -12238,44 +12252,56 @@ describe('when parsing prices', () => {
   'use strict';
 
   describe('with a decimal fraction separator', () => {
-    it('returns 0.75 (with unit code 2) when parsing ".75"', () => {
-      expect(parseValue('.75', '2')).toEqual(0.75);
+    describe('with unit code "2"', () => {
+      it('returns 0.75 when parsing ".75"', () => {
+        expect(parseValue('.75', '2')).toEqual(0.75);
+      });
+      it('returns 377 when parsing "377.000"', () => {
+        expect(parseValue('377.000', '2')).toEqual(377);
+      });
+      it('returns 377.5 when parsing "377.500"', () => {
+        expect(parseValue('377.500', '2')).toEqual(377.5);
+      });
+      it('returns 377.75 when parsing "377.750"', () => {
+        expect(parseValue('377.750', '2')).toEqual(377.75);
+      });
+      it('returns 3770.75 when parsing "3770.750"', () => {
+        expect(parseValue('3770.750', '2')).toEqual(3770.75);
+      });
+      it('returns 37700.75 when parsing "37700.750"', () => {
+        expect(parseValue('37700.750', '2')).toEqual(37700.75);
+      });
+      it('returns 377000.75 when parsing "377000.750"', () => {
+        expect(parseValue('377000.750', '2')).toEqual(377000.75);
+      });
+      it('returns 3770000.75 when parsing "3770000.750"', () => {
+        expect(parseValue('3770000.750', '2')).toEqual(3770000.75);
+      });
+      it('returns 3770000 when parsing "3770000.000"', () => {
+        expect(parseValue('3770000.000', '2')).toEqual(3770000);
+      });
+      it('returns 0 (with when parsing "0.000"', () => {
+        expect(parseValue('0.000', '2')).toEqual(0);
+      });
+      it('returns undefined when parsing zero-length string', () => {
+        expect(parseValue('', '2')).toEqual(undefined);
+      });
     });
-    it('returns 377 (with unit code 2) when parsing "377.000"', () => {
-      expect(parseValue('377.000', '2')).toEqual(377);
+    describe('with unit code "8"', () => {
+      it('returns 0 when parsing "0"', () => {
+        expect(parseValue('0', '8')).toEqual(0);
+      });
+      it('returns 1000 when parsing "1000"', () => {
+        expect(parseValue('1000', '8')).toEqual(1000);
+      });
     });
-    it('returns 377.5 (with unit code 2) when parsing "377.500"', () => {
-      expect(parseValue('377.500', '2')).toEqual(377.5);
-    });
-    it('returns 377.75 (with unit code 2) when parsing "377.750"', () => {
-      expect(parseValue('377.750', '2')).toEqual(377.75);
-    });
-    it('returns 3770.75 (with unit code 2) when parsing "3770.750"', () => {
-      expect(parseValue('3770.750', '2')).toEqual(3770.75);
-    });
-    it('returns 37700.75 (with unit code 2) when parsing "37700.750"', () => {
-      expect(parseValue('37700.750', '2')).toEqual(37700.75);
-    });
-    it('returns 377000.75 (with unit code 2) when parsing "377000.750"', () => {
-      expect(parseValue('377000.750', '2')).toEqual(377000.75);
-    });
-    it('returns 3770000.75 (with unit code 2) when parsing "3770000.750"', () => {
-      expect(parseValue('3770000.750', '2')).toEqual(3770000.75);
-    });
-    it('returns 3770000 (with unit code 2) when parsing "3770000.000"', () => {
-      expect(parseValue('3770000.000', '2')).toEqual(3770000);
-    });
-    it('returns 0 (with unit code 2) when parsing "0.000"', () => {
-      expect(parseValue('0.000', '2')).toEqual(0);
-    });
-    it('returns undefined (with unit code 2) when parsing zero-length string', () => {
-      expect(parseValue('', '2')).toEqual(undefined);
-    });
-    it('returns 0 (with unit code 8) when parsing "0"', () => {
-      expect(parseValue('0', '8')).toEqual(0);
-    });
-    it('returns 1000 (with unit code 8) when parsing "1000"', () => {
-      expect(parseValue('1000', '8')).toEqual(1000);
+    describe('with unit code "F"', () => {
+      it('returns 0 when parsing "0"', () => {
+        expect(parseValue('0', 'F')).toEqual(0);
+      });
+      it('returns 0.0073120 when parsing "73120"', () => {
+        expect(parseValue('73120', 'F')).toEqual(0.0073120);
+      });
     });
   });
   describe('with a decimal fraction separator and a comma thousands separator', () => {

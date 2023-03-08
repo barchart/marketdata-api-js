@@ -5312,7 +5312,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '6.0.1'
+    version: '6.0.2'
   };
 })();
 
@@ -6910,6 +6910,8 @@ module.exports = (() => {
         return sign * (parseInt(str) / 100000);
       case 'E':
         return sign * (parseInt(str) / 1000000);
+      case 'F':
+        return sign * (parseInt(str) / 10000000);
       default:
         return sign * parseInt(str);
     }
@@ -8519,11 +8521,13 @@ module.exports = (() => {
 })();
 
 },{"./assert":51}],49:[function(require,module,exports){
-const getTimezoneOffset = require('date-fns-tz/getTimezoneOffset');
 const assert = require('./assert'),
   Enum = require('./Enum'),
   is = require('./is'),
   timezone = require('./timezone');
+const getTimezoneOffsetA = require('date-fns-tz/getTimezoneOffset'),
+  getTimezoneOffsetB = require('date-fns-tz/getTimezoneOffset').default;
+const getTimezoneOffset = is.fn(getTimezoneOffsetB) ? getTimezoneOffsetB : getTimezoneOffsetA;
 module.exports = (() => {
   'use strict';
 
