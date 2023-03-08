@@ -4,56 +4,70 @@ describe('when parsing prices', () => {
 	'use strict';
 
 	describe('with a decimal fraction separator', () => {
-		it('returns 0.75 (with unit code 2) when parsing ".75"', () => {
-			expect(parseValue('.75', '2')).toEqual(0.75);
+		describe('with unit code "2"', () => {
+			it('returns 0.75 when parsing ".75"', () => {
+				expect(parseValue('.75', '2')).toEqual(0.75);
+			});
+
+			it('returns 377 when parsing "377.000"', () => {
+				expect(parseValue('377.000', '2')).toEqual(377);
+			});
+
+			it('returns 377.5 when parsing "377.500"', () => {
+				expect(parseValue('377.500', '2')).toEqual(377.5);
+			});
+
+			it('returns 377.75 when parsing "377.750"', () => {
+				expect(parseValue('377.750', '2')).toEqual(377.75);
+			});
+
+			it('returns 3770.75 when parsing "3770.750"', () => {
+				expect(parseValue('3770.750', '2')).toEqual(3770.75);
+			});
+
+			it('returns 37700.75 when parsing "37700.750"', () => {
+				expect(parseValue('37700.750', '2')).toEqual(37700.75);
+			});
+
+			it('returns 377000.75 when parsing "377000.750"', () => {
+				expect(parseValue('377000.750', '2')).toEqual(377000.75);
+			});
+
+			it('returns 3770000.75 when parsing "3770000.750"', () => {
+				expect(parseValue('3770000.750', '2')).toEqual(3770000.75);
+			});
+
+			it('returns 3770000 when parsing "3770000.000"', () => {
+				expect(parseValue('3770000.000', '2')).toEqual(3770000);
+			});
+
+			it('returns 0 (with when parsing "0.000"', () => {
+				expect(parseValue('0.000', '2')).toEqual(0);
+			});
+
+			it('returns undefined when parsing zero-length string', () => {
+				expect(parseValue('', '2')).toEqual(undefined);
+			});
 		});
 
-		it('returns 377 (with unit code 2) when parsing "377.000"', () => {
-			expect(parseValue('377.000', '2')).toEqual(377);
+		describe('with unit code "8"', () => {
+			it('returns 0 when parsing "0"', () => {
+				expect(parseValue('0', '8')).toEqual(0);
+			});
+
+			it('returns 1000 when parsing "1000"', () => {
+				expect(parseValue('1000', '8')).toEqual(1000);
+			});
 		});
 
-		it('returns 377.5 (with unit code 2) when parsing "377.500"', () => {
-			expect(parseValue('377.500', '2')).toEqual(377.5);
-		});
+		describe('with unit code "F"', () => {
+			it('returns 0 when parsing "0"', () => {
+				expect(parseValue('0', 'F')).toEqual(0);
+			});
 
-		it('returns 377.75 (with unit code 2) when parsing "377.750"', () => {
-			expect(parseValue('377.750', '2')).toEqual(377.75);
-		});
-
-		it('returns 3770.75 (with unit code 2) when parsing "3770.750"', () => {
-			expect(parseValue('3770.750', '2')).toEqual(3770.75);
-		});
-
-		it('returns 37700.75 (with unit code 2) when parsing "37700.750"', () => {
-			expect(parseValue('37700.750', '2')).toEqual(37700.75);
-		});
-
-		it('returns 377000.75 (with unit code 2) when parsing "377000.750"', () => {
-			expect(parseValue('377000.750', '2')).toEqual(377000.75);
-		});
-
-		it('returns 3770000.75 (with unit code 2) when parsing "3770000.750"', () => {
-			expect(parseValue('3770000.750', '2')).toEqual(3770000.75);
-		});
-
-		it('returns 3770000 (with unit code 2) when parsing "3770000.000"', () => {
-			expect(parseValue('3770000.000', '2')).toEqual(3770000);
-		});
-
-		it('returns 0 (with unit code 2) when parsing "0.000"', () => {
-			expect(parseValue('0.000', '2')).toEqual(0);
-		});
-
-		it('returns undefined (with unit code 2) when parsing zero-length string', () => {
-			expect(parseValue('', '2')).toEqual(undefined);
-		});
-
-		it('returns 0 (with unit code 8) when parsing "0"', () => {
-			expect(parseValue('0', '8')).toEqual(0);
-		});
-
-		it('returns 1000 (with unit code 8) when parsing "1000"', () => {
-			expect(parseValue('1000', '8')).toEqual(1000);
+			it('returns 0.0073120 when parsing "73120"', () => {
+				expect(parseValue('73120', 'F')).toEqual(0.0073120);
+			});
 		});
 	});
 
