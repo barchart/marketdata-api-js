@@ -19,12 +19,12 @@
 **Kind**: global class  
 **Extends**: <code>ConnectionBase</code>  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/connection/Connection  
-**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/connection/Connection.js  
+**Import**: @barchart/marketdata-api-js/lib/connection/Connection  
+**File**: /lib/connection/Connection.js  
 
 * [Connection](#Connection) ⇐ <code>ConnectionBase</code>
     * _instance_
-        * [.connect(hostname, username, password, [webSocketAdapterFactory])](#Connectionconnect)
+        * [.connect(hostname, username, password, [webSocketAdapterFactory], [xmlParserFactory])](#Connectionconnect)
         * [.disconnect()](#Connectiondisconnect)
         * [.on(subscriptionType, callback, [symbol])](#Connectionon)
         * [.off(subscriptionType, callback, [symbol])](#Connectionoff)
@@ -41,11 +41,13 @@
         * [.getServer()](#ConnectiongetServer) ⇒ <code>null</code> \| <code>string</code>
         * [.getPassword()](#ConnectiongetPassword) ⇒ <code>null</code> \| <code>string</code>
         * [.getUsername()](#ConnectiongetUsername) ⇒ <code>null</code> \| <code>string</code>
+    * _constructor_
+        * [new Connection([environment])](#new_Connection_new)
 
 
 * * *
 
-### connection.connect(hostname, username, password, [webSocketAdapterFactory]) :id=connectionconnect
+### connection.connect(hostname, username, password, [webSocketAdapterFactory], [xmlParserFactory]) :id=connectionconnect
 > Establishes WebSocket connection to Barchart's servers and authenticates. Success
 > or failure is reported asynchronously by the <strong>Events</strong> subscription (see
 > [SubscriptionType](#enumssubscriptiontype)). Connection attempts will continue until
@@ -60,7 +62,8 @@
 | hostname | <code>string</code> | <p>Barchart hostname (contact solutions@barchart.com)</p> |
 | username | <code>string</code> | <p>Your username (contact solutions@barchart.com)</p> |
 | password | <code>string</code> | <p>Your password (contact solutions@barchart.com)</p> |
-| [webSocketAdapterFactory] | [<code>WebSocketAdapterFactory</code>](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) | <p>Strategy for creating a WebSocket (required for Node.js)</p> |
+| [webSocketAdapterFactory] | [<code>WebSocketAdapterFactory</code>](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) | <p>Strategy for creating a [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) instances (overrides [Environment](/content/sdk/lib-environment?id=environment) settings).</p> |
+| [xmlParserFactory] | [<code>XmlParserFactory</code>](/content/sdk/lib-utilities-xml?id=xmlparserfactory) | <p>Strategy for creating a [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) instances (overrides [Environment](/content/sdk/lib-environment?id=environment) settings).</p> |
 
 
 * * *
@@ -265,6 +268,16 @@
 
 * * *
 
+### new Connection([environment]) :id=new_connection_new
+**Kind**: constructor of [<code>Connection</code>](#Connection)  
+
+| Param | Type |
+| --- | --- |
+| [environment] | [<code>Environment</code>](/content/sdk/lib-environment?id=environment) | 
+
+
+* * *
+
 ## Enums :id=enums
 > A namespace for enumerations.
 
@@ -283,8 +296,8 @@
 
 **Kind**: static enum of [<code>Enums</code>](#Enums)  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/connection/ConnectionEventType  
-**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/connection/ConnectionEventType.js  
+**Import**: @barchart/marketdata-api-js/lib/connection/ConnectionEventType  
+**File**: /lib/connection/ConnectionEventType.js  
 **Read only**: true  
 **Properties**
 
@@ -305,8 +318,8 @@
 
 **Kind**: static enum of [<code>Enums</code>](#Enums)  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/connection/SubscriptionType  
-**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/connection/SubscriptionType.js  
+**Import**: @barchart/marketdata-api-js/lib/connection/SubscriptionType  
+**File**: /lib/connection/SubscriptionType.js  
 **Read only**: true  
 **Properties**
 

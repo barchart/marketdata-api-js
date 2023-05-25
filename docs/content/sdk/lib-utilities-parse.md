@@ -11,8 +11,8 @@
 
 **Kind**: static method of [<code>Functions</code>](#Functions)  
 **Returns**: <code>Number</code>  
-**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/parse/price  
-**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/utilities/parse/price.js  
+**Import**: @barchart/marketdata-api-js/lib/utilities/parse/price  
+**File**: /lib/utilities/parse/price.js  
 
 | Param | Type | Description |
 | --- | --- | --- |

@@ -1,12 +1,25 @@
 # Release Notes
 
-## 5.27.2
+## 6.0.2
 **Bug Fixes**
 
-* Adjusted logic for "rolling the day" to occur when the normal session starts (instead of with the pre-market session starts). The logical day now consists of three sessions (normal, post-market, and pre-market). Notably, this logical day now spans two calendar days.
-* Adjusted DDF parsing logic for XML snapshots. During pre-market hours, erroneous assignment of data the prior logical day was removed.
-* Adjusted DDF parsing logic for XML snapshots. During pre-market hours, erroneous use of `previous` price from form-T session was removed.
+* Added DDF value parsing logic for unit code `F` (which divides value by 10,000,000).
 
+## 6.0.1
+**New Features**
+
+* Added `SymbolParser.getIsCash` function.
+
+## 6.0.0
+**Breaking Changes**
+
+* Eliminated some third-party dependencies. As a consequence, Node.js environments must now pass an instance of the `EnvironmentForNode` to the `Connection` constructor. Alternately, an instance of `XmlParserFactoryForNode` may be passed to the `Connection.connect` function.
+* Changed the signature of the `utilities/parse/ddf/message` function. It is unlikely that SDK consumers call this function directly. However, if this function is used, an `XmlParser` instance must now me passed the to function.
+
+**Technical Enhancements**
+
+* The [`moment`](https://momentjs.com/) dependency has been eliminated after explicitly updating the [@barchart/common-js](https://github.com/barchart/common-node-js) library.
+* The [`@xmldom/xmldom`](https://github.com/xmldom/xmldom) dependency is now only used when operating in Node.js. Consequently, tree-shaking tools may now exclude this dependency.
 
 ## 5.27.1
 **Bug Fixes**

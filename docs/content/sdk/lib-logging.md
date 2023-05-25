@@ -17,8 +17,8 @@
 
 **Kind**: global abstract class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/logging/Logger  
-**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/logging/Logger.js  
+**Import**: @barchart/marketdata-api-js/lib/logging/Logger  
+**File**: /lib/logging/Logger.js  
 
 * *[Logger](#Logger)*
     * _instance_
@@ -115,8 +115,8 @@
 
 **Kind**: global class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/logging/LoggerFactory  
-**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/logging/LoggerFactory.js  
+**Import**: @barchart/marketdata-api-js/lib/logging/LoggerFactory  
+**File**: /lib/logging/LoggerFactory.js  
 
 * [LoggerFactory](#LoggerFactory)
     * _static_
@@ -179,8 +179,8 @@
 
 **Kind**: global abstract class  
 **Access**: public  
-**Import**: @barchart/marketdata-api-js/Users/bryaningl3/Documents/git/marketdata-api-js/lib/logging/LoggerProvider  
-**File**: /Users/bryaningl3/Documents/git/marketdata-api-js/lib/logging/LoggerProvider.js  
+**Import**: @barchart/marketdata-api-js/lib/logging/LoggerProvider  
+**File**: /lib/logging/LoggerProvider.js  
 
 * * *
 
