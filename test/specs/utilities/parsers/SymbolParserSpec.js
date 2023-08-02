@@ -3060,5 +3060,101 @@ describe('When parsing the expiration year for a futures contract', () => {
 	});
 });
 
+describe('When converting a futures option symbol to pipeline format', () => {
+	describe('When testing ZCZ460C in 2023', () => {
+		let pipelineSymbol;
+
+		beforeEach(() => {
+			let getFullYear = Date.prototype.getFullYear;
+
+			Date.prototype.getFullYear = () => { return 2023; };
+
+			pipelineSymbol = SymbolParser.getFuturesOptionPipelineFormat('ZCZ460C');
+
+			Date.prototype.getFullYear = getFullYear;
+		});
+
+		it('ZCZ460C should map to ZCZ3|460C', () =>{
+			expect(pipelineSymbol).toEqual('ZCZ3|460C');
+		});
+	});
+
+	describe('When testing ZCZ3|460C in 2023', () => {
+		let pipelineSymbol;
+
+		beforeEach(() => {
+			let getFullYear = Date.prototype.getFullYear;
+
+			Date.prototype.getFullYear = () => { return 2023; };
+
+			pipelineSymbol = SymbolParser.getFuturesOptionPipelineFormat('ZCZ3|460C');
+
+			Date.prototype.getFullYear = getFullYear;
+		});
+
+		it('ZCZ3|460C should map to ZCZ3|460C', () =>{
+			expect(pipelineSymbol).toEqual('ZCZ3|460C');
+		});
+	});
+
+
+
+
+	describe('When testing ZCX480C in 2023', () => {
+		let pipelineSymbol;
+
+		beforeEach(() => {
+			let getFullYear = Date.prototype.getFullYear;
+
+			Date.prototype.getFullYear = () => { return 2023; };
+
+			pipelineSymbol = SymbolParser.getFuturesOptionPipelineFormat('ZCX480C');
+
+			Date.prototype.getFullYear = getFullYear;
+		});
+
+		it('ZCX480C should map to ZCX3|480C', () =>{
+			expect(pipelineSymbol).toEqual('ZCX3|480C');
+		});
+	});
+
+	describe('When testing ZCX3|480C in 2023', () => {
+		let pipelineSymbol;
+
+		beforeEach(() => {
+			let getFullYear = Date.prototype.getFullYear;
+
+			Date.prototype.getFullYear = () => { return 2023; };
+
+			pipelineSymbol = SymbolParser.getFuturesOptionPipelineFormat('ZCX3|480C');
+
+			Date.prototype.getFullYear = getFullYear;
+		});
+
+		it('ZCX3|480C should map to ZCX3|480C', () =>{
+			expect(pipelineSymbol).toEqual('ZCX3|480C');
+		});
+	});
+
+
+	describe('When testing BCDU3|480C in 2023', () => {
+		let pipelineSymbol;
+
+		beforeEach(() => {
+			let getFullYear = Date.prototype.getFullYear;
+
+			Date.prototype.getFullYear = () => { return 2023; };
+
+			pipelineSymbol = SymbolParser.getFuturesOptionPipelineFormat('BCDU3|480C');
+
+			Date.prototype.getFullYear = getFullYear;
+		});
+
+		it('BCDU3|480C should map to BCDU3|480C', () =>{
+			expect(pipelineSymbol).toEqual('BCDU3|480C');
+		});
+	});
+});
+
 
 
