@@ -11460,10 +11460,10 @@ describe('When a quote formatter is used (without specifying the clock)', () => 
         quote.timeUtc = new Date(milliseconds);
       });
       it('the formatter outputs "22:00:01" (when asked to display time in the "America/New_York" timezone)', () => {
-        expect(formatQuote(quote, false, false, "America/New_York")).toEqual('21:00:01');
+        expect(formatQuote(quote, false, false, "America/New_York")).toEqual('22:00:01');
       });
       it('the formatter outputs "20:00:01" (when asked to display time in the "America/Denver" timezone)', () => {
-        expect(formatQuote(quote, false, false, "America/Denver")).toEqual('19:00:01');
+        expect(formatQuote(quote, false, false, "America/Denver")).toEqual('20:00:01');
       });
     });
   });
@@ -15056,6 +15056,78 @@ describe('When parsing the expiration year for a futures contract', () => {
     afterEach(() => {
       Date.prototype.getFullYear = getFullYear;
       getFullYear = null;
+    });
+  });
+});
+describe('When converting a futures option symbol to pipeline format', () => {
+  describe('When testing ZCZ460C in 2023', () => {
+    let pipelineSymbol;
+    beforeEach(() => {
+      let getFullYear = Date.prototype.getFullYear;
+      Date.prototype.getFullYear = () => {
+        return 2023;
+      };
+      pipelineSymbol = SymbolParser.getFuturesOptionPipelineFormat('ZCZ460C');
+      Date.prototype.getFullYear = getFullYear;
+    });
+    it('ZCZ460C should map to ZCZ3|460C', () => {
+      expect(pipelineSymbol).toEqual('ZCZ3|460C');
+    });
+  });
+  describe('When testing ZCZ3|460C in 2023', () => {
+    let pipelineSymbol;
+    beforeEach(() => {
+      let getFullYear = Date.prototype.getFullYear;
+      Date.prototype.getFullYear = () => {
+        return 2023;
+      };
+      pipelineSymbol = SymbolParser.getFuturesOptionPipelineFormat('ZCZ3|460C');
+      Date.prototype.getFullYear = getFullYear;
+    });
+    it('ZCZ3|460C should map to ZCZ3|460C', () => {
+      expect(pipelineSymbol).toEqual('ZCZ3|460C');
+    });
+  });
+  describe('When testing ZCX480C in 2023', () => {
+    let pipelineSymbol;
+    beforeEach(() => {
+      let getFullYear = Date.prototype.getFullYear;
+      Date.prototype.getFullYear = () => {
+        return 2023;
+      };
+      pipelineSymbol = SymbolParser.getFuturesOptionPipelineFormat('ZCX480C');
+      Date.prototype.getFullYear = getFullYear;
+    });
+    it('ZCX480C should map to ZCX3|480C', () => {
+      expect(pipelineSymbol).toEqual('ZCX3|480C');
+    });
+  });
+  describe('When testing ZCX3|480C in 2023', () => {
+    let pipelineSymbol;
+    beforeEach(() => {
+      let getFullYear = Date.prototype.getFullYear;
+      Date.prototype.getFullYear = () => {
+        return 2023;
+      };
+      pipelineSymbol = SymbolParser.getFuturesOptionPipelineFormat('ZCX3|480C');
+      Date.prototype.getFullYear = getFullYear;
+    });
+    it('ZCX3|480C should map to ZCX3|480C', () => {
+      expect(pipelineSymbol).toEqual('ZCX3|480C');
+    });
+  });
+  describe('When testing BCDU3|480C in 2023', () => {
+    let pipelineSymbol;
+    beforeEach(() => {
+      let getFullYear = Date.prototype.getFullYear;
+      Date.prototype.getFullYear = () => {
+        return 2023;
+      };
+      pipelineSymbol = SymbolParser.getFuturesOptionPipelineFormat('BCDU3|480C');
+      Date.prototype.getFullYear = getFullYear;
+    });
+    it('BCDU3|480C should map to BCDU3|480C', () => {
+      expect(pipelineSymbol).toEqual('BCDU3|480C');
     });
   });
 });
