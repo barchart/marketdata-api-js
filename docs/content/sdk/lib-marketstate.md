@@ -383,7 +383,7 @@
 
 | Name | Type | Description |
 | --- | --- | --- |
-| tickIncrement | <code>number</code> | <p>The minimum price movement.</p> |
+| tickIncrement | <code>number</code> | <p>The minimum price movement, expressed as an integer multiple of the number of the possible divisions within one unit. For example, the number of discrete divisions of a dollar is 100. If the tick increment is ten, that means quotes and trades can occur at $0.10, $0.20, $0.30, etc.</p> |
 
 
 * * *

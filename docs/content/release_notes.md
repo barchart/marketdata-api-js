@@ -1,5 +1,15 @@
 # Release Notes
 
+## 6.0.3
+**New Features**
+
+* Added the `UnitCode.getMinimumTick` function.
+* Added the `UnitCode.getMinimumTickValue` function.
+
+**Other**
+
+* Improved the documentation for the `Profile.tickincrement` property.
+
 ## 6.0.2
 **Bug Fixes**
 

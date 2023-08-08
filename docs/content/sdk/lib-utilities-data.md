@@ -165,6 +165,8 @@
         * [.fractionDigitsSpecial](#UnitCodefractionDigitsSpecial) ⇒ <code>Number</code> \| <code>undefined</code>
         * [.getFractionFactor([special])](#UnitCodegetFractionFactor) ⇒ <code>Number</code> \| <code>undefined</code>
         * [.getFractionDigits([special])](#UnitCodegetFractionDigits) ⇒ <code>Number</code> \| <code>undefined</code>
+        * [.getMinimumTick(tickIncrement)](#UnitCodegetMinimumTick) ⇒ <code>Number</code>
+        * [.getMinimumTickValue(tickIncrement, pointValue)](#UnitCodegetMinimumTickValue)
     * _static_
         * [.parse(code)](#UnitCodeparse) ⇒ [<code>UnitCode</code>](#UnitCode) \| <code>null</code>
         * [.fromBaseCode(code)](#UnitCodefromBaseCode) ⇒ [<code>UnitCode</code>](#UnitCode) \| <code>null</code>
@@ -279,6 +281,37 @@
 | Param | Type |
 | --- | --- |
 | [special] | <code>Boolean</code> | 
+
+
+* * *
+
+### unitCode.getMinimumTick(tickIncrement) :id=unitcodegetminimumtick
+> Determines the minimum price fluctuation. In other words, multiples
+> of this value determine the set of valid quote and trade prices
+> for an instrument.
+
+**Kind**: instance method of [<code>UnitCode</code>](#UnitCode)  
+**Returns**: <code>Number</code>  
+**Access**: public  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| tickIncrement | <code>Number</code> | <p>Taken from a [Profile](/content/sdk/lib-marketstate?id=profile) instance.</p> |
+
+
+* * *
+
+### unitCode.getMinimumTickValue(tickIncrement, pointValue) :id=unitcodegetminimumtickvalue
+> Returns the change in value of a position when the instrument's price moves
+> up by the minimum tick.
+
+**Kind**: instance method of [<code>UnitCode</code>](#UnitCode)  
+**Access**: public  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| tickIncrement | <code>Number</code> | <p>Taken from a [Profile](/content/sdk/lib-marketstate?id=profile) instance.</p> |
+| pointValue | <code>Number</code> | <p>Taken from a [Profile](/content/sdk/lib-marketstate?id=profile) instance.</p> |
 
 
 * * *
