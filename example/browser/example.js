@@ -4903,7 +4903,7 @@ module.exports = (() => {
       this.pointValue = pointValue;
 
       /**
-       * @property {number} tickIncrement - The minimum price movement.
+       * @property {number} tickIncrement - The minimum price movement, expressed as an integer multiple of the number of the possible divisions within one unit. For example, the number of discrete divisions of a dollar is 100. If the tick increment is ten, that means quotes and trades can occur at $0.10, $0.20, $0.30, etc.
        * @public
        * @readonly
        */
@@ -5312,7 +5312,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '6.0.2'
+    version: '6.0.3'
   };
 })();
 
@@ -5567,6 +5567,8 @@ module.exports = (() => {
 })();
 
 },{"@barchart/common-js/lang/Enum":48}],28:[function(require,module,exports){
+const assert = require('@barchart/common-js/lang/assert'),
+  is = require('@barchart/common-js/lang/is');
 const Enum = require('@barchart/common-js/lang/Enum');
 module.exports = (() => {
   'use strict';
@@ -5723,6 +5725,40 @@ module.exports = (() => {
     getFractionDigits(special) {
       return special === true ? this._fractionDigitsSpecial : this._fractionDigits;
     }
+
+    /**
+     * Determines the minimum price fluctuation. In other words, multiples
+     * of this value determine the set of valid quote and trade prices
+     * for an instrument.
+     *
+     * @public
+     * @param {Number} tickIncrement - Taken from a {@link Profile} instance.
+     * @returns {Number}
+     */
+    getMinimumTick(tickIncrement) {
+      assert.argumentIsValid(tickIncrement, 'tickIncrement', is.integer, 'must be an integer');
+      let discretePrice;
+      if (this.supportsFractions) {
+        discretePrice = 1 / this._fractionFactor;
+      } else {
+        discretePrice = 1 / Math.pow(10, this._decimalDigits);
+      }
+      return discretePrice * tickIncrement;
+    }
+
+    /**
+     * Returns the change in value of a position when the instrument's price moves
+     * up by the minimum tick.
+     *
+     * @public
+     * @param {Number} tickIncrement - Taken from a {@link Profile} instance.
+     * @param {Number} pointValue - Taken from a {@link Profile} instance.
+     */
+    getMinimumTickValue(tickIncrement, pointValue) {
+      assert.argumentIsValid(tickIncrement, 'tickIncrement', is.integer, 'must be an integer');
+      assert.argumentIsValid(pointValue, 'pointValue', is.number, 'must be a number');
+      return this.getMinimumTick(tickIncrement) * pointValue;
+    }
     toString() {
       return `[UnitCode (code=${this.code})]`;
     }
@@ -5768,7 +5804,7 @@ module.exports = (() => {
   return UnitCode;
 })();
 
-},{"@barchart/common-js/lang/Enum":48}],29:[function(require,module,exports){
+},{"@barchart/common-js/lang/Enum":48,"@barchart/common-js/lang/assert":51,"@barchart/common-js/lang/is":52}],29:[function(require,module,exports){
 const timezone = require('@barchart/common-js/lang/timezone');
 module.exports = (() => {
   'use strict';

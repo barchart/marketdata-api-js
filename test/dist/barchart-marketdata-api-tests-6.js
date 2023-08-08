@@ -578,7 +578,7 @@ module.exports = (() => {
       this.pointValue = pointValue;
 
       /**
-       * @property {number} tickIncrement - The minimum price movement.
+       * @property {number} tickIncrement - The minimum price movement, expressed as an integer multiple of the number of the possible divisions within one unit. For example, the number of discrete divisions of a dollar is 100. If the tick increment is ten, that means quotes and trades can occur at $0.10, $0.20, $0.30, etc.
        * @public
        * @readonly
        */
@@ -1036,6 +1036,8 @@ module.exports = (() => {
 })();
 
 },{"@barchart/common-js/lang/Enum":34}],14:[function(require,module,exports){
+const assert = require('@barchart/common-js/lang/assert'),
+  is = require('@barchart/common-js/lang/is');
 const Enum = require('@barchart/common-js/lang/Enum');
 module.exports = (() => {
   'use strict';
@@ -1192,6 +1194,40 @@ module.exports = (() => {
     getFractionDigits(special) {
       return special === true ? this._fractionDigitsSpecial : this._fractionDigits;
     }
+
+    /**
+     * Determines the minimum price fluctuation. In other words, multiples
+     * of this value determine the set of valid quote and trade prices
+     * for an instrument.
+     *
+     * @public
+     * @param {Number} tickIncrement - Taken from a {@link Profile} instance.
+     * @returns {Number}
+     */
+    getMinimumTick(tickIncrement) {
+      assert.argumentIsValid(tickIncrement, 'tickIncrement', is.integer, 'must be an integer');
+      let discretePrice;
+      if (this.supportsFractions) {
+        discretePrice = 1 / this._fractionFactor;
+      } else {
+        discretePrice = 1 / Math.pow(10, this._decimalDigits);
+      }
+      return discretePrice * tickIncrement;
+    }
+
+    /**
+     * Returns the change in value of a position when the instrument's price moves
+     * up by the minimum tick.
+     *
+     * @public
+     * @param {Number} tickIncrement - Taken from a {@link Profile} instance.
+     * @param {Number} pointValue - Taken from a {@link Profile} instance.
+     */
+    getMinimumTickValue(tickIncrement, pointValue) {
+      assert.argumentIsValid(tickIncrement, 'tickIncrement', is.integer, 'must be an integer');
+      assert.argumentIsValid(pointValue, 'pointValue', is.number, 'must be a number');
+      return this.getMinimumTick(tickIncrement) * pointValue;
+    }
     toString() {
       return `[UnitCode (code=${this.code})]`;
     }
@@ -1237,7 +1273,7 @@ module.exports = (() => {
   return UnitCode;
 })();
 
-},{"@barchart/common-js/lang/Enum":34}],15:[function(require,module,exports){
+},{"@barchart/common-js/lang/Enum":34,"@barchart/common-js/lang/assert":37,"@barchart/common-js/lang/is":38}],15:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -9794,6 +9830,68 @@ describe('When parsing a valid character as a unit code', () => {
     });
     it('getting the "special" fraction digits should return undefined', () => {
       expect(unitCode.getFractionDigits(true)).toEqual(undefined);
+    });
+  });
+});
+describe('When calculating minimum ticks and minimum tick values', () => {
+  describe('For unit code "2" and with a tickIncrement of 2 and a pointValue of 50 (e.g. corn)', () => {
+    let uc;
+    beforeEach(() => {
+      uc = UnitCode.parse('2');
+    });
+    it('The minimum tick should be 0.25', () => {
+      expect(uc.getMinimumTick(2)).toEqual(0.25);
+    });
+    it('The minimum tick value should be 12.50', () => {
+      expect(uc.getMinimumTickValue(2, 50)).toEqual(12.5);
+    });
+  });
+  describe('For unit code "A" and with a tickIncrement of 25 and a pointValue of 50 (e.g. e-mini)', () => {
+    let uc;
+    beforeEach(() => {
+      uc = UnitCode.parse('A');
+    });
+    it('The minimum tick should be 0.25', () => {
+      expect(uc.getMinimumTick(25)).toEqual(0.25);
+    });
+    it('The minimum tick value should be 12.50', () => {
+      expect(uc.getMinimumTickValue(25, 50)).toEqual(12.5);
+    });
+  });
+  describe('For unit code "A" and with a tickIncrement of 1 and a pointValue of 1000 (e.g. crude)', () => {
+    let uc;
+    beforeEach(() => {
+      uc = UnitCode.parse('A');
+    });
+    it('The minimum tick should be 0.01', () => {
+      expect(uc.getMinimumTick(1)).toEqual(0.01);
+    });
+    it('The minimum tick value should be 10', () => {
+      expect(uc.getMinimumTickValue(1, 1000)).toEqual(10);
+    });
+  });
+  describe('For unit code "9" and with a tickIncrement of 1 and a pointValue of 100 (e.g. gold)', () => {
+    let uc;
+    beforeEach(() => {
+      uc = UnitCode.parse('9');
+    });
+    it('The minimum tick should be 0.1', () => {
+      expect(uc.getMinimumTick(1)).toEqual(0.1);
+    });
+    it('The minimum tick value should be 10', () => {
+      expect(uc.getMinimumTickValue(1, 100)).toEqual(10);
+    });
+  });
+  describe('For unit code "5" and with a tickIncrement of 1 and a pointValue of 1000 (e.g. t-notes)', () => {
+    let uc;
+    beforeEach(() => {
+      uc = UnitCode.parse('5');
+    });
+    it('The minimum tick should be 0.015625', () => {
+      expect(uc.getMinimumTick(1)).toEqual(0.015625);
+    });
+    it('The minimum tick value should be 15.625', () => {
+      expect(uc.getMinimumTickValue(1, 1000)).toEqual(15.625);
     });
   });
 });
