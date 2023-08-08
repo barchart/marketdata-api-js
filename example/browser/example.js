@@ -5312,7 +5312,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '6.0.3'
+    version: '6.1.0'
   };
 })();
 
