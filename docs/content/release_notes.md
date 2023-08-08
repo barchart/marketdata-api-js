@@ -1,6 +1,6 @@
 # Release Notes
 
-## 6.0.3
+## 6.1.0
 **New Features**
 
 * Added the `UnitCode.getMinimumTick` function.
