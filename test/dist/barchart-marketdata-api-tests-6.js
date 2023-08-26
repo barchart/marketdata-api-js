@@ -516,7 +516,7 @@ module.exports = (() => {
   return CumulativeVolume;
 })();
 
-},{"./../logging/LoggerFactory":2,"@barchart/common-js/lang//object":39}],5:[function(require,module,exports){
+},{"./../logging/LoggerFactory":2,"@barchart/common-js/lang//object":40}],5:[function(require,module,exports){
 const SymbolParser = require('./../utilities/parsers/SymbolParser'),
   buildPriceFormatter = require('../utilities/format/factories/price');
 const AssetClass = require('./../utilities/data/AssetClass');
@@ -734,7 +734,7 @@ module.exports = (() => {
   return convertBaseCodeToUnitCode;
 })();
 
-},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":38}],7:[function(require,module,exports){
+},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":39}],7:[function(require,module,exports){
 const convertNumberToDayCode = require('./numberToDayCode');
 module.exports = (() => {
   'use strict';
@@ -787,7 +787,7 @@ module.exports = (() => {
   return convertDayCodeToNumber;
 })();
 
-},{"@barchart/common-js/lang/is":38}],9:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":39}],9:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 const monthCodes = require('./../data/monthCodes');
 module.exports = (() => {
@@ -813,7 +813,7 @@ module.exports = (() => {
   return convertMonthCodeToNumber;
 })();
 
-},{"./../data/monthCodes":15,"@barchart/common-js/lang/is":38}],10:[function(require,module,exports){
+},{"./../data/monthCodes":15,"@barchart/common-js/lang/is":39}],10:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 const monthCodes = require('./../data/monthCodes');
 module.exports = (() => {
@@ -839,7 +839,7 @@ module.exports = (() => {
   return convertMonthCodeToNumber;
 })();
 
-},{"./../data/monthCodes":15,"@barchart/common-js/lang/is":38}],11:[function(require,module,exports){
+},{"./../data/monthCodes":15,"@barchart/common-js/lang/is":39}],11:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 module.exports = (() => {
   'use strict';
@@ -873,7 +873,7 @@ module.exports = (() => {
   return convertNumberToDayCode;
 })();
 
-},{"@barchart/common-js/lang/is":38}],12:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":39}],12:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 const UnitCode = require('./../data/UnitCode');
 module.exports = (() => {
@@ -899,7 +899,7 @@ module.exports = (() => {
   return convertUnitCodeToBaseCode;
 })();
 
-},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":38}],13:[function(require,module,exports){
+},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":39}],13:[function(require,module,exports){
 const Enum = require('@barchart/common-js/lang/Enum');
 module.exports = (() => {
   'use strict';
@@ -1035,8 +1035,9 @@ module.exports = (() => {
   return AssetClass;
 })();
 
-},{"@barchart/common-js/lang/Enum":34}],14:[function(require,module,exports){
+},{"@barchart/common-js/lang/Enum":35}],14:[function(require,module,exports){
 const assert = require('@barchart/common-js/lang/assert'),
+  Decimal = require('@barchart/common-js/lang/Decimal'),
   is = require('@barchart/common-js/lang/is');
 const Enum = require('@barchart/common-js/lang/Enum');
 module.exports = (() => {
@@ -1206,13 +1207,16 @@ module.exports = (() => {
      */
     getMinimumTick(tickIncrement) {
       assert.argumentIsValid(tickIncrement, 'tickIncrement', is.integer, 'must be an integer');
+      const one = new Decimal(1);
+      const ten = new Decimal(10);
       let discretePrice;
       if (this.supportsFractions) {
-        discretePrice = 1 / this._fractionFactor;
+        discretePrice = one.divide(this._fractionFactor);
       } else {
-        discretePrice = 1 / Math.pow(10, this._decimalDigits);
+        discretePrice = one.divide(ten.raise(this._decimalDigits));
       }
-      return discretePrice * tickIncrement;
+      const minimumTick = discretePrice.multiply(tickIncrement);
+      return minimumTick.toFloat();
     }
 
     /**
@@ -1222,11 +1226,14 @@ module.exports = (() => {
      * @public
      * @param {Number} tickIncrement - Taken from a {@link Profile} instance.
      * @param {Number} pointValue - Taken from a {@link Profile} instance.
+     * @returns {Number}
      */
     getMinimumTickValue(tickIncrement, pointValue) {
       assert.argumentIsValid(tickIncrement, 'tickIncrement', is.integer, 'must be an integer');
       assert.argumentIsValid(pointValue, 'pointValue', is.number, 'must be a number');
-      return this.getMinimumTick(tickIncrement) * pointValue;
+      const minimumTick = new Decimal(this.getMinimumTick(tickIncrement));
+      const minimumTickValue = minimumTick.multiply(pointValue);
+      return minimumTickValue.toFloat();
     }
     toString() {
       return `[UnitCode (code=${this.code})]`;
@@ -1273,7 +1280,7 @@ module.exports = (() => {
   return UnitCode;
 })();
 
-},{"@barchart/common-js/lang/Enum":34,"@barchart/common-js/lang/assert":37,"@barchart/common-js/lang/is":38}],15:[function(require,module,exports){
+},{"@barchart/common-js/lang/Decimal":34,"@barchart/common-js/lang/Enum":35,"@barchart/common-js/lang/assert":38,"@barchart/common-js/lang/is":39}],15:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -1399,7 +1406,7 @@ module.exports = (() => {
   return formatDecimal;
 })();
 
-},{"@barchart/common-js/lang/is":38}],18:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":39}],18:[function(require,module,exports){
 const formatPrice = require('./../price');
 module.exports = (() => {
   'use strict';
@@ -1540,7 +1547,7 @@ module.exports = (() => {
   return formatFraction;
 })();
 
-},{"@barchart/common-js/lang/is":38}],21:[function(require,module,exports){
+},{"@barchart/common-js/lang/is":39}],21:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 const formatDecimal = require('./decimal'),
   formatFraction = require('./fraction');
@@ -1589,7 +1596,7 @@ module.exports = (() => {
   return formatPrice;
 })();
 
-},{"./../data/UnitCode":14,"./decimal":17,"./fraction":20,"@barchart/common-js/lang/is":38}],22:[function(require,module,exports){
+},{"./../data/UnitCode":14,"./decimal":17,"./fraction":20,"@barchart/common-js/lang/is":39}],22:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 const formatDate = require('./date'),
   formatTime = require('./time');
@@ -1660,7 +1667,7 @@ module.exports = (() => {
   return formatQuoteDateTime;
 })();
 
-},{"./date":16,"./time":25,"@barchart/common-js/lang/Timezones":35,"@barchart/common-js/lang/is":38}],23:[function(require,module,exports){
+},{"./date":16,"./time":25,"@barchart/common-js/lang/Timezones":36,"@barchart/common-js/lang/is":39}],23:[function(require,module,exports){
 const AssetClass = require('./../../data/AssetClass');
 const formatFraction = require('./../fraction'),
   formatPrice = require('./../price');
@@ -2590,7 +2597,7 @@ module.exports = (() => {
   return parsePrice;
 })();
 
-},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":38}],30:[function(require,module,exports){
+},{"./../data/UnitCode":14,"@barchart/common-js/lang/is":39}],30:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is'),
   string = require('@barchart/common-js/lang/string');
 const AssetClass = require('./../data/AssetClass');
@@ -3277,7 +3284,7 @@ module.exports = (() => {
   return SymbolParser;
 })();
 
-},{"./../data/AssetClass":13,"@barchart/common-js/lang/is":38,"@barchart/common-js/lang/string":40}],31:[function(require,module,exports){
+},{"./../data/AssetClass":13,"@barchart/common-js/lang/is":39,"@barchart/common-js/lang/string":41}],31:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -3414,7 +3421,538 @@ module.exports = (() => {
   return XmlParserFactoryForNode;
 })();
 
-},{"./XmlParser":31,"./XmlParserFactory":32,"@xmldom/xmldom":46}],34:[function(require,module,exports){
+},{"./XmlParser":31,"./XmlParserFactory":32,"@xmldom/xmldom":47}],34:[function(require,module,exports){
+const assert = require('./assert'),
+  Enum = require('./Enum'),
+  is = require('./is');
+const Big = require('big.js');
+module.exports = (() => {
+  'use strict';
+
+  /**
+   * An immutable object that allows for arbitrary-precision calculations.
+   *
+   * @public
+   * @param {Decimal|Number|String} value - The value.
+   */
+  class Decimal {
+    constructor(value) {
+      this._big = getBig(value);
+    }
+
+    /**
+     * Returns a new {@link Decimal} instance that is the sum of the
+     * current instance's value and the value supplied.
+     *
+     * @public
+     * @param {Decimal|Number|String} other - The value to add.
+     * @returns {Decimal}
+     */
+    add(other) {
+      return new Decimal(this._big.plus(getBig(other)));
+    }
+
+    /**
+     * Returns a new {@link Decimal} instance with a value that results
+     * from the subtraction of the value supplied from the current instance's
+     * value.
+     *
+     * @public
+     * @param {Decimal|Number|String} other - The value to subtract.
+     * @returns {Decimal}
+     */
+    subtract(other) {
+      return new Decimal(this._big.minus(getBig(other)));
+    }
+
+    /**
+     * Returns a new {@link Decimal} instance that is the product of the
+     * current instance's value and the value supplied.
+     *
+     * @public
+     * @param {Decimal|Number|String} other - The value to add.
+     * @returns {Decimal}
+     */
+    multiply(other) {
+      return new Decimal(this._big.times(getBig(other)));
+    }
+
+    /**
+     * Returns a new {@link Decimal} instance with a value that results
+     * from the division of the current instance's value by the value
+     * supplied.
+     *
+     * @public
+     * @param {Decimal|Number|String} other - The value to subtract.
+     * @returns {Decimal}
+     */
+    divide(other) {
+      return new Decimal(this._big.div(getBig(other)));
+    }
+
+    /**
+     * Returns a new {@link Decimal} instance with a value that results
+     * from raising the current instance to the power of the exponent
+     * provided.
+     *
+     * @public
+     * @param {Decimal|Number|String} exponent
+     * @returns {Decimal}
+     */
+    raise(exponent) {
+      assert.argumentIsRequired(exponent, 'exponent', Number);
+      return new Decimal(this._big.pow(exponent));
+    }
+
+    /**
+     * Returns a new {@link Decimal} with a value resulting from a rounding
+     * operation on the current value.
+     *
+     * @public
+     * @param {Number} places - The number of decimal places to retain.
+     * @param {RoundingMode=} mode - The strategy to use for rounding.
+     * @returns {Decimal}
+     */
+    round(places, mode) {
+      assert.argumentIsRequired(places, 'places', Number);
+      assert.argumentIsOptional(mode, 'mode', RoundingMode, 'RoundingMode');
+      const modeToUse = mode || RoundingMode.NORMAL;
+      return new Decimal(this._big.round(places, modeToUse.value));
+    }
+
+    /**
+     * Returns a new {@link Decimal} instance having the absolute value of
+     * the current instance's value.
+     *
+     * @public
+     * @returns {Decimal}
+     */
+    absolute() {
+      return new Decimal(this._big.abs());
+    }
+
+    /**
+     * Returns a new {@link Decimal} instance the opposite sign as the
+     * current instance's value.
+     *
+     * @public
+     * @returns {Decimal}
+     */
+    opposite() {
+      return this.multiply(-1);
+    }
+
+    /**
+     * Returns a Boolean value, indicating if the current instance's value is
+     * equal to zero (or approximately equal to zero).
+     *
+     * @public
+     * @param {Boolean=} approximate
+     * @param {Number=} places
+     * @returns {Boolean}
+     */
+    getIsZero(approximate, places) {
+      assert.argumentIsOptional(approximate, 'approximate', Boolean);
+      assert.argumentIsOptional(places, 'places', Number);
+      return this._big.eq(zero) || is.boolean(approximate) && approximate && this.round(places || Big.DP, RoundingMode.NORMAL).getIsZero();
+    }
+
+    /**
+     * Returns true if the current instance is positive; otherwise false.
+     *
+     * @public
+     * @returns {Boolean}
+     */
+    getIsPositive() {
+      return this._big.gt(zero);
+    }
+
+    /**
+     * Returns true if the current instance is negative; otherwise false.
+     *
+     * @public
+     * @returns {Boolean}
+     */
+    getIsNegative() {
+      return this._big.lt(zero);
+    }
+
+    /**
+     * Returns true if the current instance is greater than the value.
+     *
+     * @public
+     * @param {Decimal|Number|String} other - The value to compare.
+     * @returns {Boolean}
+     */
+    getIsGreaterThan(other) {
+      return this._big.gt(getBig(other));
+    }
+
+    /**
+     * Returns true if the current instance is greater than or equal to the value.
+     *
+     * @public
+     * @param {Decimal|Number|String} other - The value to compare.
+     * @returns {Boolean}
+     */
+    getIsGreaterThanOrEqual(other) {
+      return this._big.gte(getBig(other));
+    }
+
+    /**
+     * Returns true if the current instance is less than the value.
+     *
+     * @public
+     * @param {Decimal|Number|String} other - The value to compare.
+     * @returns {Boolean}
+     */
+    getIsLessThan(other) {
+      return this._big.lt(getBig(other));
+    }
+
+    /**
+     * Returns true if the current instance is less than or equal to the value.
+     *
+     * @public
+     * @param {Decimal|Number|String} other - The value to compare.
+     * @returns {Boolean}
+     */
+    getIsLessThanOrEqual(other) {
+      return this._big.lte(getBig(other));
+    }
+
+    /**
+     * Returns true if the current instance is equal to the value.
+     *
+     * @public
+     * @param {Decimal|Number|String} other - The value to compare.
+     * @returns {Boolean}
+     */
+    getIsEqual(other) {
+      return this._big.eq(getBig(other));
+    }
+
+    /**
+     * Returns true is close to another value.
+     *
+     * @public
+     * @param {Decimal|Number|String} other - The value to compare.
+     * @param {Number} places - The significant digits.
+     * @returns {Boolean}
+     */
+    getIsApproximate(other, places) {
+      if (places === 0) {
+        return this.getIsEqual(other);
+      }
+      const difference = this.subtract(other).absolute();
+      const tolerance = Decimal.ONE.divide(new Decimal(10).raise(places));
+      return difference.getIsLessThan(tolerance);
+    }
+
+    /**
+     * Returns true if the current instance is an integer (i.e. has no decimal
+     * component).
+     *
+     * @public
+     * @return {Boolean}
+     */
+    getIsInteger() {
+      return this.getIsEqual(this.round(0));
+    }
+
+    /**
+     * Returns the number of decimal places used.
+     *
+     * @public
+     * @returns {Number}
+     */
+    getDecimalPlaces() {
+      const matches = this.toFixed().match(/-?\d*\.(\d*)/);
+      let returnVal;
+      if (matches === null) {
+        returnVal = 0;
+      } else {
+        returnVal = matches[1].length;
+      }
+      return returnVal;
+    }
+
+    /**
+     * Emits a floating point value that approximates the value of the current
+     * instance.
+     *
+     * @public
+     * @param {Number=} places
+     * @returns {Number}
+     */
+    toFloat(places) {
+      assert.argumentIsOptional(places, 'places', Number);
+
+      // Accepting places might be a mistake here; perhaps
+      // the consumer should be forced to use the round
+      // function.
+
+      return parseFloat(this._big.toFixed(places || 16));
+    }
+
+    /**
+     * Returns a string-based representation of the instance's value.
+     *
+     * @public
+     * @returns {String}
+     */
+    toFixed() {
+      return this._big.toFixed();
+    }
+
+    /**
+     * Returns the JSON representation.
+     *
+     * @public
+     * @returns {String}
+     */
+    toJSON() {
+      return this.toFixed();
+    }
+
+    /**
+     * Clones a {@link Decimal} instance.
+     *
+     * @public
+     * @static
+     * @param {Decimal} value
+     * @returns {Decimal}
+     */
+    static clone(value) {
+      assert.argumentIsRequired(value, 'value', Decimal, 'Decimal');
+      return new Decimal(value._big);
+    }
+
+    /**
+     * Parses the value emitted by {@link Decimal#toJSON}.
+     *
+     * @public
+     * @param {String} value
+     * @returns {Decimal}
+     */
+    static parse(value) {
+      return new Decimal(value);
+    }
+
+    /**
+     * Returns an instance with the value of zero.
+     *
+     * @public
+     * @returns {Decimal}
+     */
+    static get ZERO() {
+      return decimalZero;
+    }
+
+    /**
+     * Returns an instance with the value of one.
+     *
+     * @public
+     * @returns {Decimal}
+     */
+    static get ONE() {
+      return decimalOne;
+    }
+
+    /**
+     * Returns an instance with the value of one.
+     *
+     * @public
+     * @returns {Decimal}
+     */
+    static get NEGATIVE_ONE() {
+      return decimalNegativeOne;
+    }
+
+    /**
+     * Return the {@link RoundingMode} enumeration.
+     *
+     * @public
+     * @returns {RoundingMode}
+     */
+    static get ROUNDING_MODE() {
+      return RoundingMode;
+    }
+
+    /**
+     * Runs {@link Decimal#getIsZero} and returns the result.
+     *
+     * @public
+     * @param {Decimal} instance
+     * @returns {Boolean}
+     */
+    static getIsZero(instance) {
+      assert.argumentIsRequired(instance, 'instance', Decimal, 'Decimal');
+      return instance.getIsZero();
+    }
+
+    /**
+     * Runs {@link Decimal#getIsZero} and returns the inverse.
+     *
+     * @public
+     * @param {Decimal} instance
+     * @returns {Boolean}
+     */
+    static getIsNotZero(instance) {
+      assert.argumentIsRequired(instance, 'instance', Decimal, 'Decimal');
+      return !instance.getIsZero();
+    }
+
+    /**
+     * Runs {@link Decimal#getIsPositive} and returns the result.
+     *
+     * @public
+     * @param {Decimal} instance
+     * @returns {Boolean}
+     */
+    static getIsPositive(instance) {
+      assert.argumentIsRequired(instance, 'instance', Decimal, 'Decimal');
+      return instance.getIsPositive();
+    }
+
+    /**
+     * Checks an instance to see if its negative or zero.
+     *
+     * @public
+     * @param {Decimal} instance
+     * @returns {Boolean}
+     */
+    static getIsNotPositive(instance) {
+      assert.argumentIsRequired(instance, 'instance', Decimal, 'Decimal');
+      return instance.getIsNegative() || instance.getIsZero();
+    }
+
+    /**
+     * Runs {@link Decimal#getIsNegative} and returns the result.
+     *
+     * @public
+     * @param {Decimal} instance
+     * @returns {Boolean}
+     */
+    static getIsNegative(instance) {
+      assert.argumentIsRequired(instance, 'instance', Decimal, 'Decimal');
+      return instance.getIsNegative();
+    }
+
+    /**
+     * Checks an instance to see if its positive or zero.
+     *
+     * @public
+     * @param {Decimal} instance
+     * @returns {Boolean}
+     */
+    static getIsNotNegative(instance) {
+      assert.argumentIsRequired(instance, 'instance', Decimal, 'Decimal');
+      return instance.getIsPositive() || instance.getIsZero();
+    }
+
+    /**
+     * A comparator function for {@link Decimal} instances.
+     *
+     * @public
+     * @param {Decimal} a
+     * @param {Decimal} b
+     * @returns {Number}
+     */
+    static compareDecimals(a, b) {
+      assert.argumentIsRequired(a, 'a', Decimal, 'Decimal');
+      assert.argumentIsRequired(b, 'b', Decimal, 'Decimal');
+      if (a._big.gt(b._big)) {
+        return 1;
+      } else if (a._big.lt(b._big)) {
+        return -1;
+      } else {
+        return 0;
+      }
+    }
+    toString() {
+      return '[Decimal]';
+    }
+  }
+  const zero = new Big(0);
+  const positiveOne = new Big(1);
+  const negativeOne = new Big(-1);
+  const decimalZero = new Decimal(zero);
+  const decimalOne = new Decimal(positiveOne);
+  const decimalNegativeOne = new Decimal(negativeOne);
+  function getBig(value) {
+    if (value instanceof Big) {
+      return value;
+    } else if (value instanceof Decimal) {
+      return value._big;
+    } else {
+      return new Big(value);
+    }
+  }
+
+  /**
+   * An enumeration of strategies for rouding a {@link Decimal} instance.
+   *
+   * @public
+   * @inner
+   * @extends {Enum}
+   */
+  class RoundingMode extends Enum {
+    constructor(value, description) {
+      super(value.toString(), description);
+      this._value = value;
+    }
+
+    /**
+     * The code used by the Big.js library.
+     *
+     * @ignore
+     * @returns {Number}
+     */
+    get value() {
+      return this._value;
+    }
+
+    /**
+     * Rounds away from zero.
+     *
+     * @public
+     * @returns {RoundingMode}
+     */
+    static get UP() {
+      return up;
+    }
+
+    /**
+     * Rounds towards zero.
+     *
+     * @public
+     * @returns {RoundingMode}
+     */
+    static get DOWN() {
+      return down;
+    }
+
+    /**
+     * Rounds towards nearest neighbor. If equidistant, rounds away from zero.
+     *
+     * @public
+     * @returns {RoundingMode}
+     */
+    static get NORMAL() {
+      return normal;
+    }
+    toString() {
+      return '[RoundingMode]';
+    }
+  }
+  const up = new RoundingMode(3, 'up');
+  const down = new RoundingMode(0, 'down');
+  const normal = new RoundingMode(1, 'normal');
+  return Decimal;
+})();
+
+},{"./Enum":35,"./assert":38,"./is":39,"big.js":49}],35:[function(require,module,exports){
 const assert = require('./assert');
 module.exports = (() => {
   'use strict';
@@ -3521,7 +4059,7 @@ module.exports = (() => {
   return Enum;
 })();
 
-},{"./assert":37}],35:[function(require,module,exports){
+},{"./assert":38}],36:[function(require,module,exports){
 const assert = require('./assert'),
   Enum = require('./Enum'),
   is = require('./is'),
@@ -3650,7 +4188,7 @@ module.exports = (() => {
   return Timezones;
 })();
 
-},{"./Enum":34,"./assert":37,"./is":38,"./timezone":41,"date-fns-tz/getTimezoneOffset":51}],36:[function(require,module,exports){
+},{"./Enum":35,"./assert":38,"./is":39,"./timezone":42,"date-fns-tz/getTimezoneOffset":53}],37:[function(require,module,exports){
 const assert = require('./assert'),
   is = require('./is');
 module.exports = (() => {
@@ -4098,7 +4636,7 @@ module.exports = (() => {
   }
 })();
 
-},{"./assert":37,"./is":38}],37:[function(require,module,exports){
+},{"./assert":38,"./is":39}],38:[function(require,module,exports){
 const is = require('./is');
 module.exports = (() => {
   'use strict';
@@ -4226,7 +4764,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./is":38}],38:[function(require,module,exports){
+},{"./is":39}],39:[function(require,module,exports){
 module.exports = (() => {
   'use strict';
 
@@ -4428,7 +4966,7 @@ module.exports = (() => {
   };
 })();
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 const array = require('./array'),
   is = require('./is');
 module.exports = (() => {
@@ -4574,7 +5112,7 @@ module.exports = (() => {
   return object;
 })();
 
-},{"./array":36,"./is":38}],40:[function(require,module,exports){
+},{"./array":37,"./is":39}],41:[function(require,module,exports){
 const assert = require('./assert'),
   is = require('./is');
 module.exports = (() => {
@@ -4688,7 +5226,7 @@ module.exports = (() => {
   };
 })();
 
-},{"./assert":37,"./is":38}],41:[function(require,module,exports){
+},{"./assert":38,"./is":39}],42:[function(require,module,exports){
 const assert = require('./assert');
 module.exports = (() => {
   'use strict';
@@ -4759,7 +5297,7 @@ module.exports = (() => {
   return timezone;
 })();
 
-},{"./assert":37}],42:[function(require,module,exports){
+},{"./assert":38}],43:[function(require,module,exports){
 'use strict'
 
 /**
@@ -4931,7 +5469,7 @@ exports.freeze = freeze;
 exports.MIME_TYPE = MIME_TYPE;
 exports.NAMESPACE = NAMESPACE;
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var conventions = require("./conventions");
 var dom = require('./dom')
 var entities = require('./entities');
@@ -5255,7 +5793,7 @@ exports.__DOMHandler = DOMHandler;
 exports.normalizeLineEndings = normalizeLineEndings;
 exports.DOMParser = DOMParser;
 
-},{"./conventions":42,"./dom":44,"./entities":45,"./sax":47}],44:[function(require,module,exports){
+},{"./conventions":43,"./dom":45,"./entities":46,"./sax":48}],45:[function(require,module,exports){
 var conventions = require("./conventions");
 
 var NAMESPACE = conventions.NAMESPACE;
@@ -6950,7 +7488,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{"./conventions":42}],45:[function(require,module,exports){
+},{"./conventions":43}],46:[function(require,module,exports){
 var freeze = require('./conventions').freeze;
 
 /**
@@ -7225,13 +7763,13 @@ exports.HTML_ENTITIES = freeze({
  */
 exports.entityMap = exports.HTML_ENTITIES
 
-},{"./conventions":42}],46:[function(require,module,exports){
+},{"./conventions":43}],47:[function(require,module,exports){
 var dom = require('./dom')
 exports.DOMImplementation = dom.DOMImplementation
 exports.XMLSerializer = dom.XMLSerializer
 exports.DOMParser = require('./dom-parser').DOMParser
 
-},{"./dom":44,"./dom-parser":43}],47:[function(require,module,exports){
+},{"./dom":45,"./dom-parser":44}],48:[function(require,module,exports){
 var NAMESPACE = require("./conventions").NAMESPACE;
 
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
@@ -7893,7 +8431,950 @@ function split(source,start){
 exports.XMLReader = XMLReader;
 exports.ParseError = ParseError;
 
-},{"./conventions":42}],48:[function(require,module,exports){
+},{"./conventions":43}],49:[function(require,module,exports){
+/*
+ *  big.js v5.2.2
+ *  A small, fast, easy-to-use library for arbitrary-precision decimal arithmetic.
+ *  Copyright (c) 2018 Michael Mclaughlin <M8ch88l@gmail.com>
+ *  https://github.com/MikeMcl/big.js/LICENCE
+ */
+;(function (GLOBAL) {
+  'use strict';
+  var Big,
+
+
+/************************************** EDITABLE DEFAULTS *****************************************/
+
+
+    // The default values below must be integers within the stated ranges.
+
+    /*
+     * The maximum number of decimal places (DP) of the results of operations involving division:
+     * div and sqrt, and pow with negative exponents.
+     */
+    DP = 20,          // 0 to MAX_DP
+
+    /*
+     * The rounding mode (RM) used when rounding to the above decimal places.
+     *
+     *  0  Towards zero (i.e. truncate, no rounding).       (ROUND_DOWN)
+     *  1  To nearest neighbour. If equidistant, round up.  (ROUND_HALF_UP)
+     *  2  To nearest neighbour. If equidistant, to even.   (ROUND_HALF_EVEN)
+     *  3  Away from zero.                                  (ROUND_UP)
+     */
+    RM = 1,             // 0, 1, 2 or 3
+
+    // The maximum value of DP and Big.DP.
+    MAX_DP = 1E6,       // 0 to 1000000
+
+    // The maximum magnitude of the exponent argument to the pow method.
+    MAX_POWER = 1E6,    // 1 to 1000000
+
+    /*
+     * The negative exponent (NE) at and beneath which toString returns exponential notation.
+     * (JavaScript numbers: -7)
+     * -1000000 is the minimum recommended exponent value of a Big.
+     */
+    NE = -7,            // 0 to -1000000
+
+    /*
+     * The positive exponent (PE) at and above which toString returns exponential notation.
+     * (JavaScript numbers: 21)
+     * 1000000 is the maximum recommended exponent value of a Big.
+     * (This limit is not enforced or checked.)
+     */
+    PE = 21,            // 0 to 1000000
+
+
+/**************************************************************************************************/
+
+
+    // Error messages.
+    NAME = '[big.js] ',
+    INVALID = NAME + 'Invalid ',
+    INVALID_DP = INVALID + 'decimal places',
+    INVALID_RM = INVALID + 'rounding mode',
+    DIV_BY_ZERO = NAME + 'Division by zero',
+
+    // The shared prototype object.
+    P = {},
+    UNDEFINED = void 0,
+    NUMERIC = /^-?(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$/i;
+
+
+  /*
+   * Create and return a Big constructor.
+   *
+   */
+  function _Big_() {
+
+    /*
+     * The Big constructor and exported function.
+     * Create and return a new instance of a Big number object.
+     *
+     * n {number|string|Big} A numeric value.
+     */
+    function Big(n) {
+      var x = this;
+
+      // Enable constructor usage without new.
+      if (!(x instanceof Big)) return n === UNDEFINED ? _Big_() : new Big(n);
+
+      // Duplicate.
+      if (n instanceof Big) {
+        x.s = n.s;
+        x.e = n.e;
+        x.c = n.c.slice();
+      } else {
+        parse(x, n);
+      }
+
+      /*
+       * Retain a reference to this Big constructor, and shadow Big.prototype.constructor which
+       * points to Object.
+       */
+      x.constructor = Big;
+    }
+
+    Big.prototype = P;
+    Big.DP = DP;
+    Big.RM = RM;
+    Big.NE = NE;
+    Big.PE = PE;
+    Big.version = '5.2.2';
+
+    return Big;
+  }
+
+
+  /*
+   * Parse the number or string value passed to a Big constructor.
+   *
+   * x {Big} A Big number instance.
+   * n {number|string} A numeric value.
+   */
+  function parse(x, n) {
+    var e, i, nl;
+
+    // Minus zero?
+    if (n === 0 && 1 / n < 0) n = '-0';
+    else if (!NUMERIC.test(n += '')) throw Error(INVALID + 'number');
+
+    // Determine sign.
+    x.s = n.charAt(0) == '-' ? (n = n.slice(1), -1) : 1;
+
+    // Decimal point?
+    if ((e = n.indexOf('.')) > -1) n = n.replace('.', '');
+
+    // Exponential form?
+    if ((i = n.search(/e/i)) > 0) {
+
+      // Determine exponent.
+      if (e < 0) e = i;
+      e += +n.slice(i + 1);
+      n = n.substring(0, i);
+    } else if (e < 0) {
+
+      // Integer.
+      e = n.length;
+    }
+
+    nl = n.length;
+
+    // Determine leading zeros.
+    for (i = 0; i < nl && n.charAt(i) == '0';) ++i;
+
+    if (i == nl) {
+
+      // Zero.
+      x.c = [x.e = 0];
+    } else {
+
+      // Determine trailing zeros.
+      for (; nl > 0 && n.charAt(--nl) == '0';);
+      x.e = e - i - 1;
+      x.c = [];
+
+      // Convert string to array of digits without leading/trailing zeros.
+      for (e = 0; i <= nl;) x.c[e++] = +n.charAt(i++);
+    }
+
+    return x;
+  }
+
+
+  /*
+   * Round Big x to a maximum of dp decimal places using rounding mode rm.
+   * Called by stringify, P.div, P.round and P.sqrt.
+   *
+   * x {Big} The Big to round.
+   * dp {number} Integer, 0 to MAX_DP inclusive.
+   * rm {number} 0, 1, 2 or 3 (DOWN, HALF_UP, HALF_EVEN, UP)
+   * [more] {boolean} Whether the result of division was truncated.
+   */
+  function round(x, dp, rm, more) {
+    var xc = x.c,
+      i = x.e + dp + 1;
+
+    if (i < xc.length) {
+      if (rm === 1) {
+
+        // xc[i] is the digit after the digit that may be rounded up.
+        more = xc[i] >= 5;
+      } else if (rm === 2) {
+        more = xc[i] > 5 || xc[i] == 5 &&
+          (more || i < 0 || xc[i + 1] !== UNDEFINED || xc[i - 1] & 1);
+      } else if (rm === 3) {
+        more = more || !!xc[0];
+      } else {
+        more = false;
+        if (rm !== 0) throw Error(INVALID_RM);
+      }
+
+      if (i < 1) {
+        xc.length = 1;
+
+        if (more) {
+
+          // 1, 0.1, 0.01, 0.001, 0.0001 etc.
+          x.e = -dp;
+          xc[0] = 1;
+        } else {
+
+          // Zero.
+          xc[0] = x.e = 0;
+        }
+      } else {
+
+        // Remove any digits after the required decimal places.
+        xc.length = i--;
+
+        // Round up?
+        if (more) {
+
+          // Rounding up may mean the previous digit has to be rounded up.
+          for (; ++xc[i] > 9;) {
+            xc[i] = 0;
+            if (!i--) {
+              ++x.e;
+              xc.unshift(1);
+            }
+          }
+        }
+
+        // Remove trailing zeros.
+        for (i = xc.length; !xc[--i];) xc.pop();
+      }
+    } else if (rm < 0 || rm > 3 || rm !== ~~rm) {
+      throw Error(INVALID_RM);
+    }
+
+    return x;
+  }
+
+
+  /*
+   * Return a string representing the value of Big x in normal or exponential notation.
+   * Handles P.toExponential, P.toFixed, P.toJSON, P.toPrecision, P.toString and P.valueOf.
+   *
+   * x {Big}
+   * id? {number} Caller id.
+   *         1 toExponential
+   *         2 toFixed
+   *         3 toPrecision
+   *         4 valueOf
+   * n? {number|undefined} Caller's argument.
+   * k? {number|undefined}
+   */
+  function stringify(x, id, n, k) {
+    var e, s,
+      Big = x.constructor,
+      z = !x.c[0];
+
+    if (n !== UNDEFINED) {
+      if (n !== ~~n || n < (id == 3) || n > MAX_DP) {
+        throw Error(id == 3 ? INVALID + 'precision' : INVALID_DP);
+      }
+
+      x = new Big(x);
+
+      // The index of the digit that may be rounded up.
+      n = k - x.e;
+
+      // Round?
+      if (x.c.length > ++k) round(x, n, Big.RM);
+
+      // toFixed: recalculate k as x.e may have changed if value rounded up.
+      if (id == 2) k = x.e + n + 1;
+
+      // Append zeros?
+      for (; x.c.length < k;) x.c.push(0);
+    }
+
+    e = x.e;
+    s = x.c.join('');
+    n = s.length;
+
+    // Exponential notation?
+    if (id != 2 && (id == 1 || id == 3 && k <= e || e <= Big.NE || e >= Big.PE)) {
+      s = s.charAt(0) + (n > 1 ? '.' + s.slice(1) : '') + (e < 0 ? 'e' : 'e+') + e;
+
+    // Normal notation.
+    } else if (e < 0) {
+      for (; ++e;) s = '0' + s;
+      s = '0.' + s;
+    } else if (e > 0) {
+      if (++e > n) for (e -= n; e--;) s += '0';
+      else if (e < n) s = s.slice(0, e) + '.' + s.slice(e);
+    } else if (n > 1) {
+      s = s.charAt(0) + '.' + s.slice(1);
+    }
+
+    return x.s < 0 && (!z || id == 4) ? '-' + s : s;
+  }
+
+
+  // Prototype/instance methods
+
+
+  /*
+   * Return a new Big whose value is the absolute value of this Big.
+   */
+  P.abs = function () {
+    var x = new this.constructor(this);
+    x.s = 1;
+    return x;
+  };
+
+
+  /*
+   * Return 1 if the value of this Big is greater than the value of Big y,
+   *       -1 if the value of this Big is less than the value of Big y, or
+   *        0 if they have the same value.
+  */
+  P.cmp = function (y) {
+    var isneg,
+      x = this,
+      xc = x.c,
+      yc = (y = new x.constructor(y)).c,
+      i = x.s,
+      j = y.s,
+      k = x.e,
+      l = y.e;
+
+    // Either zero?
+    if (!xc[0] || !yc[0]) return !xc[0] ? !yc[0] ? 0 : -j : i;
+
+    // Signs differ?
+    if (i != j) return i;
+
+    isneg = i < 0;
+
+    // Compare exponents.
+    if (k != l) return k > l ^ isneg ? 1 : -1;
+
+    j = (k = xc.length) < (l = yc.length) ? k : l;
+
+    // Compare digit by digit.
+    for (i = -1; ++i < j;) {
+      if (xc[i] != yc[i]) return xc[i] > yc[i] ^ isneg ? 1 : -1;
+    }
+
+    // Compare lengths.
+    return k == l ? 0 : k > l ^ isneg ? 1 : -1;
+  };
+
+
+  /*
+   * Return a new Big whose value is the value of this Big divided by the value of Big y, rounded,
+   * if necessary, to a maximum of Big.DP decimal places using rounding mode Big.RM.
+   */
+  P.div = function (y) {
+    var x = this,
+      Big = x.constructor,
+      a = x.c,                  // dividend
+      b = (y = new Big(y)).c,   // divisor
+      k = x.s == y.s ? 1 : -1,
+      dp = Big.DP;
+
+    if (dp !== ~~dp || dp < 0 || dp > MAX_DP) throw Error(INVALID_DP);
+
+    // Divisor is zero?
+    if (!b[0]) throw Error(DIV_BY_ZERO);
+
+    // Dividend is 0? Return +-0.
+    if (!a[0]) return new Big(k * 0);
+
+    var bl, bt, n, cmp, ri,
+      bz = b.slice(),
+      ai = bl = b.length,
+      al = a.length,
+      r = a.slice(0, bl),   // remainder
+      rl = r.length,
+      q = y,                // quotient
+      qc = q.c = [],
+      qi = 0,
+      d = dp + (q.e = x.e - y.e) + 1;    // number of digits of the result
+
+    q.s = k;
+    k = d < 0 ? 0 : d;
+
+    // Create version of divisor with leading zero.
+    bz.unshift(0);
+
+    // Add zeros to make remainder as long as divisor.
+    for (; rl++ < bl;) r.push(0);
+
+    do {
+
+      // n is how many times the divisor goes into current remainder.
+      for (n = 0; n < 10; n++) {
+
+        // Compare divisor and remainder.
+        if (bl != (rl = r.length)) {
+          cmp = bl > rl ? 1 : -1;
+        } else {
+          for (ri = -1, cmp = 0; ++ri < bl;) {
+            if (b[ri] != r[ri]) {
+              cmp = b[ri] > r[ri] ? 1 : -1;
+              break;
+            }
+          }
+        }
+
+        // If divisor < remainder, subtract divisor from remainder.
+        if (cmp < 0) {
+
+          // Remainder can't be more than 1 digit longer than divisor.
+          // Equalise lengths using divisor with extra leading zero?
+          for (bt = rl == bl ? b : bz; rl;) {
+            if (r[--rl] < bt[rl]) {
+              ri = rl;
+              for (; ri && !r[--ri];) r[ri] = 9;
+              --r[ri];
+              r[rl] += 10;
+            }
+            r[rl] -= bt[rl];
+          }
+
+          for (; !r[0];) r.shift();
+        } else {
+          break;
+        }
+      }
+
+      // Add the digit n to the result array.
+      qc[qi++] = cmp ? n : ++n;
+
+      // Update the remainder.
+      if (r[0] && cmp) r[rl] = a[ai] || 0;
+      else r = [a[ai]];
+
+    } while ((ai++ < al || r[0] !== UNDEFINED) && k--);
+
+    // Leading zero? Do not remove if result is simply zero (qi == 1).
+    if (!qc[0] && qi != 1) {
+
+      // There can't be more than one zero.
+      qc.shift();
+      q.e--;
+    }
+
+    // Round?
+    if (qi > d) round(q, dp, Big.RM, r[0] !== UNDEFINED);
+
+    return q;
+  };
+
+
+  /*
+   * Return true if the value of this Big is equal to the value of Big y, otherwise return false.
+   */
+  P.eq = function (y) {
+    return !this.cmp(y);
+  };
+
+
+  /*
+   * Return true if the value of this Big is greater than the value of Big y, otherwise return
+   * false.
+   */
+  P.gt = function (y) {
+    return this.cmp(y) > 0;
+  };
+
+
+  /*
+   * Return true if the value of this Big is greater than or equal to the value of Big y, otherwise
+   * return false.
+   */
+  P.gte = function (y) {
+    return this.cmp(y) > -1;
+  };
+
+
+  /*
+   * Return true if the value of this Big is less than the value of Big y, otherwise return false.
+   */
+  P.lt = function (y) {
+    return this.cmp(y) < 0;
+  };
+
+
+  /*
+   * Return true if the value of this Big is less than or equal to the value of Big y, otherwise
+   * return false.
+   */
+  P.lte = function (y) {
+    return this.cmp(y) < 1;
+  };
+
+
+  /*
+   * Return a new Big whose value is the value of this Big minus the value of Big y.
+   */
+  P.minus = P.sub = function (y) {
+    var i, j, t, xlty,
+      x = this,
+      Big = x.constructor,
+      a = x.s,
+      b = (y = new Big(y)).s;
+
+    // Signs differ?
+    if (a != b) {
+      y.s = -b;
+      return x.plus(y);
+    }
+
+    var xc = x.c.slice(),
+      xe = x.e,
+      yc = y.c,
+      ye = y.e;
+
+    // Either zero?
+    if (!xc[0] || !yc[0]) {
+
+      // y is non-zero? x is non-zero? Or both are zero.
+      return yc[0] ? (y.s = -b, y) : new Big(xc[0] ? x : 0);
+    }
+
+    // Determine which is the bigger number. Prepend zeros to equalise exponents.
+    if (a = xe - ye) {
+
+      if (xlty = a < 0) {
+        a = -a;
+        t = xc;
+      } else {
+        ye = xe;
+        t = yc;
+      }
+
+      t.reverse();
+      for (b = a; b--;) t.push(0);
+      t.reverse();
+    } else {
+
+      // Exponents equal. Check digit by digit.
+      j = ((xlty = xc.length < yc.length) ? xc : yc).length;
+
+      for (a = b = 0; b < j; b++) {
+        if (xc[b] != yc[b]) {
+          xlty = xc[b] < yc[b];
+          break;
+        }
+      }
+    }
+
+    // x < y? Point xc to the array of the bigger number.
+    if (xlty) {
+      t = xc;
+      xc = yc;
+      yc = t;
+      y.s = -y.s;
+    }
+
+    /*
+     * Append zeros to xc if shorter. No need to add zeros to yc if shorter as subtraction only
+     * needs to start at yc.length.
+     */
+    if ((b = (j = yc.length) - (i = xc.length)) > 0) for (; b--;) xc[i++] = 0;
+
+    // Subtract yc from xc.
+    for (b = i; j > a;) {
+      if (xc[--j] < yc[j]) {
+        for (i = j; i && !xc[--i];) xc[i] = 9;
+        --xc[i];
+        xc[j] += 10;
+      }
+
+      xc[j] -= yc[j];
+    }
+
+    // Remove trailing zeros.
+    for (; xc[--b] === 0;) xc.pop();
+
+    // Remove leading zeros and adjust exponent accordingly.
+    for (; xc[0] === 0;) {
+      xc.shift();
+      --ye;
+    }
+
+    if (!xc[0]) {
+
+      // n - n = +0
+      y.s = 1;
+
+      // Result must be zero.
+      xc = [ye = 0];
+    }
+
+    y.c = xc;
+    y.e = ye;
+
+    return y;
+  };
+
+
+  /*
+   * Return a new Big whose value is the value of this Big modulo the value of Big y.
+   */
+  P.mod = function (y) {
+    var ygtx,
+      x = this,
+      Big = x.constructor,
+      a = x.s,
+      b = (y = new Big(y)).s;
+
+    if (!y.c[0]) throw Error(DIV_BY_ZERO);
+
+    x.s = y.s = 1;
+    ygtx = y.cmp(x) == 1;
+    x.s = a;
+    y.s = b;
+
+    if (ygtx) return new Big(x);
+
+    a = Big.DP;
+    b = Big.RM;
+    Big.DP = Big.RM = 0;
+    x = x.div(y);
+    Big.DP = a;
+    Big.RM = b;
+
+    return this.minus(x.times(y));
+  };
+
+
+  /*
+   * Return a new Big whose value is the value of this Big plus the value of Big y.
+   */
+  P.plus = P.add = function (y) {
+    var t,
+      x = this,
+      Big = x.constructor,
+      a = x.s,
+      b = (y = new Big(y)).s;
+
+    // Signs differ?
+    if (a != b) {
+      y.s = -b;
+      return x.minus(y);
+    }
+
+    var xe = x.e,
+      xc = x.c,
+      ye = y.e,
+      yc = y.c;
+
+    // Either zero? y is non-zero? x is non-zero? Or both are zero.
+    if (!xc[0] || !yc[0]) return yc[0] ? y : new Big(xc[0] ? x : a * 0);
+
+    xc = xc.slice();
+
+    // Prepend zeros to equalise exponents.
+    // Note: reverse faster than unshifts.
+    if (a = xe - ye) {
+      if (a > 0) {
+        ye = xe;
+        t = yc;
+      } else {
+        a = -a;
+        t = xc;
+      }
+
+      t.reverse();
+      for (; a--;) t.push(0);
+      t.reverse();
+    }
+
+    // Point xc to the longer array.
+    if (xc.length - yc.length < 0) {
+      t = yc;
+      yc = xc;
+      xc = t;
+    }
+
+    a = yc.length;
+
+    // Only start adding at yc.length - 1 as the further digits of xc can be left as they are.
+    for (b = 0; a; xc[a] %= 10) b = (xc[--a] = xc[a] + yc[a] + b) / 10 | 0;
+
+    // No need to check for zero, as +x + +y != 0 && -x + -y != 0
+
+    if (b) {
+      xc.unshift(b);
+      ++ye;
+    }
+
+    // Remove trailing zeros.
+    for (a = xc.length; xc[--a] === 0;) xc.pop();
+
+    y.c = xc;
+    y.e = ye;
+
+    return y;
+  };
+
+
+  /*
+   * Return a Big whose value is the value of this Big raised to the power n.
+   * If n is negative, round to a maximum of Big.DP decimal places using rounding
+   * mode Big.RM.
+   *
+   * n {number} Integer, -MAX_POWER to MAX_POWER inclusive.
+   */
+  P.pow = function (n) {
+    var x = this,
+      one = new x.constructor(1),
+      y = one,
+      isneg = n < 0;
+
+    if (n !== ~~n || n < -MAX_POWER || n > MAX_POWER) throw Error(INVALID + 'exponent');
+    if (isneg) n = -n;
+
+    for (;;) {
+      if (n & 1) y = y.times(x);
+      n >>= 1;
+      if (!n) break;
+      x = x.times(x);
+    }
+
+    return isneg ? one.div(y) : y;
+  };
+
+
+  /*
+   * Return a new Big whose value is the value of this Big rounded using rounding mode rm
+   * to a maximum of dp decimal places, or, if dp is negative, to an integer which is a
+   * multiple of 10**-dp.
+   * If dp is not specified, round to 0 decimal places.
+   * If rm is not specified, use Big.RM.
+   *
+   * dp? {number} Integer, -MAX_DP to MAX_DP inclusive.
+   * rm? 0, 1, 2 or 3 (ROUND_DOWN, ROUND_HALF_UP, ROUND_HALF_EVEN, ROUND_UP)
+   */
+  P.round = function (dp, rm) {
+    var Big = this.constructor;
+    if (dp === UNDEFINED) dp = 0;
+    else if (dp !== ~~dp || dp < -MAX_DP || dp > MAX_DP) throw Error(INVALID_DP);
+    return round(new Big(this), dp, rm === UNDEFINED ? Big.RM : rm);
+  };
+
+
+  /*
+   * Return a new Big whose value is the square root of the value of this Big, rounded, if
+   * necessary, to a maximum of Big.DP decimal places using rounding mode Big.RM.
+   */
+  P.sqrt = function () {
+    var r, c, t,
+      x = this,
+      Big = x.constructor,
+      s = x.s,
+      e = x.e,
+      half = new Big(0.5);
+
+    // Zero?
+    if (!x.c[0]) return new Big(x);
+
+    // Negative?
+    if (s < 0) throw Error(NAME + 'No square root');
+
+    // Estimate.
+    s = Math.sqrt(x + '');
+
+    // Math.sqrt underflow/overflow?
+    // Re-estimate: pass x coefficient to Math.sqrt as integer, then adjust the result exponent.
+    if (s === 0 || s === 1 / 0) {
+      c = x.c.join('');
+      if (!(c.length + e & 1)) c += '0';
+      s = Math.sqrt(c);
+      e = ((e + 1) / 2 | 0) - (e < 0 || e & 1);
+      r = new Big((s == 1 / 0 ? '1e' : (s = s.toExponential()).slice(0, s.indexOf('e') + 1)) + e);
+    } else {
+      r = new Big(s);
+    }
+
+    e = r.e + (Big.DP += 4);
+
+    // Newton-Raphson iteration.
+    do {
+      t = r;
+      r = half.times(t.plus(x.div(t)));
+    } while (t.c.slice(0, e).join('') !== r.c.slice(0, e).join(''));
+
+    return round(r, Big.DP -= 4, Big.RM);
+  };
+
+
+  /*
+   * Return a new Big whose value is the value of this Big times the value of Big y.
+   */
+  P.times = P.mul = function (y) {
+    var c,
+      x = this,
+      Big = x.constructor,
+      xc = x.c,
+      yc = (y = new Big(y)).c,
+      a = xc.length,
+      b = yc.length,
+      i = x.e,
+      j = y.e;
+
+    // Determine sign of result.
+    y.s = x.s == y.s ? 1 : -1;
+
+    // Return signed 0 if either 0.
+    if (!xc[0] || !yc[0]) return new Big(y.s * 0);
+
+    // Initialise exponent of result as x.e + y.e.
+    y.e = i + j;
+
+    // If array xc has fewer digits than yc, swap xc and yc, and lengths.
+    if (a < b) {
+      c = xc;
+      xc = yc;
+      yc = c;
+      j = a;
+      a = b;
+      b = j;
+    }
+
+    // Initialise coefficient array of result with zeros.
+    for (c = new Array(j = a + b); j--;) c[j] = 0;
+
+    // Multiply.
+
+    // i is initially xc.length.
+    for (i = b; i--;) {
+      b = 0;
+
+      // a is yc.length.
+      for (j = a + i; j > i;) {
+
+        // Current sum of products at this digit position, plus carry.
+        b = c[j] + yc[i] * xc[j - i - 1] + b;
+        c[j--] = b % 10;
+
+        // carry
+        b = b / 10 | 0;
+      }
+
+      c[j] = (c[j] + b) % 10;
+    }
+
+    // Increment result exponent if there is a final carry, otherwise remove leading zero.
+    if (b) ++y.e;
+    else c.shift();
+
+    // Remove trailing zeros.
+    for (i = c.length; !c[--i];) c.pop();
+    y.c = c;
+
+    return y;
+  };
+
+
+  /*
+   * Return a string representing the value of this Big in exponential notation to dp fixed decimal
+   * places and rounded using Big.RM.
+   *
+   * dp? {number} Integer, 0 to MAX_DP inclusive.
+   */
+  P.toExponential = function (dp) {
+    return stringify(this, 1, dp, dp);
+  };
+
+
+  /*
+   * Return a string representing the value of this Big in normal notation to dp fixed decimal
+   * places and rounded using Big.RM.
+   *
+   * dp? {number} Integer, 0 to MAX_DP inclusive.
+   *
+   * (-0).toFixed(0) is '0', but (-0.1).toFixed(0) is '-0'.
+   * (-0).toFixed(1) is '0.0', but (-0.01).toFixed(1) is '-0.0'.
+   */
+  P.toFixed = function (dp) {
+    return stringify(this, 2, dp, this.e + dp);
+  };
+
+
+  /*
+   * Return a string representing the value of this Big rounded to sd significant digits using
+   * Big.RM. Use exponential notation if sd is less than the number of digits necessary to represent
+   * the integer part of the value in normal notation.
+   *
+   * sd {number} Integer, 1 to MAX_DP inclusive.
+   */
+  P.toPrecision = function (sd) {
+    return stringify(this, 3, sd, sd - 1);
+  };
+
+
+  /*
+   * Return a string representing the value of this Big.
+   * Return exponential notation if this Big has a positive exponent equal to or greater than
+   * Big.PE, or a negative exponent equal to or less than Big.NE.
+   * Omit the sign for negative zero.
+   */
+  P.toString = function () {
+    return stringify(this);
+  };
+
+
+  /*
+   * Return a string representing the value of this Big.
+   * Return exponential notation if this Big has a positive exponent equal to or greater than
+   * Big.PE, or a negative exponent equal to or less than Big.NE.
+   * Include the sign for negative zero.
+   */
+  P.valueOf = P.toJSON = function () {
+    return stringify(this, 4);
+  };
+
+
+  // Export
+
+
+  Big = _Big_();
+
+  Big['default'] = Big.Big = Big;
+
+  //AMD.
+  if (typeof define === 'function' && define.amd) {
+    define(function () { return Big; });
+
+  // Node and other CommonJS-like environments that support module.exports.
+  } else if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Big;
+
+  //Browser.
+  } else {
+    GLOBAL.Big = Big;
+  }
+})(this);
+
+},{}],50:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7916,7 +9397,7 @@ function newDateUTC(fullYear, month, day, hour, minute, second, millisecond) {
 }
 
 module.exports = exports.default;
-},{}],49:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8054,7 +9535,7 @@ function isValidTimezoneIANAString(timeZoneString) {
 }
 
 module.exports = exports.default;
-},{"../newDateUTC/index.js":48,"../tzTokenizeDate/index.js":50}],50:[function(require,module,exports){
+},{"../newDateUTC/index.js":50,"../tzTokenizeDate/index.js":52}],52:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8155,7 +9636,7 @@ function getDateTimeFormat(timeZone) {
 }
 
 module.exports = exports.default;
-},{}],51:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8199,7 +9680,7 @@ function getTimezoneOffset(timeZone, date) {
 }
 
 module.exports = exports.default;
-},{"../_lib/tzParseTimezone/index.js":49}],52:[function(require,module,exports){
+},{"../_lib/tzParseTimezone/index.js":51}],54:[function(require,module,exports){
 const CumulativeVolume = require('../../../lib/marketState/CumulativeVolume');
 describe('When a cumulative volume container is created with a tick increment of 0.25', () => {
   'use strict';
@@ -8537,7 +10018,7 @@ describe('When a cumulative volume container is created with a tick increment of
   });
 });
 
-},{"../../../lib/marketState/CumulativeVolume":4}],53:[function(require,module,exports){
+},{"../../../lib/marketState/CumulativeVolume":4}],55:[function(require,module,exports){
 const Profile = require('../../../lib/marketState/Profile');
 describe('When a Profile is created (for a symbol with unitCode "2")', () => {
   'use strict';
@@ -8579,7 +10060,7 @@ describe('When a Profile is created (an option on a ZT future")', () => {
   });
 });
 
-},{"../../../lib/marketState/Profile":5}],54:[function(require,module,exports){
+},{"../../../lib/marketState/Profile":5}],56:[function(require,module,exports){
 const convertBaseCodeToUnitCode = require('./../../../../lib/utilities/convert/baseCodeToUnitCode');
 describe('When converting a baseCode to a unitCode', () => {
   it('-1 should translate to "2"', () => {
@@ -8635,7 +10116,7 @@ describe('When converting a baseCode to a unitCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":6}],55:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/baseCodeToUnitCode":6}],57:[function(require,module,exports){
 const convertDateToDayCode = require('./../../../../lib/utilities/convert/dateToDayCode');
 describe('When converting a date instance to a day code', () => {
   it('"Jan 1, 2016" should translate to 1', () => {
@@ -8739,7 +10220,7 @@ describe('When converting a date instance to a day code', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dateToDayCode":7}],56:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dateToDayCode":7}],58:[function(require,module,exports){
 const convertDayCodeToNumber = require('./../../../../lib/utilities/convert/dayCodeToNumber');
 describe('When converting a dayCode to number', () => {
   it('"1" should translate to 1', () => {
@@ -8909,7 +10390,7 @@ describe('When converting a dayCode to number', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/dayCodeToNumber":8}],57:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/dayCodeToNumber":8}],59:[function(require,module,exports){
 const convertMonthCodeToName = require('./../../../../lib/utilities/convert/monthCodeToName');
 describe('When converting a futures month code to a month name', () => {
   it('The character "F" should translate to "January"', () => {
@@ -8923,7 +10404,7 @@ describe('When converting a futures month code to a month name', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/monthCodeToName":9}],58:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/monthCodeToName":9}],60:[function(require,module,exports){
 const convertMonthCodeToNumber = require('./../../../../lib/utilities/convert/monthCodeToNumber');
 describe('When converting a futures month code to a month name', () => {
   it('The character "F" should translate to the number 1', () => {
@@ -8937,7 +10418,7 @@ describe('When converting a futures month code to a month name', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/monthCodeToNumber":10}],59:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/monthCodeToNumber":10}],61:[function(require,module,exports){
 const convertNumberToDayCode = require('./../../../../lib/utilities/convert/numberToDayCode');
 describe('When converting a number to a dayCode', () => {
   it('1 should translate to "1"', () => {
@@ -9041,7 +10522,7 @@ describe('When converting a number to a dayCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/numberToDayCode":11}],60:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/numberToDayCode":11}],62:[function(require,module,exports){
 const convertUnitCodeToBaseCode = require('./../../../../lib/utilities/convert/unitCodeToBaseCode');
 describe('When converting a unitCode to a baseCode', () => {
   it('"2" should translate to -1', () => {
@@ -9097,7 +10578,7 @@ describe('When converting a unitCode to a baseCode', () => {
   });
 });
 
-},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":12}],61:[function(require,module,exports){
+},{"./../../../../lib/utilities/convert/unitCodeToBaseCode":12}],63:[function(require,module,exports){
 const AssetClass = require('../../../../lib/utilities/data/AssetClass');
 describe('When parsing asset class codes', () => {
   it('"STK" should parse as "AssetClass.STOCK"', () => {
@@ -9140,7 +10621,7 @@ describe('When retrieving identifier from asset classes', () => {
   });
 });
 
-},{"../../../../lib/utilities/data/AssetClass":13}],62:[function(require,module,exports){
+},{"../../../../lib/utilities/data/AssetClass":13}],64:[function(require,module,exports){
 const UnitCode = require('../../../../lib/utilities/data/UnitCode');
 describe('When parsing an invalid argument', () => {
   it('should parse "1" as null', () => {
@@ -9882,7 +11363,7 @@ describe('When calculating minimum ticks and minimum tick values', () => {
       expect(uc.getMinimumTickValue(1, 100)).toEqual(10);
     });
   });
-  describe('For unit code "5" and with a tickIncrement of 1 and a pointValue of 1000 (e.g. t-notes)', () => {
+  describe('For unit code "5" and with a tickIncrement of 1 and a pointValue of 1,000 (e.g. t-notes)', () => {
     let uc;
     beforeEach(() => {
       uc = UnitCode.parse('5');
@@ -9894,9 +11375,21 @@ describe('When calculating minimum ticks and minimum tick values', () => {
       expect(uc.getMinimumTickValue(1, 1000)).toEqual(15.625);
     });
   });
+  describe('For unit code "E" and with a tickIncrement of 10 and a pointValue of 500,000 (e.g. mexican pesos)', () => {
+    let uc;
+    beforeEach(() => {
+      uc = UnitCode.parse('E');
+    });
+    it('The minimum tick should be 0.015625', () => {
+      expect(uc.getMinimumTick(10)).toEqual(0.00001);
+    });
+    it('The minimum tick value should be 15.625', () => {
+      expect(uc.getMinimumTickValue(10, 500000)).toEqual(5);
+    });
+  });
 });
 
-},{"../../../../lib/utilities/data/UnitCode":14}],63:[function(require,module,exports){
+},{"../../../../lib/utilities/data/UnitCode":14}],65:[function(require,module,exports){
 const monthCodes = require('../../../../lib/utilities/data/monthCodes');
 describe('When looking up a month name by code', () => {
   let map;
@@ -9983,7 +11476,7 @@ describe('When looking up a month number by code', () => {
   });
 });
 
-},{"../../../../lib/utilities/data/monthCodes":15}],64:[function(require,module,exports){
+},{"../../../../lib/utilities/data/monthCodes":15}],66:[function(require,module,exports){
 const string = require('@barchart/common-js/lang/string');
 const formatPrice = require('./../../../../lib/utilities/format/price');
 
@@ -10064,7 +11557,7 @@ const EIGHTHS_OF_THIRTY_SECONDS = [
 
 [0, 0], [1, 0.00390625], [2, 0.0078125], [3, 0.01171875], [5, 0.015625], [6, 0.01953125], [7, 0.0234375], [8, 0.02734375], [10, 0.03125], [11, 0.03515625], [12, 0.0390625], [13, 0.04296875], [15, 0.046875], [16, 0.05078125], [17, 0.0546875], [18, 0.05859375], [20, 0.0625], [21, 0.06640625], [22, 0.0703125], [23, 0.07421875], [25, 0.078125], [26, 0.08203125], [27, 0.0859375], [28, 0.08984375], [30, 0.09375], [31, 0.09765625], [32, 0.1015625], [33, 0.10546875], [35, 0.109375], [36, 0.11328125], [37, 0.1171875], [38, 0.12109375], [40, 0.125], [41, 0.12890625], [42, 0.1328125], [43, 0.13671875], [45, 0.140625], [46, 0.14453125], [47, 0.1484375], [48, 0.15234375], [50, 0.15625], [51, 0.16015625], [52, 0.1640625], [53, 0.16796875], [55, 0.171875], [56, 0.17578125], [57, 0.1796875], [58, 0.18359375], [60, 0.1875], [61, 0.19140625], [62, 0.1953125], [63, 0.19921875], [65, 0.203125], [66, 0.20703125], [67, 0.2109375], [68, 0.21484375], [70, 0.21875], [71, 0.22265625], [72, 0.2265625], [73, 0.23046875], [75, 0.234375], [76, 0.23828125], [77, 0.2421875], [78, 0.24609375], [80, 0.25], [81, 0.25390625], [82, 0.2578125], [83, 0.26171875], [85, 0.265625], [86, 0.26953125], [87, 0.2734375], [88, 0.27734375], [90, 0.28125], [91, 0.28515625], [92, 0.2890625], [93, 0.29296875], [95, 0.296875], [96, 0.30078125], [97, 0.3046875], [98, 0.30859375], [100, 0.3125], [101, 0.31640625], [102, 0.3203125], [103, 0.32421875], [105, 0.328125], [106, 0.33203125], [107, 0.3359375], [108, 0.33984375], [110, 0.34375], [111, 0.34765625], [112, 0.3515625], [113, 0.35546875], [115, 0.359375], [116, 0.36328125], [117, 0.3671875], [118, 0.37109375], [120, 0.375], [121, 0.37890625], [122, 0.3828125], [123, 0.38671875], [125, 0.390625], [126, 0.39453125], [127, 0.3984375], [128, 0.40234375], [130, 0.40625], [131, 0.41015625], [132, 0.4140625], [133, 0.41796875], [135, 0.421875], [136, 0.42578125], [137, 0.4296875], [138, 0.43359375], [140, 0.4375], [141, 0.44140625], [142, 0.4453125], [143, 0.44921875], [145, 0.453125], [146, 0.45703125], [147, 0.4609375], [148, 0.46484375], [150, 0.46875], [151, 0.47265625], [152, 0.4765625], [153, 0.48046875], [155, 0.484375], [156, 0.48828125], [157, 0.4921875], [158, 0.49609375], [160, 0.5], [161, 0.50390625], [162, 0.5078125], [163, 0.51171875], [165, 0.515625], [166, 0.51953125], [167, 0.5234375], [168, 0.52734375], [170, 0.53125], [171, 0.53515625], [172, 0.5390625], [173, 0.54296875], [175, 0.546875], [176, 0.55078125], [177, 0.5546875], [178, 0.55859375], [180, 0.5625], [181, 0.56640625], [182, 0.5703125], [183, 0.57421875], [185, 0.578125], [186, 0.58203125], [187, 0.5859375], [188, 0.58984375], [190, 0.59375], [191, 0.59765625], [192, 0.6015625], [193, 0.60546875], [195, 0.609375], [196, 0.61328125], [197, 0.6171875], [198, 0.62109375], [200, 0.625], [201, 0.62890625], [202, 0.6328125], [203, 0.63671875], [205, 0.640625], [206, 0.64453125], [207, 0.6484375], [208, 0.65234375], [210, 0.65625], [211, 0.66015625], [212, 0.6640625], [213, 0.66796875], [215, 0.671875], [216, 0.67578125], [217, 0.6796875], [218, 0.68359375], [220, 0.6875], [221, 0.69140625], [222, 0.6953125], [223, 0.69921875], [225, 0.703125], [226, 0.70703125], [227, 0.7109375], [228, 0.71484375], [230, 0.71875], [231, 0.72265625], [232, 0.7265625], [233, 0.73046875], [235, 0.734375], [236, 0.73828125], [237, 0.7421875], [238, 0.74609375], [240, 0.75], [241, 0.75390625], [242, 0.7578125], [243, 0.76171875], [245, 0.765625], [246, 0.76953125], [247, 0.7734375], [248, 0.77734375], [250, 0.78125], [251, 0.78515625], [252, 0.7890625], [253, 0.79296875], [255, 0.796875], [256, 0.80078125], [257, 0.8046875], [258, 0.80859375], [260, 0.8125], [261, 0.81640625], [262, 0.8203125], [263, 0.82421875], [265, 0.828125], [266, 0.83203125], [267, 0.8359375], [268, 0.83984375], [270, 0.84375], [271, 0.84765625], [272, 0.8515625], [273, 0.85546875], [275, 0.859375], [276, 0.86328125], [277, 0.8671875], [278, 0.87109375], [280, 0.875], [281, 0.87890625], [282, 0.8828125], [283, 0.88671875], [285, 0.890625], [286, 0.89453125], [287, 0.8984375], [288, 0.90234375], [290, 0.90625], [291, 0.91015625], [292, 0.9140625], [293, 0.91796875], [295, 0.921875], [296, 0.92578125], [297, 0.9296875], [298, 0.93359375], [300, 0.9375], [301, 0.94140625], [302, 0.9453125], [303, 0.94921875], [305, 0.953125], [306, 0.95703125], [307, 0.9609375], [308, 0.96484375], [310, 0.96875], [311, 0.97265625], [312, 0.9765625], [313, 0.98046875], [315, 0.984375], [316, 0.98828125], [317, 0.9921875], [318, 0.99609375]];
 
-},{"./../../../../lib/utilities/format/price":21,"@barchart/common-js/lang/string":40}],65:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/price":21,"@barchart/common-js/lang/string":41}],67:[function(require,module,exports){
 const formatDate = require('./../../../../lib/utilities/format/date');
 describe('when using the date formatter', () => {
   it('A date set to 2019-09-30 23:59:59 should return "09/30/19"', () => {
@@ -10075,7 +11568,7 @@ describe('when using the date formatter', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/date":16}],66:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/date":16}],68:[function(require,module,exports){
 const formatDecimal = require('./../../../../lib/utilities/format/decimal');
 describe('when formatting invalid values', () => {
   it('formats a null value as a zero-length string', () => {
@@ -10212,7 +11705,7 @@ describe('when formatting decimal values to format with parenthesis and no thous
   });
 });
 
-},{"./../../../../lib/utilities/format/decimal":17}],67:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/decimal":17}],69:[function(require,module,exports){
 const buildPriceFormatter = require('./../../../../../lib/utilities/format/factories/price');
 describe('When a price formatter is created', () => {
   let formatPrice;
@@ -10571,7 +12064,7 @@ describe('When a price formatter is created', () => {
   });
 });
 
-},{"./../../../../../lib/utilities/format/factories/price":18}],68:[function(require,module,exports){
+},{"./../../../../../lib/utilities/format/factories/price":18}],70:[function(require,module,exports){
 const buildQuoteFormatter = require('./../../../../../lib/utilities/format/factories/quote');
 describe('When a time formatter is created (without specifying the clock)', () => {
   let qf;
@@ -11013,7 +12506,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../../lib/utilities/format/factories/quote":19}],69:[function(require,module,exports){
+},{"./../../../../../lib/utilities/format/factories/quote":19}],71:[function(require,module,exports){
 const formatFraction = require('./../../../../lib/utilities/format/fraction');
 describe('when formatting in halves of thirty-seconds', () => {
   it('formats 0.984375 as 0-315', () => {
@@ -11036,7 +12529,7 @@ describe('when formatting in halves of sixty-fourths', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/fraction":20}],70:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/fraction":20}],72:[function(require,module,exports){
 const formatPrice = require('./../../../../lib/utilities/format/price');
 
 /*
@@ -11482,7 +12975,7 @@ describe('when valid prices are formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/price":21}],71:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/price":21}],73:[function(require,module,exports){
 const formatQuote = require('./../../../../lib/utilities/format/quote');
 describe('When a quote formatter is used (without specifying the clock)', () => {
   describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
@@ -11935,7 +13428,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../lib/utilities/format/quote":22}],72:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/quote":22}],74:[function(require,module,exports){
 const cmdtyView = require('./../../../../../lib/utilities/format/specialized/cmdtyView');
 const Profile = require('./../../../../../lib/marketState/Profile');
 const ZBM2_1500C = new Profile('ZBM2|1500C', '30-Year T-Bond', 'CBOT', '5', 1000, 1);
@@ -11975,7 +13468,7 @@ describe('when formatting prices for a ZF options', () => {
   });
 });
 
-},{"./../../../../../lib/marketState/Profile":5,"./../../../../../lib/utilities/format/specialized/cmdtyView":23}],73:[function(require,module,exports){
+},{"./../../../../../lib/marketState/Profile":5,"./../../../../../lib/utilities/format/specialized/cmdtyView":23}],75:[function(require,module,exports){
 const formatSymbol = require('./../../../../lib/utilities/format/symbol');
 describe('When a lowercase string is formatted as a symbol', () => {
   let originalSymbol;
@@ -12061,9 +13554,9 @@ describe('When an null value is formatted', () => {
   });
 });
 
-},{"./../../../../lib/utilities/format/symbol":24}],74:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/symbol":24}],76:[function(require,module,exports){
 
-},{}],75:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 const parseMessage = require('../../../../../lib/utilities/parse/ddf/message');
 const XmlParserFactoryForNode = require('./../../../../../lib/utilities/xml/XmlParserFactoryForNode');
 function translateCaretControlCharacters(message) {
@@ -12344,7 +13837,7 @@ describe('when parsing a DDF message', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/message":26,"./../../../../../lib/utilities/xml/XmlParserFactoryForNode":33}],76:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/message":26,"./../../../../../lib/utilities/xml/XmlParserFactoryForNode":33}],78:[function(require,module,exports){
 const parseValue = require('../../../../../lib/utilities/parse/ddf/value');
 describe('when parsing prices', () => {
   'use strict';
@@ -12458,7 +13951,7 @@ describe('when parsing prices', () => {
   });
 });
 
-},{"../../../../../lib/utilities/parse/ddf/value":28}],77:[function(require,module,exports){
+},{"../../../../../lib/utilities/parse/ddf/value":28}],79:[function(require,module,exports){
 const parsePrice = require('../../../../lib/utilities/parse/price');
 describe('when parsing invalid values', () => {
   'use strict';
@@ -12838,7 +14331,7 @@ describe('when valid prices are parsed', () => {
   });
 });
 
-},{"../../../../lib/utilities/parse/price":29}],78:[function(require,module,exports){
+},{"../../../../lib/utilities/parse/price":29}],80:[function(require,module,exports){
 const SymbolParser = require('../../../../lib/utilities/parsers/SymbolParser');
 describe('When parsing a symbol for instrument type', () => {
   describe('and the symbol is IBM', () => {
@@ -15230,4 +16723,4 @@ describe('When converting a futures option symbol to pipeline format', () => {
   });
 });
 
-},{"../../../../lib/utilities/parsers/SymbolParser":30}]},{},[52,53,54,55,56,57,58,59,60,61,63,62,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78]);
+},{"../../../../lib/utilities/parsers/SymbolParser":30}]},{},[54,55,56,57,58,59,60,61,62,63,65,64,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80]);
