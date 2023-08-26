@@ -166,7 +166,7 @@
         * [.getFractionFactor([special])](#UnitCodegetFractionFactor) ⇒ <code>Number</code> \| <code>undefined</code>
         * [.getFractionDigits([special])](#UnitCodegetFractionDigits) ⇒ <code>Number</code> \| <code>undefined</code>
         * [.getMinimumTick(tickIncrement)](#UnitCodegetMinimumTick) ⇒ <code>Number</code>
-        * [.getMinimumTickValue(tickIncrement, pointValue)](#UnitCodegetMinimumTickValue)
+        * [.getMinimumTickValue(tickIncrement, pointValue)](#UnitCodegetMinimumTickValue) ⇒ <code>Number</code>
     * _static_
         * [.parse(code)](#UnitCodeparse) ⇒ [<code>UnitCode</code>](#UnitCode) \| <code>null</code>
         * [.fromBaseCode(code)](#UnitCodefromBaseCode) ⇒ [<code>UnitCode</code>](#UnitCode) \| <code>null</code>
@@ -306,6 +306,7 @@
 > up by the minimum tick.
 
 **Kind**: instance method of [<code>UnitCode</code>](#UnitCode)  
+**Returns**: <code>Number</code>  
 **Access**: public  
 
 | Param | Type | Description |

@@ -1,5 +1,11 @@
 # Release Notes
 
+## 6.1.1
+**Bug Fixes**
+
+* Corrected precision issue exhibited by `UnitCode.getMinimumTick` function by switching internal calculations to use `Decimal` instances (instead of native floating point numbers).
+* Corrected precision issue exhibited by `UnitCode.getMinimumTickValue` function by switching internal calculations to use `Decimal` instances (instead of native floating point numbers).
+
 ## 6.1.0
 **New Features**
 

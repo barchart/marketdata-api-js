@@ -985,7 +985,7 @@ describe('When calculating minimum ticks and minimum tick values', () => {
 		});
 	});
 
-	describe('For unit code "5" and with a tickIncrement of 1 and a pointValue of 1000 (e.g. t-notes)', () => {
+	describe('For unit code "5" and with a tickIncrement of 1 and a pointValue of 1,000 (e.g. t-notes)', () => {
 		let uc;
 
 		beforeEach(() => {
@@ -998,6 +998,22 @@ describe('When calculating minimum ticks and minimum tick values', () => {
 
 		it('The minimum tick value should be 15.625', () => {
 			expect(uc.getMinimumTickValue(1, 1000)).toEqual(15.625);
+		});
+	});
+
+	describe('For unit code "E" and with a tickIncrement of 10 and a pointValue of 500,000 (e.g. mexican pesos)', () => {
+		let uc;
+
+		beforeEach(() => {
+			uc = UnitCode.parse('E');
+		});
+
+		it('The minimum tick should be 0.015625', () => {
+			expect(uc.getMinimumTick(10)).toEqual(0.00001);
+		});
+
+		it('The minimum tick value should be 15.625', () => {
+			expect(uc.getMinimumTickValue(10, 500000)).toEqual(5);
 		});
 	});
 });
