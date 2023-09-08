@@ -1,5 +1,14 @@
 # Release Notes
 
+## 6.2.0
+**New Features**
+
+* Added the `UnitCode.roundToNearestTick` function.
+
+**Technical Enhancements**
+
+* Updated the [`@barchart/common-js`](https://github.com/barchart/common-js) library.
+
 ## 6.1.1
 **Bug Fixes**
 

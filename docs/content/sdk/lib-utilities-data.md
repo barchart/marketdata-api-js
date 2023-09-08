@@ -167,6 +167,7 @@
         * [.getFractionDigits([special])](#UnitCodegetFractionDigits) ⇒ <code>Number</code> \| <code>undefined</code>
         * [.getMinimumTick(tickIncrement)](#UnitCodegetMinimumTick) ⇒ <code>Number</code>
         * [.getMinimumTickValue(tickIncrement, pointValue)](#UnitCodegetMinimumTickValue) ⇒ <code>Number</code>
+        * [.roundToNearestTick(value, tickIncrement, [roundToZero])](#UnitCoderoundToNearestTick) ⇒ <code>Number</code>
     * _static_
         * [.parse(code)](#UnitCodeparse) ⇒ [<code>UnitCode</code>](#UnitCode) \| <code>null</code>
         * [.fromBaseCode(code)](#UnitCodefromBaseCode) ⇒ [<code>UnitCode</code>](#UnitCode) \| <code>null</code>
@@ -313,6 +314,21 @@
 | --- | --- | --- |
 | tickIncrement | <code>Number</code> | <p>Taken from a [Profile](/content/sdk/lib-marketstate?id=profile) instance.</p> |
 | pointValue | <code>Number</code> | <p>Taken from a [Profile](/content/sdk/lib-marketstate?id=profile) instance.</p> |
+
+
+* * *
+
+### unitCode.roundToNearestTick(value, tickIncrement, [roundToZero]) :id=unitcoderoundtonearesttick
+> Rounds a value to the nearest valid tick.
+
+**Kind**: instance method of [<code>UnitCode</code>](#UnitCode)  
+**Returns**: <code>Number</code>  
+
+| Param | Type |
+| --- | --- |
+| value | <code>Number</code> \| <code>Decimal</code> | 
+| tickIncrement | <code>Number</code> | 
+| [roundToZero] | <code>Boolean</code> | 
 
 
 * * *
