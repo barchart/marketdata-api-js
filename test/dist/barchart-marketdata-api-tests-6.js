@@ -1235,6 +1235,32 @@ module.exports = (() => {
       const minimumTickValue = minimumTick.multiply(pointValue);
       return minimumTickValue.toFloat();
     }
+
+    /**
+     * Rounds a value to the nearest valid tick.
+     *
+     * @param {Number|Decimal} value
+     * @param {Number} tickIncrement
+     * @param {Boolean=} roundToZero
+     * @returns {Number}
+     */
+    roundToNearestTick(value, tickIncrement, roundToZero) {
+      assert.argumentIsValid(value, 'value', x => is.number(x) || x instanceof Decimal, 'must be a number primitive or a Decimal instance');
+      assert.argumentIsOptional(roundToZero, 'roundToZero', Boolean);
+      const minimumTick = this.getMinimumTick(tickIncrement);
+      let valueToUse;
+      if (value instanceof Decimal) {
+        valueToUse = value;
+      } else {
+        valueToUse = new Decimal(value);
+      }
+      let ticks = valueToUse.divide(minimumTick);
+      let remainder = valueToUse.mod(minimumTick);
+      if (!remainder.getIsZero()) {
+        ticks = ticks.round(0, is.boolean(roundToZero) && roundToZero ? Decimal.ROUNDING_MODE.DOWN : Decimal.ROUNDING_MODE.NORMAL);
+      }
+      return ticks.multiply(minimumTick).toFloat();
+    }
     toString() {
       return `[UnitCode (code=${this.code})]`;
     }
@@ -3496,7 +3522,7 @@ module.exports = (() => {
      * provided.
      *
      * @public
-     * @param {Decimal|Number|String} exponent
+     * @param {Number} exponent
      * @returns {Decimal}
      */
     raise(exponent) {
@@ -3518,6 +3544,18 @@ module.exports = (() => {
       assert.argumentIsOptional(mode, 'mode', RoundingMode, 'RoundingMode');
       const modeToUse = mode || RoundingMode.NORMAL;
       return new Decimal(this._big.round(places, modeToUse.value));
+    }
+
+    /**
+     * Returns a new {@link Decimal} instance with a value that returns
+     * the remainder of dividing by the value supplied.
+     *
+     * @public
+     * @param {Decimal|Number|String} other
+     * @returns {Decimal}
+     */
+    mod(other) {
+      return new Decimal(this._big.mod(getBig(other)));
     }
 
     /**
@@ -3619,6 +3657,25 @@ module.exports = (() => {
      */
     getIsLessThanOrEqual(other) {
       return this._big.lte(getBig(other));
+    }
+
+    /**
+     * Returns true if the current instance between two other values. The
+     * test is inclusive, by default.
+     *
+     * @public
+     * @param {Decimal|Number|String} minimum - The minimum value.
+     * @param {Decimal|Number|String} minimum - The maximum value.
+     * @param {Boolean=} exclusive - If true, the value cannot equal the minimum or maximum value and still be considered "between" the other values.
+     * @returns {Boolean}
+     */
+    getIsBetween(minimum, maximum, exclusive) {
+      assert.argumentIsOptional(exclusive, 'exclusive', Boolean);
+      if (is.boolean(exclusive) && exclusive) {
+        return this.getIsGreaterThan(minimum) && this.getIsLessThan(maximum);
+      } else {
+        return this.getIsGreaterThanOrEqual(minimum) && this.getIsLessThanOrEqual(maximum);
+      }
     }
 
     /**
@@ -3729,10 +3786,11 @@ module.exports = (() => {
     }
 
     /**
-     * Parses the value emitted by {@link Decimal#toJSON}.
+     * An alias for the constructor. Creates a new instance. Suitable for
+     * use with the value emitted by {@link Decimal#toJSON}.
      *
      * @public
-     * @param {String} value
+     * @param {Decimal|Number|String} value
      * @returns {Decimal}
      */
     static parse(value) {
@@ -3891,7 +3949,7 @@ module.exports = (() => {
   }
 
   /**
-   * An enumeration of strategies for rouding a {@link Decimal} instance.
+   * An enumeration of strategies for rounding a {@link Decimal} instance.
    *
    * @public
    * @inner
@@ -4278,7 +4336,8 @@ module.exports = (() => {
     },
     /**
      * Splits array into groups and returns an object (where the properties are items from the
-     * original array). Unlike the groupBy, only one item can have a given key value.
+     * original array). Unlike the {@link array#groupBy} function, only one item can have a
+     * given key value.
      *
      * @static
      * @param {Array} a
@@ -4780,7 +4839,7 @@ module.exports = (() => {
      *
      * @static
      * @public
-     * @param {*} candidate {*}
+     * @param {*} candidate
      * @returns {boolean}
      */
     number(candidate) {
@@ -11385,6 +11444,122 @@ describe('When calculating minimum ticks and minimum tick values', () => {
     });
     it('The minimum tick value should be 15.625', () => {
       expect(uc.getMinimumTickValue(10, 500000)).toEqual(5);
+    });
+  });
+});
+describe('When rounding a value to the nearest tick value', () => {
+  describe('For unit code "2" and with a tickIncrement of 2 (e.g. corn)', () => {
+    let uc;
+    beforeEach(() => {
+      uc = UnitCode.parse('2');
+    });
+    it('A value of 0 should be rounded to 0', () => {
+      expect(uc.roundToNearestTick(0, 2)).toEqual(0);
+    });
+    it('A value of 488.5 should be rounded to 488.5', () => {
+      expect(uc.roundToNearestTick(488.5, 2)).toEqual(488.5);
+    });
+    it('A value of 488.51 should be rounded to 488.5', () => {
+      expect(uc.roundToNearestTick(488.51, 2)).toEqual(488.5);
+    });
+    it('A value of 488.74 should be rounded to 488.75', () => {
+      expect(uc.roundToNearestTick(488.74, 2)).toEqual(488.75);
+    });
+    it('A value of 488.625 should be rounded to 488.75', () => {
+      expect(uc.roundToNearestTick(488.625, 2)).toEqual(488.75);
+    });
+    it('A value of 488.625 should be rounded to 488.5 (when using "roundDown" option)', () => {
+      expect(uc.roundToNearestTick(488.625, 2, true)).toEqual(488.5);
+    });
+  });
+  describe('For unit code "A" and with a tickIncrement of 25 (e.g. e-mini)', () => {
+    let uc;
+    beforeEach(() => {
+      uc = UnitCode.parse('A');
+    });
+    it('A value of 4455.5 should be rounded to 4455.5', () => {
+      expect(uc.roundToNearestTick(4455.5, 25)).toEqual(4455.5);
+    });
+    it('A value of 4455.51 should be rounded to 4455.5', () => {
+      expect(uc.roundToNearestTick(4455.51, 25)).toEqual(4455.5);
+    });
+    it('A value of 4455.74 should be rounded to 4455.75', () => {
+      expect(uc.roundToNearestTick(4455.74, 25)).toEqual(4455.75);
+    });
+    it('A value of 4455.625 should be rounded to 4455.75', () => {
+      expect(uc.roundToNearestTick(4455.625, 25)).toEqual(4455.75);
+    });
+    it('A value of 4455.625 should be rounded to 4455.5 (when using "roundDown" option)', () => {
+      expect(uc.roundToNearestTick(4455.625, 25, true)).toEqual(4455.5);
+    });
+  });
+  describe('For unit code "A" and with a tickIncrement of 1 (e.g. crude)', () => {
+    let uc;
+    beforeEach(() => {
+      uc = UnitCode.parse('A');
+    });
+    it('A value of 87.30 should be rounded to 87.30', () => {
+      expect(uc.roundToNearestTick(87.30, 1)).toEqual(87.30);
+    });
+    it('A value of 87.31 should be rounded to 87.31', () => {
+      expect(uc.roundToNearestTick(87.31, 1)).toEqual(87.31);
+    });
+    it('A value of 87.312 should be rounded to 87.31', () => {
+      expect(uc.roundToNearestTick(87.312, 1)).toEqual(87.31);
+    });
+    it('A value of 87.318 should be rounded to 87.32', () => {
+      expect(uc.roundToNearestTick(87.318, 1)).toEqual(87.32);
+    });
+    it('A value of 87.325 should be rounded to 87.33', () => {
+      expect(uc.roundToNearestTick(87.325, 1)).toEqual(87.33);
+    });
+    it('A value of 87.325 should be rounded to 87.32 (when using "roundDown" option)', () => {
+      expect(uc.roundToNearestTick(87.325, 1, true)).toEqual(87.32);
+    });
+  });
+  describe('For unit code "9" and with a tickIncrement of 1 (e.g. gold)', () => {
+    let uc;
+    beforeEach(() => {
+      uc = UnitCode.parse('9');
+    });
+    it('A value of 1922.5 should be rounded to 1922.5', () => {
+      expect(uc.roundToNearestTick(1922.5, 1)).toEqual(1922.5);
+    });
+    it('A value of 1922.6 should be rounded to 1922.6', () => {
+      expect(uc.roundToNearestTick(1922.6, 1)).toEqual(1922.6);
+    });
+    it('A value of 1922.51 should be rounded to 1922.5', () => {
+      expect(uc.roundToNearestTick(1922.51, 1)).toEqual(1922.5);
+    });
+    it('A value of 1922.59 should be rounded to 1922.6', () => {
+      expect(uc.roundToNearestTick(1922.59, 1)).toEqual(1922.6);
+    });
+    it('A value of 1922.55 should be rounded to 1922.6', () => {
+      expect(uc.roundToNearestTick(1922.55, 1)).toEqual(1922.6);
+    });
+    it('A value of 1922.55 should be rounded to 1922.5 (when using "roundDown" option)', () => {
+      expect(uc.roundToNearestTick(1922.55, 1, true)).toEqual(1922.5);
+    });
+  });
+  describe('For unit code "5" and with a tickIncrement of 1 (e.g. t-notes)', () => {
+    let uc;
+    beforeEach(() => {
+      uc = UnitCode.parse('5');
+    });
+    it('A value of 110.328125 should be rounded to 110.328125', () => {
+      expect(uc.roundToNearestTick(110.328125, 1)).toEqual(110.328125);
+    });
+    it('A value of 110.34375 should be rounded to 110.34375', () => {
+      expect(uc.roundToNearestTick(110.34375, 1)).toEqual(110.34375);
+    });
+    it('A value of 110.328126 should be rounded to 110.328125', () => {
+      expect(uc.roundToNearestTick(110.328126, 1)).toEqual(110.328125);
+    });
+    it('A value of 110.34374 should be rounded to 110.34375', () => {
+      expect(uc.roundToNearestTick(110.34374, 1)).toEqual(110.34375);
+    });
+    it('A value of 110.34374 should be rounded to 110.328125 (when using "roundDown" option)', () => {
+      expect(uc.roundToNearestTick(110.34374, 1, true)).toEqual(110.328125);
     });
   });
 });

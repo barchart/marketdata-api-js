@@ -5312,7 +5312,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '6.1.1'
+    version: '6.2.0'
   };
 })();
 
@@ -5765,6 +5765,32 @@ module.exports = (() => {
       const minimumTick = new Decimal(this.getMinimumTick(tickIncrement));
       const minimumTickValue = minimumTick.multiply(pointValue);
       return minimumTickValue.toFloat();
+    }
+
+    /**
+     * Rounds a value to the nearest valid tick.
+     *
+     * @param {Number|Decimal} value
+     * @param {Number} tickIncrement
+     * @param {Boolean=} roundToZero
+     * @returns {Number}
+     */
+    roundToNearestTick(value, tickIncrement, roundToZero) {
+      assert.argumentIsValid(value, 'value', x => is.number(x) || x instanceof Decimal, 'must be a number primitive or a Decimal instance');
+      assert.argumentIsOptional(roundToZero, 'roundToZero', Boolean);
+      const minimumTick = this.getMinimumTick(tickIncrement);
+      let valueToUse;
+      if (value instanceof Decimal) {
+        valueToUse = value;
+      } else {
+        valueToUse = new Decimal(value);
+      }
+      let ticks = valueToUse.divide(minimumTick);
+      let remainder = valueToUse.mod(minimumTick);
+      if (!remainder.getIsZero()) {
+        ticks = ticks.round(0, is.boolean(roundToZero) && roundToZero ? Decimal.ROUNDING_MODE.DOWN : Decimal.ROUNDING_MODE.NORMAL);
+      }
+      return ticks.multiply(minimumTick).toFloat();
     }
     toString() {
       return `[UnitCode (code=${this.code})]`;
@@ -8531,7 +8557,7 @@ module.exports = (() => {
      * provided.
      *
      * @public
-     * @param {Decimal|Number|String} exponent
+     * @param {Number} exponent
      * @returns {Decimal}
      */
     raise(exponent) {
@@ -8553,6 +8579,18 @@ module.exports = (() => {
       assert.argumentIsOptional(mode, 'mode', RoundingMode, 'RoundingMode');
       const modeToUse = mode || RoundingMode.NORMAL;
       return new Decimal(this._big.round(places, modeToUse.value));
+    }
+
+    /**
+     * Returns a new {@link Decimal} instance with a value that returns
+     * the remainder of dividing by the value supplied.
+     *
+     * @public
+     * @param {Decimal|Number|String} other
+     * @returns {Decimal}
+     */
+    mod(other) {
+      return new Decimal(this._big.mod(getBig(other)));
     }
 
     /**
@@ -8654,6 +8692,25 @@ module.exports = (() => {
      */
     getIsLessThanOrEqual(other) {
       return this._big.lte(getBig(other));
+    }
+
+    /**
+     * Returns true if the current instance between two other values. The
+     * test is inclusive, by default.
+     *
+     * @public
+     * @param {Decimal|Number|String} minimum - The minimum value.
+     * @param {Decimal|Number|String} minimum - The maximum value.
+     * @param {Boolean=} exclusive - If true, the value cannot equal the minimum or maximum value and still be considered "between" the other values.
+     * @returns {Boolean}
+     */
+    getIsBetween(minimum, maximum, exclusive) {
+      assert.argumentIsOptional(exclusive, 'exclusive', Boolean);
+      if (is.boolean(exclusive) && exclusive) {
+        return this.getIsGreaterThan(minimum) && this.getIsLessThan(maximum);
+      } else {
+        return this.getIsGreaterThanOrEqual(minimum) && this.getIsLessThanOrEqual(maximum);
+      }
     }
 
     /**
@@ -8764,10 +8821,11 @@ module.exports = (() => {
     }
 
     /**
-     * Parses the value emitted by {@link Decimal#toJSON}.
+     * An alias for the constructor. Creates a new instance. Suitable for
+     * use with the value emitted by {@link Decimal#toJSON}.
      *
      * @public
-     * @param {String} value
+     * @param {Decimal|Number|String} value
      * @returns {Decimal}
      */
     static parse(value) {
@@ -8926,7 +8984,7 @@ module.exports = (() => {
   }
 
   /**
-   * An enumeration of strategies for rouding a {@link Decimal} instance.
+   * An enumeration of strategies for rounding a {@link Decimal} instance.
    *
    * @public
    * @inner
@@ -9313,7 +9371,8 @@ module.exports = (() => {
     },
     /**
      * Splits array into groups and returns an object (where the properties are items from the
-     * original array). Unlike the groupBy, only one item can have a given key value.
+     * original array). Unlike the {@link array#groupBy} function, only one item can have a
+     * given key value.
      *
      * @static
      * @param {Array} a
@@ -9815,7 +9874,7 @@ module.exports = (() => {
      *
      * @static
      * @public
-     * @param {*} candidate {*}
+     * @param {*} candidate
      * @returns {boolean}
      */
     number(candidate) {
