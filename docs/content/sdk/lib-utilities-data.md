@@ -167,7 +167,7 @@
         * [.getFractionDigits([special])](#UnitCodegetFractionDigits) ⇒ <code>Number</code> \| <code>undefined</code>
         * [.getMinimumTick(tickIncrement)](#UnitCodegetMinimumTick) ⇒ <code>Number</code>
         * [.getMinimumTickValue(tickIncrement, pointValue)](#UnitCodegetMinimumTickValue) ⇒ <code>Number</code>
-        * [.roundToNearestTick(value, tickIncrement, [roundToZero])](#UnitCoderoundToNearestTick) ⇒ <code>Number</code>
+        * [.roundToNearestTick(value, minimumTick, [roundToZero])](#UnitCoderoundToNearestTick) ⇒ <code>Number</code>
     * _static_
         * [.parse(code)](#UnitCodeparse) ⇒ [<code>UnitCode</code>](#UnitCode) \| <code>null</code>
         * [.fromBaseCode(code)](#UnitCodefromBaseCode) ⇒ [<code>UnitCode</code>](#UnitCode) \| <code>null</code>
@@ -318,17 +318,17 @@
 
 * * *
 
-### unitCode.roundToNearestTick(value, tickIncrement, [roundToZero]) :id=unitcoderoundtonearesttick
+### unitCode.roundToNearestTick(value, minimumTick, [roundToZero]) :id=unitcoderoundtonearesttick
 > Rounds a value to the nearest valid tick.
 
 **Kind**: instance method of [<code>UnitCode</code>](#UnitCode)  
 **Returns**: <code>Number</code>  
 
-| Param | Type |
-| --- | --- |
-| value | <code>Number</code> \| <code>Decimal</code> | 
-| tickIncrement | <code>Number</code> | 
-| [roundToZero] | <code>Boolean</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| value | <code>Number</code> \| <code>Decimal</code> | <p>The price to round.</p> |
+| minimumTick | <code>Number</code> \| <code>Decimal</code> | <p>The minimum tick size (see [getMinimumTick](#unitcodegetminimumtick))</p> |
+| [roundToZero] | <code>Boolean</code> | <p>When true, the rounding will always go towards zero.</p> |
 
 
 * * *

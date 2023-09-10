@@ -1,5 +1,10 @@
 # Release Notes
 
+## 6.2.1
+**Bug Fixes**
+
+* Adjusted `UnitCode.roundToNearestTick` to accept minimum tick value (instead of point value).
+
 ## 6.2.0
 **New Features**
 
