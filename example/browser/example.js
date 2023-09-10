@@ -5312,7 +5312,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '6.2.0'
+    version: '6.2.1'
   };
 })();
 
@@ -5770,15 +5770,15 @@ module.exports = (() => {
     /**
      * Rounds a value to the nearest valid tick.
      *
-     * @param {Number|Decimal} value
-     * @param {Number} tickIncrement
-     * @param {Boolean=} roundToZero
+     * @param {Number|Decimal} value - The price to round.
+     * @param {Number|Decimal} minimumTick - The minimum tick size (see {@link UnitCode#getMinimumTick})
+     * @param {Boolean=} roundToZero - When true, the rounding will always go towards zero.
      * @returns {Number}
      */
-    roundToNearestTick(value, tickIncrement, roundToZero) {
+    roundToNearestTick(value, minimumTick, roundToZero) {
       assert.argumentIsValid(value, 'value', x => is.number(x) || x instanceof Decimal, 'must be a number primitive or a Decimal instance');
+      assert.argumentIsValid(minimumTick, 'minimumTick', x => is.number(x) || x instanceof Decimal, 'must be a number primitive or a Decimal instance');
       assert.argumentIsOptional(roundToZero, 'roundToZero', Boolean);
-      const minimumTick = this.getMinimumTick(tickIncrement);
       let valueToUse;
       if (value instanceof Decimal) {
         valueToUse = value;
