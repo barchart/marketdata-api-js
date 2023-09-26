@@ -221,9 +221,9 @@ gulp.task('release', gulp.series(
 	'build-browser-tests',
 	'commit-changes',
 	'push-changes',
-	'create-tag',
-	'deploy-example-page',
-	'deploy-documentation'
+	'create-tag'
+	// 'deploy-example-page',
+	// 'deploy-documentation'
 ));
 
 gulp.task('watch', () => {
