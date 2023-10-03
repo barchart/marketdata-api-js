@@ -1,5 +1,10 @@
 # Release Notes
 
+## 6.2.2
+**Other**
+
+* Update README.md to indicate this library will be deprecated in the near future.
+
 ## 6.2.1
 **Bug Fixes**
 

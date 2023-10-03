@@ -13,15 +13,21 @@
 * Your application requests market data for one or more symbols, then
 * Your application receives a market data stream for subscribed symbols.
 
+### Openfeed
+
+This library receives market data using a proprietary Barchart protocol called DDF. In the near future, this library will be marked as deprecated.
+
+**Going forward, Barchart uses a new open-source protocol called [Openfeed](https://docs.barchart.com/openfeed/#/).** SDK libraries for Openfeed can be found [here](https://www.barchart.com/solutions/services/stream).
+
 ### Documentation
 
 Complete documentation for this SDK can be accessed here:
 
-* [https://docs.barchart.com/marketdata-api-js/](https://docs.barchart.com/marketdata-api-js/)
+* [https://docs.barchart.com/marketdata-api-js/](https://barchart.github.io/marketdata-api-js/#/)
 
 ### Demos
 
-Working demos are available for web browser and Node.js environments. Please refer to the [documentation](https://docs.barchart.com/marketdata-api-js/#/content/quick_start?id=demos).
+Working demos are available for web browser and Node.js environments. Please refer to the [documentation](https://barchart.github.io/marketdata-api-js/#/content/quick_start?id=demos).
 
 ### Package Managers
 

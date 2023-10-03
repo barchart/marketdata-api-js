@@ -124,7 +124,7 @@ gulp.task('upload-example-page-to-S3', () => {
 
 	return gulp.src(['./example/browser/example.css', './example/browser/example.html', './example/browser/example.js'])
 		.pipe(rename((path) => {
-			path.dirname = 'marketdata-api-js';
+			path.dirname = 'legacy/marketdata-api-js';
 		}))
 		.pipe(publisher.publish(headers, options))
 		.pipe(publisher.cache())
@@ -221,8 +221,8 @@ gulp.task('release', gulp.series(
 	'build-browser-tests',
 	'commit-changes',
 	'push-changes',
-	'create-tag'
-	// 'deploy-example-page',
+	'create-tag',
+	'deploy-example-page'
 	// 'deploy-documentation'
 ));
 

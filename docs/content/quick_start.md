@@ -105,7 +105,7 @@ You can find the source code here:
 
 The application is also hosted at:
 
-https://examples.aws.barchart.com/marketdata-api-js/example.html
+https://examples.aws.barchart.com/legacy/marketdata-api-js/example.html
 
 ### Node.js
 
