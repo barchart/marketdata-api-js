@@ -15,9 +15,9 @@
 
 ### Openfeed
 
-This library receives market data using a proprietary Barchart protocol called DDF. In the near future, this library will be marked as deprecated.
+This library receives market data using a proprietary Barchart protocol called DDF. **Going forward, Barchart uses a new open-source protocol called [Openfeed](https://docs.barchart.com/openfeed/#/).**
 
-**Going forward, Barchart uses a new open-source protocol called [Openfeed](https://docs.barchart.com/openfeed/#/).** SDK libraries for Openfeed can be found [here](https://www.barchart.com/solutions/services/stream).
+Consequently, this library will be marked as deprecated in the near future. You can access new SDK libraries for Openfeed [here](https://www.barchart.com/solutions/services/stream).
 
 ### Documentation
 
