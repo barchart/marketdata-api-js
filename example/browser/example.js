@@ -4572,7 +4572,7 @@ module.exports = (() => {
         case 'SETTLEMENT':
           q.message = message;
           q.lastPrice = message.value;
-          q.settlement = message.value;
+          q.settlementPrice = message.value;
           if (message.element === 'D') {
             q.flag = 's';
           }
@@ -5312,7 +5312,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '6.2.2'
+    version: '6.2.3'
   };
 })();
 

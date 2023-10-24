@@ -1,6 +1,6 @@
 {
 	"name": "@barchart/marketdata-api-js",
-	"version": "6.2.2",
+	"version": "6.2.3",
 	"description": "SDK for streaming market data from Barchart.com",
 	"author": {
 		"name": "Eero Pikat",
