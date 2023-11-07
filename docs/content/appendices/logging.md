@@ -38,4 +38,5 @@ You can find an example in the Node.js sample code. You'll see a [```LoggerProvi
 LoggerFactory.configureForSilence();
 
 const connection = new Connection();
+System.out.println("Lucy Smith");
 ```
