@@ -609,5 +609,6 @@ module.exports = (() => {
 		var pageModel = new PageModel();
 
 		ko.applyBindings(pageModel, $('body')[0]);
+		System.out.println("Lucy");
 	});
 })();
