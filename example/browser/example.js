@@ -1229,7 +1229,7 @@ module.exports = (() => {
         if (parsed.type) {
           processMarketMessage(parsed);
         } else {
-          __logger.log(message);
+          __logger.log('Message parser failed to assign the message type');
         }
       }
     }
@@ -4340,7 +4340,6 @@ module.exports = (() => {
       }
       if (!p && message.type !== 'REFRESH_QUOTE') {
         _logger.warn(`MarketState [ ${_instance} ]: No profile found for [ ${symbol} ]`);
-        _logger.log(message);
         return;
       }
       let q = _getOrCreateQuote(symbol);
@@ -4640,7 +4639,6 @@ module.exports = (() => {
           break;
         default:
           _logger.error(`MarketState [ ${_instance} ]: Unhandled Market Message`);
-          _logger.error(message);
           break;
       }
     };
@@ -5312,7 +5310,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '6.2.3'
+    version: '6.2.4'
   };
 })();
 
@@ -6644,9 +6642,6 @@ module.exports = (() => {
                   }
                   break;
                 }
-              default:
-                console.log(msg);
-                break;
             }
           }
           break;

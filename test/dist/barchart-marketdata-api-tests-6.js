@@ -2171,9 +2171,6 @@ module.exports = (() => {
                   }
                   break;
                 }
-              default:
-                console.log(msg);
-                break;
             }
           }
           break;
@@ -13161,6 +13158,7 @@ describe('when valid prices are formatted', () => {
 });
 
 },{"./../../../../lib/utilities/format/price":21}],73:[function(require,module,exports){
+const Timezones = require('@barchart/common-js/lang/Timezones');
 const formatQuote = require('./../../../../lib/utilities/format/quote');
 describe('When a quote formatter is used (without specifying the clock)', () => {
   describe('and a quote is formatted (with no "flag" and a "lastPrice" value)', () => {
@@ -13230,16 +13228,27 @@ describe('When a quote formatter is used (without specifying the clock)', () => 
       });
     });
     describe('and the quote timeUtc is 2:00:01 AM UTC (and exchangeRef is present)', () => {
+      let expected = {};
       beforeEach(() => {
+        if (Timezones.parse('America/New_York').getIsDaylightSavingsTime()) {
+          expected.chicago = '22:00:01';
+        } else {
+          expected.chicago = '21:00:01';
+        }
+        if (Timezones.parse('America/Denver').getIsDaylightSavingsTime()) {
+          expected.denver = '20:00:01';
+        } else {
+          expected.denver = '19:00:01';
+        }
         const milliseconds = Date.UTC(2022, 6, 1, 2, 0, 1);
         quote.time = new Date(1, 2, 3, 4, 5, 6); //ignored
         quote.timeUtc = new Date(milliseconds);
       });
       it('the formatter outputs "22:00:01" (when asked to display time in the "America/New_York" timezone)', () => {
-        expect(formatQuote(quote, false, false, "America/New_York")).toEqual('22:00:01');
+        expect(formatQuote(quote, false, false, "America/New_York")).toEqual(expected.chicago);
       });
       it('the formatter outputs "20:00:01" (when asked to display time in the "America/Denver" timezone)', () => {
-        expect(formatQuote(quote, false, false, "America/Denver")).toEqual('20:00:01');
+        expect(formatQuote(quote, false, false, "America/Denver")).toEqual(expected.denver);
       });
     });
   });
@@ -13613,7 +13622,7 @@ describe('When a time formatter is created (and a "short" 12-hour clock is speci
   });
 });
 
-},{"./../../../../lib/utilities/format/quote":22}],74:[function(require,module,exports){
+},{"./../../../../lib/utilities/format/quote":22,"@barchart/common-js/lang/Timezones":36}],74:[function(require,module,exports){
 const cmdtyView = require('./../../../../../lib/utilities/format/specialized/cmdtyView');
 const Profile = require('./../../../../../lib/marketState/Profile');
 const ZBM2_1500C = new Profile('ZBM2|1500C', '30-Year T-Bond', 'CBOT', '5', 1000, 1);
