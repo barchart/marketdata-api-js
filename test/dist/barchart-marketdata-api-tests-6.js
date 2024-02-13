@@ -3016,6 +3016,20 @@ module.exports = (() => {
       return '[SymbolParser]';
     }
   }
+  const distantFuturesMonths = {
+    F: 'A',
+    G: 'B',
+    H: 'C',
+    J: 'D',
+    K: 'E',
+    M: 'I',
+    N: 'L',
+    Q: 'O',
+    U: 'P',
+    V: 'R',
+    X: 'S',
+    Z: 'T'
+  };
   const alternateFuturesMonths = {
     A: 'F',
     B: 'G',
@@ -3220,6 +3234,24 @@ module.exports = (() => {
     return definition;
   });
   const converters = [];
+  converters.push(symbol => {
+    let converted = null;
+    if (SymbolParser.getIsFuture(symbol) && SymbolParser.getIsConcrete(symbol)) {
+      const matches = symbol.match(types.futures.concrete);
+      if (matches !== null) {
+        const root = matches[1];
+        const month = matches[2];
+        const year = getFuturesYear(matches[3], month);
+        if (year > getCurrentYear() + 9) {
+          const distant = distantFuturesMonths[month];
+          if (distant) {
+            converted = `${root}${distant}${getYearDigits(year, 1)}`;
+          }
+        }
+      }
+    }
+    return converted;
+  });
   converters.push(symbol => {
     let converted = null;
     if (SymbolParser.getIsFuture(symbol) && SymbolParser.getIsConcrete(symbol)) {
@@ -16641,6 +16673,44 @@ describe('When checking the display format for the symbol', () => {
   });
 });
 describe('When getting a producer symbol', () => {
+  describe('When the year distant (futures expiration in 10 or more years)', () => {
+    it('CLG2034 should map to CLB4', () => {
+      expect(SymbolParser.getProducerSymbol('CLG2034')).toEqual('CLB4');
+    });
+    it('CLG34 should map to CLB4', () => {
+      expect(SymbolParser.getProducerSymbol('CLG34')).toEqual('CLB4');
+    });
+    it('CLH35 should map to CLC5', () => {
+      expect(SymbolParser.getProducerSymbol('CLH35')).toEqual('CLC5');
+    });
+    it('CLJ36 should map to CLD6', () => {
+      expect(SymbolParser.getProducerSymbol('CLJ36')).toEqual('CLD6');
+    });
+    it('CLK37 should map to CLE7', () => {
+      expect(SymbolParser.getProducerSymbol('CLK37')).toEqual('CLE7');
+    });
+    it('CLM38 should map to CLI8', () => {
+      expect(SymbolParser.getProducerSymbol('CLM38')).toEqual('CLI8');
+    });
+    it('CLN39 should map to CLL9', () => {
+      expect(SymbolParser.getProducerSymbol('CLN39')).toEqual('CLL9');
+    });
+    it('CLQ40 should map to CLO0', () => {
+      expect(SymbolParser.getProducerSymbol('CLQ40')).toEqual('CLO0');
+    });
+    it('CLU41 should map to CLP1', () => {
+      expect(SymbolParser.getProducerSymbol('CLU41')).toEqual('CLP1');
+    });
+    it('CLV42 should map to CLR2', () => {
+      expect(SymbolParser.getProducerSymbol('CLV42')).toEqual('CLR2');
+    });
+    it('CLX43 should map to CLS3', () => {
+      expect(SymbolParser.getProducerSymbol('CLX43')).toEqual('CLS3');
+    });
+    it('CLZ44 should map to CLT4', () => {
+      expect(SymbolParser.getProducerSymbol('CLZ44')).toEqual('CLT4');
+    });
+  });
   describe('When the year is unimportant', () => {
     it('TSLA should map to TSLA', () => {
       expect(SymbolParser.getProducerSymbol('TSLA')).toEqual('TSLA');

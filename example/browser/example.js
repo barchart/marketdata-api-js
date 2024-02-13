@@ -5310,7 +5310,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '6.2.4'
+    version: '6.2.5'
   };
 })();
 
@@ -7379,6 +7379,20 @@ module.exports = (() => {
       return '[SymbolParser]';
     }
   }
+  const distantFuturesMonths = {
+    F: 'A',
+    G: 'B',
+    H: 'C',
+    J: 'D',
+    K: 'E',
+    M: 'I',
+    N: 'L',
+    Q: 'O',
+    U: 'P',
+    V: 'R',
+    X: 'S',
+    Z: 'T'
+  };
   const alternateFuturesMonths = {
     A: 'F',
     B: 'G',
@@ -7583,6 +7597,24 @@ module.exports = (() => {
     return definition;
   });
   const converters = [];
+  converters.push(symbol => {
+    let converted = null;
+    if (SymbolParser.getIsFuture(symbol) && SymbolParser.getIsConcrete(symbol)) {
+      const matches = symbol.match(types.futures.concrete);
+      if (matches !== null) {
+        const root = matches[1];
+        const month = matches[2];
+        const year = getFuturesYear(matches[3], month);
+        if (year > getCurrentYear() + 9) {
+          const distant = distantFuturesMonths[month];
+          if (distant) {
+            converted = `${root}${distant}${getYearDigits(year, 1)}`;
+          }
+        }
+      }
+    }
+    return converted;
+  });
   converters.push(symbol => {
     let converted = null;
     if (SymbolParser.getIsFuture(symbol) && SymbolParser.getIsConcrete(symbol)) {
