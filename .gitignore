@@ -6,3 +6,5 @@ node_modules
 .awspublish-docs.barchart.com
 .DS_Store
 npm-debug.log
+
+example/node/example.jwt.js
