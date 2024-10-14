@@ -453,6 +453,7 @@ module.exports = (() => {
 
 },{"./../../../lib/connection/Connection":2,"./../../../lib/marketState/Profile":20,"./../../../lib/meta":22,"./../../../lib/utilities/data/AssetClass":27,"./../../../lib/utilities/data/timezones":29,"./../../../lib/utilities/format/decimal":31,"./../../../lib/utilities/format/price":34,"./../../../lib/utilities/format/quote":35,"./../../../lib/utilities/format/specialized/cmdtyView":36}],2:[function(require,module,exports){
 const array = require('@barchart/common-js/lang/array'),
+  assert = require('@barchart/common-js/lang/assert'),
   object = require('@barchart/common-js/lang/object');
 const ConnectionBase = require('./ConnectionBase'),
   parseMessage = require('./../utilities/parse/ddf/message');
@@ -468,6 +469,10 @@ module.exports = (() => {
   'use strict';
 
   const _API_VERSION = 4;
+  const mode = {
+    credentials: 'credentials',
+    token: 'token'
+  };
   const state = {
     connecting: 'CONNECTING',
     authenticating: 'LOGGING_IN',
@@ -499,6 +504,8 @@ module.exports = (() => {
   };
   const _RECONNECT_INTERVAL = 5000;
   const _WATCHDOG_INTERVAL = 10000;
+  const regex = {};
+  regex.hostname = /^(?:(wss|ws):\/\/)?(.+?)(?::(\d+))?$/i;
   function ConnectionInternal(marketState, instance) {
     const __logger = LoggerFactory.getLogger('@barchart/marketdata-api-js');
     const __instance = instance;
@@ -508,6 +515,7 @@ module.exports = (() => {
     let __xmlParser = null;
     let __connection = null;
     let __connectionState = state.disconnected;
+    let __connectionCount = 0;
     let __paused = false;
     let __reconnectAllowed = false;
     let __pollingFrequency = null;
@@ -532,9 +540,12 @@ module.exports = (() => {
       timestamp: []
     };
     const __loginInfo = {
+      mode: null,
       hostname: null,
       username: null,
-      password: null
+      password: null,
+      jwtProvider: null,
+      jwtPromise: null
     };
     let __decoder = null;
     let __diagnosticsController = null;
@@ -585,16 +596,17 @@ module.exports = (() => {
      *
      * @private
      * @param {String} hostname
-     * @param {String} username
-     * @param {String} password
+     * @param {String=} username
+     * @param {String=} password
      * @param {WebSocketAdapterFactory} webSocketAdapterFactory
      * @param {XmlParserFactory} xmlParserFactory
+     * @param {Callbacks.JwtProvider} jwtProvider
      */
-    function initializeConnection(hostname, username, password, webSocketAdapterFactory, xmlParserFactory) {
+    function initializeConnection(hostname, username, password, webSocketAdapterFactory, xmlParserFactory, jwtProvider) {
       __connectionFactory = webSocketAdapterFactory;
       __xmlParserFactory = xmlParserFactory;
       __reconnectAllowed = true;
-      connect(hostname, username, password);
+      connect(hostname, username, password, jwtProvider);
     }
 
     /**
@@ -608,9 +620,12 @@ module.exports = (() => {
         event: 'disconnecting'
       });
       __reconnectAllowed = false;
+      __loginInfo.mode = null;
+      __loginInfo.hostname = null;
       __loginInfo.username = null;
       __loginInfo.password = null;
-      __loginInfo.hostname = null;
+      __loginInfo.jwtProvider = null;
+      __loginInfo.jwtPromise = null;
       __knownConsumerSymbols = {};
       __pendingProfileSymbols = {};
       __listeners.marketDepth = {};
@@ -623,21 +638,51 @@ module.exports = (() => {
     }
 
     /**
+     * Attempts to read a JWT from an external provider.
+     *
+     * @private
+     * @param {Callbacks.JwtProvider} jwtProvider
+     * @returns {Promise<string|null>}
+     */
+    function getJwt(jwtProvider) {
+      const connectionCount = __connectionCount;
+      return Promise.resolve().then(() => {
+        __logger.log(`Connection [ ${__instance} ]: Requesting JWT for connection attempt [ ${connectionCount} ].`);
+        return jwtProvider();
+      }).then(jwt => {
+        __logger.log(`Connection [ ${__instance} ]: Request for JWT was successful for connection attempt [ ${connectionCount} ].`);
+        if (__connectionCount !== connectionCount) {
+          return null;
+        }
+        if (typeof jwt !== 'string') {
+          __logger.warn(`Connection [ ${__instance} ]: Unable to extract JWT.`);
+          return null;
+        }
+        return jwt;
+      }).catch(e => {
+        __logger.warn(`Connection [ ${__instance} ]: Request for JWT failed for connection attempt [ ${connectionCount} ].`);
+        return null;
+      });
+    }
+
+    /**
      * Attempts to establish a connection to JERQ.
      *
      * @private
      * @param {String} hostname
-     * @param {String} username
-     * @param {String} password
+     * @param {String=} username
+     * @param {String=} password
+     * @param {Callbacks.JwtProvider=} jwtProvider
      */
-    function connect(hostname, username, password) {
-      if (!hostname) {
-        throw new Error('Unable to connect, the "hostname" argument is required.');
-      }
-      if (!username) {
+    function connect(hostname, username, password, jwtProvider) {
+      assert.argumentIsRequired(hostname, 'hostname', String);
+      assert.argumentIsOptional(username, 'username', String);
+      assert.argumentIsOptional(password, 'password', String);
+      assert.argumentIsOptional(jwtProvider, 'jwtProvider', Function);
+      if (!username && !jwtProvider) {
         throw new Error('Unable to connect, the "username" argument is required.');
       }
-      if (!password) {
+      if (!password && !jwtProvider) {
         throw new Error('Unable to connect, the "password" argument is required.');
       }
       if (__connection !== null) {
@@ -645,22 +690,51 @@ module.exports = (() => {
         return;
       }
       ensureExchangeMetadata();
-      __logger.log(`Connection [ ${__instance} ]: Initializing. Version [ ${version} ]. Using [ ${username}@${hostname} ].`);
-      __xmlParser = __xmlParserFactory.build();
+      __connectionCount = __connectionCount + 1;
+      __logger.log(`Connection [ ${__instance} ]: Starting connection attempt [ ${__connectionCount} ] using [ ${jwtProvider ? 'JWT' : 'credentials-based'} ] authentication.`);
       let protocol;
+      let host;
       let port;
       if (hostname === 'localhost') {
         protocol = 'ws';
+        host = 'localhost';
         port = 8080;
       } else {
-        protocol = 'wss';
-        port = 443;
+        const match = hostname.match(regex.hostname);
+        if (match !== null && match[1]) {
+          protocol = match[1];
+        } else {
+          protocol = 'wss';
+        }
+        if (match !== null && match[2]) {
+          host = match[2];
+        } else {
+          host = hostname;
+        }
+        if (match !== null && match[3]) {
+          port = parseInt(match[3]);
+        } else {
+          port = protocol === 'ws' ? 80 : 443;
+        }
       }
-      __loginInfo.username = username;
-      __loginInfo.password = password;
       __loginInfo.hostname = hostname;
+      __loginInfo.username = null;
+      __loginInfo.password = null;
+      __loginInfo.jwtProvider = null;
+      __loginInfo.jwtPromise = null;
+      if (jwtProvider) {
+        __loginInfo.mode = mode.token;
+        __loginInfo.jwtProvider = jwtProvider;
+        __loginInfo.jwtPromise = getJwt(jwtProvider);
+      } else {
+        __loginInfo.mode = mode.credentials;
+        __loginInfo.username = username;
+        __loginInfo.password = password;
+      }
+      __xmlParser = __xmlParserFactory.build();
       __connectionState = state.disconnected;
-      __connection = __connectionFactory.build(`${protocol}://${__loginInfo.hostname}:${port}/jerq`);
+      __logger.log(`Connection [ ${__instance} ]: Opening connection to [ ${protocol}://${host}:${port} ].`);
+      __connection = __connectionFactory.build(`${protocol}://${host}:${port}/jerq`);
       __connection.binaryType = 'arraybuffer';
       __decoder = __connection.getDecoder();
       __connection.onopen = () => {
@@ -708,7 +782,7 @@ module.exports = (() => {
         }
         if (__reconnectAllowed) {
           __logger.log(`Connection [ ${__instance} ]: Scheduling reconnect attempt.`);
-          const reconnectAction = () => connect(__loginInfo.hostname, __loginInfo.username, __loginInfo.password);
+          const reconnectAction = () => connect(__loginInfo.hostname, __loginInfo.username, __loginInfo.password, __loginInfo.jwtProvider);
           const reconnectDelay = _RECONNECT_INTERVAL + Math.floor(Math.random() * _WATCHDOG_INTERVAL);
           setTimeout(reconnectAction, reconnectDelay);
         }
@@ -1145,8 +1219,31 @@ module.exports = (() => {
         }
         if (lines.some(line => line === '+++')) {
           __connectionState = state.authenticating;
-          __logger.log(`Connection [ ${__instance} ]: Sending credentials.`);
-          __connection.send(`LOGIN ${__loginInfo.username}:${__loginInfo.password} VERSION=${_API_VERSION}\r\n`);
+          let connectionCount = __connectionCount;
+          if (__loginInfo.mode === mode.credentials) {
+            __connection.send(`LOGIN ${__loginInfo.username}:${__loginInfo.password} VERSION=${_API_VERSION}\r\n`);
+            return;
+          }
+          if (__loginInfo.mode === mode.token) {
+            const jwtPromise = __loginInfo.jwtPromise || Promise.resolve(null);
+            jwtPromise.then(jwt => {
+              if (__connectionCount !== connectionCount) {
+                return;
+              }
+              if (__connectionState !== state.authenticating) {
+                return;
+              }
+              if (jwt === null) {
+                broadcastEvent('events', {
+                  event: 'jwt acquisition failed'
+                });
+                disconnect();
+                return;
+              }
+              __connection.send(`TOKEN ${jwt} VERSION=${_API_VERSION}\r\n`);
+            });
+            return;
+          }
         }
       } else if (__connectionState === state.authenticating) {
         const lines = message.split('\n');
@@ -2028,7 +2125,7 @@ module.exports = (() => {
       this._internal = ConnectionInternal(this.getMarketState(), this._getInstance());
     }
     _connect(webSocketAdapterFactory, xmlParserFactory) {
-      this._internal.connect(this.getHostname(), this.getUsername(), this.getPassword(), webSocketAdapterFactory, xmlParserFactory);
+      this._internal.connect(this.getHostname(), this.getUsername(), this.getPassword(), webSocketAdapterFactory, xmlParserFactory, this.getJwtProvider());
     }
     _disconnect() {
       this._internal.disconnect();
@@ -2070,7 +2167,7 @@ module.exports = (() => {
   return Connection;
 })();
 
-},{"./../logging/LoggerFactory":15,"./../meta":22,"./../utilities/parse/ddf/message":38,"./../utilities/parsers/SymbolParser":41,"./ConnectionBase":3,"./diagnostics/DiagnosticsControllerBase":7,"./snapshots/exchanges/retrieveExchanges":8,"./snapshots/profiles/retrieveExtensions":9,"./snapshots/quotes/retrieveExtensions":10,"./snapshots/quotes/retrieveSnapshots":11,"@barchart/common-js/lang/array":51,"@barchart/common-js/lang/object":54}],3:[function(require,module,exports){
+},{"./../logging/LoggerFactory":15,"./../meta":22,"./../utilities/parse/ddf/message":38,"./../utilities/parsers/SymbolParser":41,"./ConnectionBase":3,"./diagnostics/DiagnosticsControllerBase":7,"./snapshots/exchanges/retrieveExchanges":8,"./snapshots/profiles/retrieveExtensions":9,"./snapshots/quotes/retrieveExtensions":10,"./snapshots/quotes/retrieveSnapshots":11,"@barchart/common-js/lang/array":51,"@barchart/common-js/lang/assert":52,"@barchart/common-js/lang/object":54}],3:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 const Environment = require('./../environment/Environment'),
   EnvironmentForBrowsers = require('./../environment/EnvironmentForBrowsers');
@@ -2094,6 +2191,7 @@ module.exports = (() => {
       this._hostname = null;
       this._username = null;
       this._password = null;
+      this._jwtProvider = null;
       this._environment = environment || new EnvironmentForBrowsers();
       this._marketState = new MarketState(symbol => this._handleProfileRequest(symbol));
       this._pollingFrequency = null;
@@ -2110,15 +2208,17 @@ module.exports = (() => {
      *
      * @public
      * @param {string} hostname - Barchart hostname (contact solutions@barchart.com)
-     * @param {string} username - Your username (contact solutions@barchart.com)
-     * @param {string} password - Your password (contact solutions@barchart.com)
+     * @param {string=} username - Your username (contact solutions@barchart.com)
+     * @param {string=} password - Your password (contact solutions@barchart.com)
      * @param {WebSocketAdapterFactory=} webSocketAdapterFactory - Strategy for creating a {@link WebSocketAdapterFactory} instances (overrides {@link Environment} settings).
      * @param {XmlParserFactory=} xmlParserFactory - Strategy for creating a {@link WebSocketAdapterFactory} instances (overrides {@link Environment} settings).
+     * @param {Callbacks.JwtProvider=} jwtProvider - A function which returns a JWT (or a promise for a JWT) that is used as an alternative for actual credentials.
      */
-    connect(hostname, username, password, webSocketAdapterFactory, xmlParserFactory) {
+    connect(hostname, username, password, webSocketAdapterFactory, xmlParserFactory, jwtProvider) {
       this._hostname = hostname;
-      this._username = username;
-      this._password = password;
+      this._username = username || null;
+      this._password = password || null;
+      this._jwtProvider = jwtProvider || null;
       this._connect(webSocketAdapterFactory || this._environment.getWebSocketAdapterFactory(), xmlParserFactory || this._environment.getXmlParserFactory());
     }
 
@@ -2142,6 +2242,7 @@ module.exports = (() => {
       this._hostname = null;
       this._username = null;
       this._password = null;
+      this._jwtProvider = null;
       this._disconnect();
     }
 
@@ -2426,6 +2527,16 @@ module.exports = (() => {
      */
     getUsername() {
       return this._username;
+    }
+
+    /**
+     * The username used to authenticate to Barchart.
+     *
+     * @public
+     * @returns {null|Callbacks.JwtProvider}
+     */
+    getJwtProvider() {
+      return this._jwtProvider;
     }
 
     /**
@@ -5309,7 +5420,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '6.2.6'
+    version: '6.3.0'
   };
 })();
 
