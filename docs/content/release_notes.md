@@ -1,9 +1,38 @@
 # Release Notes
 
+## 6.3.0
+**New Features**
+
+* Added support for authentication using [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token). This feature is intentionally undocumented.
+
+## 6.2.6
+**Technical Enhancements**
+
+* Updated the [`uuid`](https://github.com/uuidjs/uuid) library to the next major version.
+
+## 6.2.5
+**Bug Fixes**
+
+* Updated `SymbolParser.getProducerSymbol` function, addressing failure to properly translate symbols for futures which expire in 10 or more years (e.g. `CLG34` now correctly translates to `GLB4`).
+
+**Technical Enhancements**
+
+* Updated AWS CodeBuild to use Node.js version 20.
+
+## 6.2.4
+**Other**
+
+* Removed logging of message objects which cannot be processed.
+
+## 6.2.3
+**Bug Fixes**
+
+* Corrected failure of `2/0/D` and `2/0/d` messages to assign `Quote.settlementPrice` property value.
+
 ## 6.2.2
 **Other**
 
-* Update README.md to indicate this library will be deprecated in the near future.
+* Updated README.md file indicating this library will be deprecated in the near future.
 
 ## 6.2.1
 **Bug Fixes**

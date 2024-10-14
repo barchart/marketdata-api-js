@@ -24,7 +24,7 @@
 
 * [Connection](#Connection) ⇐ <code>ConnectionBase</code>
     * _instance_
-        * [.connect(hostname, username, password, [webSocketAdapterFactory], [xmlParserFactory])](#Connectionconnect)
+        * [.connect(hostname, [username], [password], [webSocketAdapterFactory], [xmlParserFactory], [jwtProvider])](#Connectionconnect)
         * [.disconnect()](#Connectiondisconnect)
         * [.on(subscriptionType, callback, [symbol])](#Connectionon)
         * [.off(subscriptionType, callback, [symbol])](#Connectionoff)
@@ -41,13 +41,14 @@
         * [.getServer()](#ConnectiongetServer) ⇒ <code>null</code> \| <code>string</code>
         * [.getPassword()](#ConnectiongetPassword) ⇒ <code>null</code> \| <code>string</code>
         * [.getUsername()](#ConnectiongetUsername) ⇒ <code>null</code> \| <code>string</code>
+        * [.getJwtProvider()](#ConnectiongetJwtProvider) ⇒ <code>null</code> \| [<code>JwtProvider</code>](#CallbacksJwtProvider)
     * _constructor_
         * [new Connection([environment])](#new_Connection_new)
 
 
 * * *
 
-### connection.connect(hostname, username, password, [webSocketAdapterFactory], [xmlParserFactory]) :id=connectionconnect
+### connection.connect(hostname, [username], [password], [webSocketAdapterFactory], [xmlParserFactory], [jwtProvider]) :id=connectionconnect
 > Establishes WebSocket connection to Barchart's servers and authenticates. Success
 > or failure is reported asynchronously by the <strong>Events</strong> subscription (see
 > [SubscriptionType](#enumssubscriptiontype)). Connection attempts will continue until
@@ -60,10 +61,11 @@
 | Param | Type | Description |
 | --- | --- | --- |
 | hostname | <code>string</code> | <p>Barchart hostname (contact solutions@barchart.com)</p> |
-| username | <code>string</code> | <p>Your username (contact solutions@barchart.com)</p> |
-| password | <code>string</code> | <p>Your password (contact solutions@barchart.com)</p> |
+| [username] | <code>string</code> | <p>Your username (contact solutions@barchart.com)</p> |
+| [password] | <code>string</code> | <p>Your password (contact solutions@barchart.com)</p> |
 | [webSocketAdapterFactory] | [<code>WebSocketAdapterFactory</code>](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) | <p>Strategy for creating a [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) instances (overrides [Environment](/content/sdk/lib-environment?id=environment) settings).</p> |
 | [xmlParserFactory] | [<code>XmlParserFactory</code>](/content/sdk/lib-utilities-xml?id=xmlparserfactory) | <p>Strategy for creating a [WebSocketAdapterFactory](/content/sdk/lib-connection-adapter?id=websocketadapterfactory) instances (overrides [Environment](/content/sdk/lib-environment?id=environment) settings).</p> |
+| [jwtProvider] | [<code>JwtProvider</code>](#CallbacksJwtProvider) | <p>A function which returns a JWT (or a promise for a JWT) that is used as an alternative for actual credentials.</p> |
 
 
 * * *
@@ -268,6 +270,16 @@
 
 * * *
 
+### connection.getJwtProvider() :id=connectiongetjwtprovider
+> The username used to authenticate to Barchart.
+
+**Kind**: instance method of [<code>Connection</code>](#Connection)  
+**Overrides**: [<code>getJwtProvider</code>](#ConnectionBasegetJwtProvider)  
+**Returns**: <code>null</code> \| [<code>JwtProvider</code>](#CallbacksJwtProvider)  
+**Access**: public  
+
+* * *
+
 ### new Connection([environment]) :id=new_connection_new
 **Kind**: constructor of [<code>Connection</code>](#Connection)  
 
@@ -341,12 +353,24 @@
 
 * [Callbacks](#Callbacks) : <code>object</code>
     * _static_
+        * [.JwtProvider](#CallbacksJwtProvider) ⇒ <code>string</code> \| <code>Promise.&lt;string&gt;</code>
         * [.EventsCallback](#CallbacksEventsCallback) : <code>function</code>
         * [.TimestampCallback](#CallbacksTimestampCallback) : <code>function</code>
         * [.MarketUpdateCallback](#CallbacksMarketUpdateCallback) : <code>function</code>
         * [.MarketDepthCallback](#CallbacksMarketDepthCallback) : <code>function</code>
         * [.CumulativeVolumeCallback](#CallbacksCumulativeVolumeCallback) : <code>function</code>
 
+
+* * *
+
+### Callbacks.JwtProvider :id=callbacksjwtprovider
+> The signature of a function which returns a JWT. The JWT is
+> then used as an alternative for credentials (i.e. a username
+> and password). The function can be synchronous or asynchronous.
+
+**Kind**: static typedef of [<code>Callbacks</code>](#Callbacks)  
+**Returns**: <code>string</code> \| <code>Promise.&lt;string&gt;</code>  
+**Access**: public  
 
 * * *
 
