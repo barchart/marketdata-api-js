@@ -1,5 +1,10 @@
 # Release Notes
 
+## 6.3.1
+**Bug Fixes**
+
+* Corrected failure to publish login failure event when an attempting to authenticate with an invalid JWT.
+
 ## 6.3.0
 **New Features**
 
