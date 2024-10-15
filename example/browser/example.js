@@ -756,7 +756,7 @@ module.exports = (() => {
         // before the first invocation of pumpInboundProcessing could process the login
         // failure.
 
-        const loginFailed = __inboundMessages.length > 0 && __inboundMessages[0].indexOf('-') === 0;
+        const loginFailed = __inboundMessages.length > 0 && __inboundMessages.some(m => m.indexOf('-') === 0);
         let messages = __inboundMessages;
         __inboundMessages = [];
         __marketMessages = [];
@@ -5420,7 +5420,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '6.3.0'
+    version: '6.3.1'
   };
 })();
 
