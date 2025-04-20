@@ -12,6 +12,8 @@ const LoggerFactory = require('./../../lib/logging/LoggerFactory');
 (() => {
 	'use strict';
 
+	let x= 0;
+
 	LoggerFactory.configureForConsole();
 
 	const __logger = LoggerFactory.getLogger('@barchart/example');
