@@ -37,4 +37,5 @@ This library has been published to NPM as [@barchart/marketdata-api-js](https://
 
 ### Build
 
+Mohit Vijay
 Source code is written in [ES2018](https://en.wikipedia.org/wiki/ECMAScript#9th_Edition_%E2%80%93_ECMAScript_2018). Consequently, transpilation is recommended for use in web browsers.
