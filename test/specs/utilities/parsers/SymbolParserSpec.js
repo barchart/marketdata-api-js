@@ -2797,13 +2797,13 @@ describe('When checking the display format for the symbol', () => {
 });
 
 describe('When getting a producer symbol', () => {
-	describe('When the year distant (futures expiration in 10 or more years)', () => {
-		it('CLG2034 should map to CLB4', () => {
-			expect(SymbolParser.getProducerSymbol('CLG2034')).toEqual('CLB4');
+	describe('When the year is distant (futures expiration in 10 or more years)', () => {
+		it('CLG2036 should map to CLB6', () => {
+			expect(SymbolParser.getProducerSymbol('CLG2036')).toEqual('CLB6');
 		});
 
-		it('CLG34 should map to CLB4', () => {
-			expect(SymbolParser.getProducerSymbol('CLG34')).toEqual('CLB4');
+		it('CLG36 should map to CLB6', () => {
+			expect(SymbolParser.getProducerSymbol('CLG36')).toEqual('CLB6');
 		});
 
 		it('CLH35 should map to CLC5', () => {
