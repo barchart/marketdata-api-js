@@ -464,7 +464,6 @@ const retrieveExchanges = require('./snapshots/exchanges/retrieveExchanges'),
   SymbolParser = require('./../utilities/parsers/SymbolParser');
 const DiagnosticsControllerBase = require('./diagnostics/DiagnosticsControllerBase');
 const LoggerFactory = require('./../logging/LoggerFactory');
-const version = require('./../meta').version;
 module.exports = (() => {
   'use strict';
 
@@ -518,6 +517,7 @@ module.exports = (() => {
     let __connectionCount = 0;
     let __paused = false;
     let __reconnectAllowed = false;
+    let __reconnectToken = null;
     let __pollingFrequency = null;
     let __extendedProfile = false;
     let __extendedQuote = false;
@@ -620,6 +620,10 @@ module.exports = (() => {
         event: 'disconnecting'
       });
       __reconnectAllowed = false;
+      if (__reconnectToken !== null) {
+        clearTimeout(__reconnectToken);
+        __reconnectToken = null;
+      }
       __loginInfo.mode = null;
       __loginInfo.hostname = null;
       __loginInfo.username = null;
@@ -782,9 +786,12 @@ module.exports = (() => {
         }
         if (__reconnectAllowed) {
           __logger.log(`Connection [ ${__instance} ]: Scheduling reconnect attempt.`);
-          const reconnectAction = () => connect(__loginInfo.hostname, __loginInfo.username, __loginInfo.password, __loginInfo.jwtProvider);
+          const reconnectAction = () => {
+            connect(__loginInfo.hostname, __loginInfo.username, __loginInfo.password, __loginInfo.jwtProvider);
+            __reconnectToken = null;
+          };
           const reconnectDelay = _RECONNECT_INTERVAL + Math.floor(Math.random() * _WATCHDOG_INTERVAL);
-          setTimeout(reconnectAction, reconnectDelay);
+          __reconnectToken = setTimeout(reconnectAction, reconnectDelay);
         }
       };
       __connection.onmessage = event => {
@@ -2167,7 +2174,7 @@ module.exports = (() => {
   return Connection;
 })();
 
-},{"./../logging/LoggerFactory":15,"./../meta":22,"./../utilities/parse/ddf/message":38,"./../utilities/parsers/SymbolParser":41,"./ConnectionBase":3,"./diagnostics/DiagnosticsControllerBase":7,"./snapshots/exchanges/retrieveExchanges":8,"./snapshots/profiles/retrieveExtensions":9,"./snapshots/quotes/retrieveExtensions":10,"./snapshots/quotes/retrieveSnapshots":11,"@barchart/common-js/lang/array":51,"@barchart/common-js/lang/assert":52,"@barchart/common-js/lang/object":54}],3:[function(require,module,exports){
+},{"./../logging/LoggerFactory":15,"./../utilities/parse/ddf/message":38,"./../utilities/parsers/SymbolParser":41,"./ConnectionBase":3,"./diagnostics/DiagnosticsControllerBase":7,"./snapshots/exchanges/retrieveExchanges":8,"./snapshots/profiles/retrieveExtensions":9,"./snapshots/quotes/retrieveExtensions":10,"./snapshots/quotes/retrieveSnapshots":11,"@barchart/common-js/lang/array":51,"@barchart/common-js/lang/assert":52,"@barchart/common-js/lang/object":54}],3:[function(require,module,exports){
 const is = require('@barchart/common-js/lang/is');
 const Environment = require('./../environment/Environment'),
   EnvironmentForBrowsers = require('./../environment/EnvironmentForBrowsers');
@@ -5420,7 +5427,7 @@ module.exports = (() => {
   'use strict';
 
   return {
-    version: '6.3.1'
+    version: '6.3.2'
   };
 })();
 
