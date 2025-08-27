@@ -845,9 +845,9 @@ declare module "@barchart/marketdata-api-js" {
      * @property {String} description
      * @property {String} timezone
      */
-    type ExchangeMetadata = {
-        id: string;
-        description: string;
-        timezone: string;
-    };
+    // type ExchangeMetadata = {
+    //     id: string;
+    //     description: string;
+    //     timezone: string;
+    // };
 }
