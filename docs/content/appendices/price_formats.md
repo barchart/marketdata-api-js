@@ -40,7 +40,7 @@ Regardless, let's assume that the last price for an instrument was _fifteen doll
 * `15.500000000000004`
 * `15.499999999999999`
 
-Regardless of the floating point value, we want to display anny of these values with two decimal places, as the literal string ```"15.50"```.
+Regardless of the floating point value, we want to display any of these values with two decimal places, as the literal string ```"15.50"```.
 
 ### Decimal Formatting Rules
 
