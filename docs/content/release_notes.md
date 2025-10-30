@@ -1,9 +1,18 @@
 # Release Notes
 
+## 6.3.2
+**Bug Fixes**
+
+* Corrected issue that caused reconnect logic to inappropriately trigger (after explicit logout).
+
+**Other**
+
+* Fixed unit test cases were no longer valid (in the year 2025).
+
 ## 6.3.1
 **Bug Fixes**
 
-* Corrected failure to publish login failure event when an attempting to authenticate with an invalid JWT.
+* Corrected failure to publish a login failure event (when an attempting to authenticate with an invalid JWT).
 
 ## 6.3.0
 **New Features**
